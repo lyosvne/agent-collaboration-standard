@@ -2,8 +2,9 @@
 
 ## Global Standard
 
-- Standard: `agent-collaboration-standard@v0.1`
+- Standard: `https://github.com/lyosvne/agent-collaboration-standard`
 - Read global standard first, then this project guide.
+- Before work, report collaboration state using `protocols/collaboration-state-protocol.md`.
 
 ## Project Source Of Truth
 

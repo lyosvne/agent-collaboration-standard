@@ -26,10 +26,11 @@
 
 ## Mira
 
-- Role: cloud reading and collaboration agent.
+- Role: senior architect, text-editing specialist, and review-oriented collaboration agent.
 - Default access: read-only.
 - Write access: only through explicit branch or PR task.
 - Must read: global standard, project `AGENTS.md`, current source-of-truth.
+- Best use: architecture review, document restructuring, rules/text quality review, consistency audit, and design critique.
 - Must not: push to `master`, reset, force push, edit secrets, or touch runtime state.
 
 ## Future Cloud Agents

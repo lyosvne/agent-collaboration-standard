@@ -24,6 +24,8 @@ Before substantive work, state:
 - Verification:
 - Next action:
 
+If joining an existing project, first report the collaboration state defined in `protocols/collaboration-state-protocol.md`.
+
 ## Finish Contract
 
 Before claiming completion, state:
@@ -44,3 +46,7 @@ For code, configuration, runtime, data, or rule changes, include:
 ## Rule Update Policy
 
 Do not upgrade global rules for one-off project friction. Promote a rule globally only when the issue is cross-tool, cross-project, repeatable, and can be expressed simply with a low daily burden.
+
+## Project Rule Boundary
+
+Project files should not copy this standard wholesale. They should point to this repository, declare project participants, list project-specific source-of-truth documents, and define project exceptions.
