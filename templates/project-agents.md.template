@@ -1,0 +1,33 @@
+# Project Agents
+
+## Active Tools
+
+### Trae IDE
+
+- Role:
+- Write access:
+- Branch policy:
+
+### Claude Code
+
+- Role:
+- Write access:
+- Branch policy:
+
+### Trae SOLO PC
+
+- Role:
+- Write access:
+- Branch policy:
+
+### Trae SOLO Sandbox
+
+- Role:
+- Write access:
+- Branch policy:
+
+### Mira
+
+- Role: cloud reading and collaboration agent
+- Write access: read-only by default; explicit branch / PR task only
+- Branch policy: no direct `master` push

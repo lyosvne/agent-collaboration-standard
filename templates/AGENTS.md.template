@@ -1,0 +1,29 @@
+# Project Agent Guide
+
+## Global Standard
+
+- Standard: `agent-collaboration-standard@v0.1`
+- Read global standard first, then this project guide.
+
+## Project Source Of Truth
+
+- Repository:
+- Default branch:
+- Current source-of-truth document:
+- Docs entry:
+
+## Active Tools
+
+See `.agents/project-agents.md`.
+
+## Project-Specific Rules
+
+- Project positioning:
+- Current stage:
+- Sensitive directories:
+- Verification commands:
+- Runtime authority:
+
+## Task Records
+
+Use `.agents/tasks/` for concrete work records. Do not use this file as a task log.
