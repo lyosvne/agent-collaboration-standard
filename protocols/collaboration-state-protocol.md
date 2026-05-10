@@ -46,8 +46,8 @@ Stop before editing, staging, committing, or pushing if:
 
 Agents should use GitHub files, task records, commits, and PRs as the shared context layer. Human chat may initiate or approve work, but should not be the only carrier of current state.
 
-For `::ALL`, load shared state for all tools before acting.
+For `:ALL`, load shared state for all tools before acting.
 
-For `::ONE`, select one owner and make other tools read-only unless the task is later split into parallel records.
+For `:ONE`, continue one owned task or select one owner and make other tools read-only unless the task is later split into parallel records.
 
-For `::CHECK`, compare the tool's local rules, skills, memory, and project rules against GitHub truth. Report conflicts only; do not edit.
+For `:CHECK`, compare the tool's local rules, skills, memory, and project rules against GitHub truth. Report conflicts and append allowed coordination events only; do not auto-fix.

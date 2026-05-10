@@ -23,13 +23,13 @@ Global rules should be stable and infrequently changed. Project rules should sta
 
 ## Shared Commands
 
-- `::ALL`: load global, project, task, coordination, and Git state before acting.
-- `::ONE`: load the same state, choose one primary owner, and keep other tools read-only.
-- `::CHECK`: read-only self-check for conflicts between local rules, skills, memory, project rules, and GitHub truth.
+- `:ALL`: load global, project, task, coordination, and Git state; report task board and recommended next action.
+- `:ONE`: continue one owned task or choose one primary owner and keep other tools read-only.
+- `:CHECK`: self-check for conflicts between local rules, skills, memory, project rules, and GitHub truth.
 
-Use `::` commands as the canonical shortcuts because many tools reserve `/` for native commands or skills. Legacy `/ALL` and `/one` may still be understood as aliases.
+Use single-colon commands as the canonical shortcuts because many tools reserve `/` for native commands or skills. Legacy `::ALL`, `::ONE`, `::CHECK`, `/ALL`, and `/one` may still be understood as aliases.
 
-`::ONE` may start from fuzzy input, but the receiving tool must normalize it into goal, owner, scope, risk, and next action before editing.
+`:ONE` may start from fuzzy input, but the receiving tool must normalize it into goal, owner, scope, risk, and next action before editing.
 
 Every meaningful finish must include a copyable next command and recommended next owner.
 
