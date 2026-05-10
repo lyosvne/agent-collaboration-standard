@@ -19,3 +19,17 @@ Recommended full handoff fields:
 - Rollback:
 - Files touched:
 - Files intentionally avoided:
+
+## Finish State
+
+When claiming task completion, report:
+
+- Changed:
+- Verified:
+- Not verified:
+- Risk:
+- Commit / PR:
+- Handoff:
+- Rollback target:
+- Rollback method:
+- Rollback verification:

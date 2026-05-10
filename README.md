@@ -23,5 +23,5 @@ Global rules should be stable and infrequently changed. Project rules should sta
 ## One-Line Start
 
 ```text
-Read https://github.com/lyosvne/agent-collaboration-standard first, then read this project's AGENTS.md and current source-of-truth; report the collaboration state, your role, the current HEAD, active risks, and the next safe action before making any change.
+Read https://github.com/lyosvne/agent-collaboration-standard first, then read this project's AGENTS.md, .agents/project-agents.md, and current source-of-truth; report the collaboration state, your role, the current HEAD, active risks, and the next safe action before making any change.
 ```

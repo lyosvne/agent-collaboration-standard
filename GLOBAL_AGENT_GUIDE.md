@@ -43,6 +43,8 @@ For code, configuration, runtime, data, or rule changes, include:
 - Rollback method:
 - Rollback verification:
 
+Use `templates/finish-state.md.template` when a project does not provide its own finish template.
+
 ## Rule Update Policy
 
 Do not upgrade global rules for one-off project friction. Promote a rule globally only when the issue is cross-tool, cross-project, repeatable, and can be expressed simply with a low daily burden.
