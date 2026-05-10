@@ -13,6 +13,32 @@ Use these as human-facing commands in any supported tool:
 
 These commands are conventions. If a tool cannot register slash commands, paste the command text as a normal instruction.
 
+## Input Precision
+
+`/one` may be used with either precise or fuzzy human input.
+
+Precise input example:
+
+```text
+/one owner=Claude task=Implement Phase 1 truthful resource grounding; scope=backend resource status answer path; no frontend changes.
+```
+
+Fuzzy input example:
+
+```text
+/one 看下资源状态回答这块下一步谁做最合适
+```
+
+If input is fuzzy, the receiving tool must normalize it before execution:
+
+- Restate the inferred goal.
+- Recommend one owner.
+- Explain why this owner is the safest next executor.
+- State non-goals and intended files if implementation is likely.
+- Ask before editing when scope, owner, or risk is unclear.
+
+Fuzzy `/one` can select an owner or produce a task pack. It must not silently become broad implementation.
+
 ## Required Sources
 
 Read in this order:
@@ -101,6 +127,20 @@ When work is accepted:
 2. Task record receives a finish event.
 3. Durable decisions move into project source-of-truth docs only if they remain valid after implementation.
 4. Temporary coordination details stay in the coordination/task record layer.
+
+## Next Instruction Rule
+
+Every agent response that completes a meaningful step must end with:
+
+- Recommended next command: a copyable `/ALL` or `/one ...` instruction.
+- Recommended next owner: Trae IDE / Claude Code / Trae SOLO PC / Trae SOLO Sandbox / Mira / human.
+- Owner reason: why that owner is the best next step.
+
+If no further work is recommended, the next command should be:
+
+```text
+/ALL status check only; no active task.
+```
 
 ## Mira Memory Instruction
 

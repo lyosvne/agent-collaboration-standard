@@ -46,6 +46,9 @@ Before claiming completion, state:
 - Risk:
 - Commit / PR:
 - Handoff:
+- Recommended next command:
+- Recommended next owner:
+- Owner reason:
 
 For code, configuration, runtime, data, or rule changes, include:
 
@@ -54,6 +57,8 @@ For code, configuration, runtime, data, or rule changes, include:
 - Rollback verification:
 
 Use `templates/finish-state.md.template` when a project does not provide its own finish template.
+
+Every finish must give the human a copyable next instruction. The instruction should be usable in any tool without adding hidden chat context.
 
 ## Rule Update Policy
 

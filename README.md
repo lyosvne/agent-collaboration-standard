@@ -26,6 +26,10 @@ Global rules should be stable and infrequently changed. Project rules should sta
 - `/ALL`: load global, project, task, coordination, and Git state before acting.
 - `/one`: load the same state, choose one primary owner, and keep other tools read-only.
 
+`/one` may start from fuzzy input, but the receiving tool must normalize it into goal, owner, scope, risk, and next action before editing.
+
+Every meaningful finish must include a copyable next command and recommended next owner.
+
 ## One-Line Start
 
 ```text
