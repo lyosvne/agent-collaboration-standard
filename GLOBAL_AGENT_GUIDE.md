@@ -65,6 +65,14 @@ Every finish must give the human a copyable next instruction. The instruction sh
 
 Do not upgrade global rules for one-off project friction. Promote a rule globally only when the issue is cross-tool, cross-project, repeatable, and can be expressed simply with a low daily burden.
 
+## Local Network And Launcher Notes
+
+- For GitHub network failures, do not write fixed `github.com` entries to `hosts` first.
+- First inspect `hosts`, DNS resolution, TCP 443, HTTPS, and `git ls-remote`.
+- Prefer default DNS when it works. Fixed GitHub IPs can become unreachable or reset connections.
+- Edit `hosts` only after explicit human approval, with a backup and rollback path.
+- On the owner's Windows machine, the Zhipu-backed Claude Code launcher is `C:\Users\Admin\.local\bin\claude-zhipu.cmd`.
+
 ## Project Rule Boundary
 
 Project files should not copy this standard wholesale. They should point to this repository, declare project participants, list project-specific source-of-truth documents, and define project exceptions.

@@ -11,3 +11,10 @@ Ask before:
 - changing repository permissions or branch protection
 
 Never print or persist secrets in logs, commits, or summaries.
+
+## Hosts And System Network Changes
+
+- Treat `hosts` edits as system configuration changes.
+- Do not add fixed `github.com` IP entries as the first fix for GitHub failures.
+- Before any `hosts` edit, state the exact entry, why it is needed, what can break, and how to roll back.
+- Back up `hosts` before editing, then verify DNS, TCP 443, HTTPS, and `git ls-remote`.
