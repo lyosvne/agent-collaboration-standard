@@ -20,3 +20,11 @@ Before continuing, ask the human to classify the changes:
 Do not reset, clean, overwrite, stage, commit, or push unexpected changes.
 
 If concurrent work must continue, isolate by branch, worktree, or explicit file ownership. Protected entry files should have one owner at a time.
+
+## Serial And Parallel Modes
+
+Use serial mode when one owner executes and other tools only observe or review.
+
+Use parallel mode only when each owner has a separate task record, branch or non-overlapping file scope, and clear integration owner.
+
+Active locks belong in project `.agents/tasks/` records and may be summarized in `.agents/coordination/`.

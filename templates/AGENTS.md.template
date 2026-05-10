@@ -5,6 +5,7 @@
 - Standard: `https://github.com/lyosvne/agent-collaboration-standard`
 - Read global standard first, then this project guide.
 - Before work, report collaboration state using `protocols/collaboration-state-protocol.md`.
+- Use `/ALL` and `/one` through `protocols/communication-command-protocol.md`.
 
 ## Project Source Of Truth
 
@@ -12,6 +13,7 @@
 - Default branch:
 - Current source-of-truth document:
 - Docs entry:
+- Coordination:
 
 ## Active Tools
 
@@ -28,3 +30,9 @@ See `.agents/project-agents.md`.
 ## Task Records
 
 Use `.agents/tasks/` for concrete work records. Do not use this file as a task log.
+
+## Coordination
+
+- Use `.agents/coordination/` if present.
+- Use serial mode for one-owner execution.
+- Use parallel mode only with separate task records and non-overlapping scope.

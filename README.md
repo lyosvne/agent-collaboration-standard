@@ -9,19 +9,25 @@ This repository is above any single project. Project repositories should referen
 1. `GLOBAL_AGENT_GUIDE.md`
 2. `BOOTSTRAP_ONE_LINE.md`
 3. `protocols/collaboration-state-protocol.md`
-4. `protocols/git-truth-protocol.md`
-5. `protocols/concurrent-work-protocol.md`
-6. `protocols/verification-protocol.md`
-7. `protocols/handoff-protocol.md`
-8. `protocols/security-boundary-protocol.md`
-9. `TOOL_ROLE_MATRIX.md`
+4. `protocols/communication-command-protocol.md`
+5. `protocols/git-truth-protocol.md`
+6. `protocols/concurrent-work-protocol.md`
+7. `protocols/verification-protocol.md`
+8. `protocols/handoff-protocol.md`
+9. `protocols/security-boundary-protocol.md`
+10. `TOOL_ROLE_MATRIX.md`
 
 ## Core Rule
 
 Global rules should be stable and infrequently changed. Project rules should stay thin and point to this standard instead of copying it wholesale.
 
+## Shared Commands
+
+- `/ALL`: load global, project, task, coordination, and Git state before acting.
+- `/one`: load the same state, choose one primary owner, and keep other tools read-only.
+
 ## One-Line Start
 
 ```text
-Read https://github.com/lyosvne/agent-collaboration-standard first, then read this project's AGENTS.md, .agents/project-agents.md, and current source-of-truth; report the collaboration state, your role, the current HEAD, active risks, and the next safe action before making any change.
+Read https://github.com/lyosvne/agent-collaboration-standard first, then read this project's AGENTS.md, .agents/project-agents.md, current source-of-truth, .agents/coordination if present, active .agents/tasks records, and Git state; report collaboration state, role, HEAD, active risks, locks, and next safe action before changing anything.
 ```

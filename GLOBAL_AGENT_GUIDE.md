@@ -9,6 +9,7 @@ Provide a common operating language for Trae IDE, Claude Code, Trae SOLO, Mira, 
 - Global collaboration standard: cross-project rules and protocols.
 - Project entry: project-specific `AGENTS.md`, source-of-truth documents, tool participants, and exceptions.
 - Task record: concrete owner, branch, base commit, intended files, verification, and handoff.
+- Coordination layer: append-only task events, serial/parallel locks, and `/ALL` or `/one` command state.
 - GitHub commit / PR: hard synchronization point.
 - Runtime artifacts: logs, screenshots, databases, generated vaults, and local state are not code truth unless explicitly promoted.
 
@@ -25,6 +26,15 @@ Before substantive work, state:
 - Next action:
 
 If joining an existing project, first report the collaboration state defined in `protocols/collaboration-state-protocol.md`.
+
+## Shared Commands
+
+Use `protocols/communication-command-protocol.md` for:
+
+- `/ALL`: shared state loading for all tools.
+- `/one`: one-owner execution with other tools read-only.
+- Append-only coordination events.
+- Serial and parallel task locks.
 
 ## Finish Contract
 
@@ -52,3 +62,7 @@ Do not upgrade global rules for one-off project friction. Promote a rule globall
 ## Project Rule Boundary
 
 Project files should not copy this standard wholesale. They should point to this repository, declare project participants, list project-specific source-of-truth documents, and define project exceptions.
+
+## Long-Term Correctness
+
+Minimum change is a validation strategy, not the final design target. Prefer the smallest safe next action, but keep durable convergence work visible until it is verified or intentionally rejected.

@@ -35,6 +35,7 @@
 - Must read: global standard, project `AGENTS.md`, `.agents/project-agents.md`, current source-of-truth.
 - Best use: architecture review, document restructuring, rules/text quality review, consistency audit, and design critique.
 - Must not: push to `master`, reset, force push, edit secrets, or touch runtime state.
+- Memory setup: ask Mira to remember `protocols/communication-command-protocol.md` and the project's entry path; if memory is unavailable, paste the Mira memory instruction from that protocol at session start.
 
 ## Future Cloud Agents
 

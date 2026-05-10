@@ -10,8 +10,9 @@ Read in this order:
 2. Project `AGENTS.md`.
 3. Project current source-of-truth document.
 4. Project `.agents/project-agents.md` if present.
-5. Active task record under `.agents/tasks/` if present.
-6. Git branch, HEAD, remote HEAD, and dirty state.
+5. Project `.agents/coordination/` if present.
+6. Active task record under `.agents/tasks/` if present.
+7. Git branch, HEAD, remote HEAD, and dirty state.
 
 ## Required State Output
 
@@ -25,6 +26,7 @@ Before work, report:
 - Remote HEAD:
 - Active task:
 - Intended files:
+- Active lock:
 - Unexpected changes:
 - Risk:
 - Next safe action:
@@ -43,3 +45,7 @@ Stop before editing, staging, committing, or pushing if:
 ## Human Relay Reduction
 
 Agents should use GitHub files, task records, commits, and PRs as the shared context layer. Human chat may initiate or approve work, but should not be the only carrier of current state.
+
+For `/ALL`, load shared state for all tools before acting.
+
+For `/one`, select one owner and make other tools read-only unless the task is later split into parallel records.

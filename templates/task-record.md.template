@@ -3,15 +3,18 @@
 - Task ID:
 - Owner:
 - Tool:
+- Mode:
 - Base commit:
 - Branch:
 - Status:
 - Scope:
 - Intended files:
 - Forbidden files:
+- Lock scope:
 - Risk:
 - Verification:
 - Started at:
+- Expected checkpoint:
 - Finished at:
 
 ## Handoff

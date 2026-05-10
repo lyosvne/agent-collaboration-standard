@@ -3,7 +3,7 @@
 Use this when asking Mira, Claude Code, Trae SOLO, or another coding agent to join a project.
 
 ```text
-Read https://github.com/lyosvne/agent-collaboration-standard first, then read this project's AGENTS.md, .agents/project-agents.md, and current source-of-truth; report the collaboration state, your role, the current HEAD, active risks, and the next safe action before making any change.
+Read https://github.com/lyosvne/agent-collaboration-standard first, then read this project's AGENTS.md, .agents/project-agents.md, current source-of-truth, .agents/coordination if present, active .agents/tasks records, and Git state; report collaboration state, role, HEAD, active risks, locks, and next safe action before changing anything.
 ```
 
 ## Required Response
@@ -23,6 +23,7 @@ The agent must answer with:
 - Remote HEAD:
 - Active task:
 - Intended files:
+- Active lock:
 - Unexpected changes:
 - Blockers:
 - Risk:
