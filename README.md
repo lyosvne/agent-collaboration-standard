@@ -17,6 +17,10 @@ This repository is above any single project. Project repositories should referen
 9. `protocols/security-boundary-protocol.md`
 10. `TOOL_ROLE_MATRIX.md`
 
+## Operating System Overview
+
+- `docs/multi-agent-collaboration-operating-system.md`
+
 ## Core Rule
 
 Global rules should be stable and infrequently changed. Project rules should stay thin and point to this standard instead of copying it wholesale.
