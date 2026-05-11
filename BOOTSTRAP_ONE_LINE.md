@@ -32,3 +32,12 @@ The agent must answer with:
 ## Rule
 
 If the agent cannot read the global standard or project entry, it must stop and ask for the missing link or file.
+
+## Initial Acknowledgement
+
+First-time bootstrap into a project counts as the agent's initial
+acknowledgement of all currently merged protocols at the global
+standard's HEAD. Subsequent rule changes follow the Rule Update
+Lifecycle in `protocols/communication-command-protocol.md` and require
+an explicit `rule-ack` event when the proposer marks the upgrade as
+"full ack required".

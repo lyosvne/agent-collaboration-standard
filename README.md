@@ -25,6 +25,15 @@ This repository is above any single project. Project repositories should referen
 
 Global rules should be stable and infrequently changed. Project rules should stay thin and point to this standard instead of copying it wholesale.
 
+## Rule Updates
+
+Changes to this repository follow the Rule Update Lifecycle defined in
+`protocols/communication-command-protocol.md` (Initiate → Sync → Acknowledge → Confirm).
+Agents acknowledge updates by appending a `rule-ack` event to the project
+work-ledger, declaring **where** they internalized the rule (global,
+skill, or personal-store class). Project-scoped internalization is not
+permitted for global rules.
+
 ## Shared Commands
 
 - `:ALL`: load global, project, task, coordination, and Git state; report task board and recommended next action.
