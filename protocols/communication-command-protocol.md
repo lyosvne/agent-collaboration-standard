@@ -191,6 +191,7 @@ Valid event types:
 - `review`
 - `finish`
 - `archive`
+- `rule-ack` (see "Rule Update Lifecycle" below)
 
 Corrections should be new events that supersede earlier events, not edits that erase them.
 
@@ -239,3 +240,155 @@ Agents must distinguish:
 - remaining convergence work
 
 Do not convert a workaround into permanent truth unless it has been verified and archived intentionally.
+
+---
+
+## Rule Update Lifecycle
+
+This section defines **how** any agent (Mira, Trae IDE, Claude Code,
+Trae SOLO PC, Trae SOLO Sandbox, future participants) proposes,
+distributes, acknowledges, and confirms a change to the global standard
+or to its own personal/skill-layer rules.
+
+It is the methodology. It is **not** the same thing as any specific
+rule that uses it. Rules introduced via this lifecycle (such as the
+2026-05-11 bootstrap of `git-truth-protocol.md` §9/§10/§11) are
+separate payloads and are acknowledged independently.
+
+### Four Phases
+
+1. **Initiate (发起)**
+   The proposer opens a PR against this repository (for global rules)
+   or against their own skill / personal-rule store (for self-scoped
+   rules). The PR description must state:
+   - Scope (global / skill / personal).
+   - Whether full-team rule-ack is required, or :CHECK broadcast is
+     sufficient.
+   - Bootstrap-bundle disclosure (see "Bootstrap Bundles" below) if
+     the PR introduces both new rules **and** lifecycle machinery in
+     the same change.
+
+2. **Sync (同步)**
+   After merge, the proposer broadcasts a one-line :CHECK directive
+   in the channel where work is dispatched (chat, work-ledger, or
+   project README). The directive names the merged commit SHA so
+   every agent fetches a deterministic snapshot.
+
+3. **Acknowledge (回执)**
+   Each affected agent runs `:CHECK` against the new global commit,
+   internalizes the change at the layer they choose (see
+   "Internalization Path Constraints" below), and writes a
+   `rule-ack` event to the project's
+   `.agents/coordination/work-ledger.jsonl` (or the equivalent
+   coordination ledger named in the project's
+   `.agents/coordination/README.md`).
+
+   `rule-ack` is an append-only event in the same family as `start`,
+   `claim`, `update`, etc. defined in "Append-Only Rule" above.
+
+4. **Confirm (确认)**
+   The proposer (or a designated coordinator) reads the ledger,
+   verifies every required agent has produced a valid `rule-ack`
+   for the upgrade, and posts a confirmation summary. Until
+   confirmation, the upgrade is "in flight" and existing work that
+   touches the upgraded surface should not assume the new rule is
+   universally observed.
+
+   The proposer must also write **their own** `rule-ack` — the
+   methodology applies to its initiator. This prevents "I made the
+   rule so I'm exempt" double standards.
+
+### Acknowledgement Schema
+
+A `rule-ack` event is a JSON line with at least:
+
+```json
+{
+  "event": "rule-ack",
+  "ts": "2026-05-11T08:00:00+08:00",
+  "agent_id": "<stable identifier of the acking agent>",
+  "upgrade_id": "<short slug of the upgrade, e.g. state-truth-and-rule-ack>",
+  "commit_sha": "<merge commit on the standard repo, full or short>",
+  "self_internalization_path": "global | skill:<id> | personal:<store>",
+  "notes": "<optional free text>"
+}
+```
+
+`self_internalization_path` declares **where the agent stored the rule
+inside its own system** so a reviewer can later inspect that the rule
+is actually loaded, not just acknowledged.
+
+### Internalization Path Constraints
+
+This is **internalization**, not duplication. Once the global standard
+has the rule, no agent needs to build a parallel mechanism in any
+project to enforce it locally. Internalize once at a global-or-broader
+layer; rely on `:CHECK` and the standard repo to keep that layer
+honest.
+
+**Allowed values for `self_internalization_path`**:
+
+- `global` — the agent treats the rule as part of the global standard
+  it auto-loads on every session start. No additional storage.
+- `skill:<id>` — the agent embedded the rule into one of its skills /
+  capability packs / persistent system prompts (recommended class:
+  collaboration / project-management / coding-agent skill).
+- `personal:<store>` — the agent embedded the rule into its personal
+  always-on rule store (recommended class: tool-level user rules,
+  long-term memory, agent-wide system prompt). Name the **store
+  class**, not a specific file path; specific paths are tool-internal
+  detail and may change.
+
+**Forbidden**:
+
+- Project-level paths. A global rule is global by definition. Storing
+  it inside one project's rule files (`<project>/AGENTS.md`,
+  `<project>/.agents/...`, `<project>/CLAUDE.md`-equivalents, etc.)
+  would mean every other project re-inherits an outdated copy and
+  would re-trigger the same regression that prompted §11
+  Branch-Currency. **A `rule-ack` whose
+  `self_internalization_path` resolves to a project-scoped store
+  must be rejected at confirmation time.**
+
+The phrasing "internalization, not duplication" is normative: agents
+are expected to absorb the rule into their always-on layer, not to
+spawn project-by-project enforcement copies.
+
+### Bootstrap Bundles
+
+A single PR may bundle two logically separate concerns when the second
+concern is the lifecycle machinery itself. The 2026-05-11 PR
+introducing `git-truth-protocol.md` §9/§10/§11 **plus** this
+"Rule Update Lifecycle" section is the canonical example.
+
+In that case, the initial bootstrap rule-ack covers **both** payloads
+at once. After the bootstrap is confirmed:
+
+- The bundled rules are paid up. Future upgrades will not re-request
+  acknowledgement of them.
+- The lifecycle becomes the standing process. Every later upgrade —
+  including upgrades proposed by any agent, not just the original
+  proposer — must follow `Initiate → Sync → Acknowledge → Confirm`,
+  but only for **its own** payload.
+
+Bootstrap bundles are exceptional. Future PRs should normally carry
+one logical concern.
+
+### Re-Acknowledgement Cadence
+
+For substantial global rule changes, the proposer **may** require a
+fresh full-team rule-ack (recommended for changes that alter
+review-blocking behavior, security boundaries, or directory-as-truth
+semantics). For minor edits, broadcasting `:CHECK` and letting agents
+self-detect via their next session start is sufficient.
+
+The proposer's choice between "full ack required" vs "broadcast only"
+must be stated in the PR description (see Phase 1).
+
+### Relationship to `:CHECK`
+
+`:CHECK` is the read-only diff between an agent's current loaded
+rules and the global standard. The Rule Update Lifecycle is the
+write-side counterpart: it is how new rules **enter** the global
+standard so that subsequent `:CHECK` runs see them. The two are
+designed to compose without overlap.
