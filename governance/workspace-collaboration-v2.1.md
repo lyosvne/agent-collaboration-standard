@@ -113,7 +113,7 @@
 - 各自独立 clone + 独立分支，绝不共享工作目录
 - 漂移治理：Pi cron 体检（只读）→ 分级报告 → 代劳 push（授权内）/提醒 pull（不代劳）
 - 交互分层：飞书 = 对话窗口（指令/通知/移动审批）；Aetheris 网页 = 工作台（任务板/状态/知识）
-- Qoder↔Pi 回传：**Pi 主动订阅 Qoder Session SSE**（无 Webhook，已实证）
+- Qoder↔Pi 回传：**Webhook 主通道**（Pi 注册 endpoint 订阅 session.status_idled 等生命周期事件，HMAC-SHA256 签名，at-least-once 投递）+ **SSE 补充**（token 级流式输出，用于进度展示）+ **轮询兜底**（webhook 失败降级）
 
 ---
 

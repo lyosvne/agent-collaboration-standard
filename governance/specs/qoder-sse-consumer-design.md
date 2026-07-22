@@ -1,20 +1,21 @@
-# 设计规格：Pi 侧 Qoder Session SSE 消费器
+# 设计规格：Pi 侧 Qoder 事件消费器（Webhook 主 + SSE 补充 + 轮询兜底）
 
-> 签发: Qoder | 状态: 草案（待用户裁定分工后生效实施）| 日期: 2026-07-23
-> 依据: docs.qoder.com 官方 API 契约（已逐项核查）+ 架构真值 v1.0（webhook 表述已纠错）
+> 签发: Qoder | 状态: 草案（待用户裁定分工后生效实施）| 日期: 2026-07-23（v2 修订：webhook 纠错）
+> 依据: docs.qoder.com 官方 API 契约（webhook + SSE + list-events 均已验证）+ 架构真值 v1.0
 > Review: ZCode（对等互检）| 裁定: 用户
+> 修订记录: v1 错误声称"无 Webhook"；v2 经 ZCode 质疑后复核确认 webhook 完整存在，重构为三模设计
 
 ---
 
 ## 1. 背景与目标
 
-架构 v1.0 原设计「Qoder --webhook--> Pi」不成立（官方 API 无 Webhook 出站能力，已实证）。
-本规格定义替代方案：**Pi 作为调用方，主动调度 Qoder Cloud Agents 并订阅其 Session SSE 流**，
-将结果写入 ECS 共享文件，供 ZCode/编队消费。
+架构 v1.0 设计「Qoder webhook → Pi」**经复核确认正确**。本规格定义 Pi 侧完整的事件消费方案：
 
 ```
 Pi(ECS daemon) --REST--> Qoder Cloud (创建 Session / 发消息)
-Pi(ECS daemon) <--SSE---- Qoder Cloud (stream-events, 长连接)
+Qoder Cloud --Webhook--> Pi endpoint (生命周期事件推送，主通道)
+Pi(ECS daemon) <--SSE---- Qoder Cloud (stream-events, token级流式，补充通道)
+Pi(ECS daemon) --GET-----> Qoder Cloud (list-events 轮询, 兜底)
 Pi --写--> ECS 共享文件 / Aetheris(真值层) / 飞书通知
 ```
 
@@ -23,12 +24,14 @@ Pi --写--> ECS 共享文件 / Aetheris(真值层) / 飞书通知
 | 操作 | 端点 | 说明 |
 |------|------|------|
 | 验证连通 | `GET /api/v1/cloud/agents` | PAT 校验 + 列 Agents |
-| 建环境 | `POST /api/v1/cloud/environments` | 新账号无预置环境，必须先建；body: `{"name","config":{"type":"cloud","networking":{"type":"unrestricted"}}}` |
-| 建 Agent | `POST /api/v1/cloud/agents` | body: name/model(如 "ultimate")/system/tools(`agent_toolset_20260401` + enabled_tools) |
-| 建 Session | `POST /api/v1/cloud/sessions` | body: `{"agent": <agent_id>, "environment_id": <env_id>}` → 返回 `sess_*`，status=idle |
+| 建环境 | `POST /api/v1/cloud/environments` | 新账号无预置环境，必须先建 |
+| 建 Agent | `POST /api/v1/cloud/agents` | body: name/model/system/tools |
+| 建 Session | `POST /api/v1/cloud/sessions` | body: `{"agent", "environment_id"}` → `sess_*` |
 | 发消息 | Session send（user.message） | 触发任务执行 |
-| **订阅事件** | `GET /api/v1/cloud/sessions/{id}/events/stream` | SSE；`Accept: text/event-stream`；可选 `event_deltas[]=agent.message/agent.thinking` |
-| 轮询降级 | `GET .../events`（list-events） | SSE 断连时的降级路径 |
+| **注册 Webhook** | `POST /api/v1/cloud/webhook_endpoints` | body: url + events(支持 `*` 通配)；返回 signing_secret（一次性） |
+| **Webhook 事件** | 系统推送到注册 URL | session.status_idled / session.created / agent.* 等；HMAC-SHA256 签名；at-least-once + 指数退避重试 |
+| **订阅 SSE** | `GET /api/v1/cloud/sessions/{id}/events/stream` | token 级流式；`Accept: text/event-stream`；Last-Event-ID 重连 |
+| 轮询降级 | `GET .../events`（list-events） | webhook+SSE 均失败时的兜底 |
 
 认证：所有请求 `Authorization: Bearer $QODER_PAT`。
 
