@@ -55,21 +55,32 @@
 
 ## 4. 第二层：主动纠正
 
-### 4.1 代劳 push（前置：用户常设授权，见 §6）
+### 4.1 代劳 push —— 架构修正（2026-07-23，ZCode 实证发现）
 
+**原设计缺陷**：规格假设 Pi 能直接访问各 agent clone 执行 push。
+**事实**：agent clone 分布在各 agent 本机（ZCode PC / Qoder 本地 / Kimi / Trae），ECS 上的 Pi 够不到。
+
+**修正后方案**：
 ```
-条件（全部满足才执行）：
-  1. clone 在自己的 agent/<name> 分支上（HEAD 分支名匹配）
-  2. ahead>0 且 dirty=0（有未推 commit 且工作区干净）
-  3. 目标分支 ∈ 白名单（agent/* 分支），绝非 master
-  4. push 为 fast-forward（远端无分叉），绝不 --force
-动作：git push origin <branch>
-审计：每次代劳 push 写 Aetheris + 飞书通知（谁的分支、几个 commit、SHA 范围）
+Pi（ECS）能做的：
+  ✅ 远端体检（§3）：用 ECS 上的 git mirror fetch 检测漂移（已上线）
+  ✅ 检测未 push commit：mirror 对比 origin/<branch> 发现 ahead
+  ✅ 通知：飞书/Aetheris 告知对应 agent "你有 N 个未 push commit"
+  ❌ 代劳 push：不可能（clone 不在 ECS）
+
+代劳 push 的实际执行者：
+  方案 A（当前）：Pi 通知 → agent 自行 push（用户常设授权仍有效，只是执行者是 agent 自己）
+  方案 B（未来增强）：各 agent 本机装轻量 cron 自动 push 自己的 agent/<name> 分支
+  方案 C（远期）：Pi 通过 agent 的通信通道（Qoder 有 webhook/SSE）下发 push 指令
 ```
+
+**用户常设授权仍然有效**：授权的是"push agent/<name> 分支"这个动作的合规性，
+不论执行者是 Pi 还是 agent 自身。当前阶段由 agent 自行执行，Pi 负责发现和催促。
 
 ### 4.2 提醒 pull（不代劳）
 
-- behind>0 → 仅通知（飞书 NOTICE/WARN），绝不代劳 pull（可能冲突，需 agent 在自己会话中处理）
+- behind>0 → Pi 通知（飞书/Aetheris），绝不代劳 pull（可能冲突，需 agent 在自己会话中处理）
+- 当前 4 CRITICAL 即属此类（分支落后 master = 集成问题，非 push 问题）
 
 ## 5. 第三层：源头预防
 
