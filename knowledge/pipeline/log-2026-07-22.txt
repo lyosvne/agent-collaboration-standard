@@ -1,0 +1,53 @@
+[01:00:03] === Daily Knowledge Pipeline ===
+[01:00:03] Date: 2026-07-22
+[01:00:03] >>> STEP 1: Fetch Feishu messages
+[01:00:04] === Daily Knowledge Pipeline ===
+[01:00:04] Date: 2026-07-22
+[01:00:04] >>> STEP 1: Fetch Feishu messages
+[01:00:06] Saved 29 messages
+[01:00:06] >>> STEP 2: Extract URLs
+[01:00:06] Found 23 new WeChat URLs, 1 new GitHub URLs
+[01:00:06] >>> STEP 3: Regenerate wiki
+[01:00:08] Wiki regenerated
+[01:00:08] >>> STEP 4: Daily summary
+[01:00:08] Summary written
+[01:00:08] === Pipeline Complete ===
+[04:51:07] === Daily Knowledge Pipeline ===
+[04:51:07] Date: 2026-07-22
+[04:51:07] >>> STEP 1: Fetch Feishu messages
+[04:51:12] Saved 30 messages
+[04:51:12] >>> STEP 2: Extract URLs
+[04:51:12] Found 23 WeChat URLs, 1 GitHub URLs
+[04:51:12] >>> STEP 3: Fetch WeChat article fulltext
+[04:51:12] WARN: Command failed: node scripts/daily-fetch-fulltext.cjs
+node:fs:440
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOENT: no such file or directory
+[04:51:12] >>> STEP 4: Clone and scan new GitHub repos
+[04:51:17] >>> STEP 5: Regenerate wiki
+[04:51:18] Wiki regenerated
+[04:51:18] >>> STEP 6: Daily summary
+[04:51:18] Summary written
+[04:51:18] === Pipeline Complete ===
+[04:52:27] === Daily Knowledge Pipeline ===
+[04:52:27] Date: 2026-07-22
+[04:52:27] >>> STEP 1: Fetch Feishu messages
+[04:52:30] Saved 30 messages
+[04:52:30] >>> STEP 2: Extract URLs
+[04:52:30] Found 23 WeChat URLs, 1 GitHub URLs
+[04:52:30] >>> STEP 3: Fetch WeChat article fulltext
+[04:52:30] === Daily: Fetch WeChat Fulltext ===
+[04:52:30] Need fulltext: 2 / 23
+[04:52:34] [1/2] https://mp.weixin.qq.com/s/AH9BJqOH1boh_HgcjEpW-A
+[04:52:43]   BLOCKED/short: 199 chars
+[04:52:58] [2/2] https://mp.weixin.qq.com/s/l1trHXYD_IK0KJcFXOjalA
+[04:53:06]   BLOCKED/short: 168 chars
+[04:53:07] Fulltext done: fetched=0 blocked=2
+[04:53:07] >>> STEP 4: Clone and scan new GitHub repos
+[04:53:07] >>> STEP 5: Regenerate wiki
+[04:53:09] Wiki regenerated
+[04:53:09] >>> STEP 6: Daily summary
+[04:53:09] Summary written
+[04:53:09] === Pipeline Complete ===

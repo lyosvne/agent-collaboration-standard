@@ -1,0 +1,2462 @@
+﻿{
+    "Design_Video":  [
+                         {
+                             "Repo":  "https://github.com/bradautomates/claude-video",
+                             "RefCount":  2,
+                             "FromArticles":  [
+                                                  "这个 Skill 让 Claude Code 看懂视频，还挺实用的。",
+                                                  "这个 Skill 让 Claude Code 看懂视频，还挺实用的。"
+                                              ]
+                         },
+                         {
+                             "Repo":  "https://github.com/nexu-io/html-video",
+                             "RefCount":  2,
+                             "FromArticles":  [
+                                                  "HTML版剪映来了：OpenDesign团队开源HTML-Video",
+                                                  "HTML版剪映来了！Open Design 团队最新开源力作，3天时间，写了3万行代码！"
+                                              ]
+                         },
+                         {
+                             "Repo":  "https://github.com/jianchang512/pyvideotrans",
+                             "RefCount":  2,
+                             "FromArticles":  [
+                                                  "17K Star开源神器：jianchang512/pyvideotrans 怎么用？",
+                                                  "17K Star开源神器：jianchang512/pyvideotrans 怎么用？"
+                                              ]
+                         },
+                         {
+                             "Repo":  "https://github.com/supertone-inc/supertonic",
+                             "RefCount":  2,
+                             "FromArticles":  [
+                                                  "不要错过这 10 个本周火火火的 GitHub 开源项目。",
+                                                  "本周 GitHub 热门开源项目Top10，第1个20 万Star"
+                                              ]
+                         },
+                         {
+                             "Repo":  "https://github.com/heygen-com/hyperframes",
+                             "RefCount":  2,
+                             "FromArticles":  [
+                                                  "我的一人公司AI视频团队，被腾讯收编了",
+                                                  "HTML版剪映来了：OpenDesign团队开源HTML-Video"
+                                              ]
+                         },
+                         {
+                             "Repo":  "https://github.com/nexu-io/open-design",
+                             "RefCount":  4,
+                             "FromArticles":  [
+                                                  "开源替代 Claude Design，无需一分钱！在 GitHub 上已经收获 3.1 万 Star",
+                                                  "开源替代 Claude Design，无需一分钱！在 GitHub 上已经收获 3.1 万 Star",
+                                                  "GitHub狂揽 31.5K star！一句话出设计稿，这个本地AI设计工具杀疯了",
+                                                  "GitHub狂揽 31.5K star！一句话出设计稿，这个本地AI设计工具杀疯了"
+                                              ]
+                         }
+                     ],
+    "UI_Components":  [
+                          {
+                              "Repo":  "https://github.com/greensock/gsap-skills",
+                              "RefCount":  1,
+                              "FromArticles":  [
+                                                   "吐血整理 8 个神级 GitHub 开源项目，让 AI 生成网页好看到飞起。"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/penpot/penpot",
+                              "RefCount":  3,
+                              "FromArticles":  [
+                                                   "一个开源团队，做了个让 Figma 害怕的东西！",
+                                                   "GitHub上 5 万 Star，这个开源设计平台让 AI 直接读懂设计稿。",
+                                                   "杀疯了！55k Star的设计工具，设计稿一键转代码"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/asgeirtj/system_prompts_leaks",
+                              "RefCount":  1,
+                              "FromArticles":  [
+                                                   "Github本周（06月15日-06月21日）高Star项目精选"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/chatwoot/chatwoot",
+                              "RefCount":  3,
+                              "FromArticles":  [
+                                                   "盘点 14 个本周牛哄哄的 GitHub 开源项目。",
+                                                   "Github本周（06月15日-06月21日）高Star项目精选",
+                                                   "Github本周（06月15日-06月21日）高Star项目精选"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/pixijs/pixijs-skills",
+                              "RefCount":  1,
+                              "FromArticles":  [
+                                                   "PixiJS 火了：HTML-in-Canvas 真的落地了！"
+                                               ]
+                          }
+                      ],
+    "Skills_Design":  [
+                          {
+                              "Repo":  "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+                              "RefCount":  5,
+                              "FromArticles":  [
+                                                   "Claude Code进阶指南：装这9个Skill才算真正上手",
+                                                   "十个顶级 Claude Code Skills，装上就不想卸",
+                                                   "推荐 6 个爆火的神级 Skills，400K+ 点赞！Vibe Coding 必备！！",
+                                                   "碾压设计工具！52K+星标！程序员零设计也能秒出专业UI",
+                                                   "精选 8 个 UI 设计师必备的 AI 智能体技能（Agent Skills）"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/nutllwhy/hyperframes-motion-library",
+                              "RefCount":  2,
+                              "FromArticles":  [
+                                                   "教程｜我做了一个视频动效系统！开源免费",
+                                                   "教程｜我做了一个视频动效系统！开源免费"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/VoltAgent/awesome-design-md",
+                              "RefCount":  5,
+                              "FromArticles":  [
+                                                   "DESIGN.md：又一个你必须知道的Markdown文件",
+                                                   "Google开源DESIGN.md。玩AI，今年最该知道的Markdown！",
+                                                   "这套skill为什么这么多星标，厉害在哪里？",
+                                                   "2 万多 Star！Google 开源了这个神级 GitHub 项目。",
+                                                   "吐血整理 8 个神级 GitHub 开源项目，让 AI 生成网页好看到飞起。"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/Leonxlnx/taste-skill",
+                              "RefCount":  12,
+                              "FromArticles":  [
+                                                   "taste-skill：AI前端审美外挂",
+                                                   "taste-skill：AI前端审美外挂",
+                                                   "taste-skill：AI前端审美外挂",
+                                                   "Anthropic 下场了，GitHub 本周最火 10 个项目",
+                                                   "Anthropic 下场了，GitHub 本周最火 10 个项目",
+                                                   "让 AI 生成的网页更有品味，这个爆火的 Skill 效果如何？",
+                                                   "让 AI 生成的网页更有品味，这个爆火的 Skill 效果如何？",
+                                                   "让 AI 生成的网页更有品味，这个爆火的 Skill 效果如何？",
+                                                   "给 AI 装上审美：反「AI 味」的前端框架 taste-skill",
+                                                   "给 AI 装上审美：反「AI 味」的前端框架 taste-skill",
+                                                   "GitHub 上 53k + 161k +47.8K Star，这三款 Skill 是我装了就没卸载过的",
+                                                   "吐血整理 8 个神级 GitHub 开源项目，让 AI 生成网页好看到飞起。"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/google-labs-code/design.md",
+                              "RefCount":  3,
+                              "FromArticles":  [
+                                                   "Google开源DESIGN.md。玩AI，今年最该知道的Markdown！",
+                                                   "2 万多 Star！Google 开源了这个神级 GitHub 项目。",
+                                                   "2 万多 Star！Google 开源了这个神级 GitHub 项目。"
+                                               ]
+                          }
+                      ],
+    "Memory_Knowledge":  [
+                             {
+                                 "Repo":  "https://github.com/MemTensor/MemOS",
+                                 "RefCount":  2,
+                                 "FromArticles":  [
+                                                      "给 10 万 Star 的 Hermes 装个记忆外挂，AI 终于能越用越聪明了。",
+                                                      "给 10 万 Star 的 Hermes 装个记忆外挂，AI 终于能越用越聪明了。"
+                                                  ]
+                             },
+                             {
+                                 "Repo":  "https://github.com/HKUDS/LightRAG",
+                                 "RefCount":  1,
+                                 "FromArticles":  [
+                                                      "Claude Code进阶指南：装这9个Skill才算真正上手"
+                                                  ]
+                             },
+                             {
+                                 "Repo":  "https://github.com/khoj-ai/khoj",
+                                 "RefCount":  2,
+                                 "FromArticles":  [
+                                                      "GitHub 33k 星：这个开源项目，把你的知识库变成了会思考的 AI 大脑",
+                                                      "GitHub 33k 星：这个开源项目，把你的知识库变成了会思考的 AI 大脑"
+                                                  ]
+                             },
+                             {
+                                 "Repo":  "https://github.com/XMUDeepLIT/Awesome-Self-Evolving-Agents",
+                                 "RefCount":  2,
+                                 "FromArticles":  [
+                                                      "Agents自主进化 || 自进化 Agent 系统性综述：从 Model-Centric 到环境共进化",
+                                                      "Agents自主进化 || 自进化 Agent 系统性综述：从 Model-Centric 到环境共进化"
+                                                  ]
+                             },
+                             {
+                                 "Repo":  "https://github.com/thedotmack/claude-mem",
+                                 "RefCount":  3,
+                                 "FromArticles":  [
+                                                      "Claude Code进阶指南：装这9个Skill才算真正上手",
+                                                      "分享6个我觉得应该必装的Skills。",
+                                                      "推荐 10 个本周 GitHub 上最火火火的开源项目，收藏一波。"
+                                                  ]
+                             },
+                             {
+                                 "Repo":  "https://github.com/DeusData/codebase-memory-mcp",
+                                 "RefCount":  4,
+                                 "FromArticles":  [
+                                                      "盘点 14 个本周牛哄哄的 GitHub 开源项目。",
+                                                      "Github本周（06月15日-06月21日）高Star项目精选",
+                                                      "Github本周（06月15日-06月21日）高Star项目精选",
+                                                      "盘点 17 个 6 月份牛牛牛的 GitHub 开源项目。"
+                                                  ]
+                             },
+                             {
+                                 "Repo":  "https://github.com/rohitg00/agentmemory",
+                                 "RefCount":  2,
+                                 "FromArticles":  [
+                                                      "推荐 7 个本周火火火的 GitHub 项目，尤其是第一个。",
+                                                      "推荐 8 个本周 YYDS 的 GitHub 开源项目。"
+                                                  ]
+                             },
+                             {
+                                 "Repo":  "https://github.com/nashsu/llm_wiki",
+                                 "RefCount":  5,
+                                 "FromArticles":  [
+                                                      "Karpathy 的 AI 知识库 理念，已经有人开源在 GitHub 上了。",
+                                                      "Karpathy 的 AI 知识库 理念，已经有人开源在 GitHub 上了。",
+                                                      "Karpathy 的知识库构想被人做成桌面应用了，而且做得相当扎实，已在 Github 上斩获 5.8k+ Star！",
+                                                      "Karpathy 的知识库构想被人做成桌面应用了，而且做得相当扎实，已在 Github 上斩获 5.8k+ Star！",
+                                                      "LLM Wiki 架构解析：Karpathy 的 Markdown 知识库模式"
+                                                  ]
+                             }
+                         ],
+    "Browser_Automation":  [
+                               {
+                                   "Repo":  "https://github.com/Cocoon-AI/architecture-diagram-generator",
+                                   "RefCount":  2,
+                                   "FromArticles":  [
+                                                        "强烈推荐！这个 Skill 画架构图质量超高，一句话出图",
+                                                        "推荐 3 个 GitHub 画图 Skill，一句话生成流程图、架构图。"
+                                                    ]
+                               },
+                               {
+                                   "Repo":  "https://github.com/browser-use/video-use",
+                                   "RefCount":  2,
+                                   "FromArticles":  [
+                                                        "孵化了 10 万多 Star 开源项目的团队，在 GitHub 上搞了一个新东西。",
+                                                        "孵化了 10 万多 Star 开源项目的团队，在 GitHub 上搞了一个新东西。"
+                                                    ]
+                               },
+                               {
+                                   "Repo":  "https://github.com/lightpanda-io/browser",
+                                   "RefCount":  1,
+                                   "FromArticles":  [
+                                                        "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。"
+                                                    ]
+                               },
+                               {
+                                   "Repo":  "https://github.com/CloakHQ/CloakBrowser",
+                                   "RefCount":  3,
+                                   "FromArticles":  [
+                                                        "推荐 3 个刚开源 Star 在慢慢攀升的 GitHub 开源项目。",
+                                                        "本周 GitHub 热门开源项目Top10，第1个20 万Star",
+                                                        "推荐 5 月份 yyds 的 GitHub 开源项目，一共 17 个。"
+                                                    ]
+                               }
+                           ],
+    "Unknown":  [
+                    {
+                        "Repo":  "https://github.com/automaapp/automa",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub上221.4k star，这4个火火火的GitHub开源项目，真是挖到宝了！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/mattpocock/dictionary-of-ai-coding",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个小众但实用的 GitHub 开源项目，有点意思啊。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/iptv-org/iptv",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "Github本周（06月15日-06月21日）高Star项目精选",
+                                             "Github本周（06月15日-06月21日）高Star项目精选"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/garrytan/gstack",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "AI 增强开发的三件套：OpenSpec + Superpowers + gstack"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/hesreallyhim/awesome-claude-code",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Claude Code进阶指南：装这9个Skill才算真正上手"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/rohitg00/ai-engineering-from-scratch",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "不要错过这 10 个本周火火火的 GitHub 开源项目。",
+                                             "Anthropic 下场了，GitHub 本周最火 10 个项目"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Thysrael/Horizon",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "本周 5 个yyds的Github开源项目，千万别错过！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/wechatpay-apiv3/wechatpay-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "盘点16个把自己蒸馏成Skills的国民级App。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Helvesec/rmux",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "专为 Agent 而生的终端神器，开源了！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Tracer-Cloud/opensre",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/karpathy/autoresearch",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "Agent 自我改进的六条路",
+                                             "Karpathy 加入 Anthropic 了，盘点他开源的 5 个硬核 GitHub 项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/kangarooking/no-rules-rules-skill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "开源「仓颉.Skill」，你现在可以蒸馏任何书！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/s0xDk/ghostty-blackhole",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "当黑洞吞噬 Claude Code，你该睡了",
+                                             "慢慢吃掉你的 Claude Code，在终端里养一只黑洞。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/microsoft/PowerToys",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "盘点 14 个本周牛哄哄的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/volcengine/SearchCLI",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Viking AI 搜索 CLI 正式发布：会说话，就能做搜索推荐"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Wechat-ggGitHub/Lumi",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "刚刚， GLM-5.1 高速版来了，真的太快快快快快了。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/cloudflare/mcp",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Anthropic 官方生产级 Agent 最佳实践：12 个可复用的 MCP 设计模式"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/vastsa/FileCodeBox",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub近280万star，4个超给力的开源项目曝光了，每一个都强到炸裂！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/YouMind-OpenLab/awesome-gpt-image-2",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GPT Image 2 不会写提示词？这个开源仓库整理了 4430 条案例"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/TapXWorld/ChinaTextbook",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 10 个本周 GitHub 上最火火火的开源项目，收藏一波。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/interviewstreet/hiring-agent",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "10 个本周 yyds 的 GitHub 开源项目，推荐给你。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/titanwings/colleague-skill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "疯狂的Skill"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/tutti-os/tutti",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "2.1k Star，又一款多 Agent 协作神器火了！",
+                                             "2.1k Star，又一款多 Agent 协作神器火了！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/tanbiralam/claude-code",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "聊聊 Claude Code v2.1.111：Opus 4.7，Auto 模式开放，新的思考等级 xhigh，以及“限免3次”的 ultrareview"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Chen-chen429/viking-media-ai-search",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "Viking AI 搜索 CLI 正式发布：会说话，就能做搜索推荐",
+                                             "Viking AI 搜索 CLI 正式发布：会说话，就能做搜索推荐"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/slopus/happy",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "在飞书操控你的 Claude Code，这个 GitHub 开源 SKill 好用。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/roboflow/supervision",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "盘点 17 个 6 月份牛牛牛的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/SimoneAvogadro/android-reverse-engineering-skill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/webadderallorg/Recordly",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "还在为 Screen Studio 花 200 美元？这个 10.9k Star 开源项目，把录屏、剪辑、字幕全包了",
+                                             "还在为 Screen Studio 花 200 美元？这个 10.9k Star 开源项目，把录屏、剪辑、字幕全包了"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/darrylmorley/whatcable",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个小众但实用的 GitHub 开源项目，有点意思啊。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/4ier/neo",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Claude很聪明但它是瞎子，直到我给它4肢！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/deepseek-ai/DeepGEMM",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/tt-a1i/archify",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个本周在 GitHub 上夯夯夯的项目，强推第 3 个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/chaitin/SafeLine",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub 狂揽 21.7K Star！这个国产开源神器解救你裸奔的网站。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/mcp-use/mcp-use",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "Superpowers \u0026 mcp-use：你的 AI Agent 终于有了超能力",
+                                             "Superpowers \u0026 mcp-use：你的 AI Agent 终于有了超能力"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/WICG/html-in-canvas",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "HTML-in-Canvas引爆前端！AI时代互联网视觉效果完全不一样了"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/pbakaus/impeccable",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "吐血整理 8 个神级 GitHub 开源项目，让 AI 生成网页好看到飞起。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/microsoft/SkillOpt",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "别再手写 Skill 了！微软最新研究：像神经网络一样训练 Skill",
+                                             "别再手写 Skill 了！微软最新研究：像神经网络一样训练 Skill"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/nexu-io/html-anything",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "有人花 3 天做了个开源工具，一句话生成各种场景的 HTML。",
+                                             "有人花 3 天做了个开源工具，一句话生成各种场景的 HTML。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/kepano/obsidian-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Claude Code进阶指南：装这9个Skill才算真正上手"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/DavidHDev/react-bits",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "最近这 4 个 GitHub 开源项目讨论较多，推荐一哈。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/harry0703/MoneyPrinterTurbo",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Anthropic 下场了，GitHub 本周最火 10 个项目"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/alchaincyf/darwin-skill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "达尔文.skill 2.0正式开源发布！让你的所有skill左脚踩右脚实现自我进化"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/zilliztech/claude-context",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/yezannnnn/agentGroup",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "我用Claude Code搭了个四个AI的团队，居然真的能协作开发"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/NVIDIA/cosmos",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "不要错过这 18 个本周 YYDS 的 GitHub 开源项目。",
+                                             "盘点 17 个 6 月份牛牛牛的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/budibase/budibase",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub近280万star，4个超给力的开源项目曝光了，每一个都强到炸裂！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/datawhalechina/easy-vibe",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 8 个本周 YYDS 的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/xaspx/hermes-control-interface",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "Hermes 又多了一个控制台：这次更像生产级 Agent 管理后台",
+                                             "Hermes 又多了一个控制台：这次更像生产级 Agent 管理后台"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/ruvnet/RuView",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。",
+                                             "本周 GitHub 热门开源项目Top10，第1个20 万Star"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/bytedance/UI-TARS-desktop",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 8 个本周 YYDS 的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/remotion-dev/skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "产品经理 6 大热门 Skills 推荐"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Anil-matcha/Open-Generative-AI",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/xxx/skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "获取 Skill 的 8 种渠道"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/google-ai-edge/LiteRT-LM",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "快瞧瞧 4 月 GitHub 上哪些开源项目最火火火火？"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/frdel/agent-zero",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Agent 自我改进的六条路"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/liaohch3/claude-tap",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "你的 AI Agent 每次请求都在干嘛？这个开源项目帮你扒个底朝天。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/LanRhyme/MicYou",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个小众但实用的 GitHub 开源项目，有点意思啊。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/yizhiyanhua-ai/fireworks-tech-graph",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 3 个 GitHub 画图 Skill，一句话生成流程图、架构图。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/playcanvas/supersplat",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 7 个本周火火火的 GitHub 项目，尤其是第一个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/google-ai-edge/gallery",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "快瞧瞧 4 月 GitHub 上哪些开源项目最火火火火？"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/instructkr/claw-code",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "封不住！Claude Code爆改Python版加冕最快10万星，且clone且珍惜"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Z4nzu/hackingtool",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/DayuanJiang/next-ai-draw-io",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Github近230万star，3个超给力的GitHub开源项目，每一个都强到离谱！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/langchain-ai/langgraph-reflection",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Agent 自我改进的六条路"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/AgriciDaniel/claude-obsidian",
+                        "RefCount":  3,
+                        "FromArticles":  [
+                                             "这个 GitHub 有意思啊，Claude Code + Obsidian = 知识库王炸。",
+                                             "这个 GitHub 有意思啊，Claude Code + Obsidian = 知识库王炸。",
+                                             "两千万浏览，我用Claude+Obsidian搭出了Karpathy同款第二大脑，好用的离谱"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/areal-project/AReaL",
+                        "RefCount":  3,
+                        "FromArticles":  [
+                                             "Agent的自演进，被刚刚开源的AReaL 2.0按下了加速键",
+                                             "Agent的自演进，被刚刚开源的AReaL 2.0按下了加速键",
+                                             "Agent的自演进，被刚刚开源的AReaL 2.0按下了加速键"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/sxyazi/yazi",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub 上 3.7 万的 Star，终端里浏览文件的开源工具。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/phodal/routa",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Harness 工程可视化：在 Vibe Coding 中重建工程可控性"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/op7418/Claude-to-IM-skill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "在飞书操控你的 Claude Code，这个 GitHub 开源 SKill 好用。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/bytedance/DeerFlow",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "DeerFlow：让你拥有AI专家团队"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/OpenBMB/VoxCPM",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 10 个本周 GitHub 上最火火火的开源项目，收藏一波。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/lance-format/lance-context",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "当 OpenClaw 内置 LanceDB：为个人 AI 智能体打造超强长期记忆"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/mblode/agent-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "精选 8 个 UI 设计师必备的 AI 智能体技能（Agent Skills）"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Soul-AILab/SoulX-Podcast",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub近280万star，4个超给力的开源项目曝光了，每一个都强到炸裂！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/kangarooking/promo-creator-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "我的一人公司AI视频团队，被腾讯收编了"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/wanikua/danghuangshang",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "我用1400年前的三省六部制，搞了一套很酷的多Agent协同方案。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/OthmanAdi/planning-with-files",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "十个顶级 Claude Code Skills，装上就不想卸"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/palemoky/chinese-poetry-api",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "最近这 4 个 GitHub 开源项目讨论较多，推荐一哈。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/xushanpei/open-file-viewer",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "支持 110 种文件预览！兼容 Vue、React、Svelte！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Claw-AI-Lab/Claw-AI-Lab",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Claude Code Harness+龙虾科研团来了！金字塔分层架构+多智能体讨论，单人也能跑出「实验室」科研"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/ComposioHQ/awesome-claude-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 4 个神级 SKills 开源 GitHub 项目，非常实用。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/YishenTu/claudian",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "又挖到 3 个不错的 GitHub 项目，尤其是第 2 个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/tanweai/pua",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "分享6个我觉得应该必装的Skills。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/bytedance-seed/m3-agent",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "AI Agent 的记忆革命：五个正在重塑行业的关键方向"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/alibaba/zvec01",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "盘点 17 个 6 月份牛牛牛的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/leilei926524-tech/anti-distill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "疯狂的Skill"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/yikart/AiToEarn",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 8 个本周 YYDS 的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Alishahryar1/free-claude-code",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/1jehuang/jcode",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 7 个本周火火火的 GitHub 项目，尤其是第一个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/perkfly/ex-skill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "疯狂的Skill"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/addyosmani/agent-skills",
+                        "RefCount":  5,
+                        "FromArticles":  [
+                                             "推荐 10 个本周 GitHub 上最火火火的开源项目，收藏一波。",
+                                             "GitHub 30k Star, 我用AI写代码三年了，最近被谷歌大神开源项目 agent-skills 上了一课！",
+                                             "Agent Skills：45.2k Star，Google 大佬 Addy Osmani 的开源 AI 编程\"操作手册\"",
+                                             "Agent Skills：45.2k Star，Google 大佬 Addy Osmani 的开源 AI 编程\"操作手册\"",
+                                             "Github本周（06月15日-06月21日）高Star项目精选"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/refactoringhq/tolaria",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "不要错过这 18 个本周 YYDS 的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/comfyanonymous/ComfyUI",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "AIGC王牌组合： Hermes Agent + ComfyUI 让设计效率爆炸"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/google-research/timesfm",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Github本周（06月15日-06月21日）高Star项目精选"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/codecrafters-io/build-your-own-x",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "52万Star：GitHub最火的项目，教你从零造出一切"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/sansan0/TrendRadar",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub 5.5万 Star！这款开源神器可以自动聚合全网35+平台热搜，还有AI分析"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/666ghj/MiroFish",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/danny-avila/LibreChat",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "最近这 4 个 GitHub 开源项目讨论较多，推荐一哈。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/travisvn/awesome-claude-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "十个顶级 Claude Code Skills，装上就不想卸"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/lance-format/lance-graph",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "当 OpenClaw 内置 LanceDB：为个人 AI 智能体打造超强长期记忆"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/HKUDS/ViMax",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "不要错过这 10 个本周火火火的 GitHub 开源项目。",
+                                             "Anthropic 下场了，GitHub 本周最火 10 个项目"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Mark7766/ai-coding-ok",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Superpowers和GSD都火了，但我选择打造最了解你的AI编程配置框架"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/MiniMax-AI/skills",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "我用AI帮我写代码，结果真的香！MiniMax-AI/skills 使用指南",
+                                             "MiniMax 开源官方 Skills"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/glitternetwork/pinme",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "这个 GitHub 神级 Skill，一句话把你开发的网站发布到线上。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/public-apis/public-apis",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub 上 42 万 Star 的项目，整个仓库就是一张表"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/thunderbird/thunderbolt",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Panniantong/Agent-Reach",
+                        "RefCount":  3,
+                        "FromArticles":  [
+                                             "不要错过这 18 个本周 YYDS 的 GitHub 开源项目。",
+                                             "Github本周（06月15日-06月21日）高Star项目精选",
+                                             "Github本周（06月15日-06月21日）高Star项目精选"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/BuilderIO/agent-native",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "10 个本周 yyds 的 GitHub 开源项目，推荐给你。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/giuseppe-trisciuoglio/developer-kit",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "精选 8 个 UI 设计师必备的 AI 智能体技能（Agent Skills）"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/calesthio/OpenMontage",
+                        "RefCount":  3,
+                        "FromArticles":  [
+                                             "10 个本周 yyds 的 GitHub 开源项目，推荐给你。",
+                                             "Github本周（06月15日-06月21日）高Star项目精选",
+                                             "盘点 17 个 6 月份牛牛牛的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/alam00000/bentopdf",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "本周 5 个yyds的Github开源项目，千万别错过！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/op7418/guizang-material-illustration",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "开源一个非常漂亮的文章配图 Skill"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/t8y2/dbx",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "盘点 17 个 6 月份牛牛牛的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/decolua/9router",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 7 个本周火火火的 GitHub 项目，尤其是第一个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/anthropics/financial-services",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "推荐 8 个本周 YYDS 的 GitHub 开源项目。",
+                                             "推荐 5 月份 yyds 的 GitHub 开源项目，一共 17 个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/aws/agent-toolkit-for-aws",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "10 个本周 yyds 的 GitHub 开源项目，推荐给你。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/wshobson/agents",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "精选 8 个 UI 设计师必备的 AI 智能体技能（Agent Skills）"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/guokaigdg/animal-island-ui",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个小众但实用的 GitHub 开源项目，有点意思啊。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/isboyjc/claude-code",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "拿到「热门开源代码」，先掌握 7 个学习思路（附 SOLO 实战）",
+                                             "拿到「热门开源代码」，先掌握 7 个学习思路（附 SOLO 实战）"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/kunchenguid/no-mistakes",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "10 个本周 yyds 的 GitHub 开源项目，推荐给你。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/farion1231/cc-switch",
+                        "RefCount":  3,
+                        "FromArticles":  [
+                                             "这个51K星标的开源神器，让任何Agent都能一键切换所有模型。",
+                                             "这个51K星标的开源神器，让任何Agent都能一键切换所有模型。",
+                                             "这个51K星标的开源神器，让任何Agent都能一键切换所有模型。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/karpathy/nanochat",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Karpathy 加入 Anthropic 了，盘点他开源的 5 个硬核 GitHub 项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/hangwin/mcp-chrome",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Claude很聪明但它是瞎子，直到我给它4肢！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/kenn-io/agentsview",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "盘点 14 个本周牛哄哄的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/makeplane/plane",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "GitHub 狂揽 5.2万 Star！这款 AI 原生的项目管理神器杀疯了",
+                                             "Github本周（06月15日-06月21日）高Star项目精选"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Imbad0202/academic-research-skills",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "推荐 8 个本周 YYDS 的 GitHub 开源项目。",
+                                             "不要错过这 10 个本周火火火的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/badlogic/pi-mono",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "我试遍了所有AI编程工具后，发现真正的高手都在用这个极简方案"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/freeCodeCamp/freeCodeCamp",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "盘点 14 个本周牛哄哄的 GitHub 开源项目。",
+                                             "Github本周（06月15日-06月21日）高Star项目精选"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/mukul975/Anthropic-Cybersecurity-Skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Anthropic 下场了，GitHub 本周最火 10 个项目"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/DietrichGebert/ponytail",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "又一个神级 AI 插件诞生了！让 Claude Code 和 Codex 少写废代码",
+                                             "最近这 4 个 GitHub 开源项目讨论较多，推荐一哈。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/safishamsi/graphify",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "开源 AI 编程可查询的软件工程知识图谱：Graphify 完整上手攻略"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/elder-plinius/CL4R1T4S",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "暴击设计行业的 Claude Design ，系统提示词在 GitHub 上泄露了。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/sanyuan0704/sanyuan-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个爆火的神级 Skills，400K+ 点赞！Vibe Coding 必备！！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/sirmalloc/ccstatusline",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "给你的 Claude Code 装上一个超酷的状态栏。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/wonderwhy-er/DesktopCommanderMCP",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个本周在 GitHub 上夯夯夯的项目，强推第 3 个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/JimLiu/baoyu-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 4 个神级 SKills 开源 GitHub 项目，非常实用。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/OpenBMB/PilotDeck",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 1 个刚开源的 Agent 神器，一个人指挥一支智能体军队。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/presenton/presenton",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Anthropic 下场了，GitHub 本周最火 10 个项目"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/xiaoheizi8/crush-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "疯狂的Skill"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/iOfficeAI/OfficeCLI",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个小众但实用的 GitHub 开源项目，有点意思啊。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/alibaba/OpenSandbox",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/manaflow-ai/cmux",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "又一个神级 Agent 终端神器，开源了！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/karpathy/jobs",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Karpathy 加入 Anthropic 了，盘点他开源的 5 个硬核 GitHub 项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/can1357/oh-my-pi",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "不要错过这 10 个本周火火火的 GitHub 开源项目。",
+                                             "Anthropic 下场了，GitHub 本周最火 10 个项目"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/figma/mcp-server-guide",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "精选 8 个 UI 设计师必备的 AI 智能体技能（Agent Skills）"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/tavily-ai/skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "产品、运营必装的 10 个 Claude Code Skills：PRD、竞品、用研、OKR 全覆盖"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/tractorjuice/arc-kit",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Open-LLM-VTuber/Open-LLM-VTuber",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "不要错过这 18 个本周 YYDS 的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/helloianneo/ian-handdrawn-ppt",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 7 个本周火火火的 GitHub 项目，尤其是第一个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Lordog/dive-into-llms",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "推荐 7 个本周火火火的 GitHub 项目，尤其是第一个。",
+                                             "Github近230万star，3个超给力的GitHub开源项目，每一个都强到离谱！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/modelscope/AgentEvolver",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Agent 自我改进的六条路"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Hmbown/DeepSeek-TUI",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "这款 DeepSeek V4 终端编程神器，在 GitHub 上火了。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/instructkr/claude-code",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "Claude Code源码泄露7小时：8大新功能/26个隐藏指令/6级安全架构，全被扒光了",
+                                             "从Harness角度对Claude Code源码深度解读"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Fokkyp/SoftwareCopyright-Skill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个小众但实用的 GitHub 开源项目，有点意思啊。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/msitarzewski/agency-agents",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Claude很聪明但它是瞎子，直到我给它4肢！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/alibaba/page-agent",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个本周在 GitHub 上夯夯夯的项目，强推第 3 个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/xoai/sage-wiki",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Karpathy 开源了 Agent + Obsidian 个人知识库， 超级有启发。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/kangarooking/poor-charlies-almanack-skill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "开源「仓颉.Skill」，你现在可以蒸馏任何书！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/github/awesome-copilot",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 3 个 GitHub 画图 Skill，一句话生成流程图、架构图。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/mksglu/context-mode",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/diegosouzapw/OmniRoute",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 6 个本周在 GitHub 上夯夯夯的项目，强推第 3 个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/EverMind-AI/Raven",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "当AI开始重写自己：EverMind的自进化智能体框架Raven，正在定义数字生命的下一个形态"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/libtv-labs/libtv-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "从创意到落地，SOLO 如何让短剧制作更高效"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/eze-is/web-access",
+                        "RefCount":  4,
+                        "FromArticles":  [
+                                             "分享6个我觉得应该必装的Skills。",
+                                             "推荐 6 个爆火的神级 Skills，400K+ 点赞！Vibe Coding 必备！！",
+                                             "推荐 6 个爆火的神级 Skills，400K+ 点赞！Vibe Coding 必备！！",
+                                             "这个 Skill 太硬了，刚开源就斩获 2.8K 星标！Agent 联网能力拉满！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/nocobase/nocobase",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "22.4k Stars! 这个给 AI Agent 用的开源数据底座火了。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Shichun-Liu/Agent-Memory-Paper-List",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "AI Agent 的记忆革命：五个正在重塑行业的关键方向"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/HKUDS/DeepTutor",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 10 个本周 GitHub 上最火火火的开源项目，收藏一波。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Zackriya-Solutions/meetily",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "4 个最近 yyds 值得收藏的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/alchaincyf/huashu-md-html",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 3 个刚开源 Star 在慢慢攀升的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/diffusionstudio/lottie",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "本周 5 个yyds的Github开源项目，千万别错过！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/lewislulu/html-ppt-skill",
+                        "RefCount":  3,
+                        "FromArticles":  [
+                                             "AI时代，PPT的未来是HTML，一个神奇的 Skills 推荐",
+                                             "又一个神级 skill 开源  !  好用很多。",
+                                             "又一个神级 skill 开源  !  好用很多。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/op7418/NanoBanana-PPT-Skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 4 个神级 SKills 开源 GitHub 项目，非常实用。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/EverMind-AI/evermem-claude-code",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "迎接智能体的「觉醒时刻」：EverOS全球公测开启Agent Memory自进化序章"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/AIDC-AI/Pixelle-Video",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 7 个本周火火火的 GitHub 项目，尤其是第一个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/kangarooking/buffett-letters-skill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "开源「仓颉.Skill」，你现在可以蒸馏任何书！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/volcengine/OpenViking",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/HKUDS/CLI-Anything",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "让任何软件变成Agent可直接控制的接口",
+                                             "本周 GitHub 热门开源项目Top10，第1个20 万Star"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/lsdefine/GenericAgent",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。",
+                                             "快瞧瞧 4 月 GitHub 上哪些开源项目最火火火火？"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/magicmirrororg/magicmirror",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub近280万star，4个超给力的开源项目曝光了，每一个都强到炸裂！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/anthropics/knowledge-work-plugins",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Anthropic 下场了，GitHub 本周最火 10 个项目"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/operand/agency",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "Agency：一个极简主义的AI智能体框架，用Actor模型重新定义Agent开发",
+                                             "Agency：一个极简主义的AI智能体框架，用Actor模型重新定义Agent开发"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Lum1104/Understand-Anything",
+                        "RefCount":  3,
+                        "FromArticles":  [
+                                             "不要错过这 10 个本周火火火的 GitHub 开源项目。",
+                                             "本周 GitHub 热门开源项目Top10，第1个20 万Star",
+                                             "推荐 5 月份 yyds 的 GitHub 开源项目，一共 17 个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/rtk-ai/rtk",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "快瞧瞧 4 月 GitHub 上哪些开源项目最火火火火？"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Stirling-Tools/Stirling-PDF",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "10 个本周 yyds 的 GitHub 开源项目，推荐给你。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/karpathy/llm-council",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Karpathy 加入 Anthropic 了，盘点他开源的 5 个硬核 GitHub 项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/cobusgreyling/loop-engineering",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "4 个最近 yyds 值得收藏的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/areal-project/AReaL-MinT",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Agent的自演进，被刚刚开源的AReaL 2.0按下了加速键"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/czlonkowski/n8n-mcp",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Claude Code进阶指南：装这9个Skill才算真正上手"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/mem0ai/mem0",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Mem0 vs WorkBuddy：Agent 记忆层的两条路线，谁才是终极答案？"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/hugohe3/ppt-master",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "快瞧瞧 4 月 GitHub 上哪些开源项目最火火火火？"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/EverMind-AI/EverOS",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "迎接智能体的「觉醒时刻」：EverOS全球公测开启Agent Memory自进化序章",
+                                             "迎接智能体的「觉醒时刻」：EverOS全球公测开启Agent Memory自进化序章"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/hyperbrowserai/hyperbrowser-app-examples",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "DESIGN.md：又一个你必须知道的Markdown文件",
+                                             "Google开源DESIGN.md。玩AI，今年最该知道的Markdown！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/antirez/ds4",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Redis之父下场，给DeepSeek V4单独造了一台推理引擎"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/psteger/openclaw",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "我试遍了所有AI编程工具后，发现真正的高手都在用这个极简方案"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/K-Dense-AI/scientific-agent-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "不要错过这 10 个本周火火火的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/JuliusBrussee/caveman",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "GitHub 狂揽 85K Stars，AI Agent 再也不说废话",
+                                             "推荐 6 个本周在 GitHub 上夯夯夯的项目，强推第 3 个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/chopratejas/headroom",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Github本周（06月15日-06月21日）高Star项目精选"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/jamiepine/voicebox",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "10 个本周 yyds 的 GitHub 开源项目，推荐给你。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/humanlayer/12-factor-agents",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "不要错过这 10 个本周火火火的 GitHub 开源项目。",
+                                             "本周 GitHub 热门开源项目Top10，第1个20 万Star"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/stablyai/orca",
+                        "RefCount":  3,
+                        "FromArticles":  [
+                                             "本周 GitHub 热门开源项目Top10，第1个20 万Star",
+                                             "10 个本周 yyds 的 GitHub 开源项目，推荐给你。",
+                                             "盘点 17 个 6 月份牛牛牛的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/openai/plugins",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "不要错过这 18 个本周 YYDS 的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/earendil-works/pi",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "pi-mono：前 libGDX 大佬造的 AI Agent 工具包，45.9k Star，你觉得用不上？"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/anthropics/claude-plugins-official",
+                        "RefCount":  7,
+                        "FromArticles":  [
+                                             "十个顶级 Claude Code Skills，装上就不想卸",
+                                             "十个顶级 Claude Code Skills，装上就不想卸",
+                                             "十个顶级 Claude Code Skills，装上就不想卸",
+                                             "十个顶级 Claude Code Skills，装上就不想卸",
+                                             "让你的 Claude Code 满血复活，Anthropic 在 GitHub 上开源了个插件。",
+                                             "夯！让你的 Claude Code 满血起飞的官方神级插件诞生了。",
+                                             "Anthropic 下场了，GitHub 本周最火 10 个项目"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/Hmbown/CodeWhale",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 5 月份 yyds 的 GitHub 开源项目，一共 17 个。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/microsoft/markitdown",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "推荐 10 个本周 GitHub 上最火火火的开源项目，收藏一波。",
+                                             "GitHub 上 53k + 161k +47.8K Star，这三款 Skill 是我装了就没卸载过的"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/swc-project/swc",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "Github本周（06月15日-06月21日）高Star项目精选",
+                                             "Github本周（06月15日-06月21日）高Star项目精选"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/moeru-ai/airi",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/slavingia/skills",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "一人公司 (OPC) 创业必备的 9 个 Agent Skills",
+                                             "一人公司 (OPC) 创业必备的 9 个 Agent Skills"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/JCodesMore/ai-website-cloner-template",
+                        "RefCount":  3,
+                        "FromArticles":  [
+                                             "10 个本周 yyds 的 GitHub 开源项目，推荐给你。",
+                                             "吐血整理 8 个神级 GitHub 开源项目，让 AI 生成网页好看到飞起。",
+                                             "一个能克隆任意网站 Skill，暴涨 2.6 万 Star！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/meshery/meshery",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "Github本周（06月15日-06月21日）高Star项目精选",
+                                             "Github本周（06月15日-06月21日）高Star项目精选"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/notdog1998/yourself-skill",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "疯狂的Skill"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/lihaoyun6/QuickRecorder",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "本周 5 个yyds的Github开源项目，千万别错过！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/1st1/lat.md",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "4 个最近 yyds 值得收藏的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/stanford-iris-lab/meta-harness-tbench2-artifact",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Agent 自我改进的六条路"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/shareAI-lab/learn-claude-code",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/nvbn/thefuck",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub上221.4k star，这4个火火火的GitHub开源项目，真是挖到宝了！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/jackfrued/python-100-days",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Github近230万star，3个超给力的GitHub开源项目，每一个都强到离谱！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/vogtsw/boss-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "疯狂的Skill"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/datawhalechina/Agent-Learning-Hub",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "重磅 |完备的 AI Agent 学习路线，最详细的资源整理！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/lfnovo/open-notebook",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "不要错过这 18 个本周 YYDS 的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/kangarooking/system-prompt-skills",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "4万Star开源神作曝光顶级AI们的System Prompt！太有意思了～"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/qufei1993/skills-hub",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "强烈推荐！这个 Skill 画架构图质量超高，一句话出图"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/EvoAgentX/EvoAgentX",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Agent 自我改进的六条路"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/aiming-lab/Agent0",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Agent 自我改进的六条路"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/itwanger/PaiAgent",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "字节开源的 Harness Agent 火爆全网，已狂飙 54k+ Star。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/dracohu2025-cloud/t2i_museum",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "来，立刻拥有你的私人AI图片风格影像馆",
+                                             "来，立刻拥有你的私人AI图片风格影像馆"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/withastro/flue",
+                        "RefCount":  2,
+                        "FromArticles":  [
+                                             "Github本周（06月15日-06月21日）高Star项目精选",
+                                             "Github本周（06月15日-06月21日）高Star项目精选"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/firecrawl/firecra",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "GitHub 13万Star：这个开源项夯爆了！"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/ChinaSiro/claude-code-sourcemap",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "Claude Code 源码泄露深度分析：一次意外曝光，暴露出终端 Agent Runtime 的全貌"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/aaif-goose/goose",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "不要错过这 18 个本周 YYDS 的 GitHub 开源项目。"
+                                         ]
+                    },
+                    {
+                        "Repo":  "https://github.com/ogulcancelik/herdr",
+                        "RefCount":  1,
+                        "FromArticles":  [
+                                             "盘点 17 个 6 月份牛牛牛的 GitHub 开源项目。"
+                                         ]
+                    }
+                ],
+    "Dev_Tools":  [
+                      {
+                          "Repo":  "https://github.com/warpdotdev/warp",
+                          "RefCount":  4,
+                          "FromArticles":  [
+                                               "等了五年，AI 终端 Warp 终于开源！OpenAI 赞助",
+                                               "等了五年，AI 终端 Warp 终于开源！OpenAI 赞助",
+                                               "15小时3.5万Star！Altman投资的AI终端开源炸圈：曾经没人用，如今靠Agent翻身",
+                                               "15小时3.5万Star！Altman投资的AI终端开源炸圈：曾经没人用，如今靠Agent翻身"
+                                           ]
+                      },
+                      {
+                          "Repo":  "https://github.com/microsoft/Intelligent-Terminal",
+                          "RefCount":  2,
+                          "FromArticles":  [
+                                               "本周 5 个yyds的Github开源项目，千万别错过！",
+                                               "又挖到 3 个不错的 GitHub 项目，尤其是第 2 个。"
+                                           ]
+                      },
+                      {
+                          "Repo":  "https://github.com/abhigyanpatwari/GitNexus",
+                          "RefCount":  4,
+                          "FromArticles":  [
+                                               "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。",
+                                               "让AI编程助手真正读懂你的代码：GitNexus深度评测",
+                                               "让AI编程助手真正读懂你的代码：GitNexus深度评测",
+                                               "打造 AI 智能体专属的代码知识库：GitNexus 完整上手攻略"
+                                           ]
+                      },
+                      {
+                          "Repo":  "https://github.com/dbeaver/dbeaver",
+                          "RefCount":  1,
+                          "FromArticles":  [
+                                               "GitHub上221.4k star，这4个火火火的GitHub开源项目，真是挖到宝了！"
+                                           ]
+                      },
+                      {
+                          "Repo":  "https://github.com/Kong/insomnia",
+                          "RefCount":  2,
+                          "FromArticles":  [
+                                               "Github本周（06月15日-06月21日）高Star项目精选",
+                                               "Github本周（06月15日-06月21日）高Star项目精选"
+                                           ]
+                      },
+                      {
+                          "Repo":  "https://github.com/colbymchenry/codegraph",
+                          "RefCount":  4,
+                          "FromArticles":  [
+                                               "不要错过这 10 个本周火火火的 GitHub 开源项目。",
+                                               "GitHub趋势榜第一：7天1.4万 Star，AI Agent 开源项目又杀出一匹黑马！",
+                                               "本周 GitHub 热门开源项目Top10，第1个20 万Star",
+                                               "推荐 5 月份 yyds 的 GitHub 开源项目，一共 17 个。"
+                                           ]
+                      }
+                  ],
+    "Skills_Lark_Feishu":  [
+                               {
+                                   "Repo":  "https://github.com/larksuite/cli",
+                                   "RefCount":  2,
+                                   "FromArticles":  [
+                                                        "SOLO +飞书 CLI：11 个经典场景教你丝滑操控飞书",
+                                                        "SOLO +飞书 CLI：11 个经典场景教你丝滑操控飞书"
+                                                    ]
+                               }
+                           ],
+    "Skills_Superpowers":  [
+                               {
+                                   "Repo":  "https://github.com/emilkowalski/skills",
+                                   "RefCount":  2,
+                                   "FromArticles":  [
+                                                        "终于有一个蒸馏 Apple 风格的 Skill 了，GitHub 上有 10.5K 人点赞。",
+                                                        "终于有一个蒸馏 Apple 风格的 Skill 了，GitHub 上有 10.5K 人点赞。"
+                                                    ]
+                               },
+                               {
+                                   "Repo":  "https://github.com/vercel-labs/agent-skills",
+                                   "RefCount":  1,
+                                   "FromArticles":  [
+                                                        "精选 8 个 UI 设计师必备的 AI 智能体技能（Agent Skills）"
+                                                    ]
+                               },
+                               {
+                                   "Repo":  "https://github.com/gsd-build/get-shit-done",
+                                   "RefCount":  1,
+                                   "FromArticles":  [
+                                                        "Claude Code进阶指南：装这9个Skill才算真正上手"
+                                                    ]
+                               },
+                               {
+                                   "Repo":  "https://github.com/anthropics/skills",
+                                   "RefCount":  9,
+                                   "FromArticles":  [
+                                                        "十个顶级 Claude Code Skills，装上就不想卸",
+                                                        "十个顶级 Claude Code Skills，装上就不想卸",
+                                                        "十个顶级 Claude Code Skills，装上就不想卸",
+                                                        "十个顶级 Claude Code Skills，装上就不想卸",
+                                                        "分享6个我觉得应该必装的Skills。",
+                                                        "分享6个我觉得应该必装的Skills。",
+                                                        "推荐 6 个爆火的神级 Skills，400K+ 点赞！Vibe Coding 必备！！",
+                                                        "Claude Code 10 个必装插件：LSP 才是 Day One 第一位",
+                                                        "精选 8 个 UI 设计师必备的 AI 智能体技能（Agent Skills）"
+                                                    ]
+                               },
+                               {
+                                   "Repo":  "https://github.com/forrestchang/andrej-karpathy-skills",
+                                   "RefCount":  2,
+                                   "FromArticles":  [
+                                                        "推荐 10 个本周 GitHub 上最火火火的开源项目，收藏一波。",
+                                                        "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                                    ]
+                               },
+                               {
+                                   "Repo":  "https://github.com/mattpocock/skills",
+                                   "RefCount":  6,
+                                   "FromArticles":  [
+                                                        "产品经理 6 大热门 Skills 推荐",
+                                                        "快瞧瞧 4 月 GitHub 上哪些开源项目最火火火火？",
+                                                        "强烈推荐看看这个演讲，还配套 7 万 Star 的开源 Skill。",
+                                                        "/grill-with-docs，superpowers的对手来了",
+                                                        "如何看待 grill-me（拷问我）这个 Skill？",
+                                                        "如何看待 grill-me（拷问我）这个 Skill？"
+                                                    ]
+                               },
+                               {
+                                   "Repo":  "https://github.com/obra/superpowers",
+                                   "RefCount":  18,
+                                   "FromArticles":  [
+                                                        "产品经理 6 大热门 Skills 推荐",
+                                                        "产品经理 6 大热门 Skills 推荐",
+                                                        "Claude Code进阶指南：装这9个Skill才算真正上手",
+                                                        "十个顶级 Claude Code Skills，装上就不想卸",
+                                                        "安利一个11万Star的必装插件，能让你的Agent体验直接质变。",
+                                                        "安利一个11万Star的必装插件，能让你的Agent体验直接质变。",
+                                                        "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南",
+                                                        "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南",
+                                                        "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南",
+                                                        "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南",
+                                                        "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南",
+                                                        "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南",
+                                                        "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南",
+                                                        "推荐 6 个爆火的神级 Skills，400K+ 点赞！Vibe Coding 必备！！",
+                                                        "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。",
+                                                        "Superpowers \u0026 mcp-use：你的 AI Agent 终于有了超能力",
+                                                        "Superpowers \u0026 mcp-use：你的 AI Agent 终于有了超能力",
+                                                        "本周 GitHub 热门开源项目Top10，第1个20 万Star"
+                                                    ]
+                               }
+                           ],
+    "MultiAgent_Framework":  [
+                                 {
+                                     "Repo":  "https://github.com/facebookresearch/Hyperagents",
+                                     "RefCount":  1,
+                                     "FromArticles":  [
+                                                          "Agent 自我改进的六条路"
+                                                      ]
+                                 },
+                                 {
+                                     "Repo":  "https://github.com/openai/openai-agents-python",
+                                     "RefCount":  1,
+                                     "FromArticles":  [
+                                                          "13 个本周 火火火火 的 GitHub 项目，第 3 个是热榜第 1。"
+                                                      ]
+                                 },
+                                 {
+                                     "Repo":  "https://github.com/tinyhumansai/openhuman",
+                                     "RefCount":  3,
+                                     "FromArticles":  [
+                                                          "虾马之后又火一个！OpenHuman用20分钟了解你的一切，存成卡帕西式知识库",
+                                                          "推荐 3 个刚开源 Star 在慢慢攀升的 GitHub 开源项目。",
+                                                          "本周 GitHub 热门开源项目Top10，第1个20 万Star"
+                                                      ]
+                                 },
+                                 {
+                                     "Repo":  "https://github.com/Fission-AI/OpenSpec",
+                                     "RefCount":  2,
+                                     "FromArticles":  [
+                                                          "从阶段到行动：全新 AI 规范驱动开发工作流 OpenSpec OPSX 完整指南",
+                                                          "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南"
+                                                      ]
+                                 },
+                                 {
+                                     "Repo":  "https://github.com/bytedance/deer-flow",
+                                     "RefCount":  6,
+                                     "FromArticles":  [
+                                                          "暴涨47.3k Stars！字节开源Harness项目DeerFlow 2.0，让智能体几乎能完成任何复杂任务",
+                                                          "暴涨47.3k Stars！字节开源Harness项目DeerFlow 2.0，让智能体几乎能完成任何复杂任务",
+                                                          "暴涨47.3k Stars！字节开源Harness项目DeerFlow 2.0，让智能体几乎能完成任何复杂任务",
+                                                          "暴涨47.3k Stars！字节开源Harness项目DeerFlow 2.0，让智能体几乎能完成任何复杂任务",
+                                                          "字节开源的 Harness Agent 火爆全网，已狂飙 54k+ Star。",
+                                                          "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。"
+                                                      ]
+                                 },
+                                 {
+                                     "Repo":  "https://github.com/multica-ai/multica",
+                                     "RefCount":  1,
+                                     "FromArticles":  [
+                                                          "推荐 10 个本周 GitHub 上最火火火的开源项目，收藏一波。"
+                                                      ]
+                                 },
+                                 {
+                                     "Repo":  "https://github.com/letta-ai/letta-code",
+                                     "RefCount":  1,
+                                     "FromArticles":  [
+                                                          "Agent 自我改进的六条路"
+                                                      ]
+                                 },
+                                 {
+                                     "Repo":  "https://github.com/CopilotKit/CopilotKit",
+                                     "RefCount":  2,
+                                     "FromArticles":  [
+                                                          "不要错过这 18 个本周 YYDS 的 GitHub 开源项目。",
+                                                          "33.6K Star！2026 做 Agentic App，这套基础设施绝了！"
+                                                      ]
+                                 }
+                             ],
+    "Data_Crawl":  [
+                       {
+                           "Repo":  "https://github.com/firecrawl/firecrawl",
+                           "RefCount":  1,
+                           "FromArticles":  [
+                                                "125K+ star 的 AI 爬虫神器：让你的 Agent 秒变网络达人"
+                                            ]
+                       },
+                       {
+                           "Repo":  "https://github.com/D4Vinci/Scrapling",
+                           "RefCount":  1,
+                           "FromArticles":  [
+                                                "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。"
+                                            ]
+                       },
+                       {
+                           "Repo":  "https://github.com/unclecode/crawl4ai",
+                           "RefCount":  2,
+                           "FromArticles":  [
+                                                "GitHub 67.3K Star！专为 LLM 设计的爬虫，比付费服务快 6 倍还完全免费",
+                                                "GitHub 67.3K Star！专为 LLM 设计的爬虫，比付费服务快 6 倍还完全免费"
+                                            ]
+                       }
+                   ],
+    "Local_Infra":  [
+                        {
+                            "Repo":  "https://github.com/LMCache/LMCache",
+                            "RefCount":  2,
+                            "FromArticles":  [
+                                                 "盘点 14 个本周牛哄哄的 GitHub 开源项目。",
+                                                 "Github本周（06月15日-06月21日）高Star项目精选"
+                                             ]
+                        },
+                        {
+                            "Repo":  "https://github.com/tursodatabase/turso",
+                            "RefCount":  2,
+                            "FromArticles":  [
+                                                 "Github本周（06月15日-06月21日）高Star项目精选",
+                                                 "Github本周（06月15日-06月21日）高Star项目精选"
+                                             ]
+                        },
+                        {
+                            "Repo":  "https://github.com/n0-computer/iroh",
+                            "RefCount":  2,
+                            "FromArticles":  [
+                                                 "Github本周（06月15日-06月21日）高Star项目精选",
+                                                 "Github本周（06月15日-06月21日）高Star项目精选"
+                                             ]
+                        },
+                        {
+                            "Repo":  "https://github.com/apple/container",
+                            "RefCount":  2,
+                            "FromArticles":  [
+                                                 "不要错过这 18 个本周 YYDS 的 GitHub 开源项目。",
+                                                 "盘点 17 个 6 月份牛牛牛的 GitHub 开源项目。"
+                                             ]
+                        }
+                    ],
+    "Skills_Knowledge":  [
+                             {
+                                 "Repo":  "https://github.com/kangarooking/kangarooking-skills",
+                                 "RefCount":  1,
+                                 "FromArticles":  [
+                                                      "开源「仓颉.Skill」2.0，你现在可以蒸馏任何视频！"
+                                                  ]
+                             },
+                             {
+                                 "Repo":  "https://github.com/virgiliojr94/book-to-skill",
+                                 "RefCount":  2,
+                                 "FromArticles":  [
+                                                      "又挖到 3 个不错的 GitHub 项目，尤其是第 2 个。",
+                                                      "又挖到 3 个不错的 GitHub 项目，尤其是第 2 个。"
+                                                  ]
+                             },
+                             {
+                                 "Repo":  "https://github.com/kangarooking/cangjie-skill",
+                                 "RefCount":  4,
+                                 "FromArticles":  [
+                                                      "开源「仓颉.Skill」，你现在可以蒸馏任何书！",
+                                                      "开源「仓颉.Skill」，你现在可以蒸馏任何书！",
+                                                      "4万Star开源神作曝光顶级AI们的System Prompt！太有意思了～",
+                                                      "开源「仓颉.Skill」2.0，你现在可以蒸馏任何视频！"
+                                                  ]
+                             }
+                         ],
+    "Skills_Productivity":  [
+                                {
+                                    "Repo":  "https://github.com/ChiTing111/last30days-skill-cn",
+                                    "RefCount":  1,
+                                    "FromArticles":  [
+                                                         "更适合中国宝宝！last30days-skill-cn：彻底本土化！让你在国内再无信息差"
+                                                     ]
+                                },
+                                {
+                                    "Repo":  "https://github.com/mvanhorn/last30days-skill",
+                                    "RefCount":  2,
+                                    "FromArticles":  [
+                                                         "GitHub 上 53k + 161k +47.8K Star，这三款 Skill 是我装了就没卸载过的",
+                                                         "用这个 5 万 Star 的 Skill 学习 AI 新知识，真的起飞。"
+                                                     ]
+                                },
+                                {
+                                    "Repo":  "https://github.com/coreyhaines31/marketingskills",
+                                    "RefCount":  4,
+                                    "FromArticles":  [
+                                                         "产品经理 6 大热门 Skills 推荐",
+                                                         "产品经理 6 大热门 Skills 推荐",
+                                                         "产品经理 6 大热门 Skills 推荐",
+                                                         "推荐 4 个神级 SKills 开源 GitHub 项目，非常实用。"
+                                                     ]
+                                },
+                                {
+                                    "Repo":  "https://github.com/phuryn/pm-skills",
+                                    "RefCount":  3,
+                                    "FromArticles":  [
+                                                         "产品、运营必装的 10 个 Claude Code Skills：PRD、竞品、用研、OKR 全覆盖",
+                                                         "不要错过这 18 个本周 YYDS 的 GitHub 开源项目。",
+                                                         "盘点 17 个 6 月份牛牛牛的 GitHub 开源项目。"
+                                                     ]
+                                },
+                                {
+                                    "Repo":  "https://github.com/deanpeters/Product-Manager-Skills",
+                                    "RefCount":  2,
+                                    "FromArticles":  [
+                                                         "最值得产品经理装的10个skills",
+                                                         "最值得产品经理装的10个skills"
+                                                     ]
+                                }
+                            ],
+    "Skills_Hermes":  [
+                          {
+                              "Repo":  "https://github.com/joeynyc/hermes-skins",
+                              "RefCount":  2,
+                              "FromArticles":  [
+                                                   "Hermes Agent 的七个冷知识",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/NousResearch/hermes-agent",
+                              "RefCount":  6,
+                              "FromArticles":  [
+                                                   "今天开始除了养龙虾（OpenClaw）还要养\"爱马仕\"（Hermes Agent）！记性好，Skills还能自我进化！",
+                                                   "Hermes Agent的确比OpenClaw强，建个【Hermes Agent中文社区】飞书群一起来聊聊吧~",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例",
+                                                   "Agent 自我改进的六条路",
+                                                   "AIGC王牌组合： Hermes Agent + ComfyUI 让设计效率爆炸",
+                                                   "AIGC王牌组合： Hermes Agent + ComfyUI 让设计效率爆炸"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/coder-brzhang/hermes-rs",
+                              "RefCount":  1,
+                              "FromArticles":  [
+                                                   "我用 Rust 重写了一个自进化的 hermes-agent，性能得到了恐怖的提升，记录下我的全部心得"
+                                               ]
+                          }
+                      ],
+    "Skills_Claude":  [
+                          {
+                              "Repo":  "https://github.com/KKKKhazix/khazix-skills",
+                              "RefCount":  4,
+                              "FromArticles":  [
+                                                   "今天，我决定把「卡兹克风格创作.skill」开源了。",
+                                                   "今天，我决定把「卡兹克风格创作.skill」开源了。",
+                                                   "分享一个我用了2年的深度研究Prompt，半小时帮你搞懂任何陌生领域。",
+                                                   "装了这个AI热点Skill之后，你再也不需要自己去刷AI新闻了。"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/dracohu2025-cloud/draco-skills-collection",
+                              "RefCount":  12,
+                              "FromArticles":  [
+                                                   "Hermes Agent的确比OpenClaw强，建个【Hermes Agent中文社区】飞书群一起来聊聊吧~",
+                                                   "如何使用Hermes Agent稳定爬取公众号文章",
+                                                   "如何使用Hermes Agent稳定爬取公众号文章",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例",
+                                                   "（可能全网最全/长的）Hermes Agent+K2.6 保姆教程 + 实战案例"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/affaan-m/ECC",
+                              "RefCount":  4,
+                              "FromArticles":  [
+                                                   "狂揽 20 万 star 的 ECC：面向 Agent 工作的、以 Harness 为原生的操作系统",
+                                                   "狂揽 20 万 star 的 ECC：面向 Agent 工作的、以 Harness 为原生的操作系统",
+                                                   "Anthropic 下场了，GitHub 本周最火 10 个项目",
+                                                   "Anthropic 下场了，GitHub 本周最火 10 个项目"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/affaan-m/everything-claude-code",
+                              "RefCount":  5,
+                              "FromArticles":  [
+                                                   "Claude Code进阶指南：装这9个Skill才算真正上手",
+                                                   "推荐 6 个爆火的神级 Skills，400K+ 点赞！Vibe Coding 必备！！",
+                                                   "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。",
+                                                   "GitHub 10万星 Claude Code 配置揭秘：84条实用规则精华",
+                                                   "GitHub上这个5万星的项目，让我重新理解了什么叫AI工作流"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/shanraisshan/claude-code-best-practice",
+                              "RefCount":  4,
+                              "FromArticles":  [
+                                                   "GitHub 上一路飙到 3.2 万 Star 的 Claude Code 最佳实践，开源了。",
+                                                   "GitHub 上一路飙到 3.2 万 Star 的 Claude Code 最佳实践，开源了。",
+                                                   "推荐 14 个 3 月份最牛牛牛牛的 GitHub 项目，这一期挺顶的。",
+                                                   "Claude Code 最佳实践指南，快速释放Claude Code的全部潜能"
+                                               ]
+                          }
+                      ],
+    "Research_AI":  [
+                        {
+                            "Repo":  "https://github.com/LearningCircuit/local-deep-research",
+                            "RefCount":  1,
+                            "FromArticles":  [
+                                                 "推荐 8 个本周 YYDS 的 GitHub 开源项目。"
+                                             ]
+                        },
+                        {
+                            "Repo":  "https://github.com/coleam00/Archon",
+                            "RefCount":  2,
+                            "FromArticles":  [
+                                                 "推荐 10 个本周 GitHub 上最火火火的开源项目，收藏一波。",
+                                                 "快瞧瞧 4 月 GitHub 上哪些开源项目最火火火火？"
+                                             ]
+                        },
+                        {
+                            "Repo":  "https://github.com/NVIDIA/SkillSpector",
+                            "RefCount":  2,
+                            "FromArticles":  [
+                                                 "盘点 14 个本周牛哄哄的 GitHub 开源项目。",
+                                                 "Github本周（06月15日-06月21日）高Star项目精选"
+                                             ]
+                        },
+                        {
+                            "Repo":  "https://github.com/assafelovic/gpt-researcher",
+                            "RefCount":  1,
+                            "FromArticles":  [
+                                                 "4 个最近 yyds 值得收藏的 GitHub 开源项目。"
+                                             ]
+                        }
+                    ],
+    "Coding_Agents":  [
+                          {
+                              "Repo":  "https://github.com/ruvnet/ruflo",
+                              "RefCount":  2,
+                              "FromArticles":  [
+                                                   "推荐 8 个本周 YYDS 的 GitHub 开源项目。",
+                                                   "GitHub 5 万 Star 的「Claude 外挂」强得离谱！"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/rowboatlabs/rowboat",
+                              "RefCount":  1,
+                              "FromArticles":  [
+                                                   "推荐 10 个本周 GitHub 上最火火火的开源项目，收藏一波。"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/anthropics/claude-code",
+                              "RefCount":  3,
+                              "FromArticles":  [
+                                                   "聊聊 Claude Code v2.1.111：Opus 4.7，Auto 模式开放，新的思考等级 xhigh，以及“限免3次”的 ultrareview",
+                                                   "聊聊 Claude Code v2.1.111：Opus 4.7，Auto 模式开放，新的思考等级 xhigh，以及“限免3次”的 ultrareview",
+                                                   "吐血整理 8 个神级 GitHub 开源项目，让 AI 生成网页好看到飞起。"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/openai/codex-plugin-cc",
+                              "RefCount":  1,
+                              "FromArticles":  [
+                                                   "推荐 6 个本周在 GitHub 上夯夯夯的项目，强推第 3 个。"
+                                               ]
+                          },
+                          {
+                              "Repo":  "https://github.com/github/spec-kit",
+                              "RefCount":  4,
+                              "FromArticles":  [
+                                                   "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南",
+                                                   "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南",
+                                                   "AI 编程三剑客：Spec-Kit、OpenSpec、Superpowers 深度对比与实战指南",
+                                                   "GitHub上221.4k star，这4个火火火的GitHub开源项目，真是挖到宝了！"
+                                               ]
+                          }
+                      ]
+}

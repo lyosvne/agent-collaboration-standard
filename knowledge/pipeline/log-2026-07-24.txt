@@ -1,0 +1,31 @@
+[01:00:04] === Daily Knowledge Pipeline ===
+[01:00:04] Date: 2026-07-24
+[01:00:04] Last run: 2026-07-23T01:00:03.342Z, lookback: 3 days
+[01:00:04] >>> STEP 1: Fetch Feishu messages
+[01:00:04] === Daily Knowledge Pipeline ===
+[01:00:04] Date: 2026-07-24
+[01:00:04] Last run: 2026-07-23T01:00:03.342Z, lookback: 3 days
+[01:00:04] >>> STEP 1: Fetch Feishu messages
+[01:00:08] Saved 20 messages
+[01:00:08] >>> STEP 2: Extract URLs
+[01:00:08] Found 16 WeChat URLs, 0 GitHub URLs
+[01:00:08] >>> STEP 3: Fetch WeChat article fulltext
+[01:00:08] === Daily: Fetch WeChat Fulltext ===
+[01:00:09] Need fulltext: 4 / 16
+[01:00:11] [1/4] https://mp.weixin.qq.com/s/hTW0nqNnmFIKD93noWkr0g
+[01:00:24]   OK: "再见 Superpowers！很多 Skill 真的可以扔掉了。" len=5290
+[01:00:38] [2/4] https://mp.weixin.qq.com/s/DJvuC6brK6HtO4jTSX8Pzg
+[01:00:54]   OK: "21K Star！登上 GitHub 趋势榜 Top3 的 AI 网关项目！" len=2462
+[01:01:09] [3/4] https://mp.weixin.qq.com/s/rGFPDwplK7F5OHHZ-Usd7Q
+[01:01:18]   OK: "又搜罗了一大筐 GitHub 开源项目，最后一个挺值得关注的。" len=2587
+[01:01:30] [4/4] https://mp.weixin.qq.com/s/9wNdfFS1PHxmcDI_IqPU7Q
+[01:01:38]   OK: "LLM Space 开源！任意组装 loop、tools、skills，顺手无痛" len=5530
+[01:01:39] Fulltext done: fetched=4 blocked=0
+[01:01:39] >>> STEP 4: Clone and scan new GitHub repos
+[01:01:39] No new GitHub URLs
+[01:01:39] >>> STEP 5: Regenerate wiki
+[01:01:40] Wiki regenerated
+[01:01:40] >>> STEP 6: Daily summary
+[01:01:40] Summary written
+[01:01:40] Last-run checkpoint saved
+[01:01:40] === Pipeline Complete ===

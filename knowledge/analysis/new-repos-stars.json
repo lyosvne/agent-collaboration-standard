@@ -1,0 +1,161 @@
+[
+  {
+    "fullName": "browser-act/skills",
+    "stars": 4612,
+    "pushedAt": "2026-07-21T13:51:28Z",
+    "archived": false,
+    "description": "Browser automation CLI built for AI agents. Break through anti-bot walls, hand off to humans across platforms when stuck. Parallel multi-task execution, independent multi-session operation, isolated multi-account browsing.",
+    "language": "Python",
+    "topics": [
+      "agent-infrastructure",
+      "ai-agents",
+      "automation",
+      "claude-cli",
+      "claude-code",
+      "claude-code-skills",
+      "claude-skills",
+      "codex",
+      "codex-cli",
+      "codex-skill",
+      "cursor",
+      "data-extraction",
+      "no-code",
+      "openclaw",
+      "openclaw-cli",
+      "openclaw-skill",
+      "openclaw-skills",
+      "web-data-extraction",
+      "web-scraping",
+      "web-scraping-api"
+    ]
+  },
+  {
+    "fullName": "dataelement/bisheng",
+    "stars": 11733,
+    "pushedAt": "2026-07-22T03:59:55Z",
+    "archived": false,
+    "description": "BISHENG is an open LLM devops platform for next generation Enterprise AI applications. Powerful and comprehensive features include: GenAI workflow, RAG, Agent, Unified model management, Evaluation, SFT, Dataset Management, Enterprise-level System Management, Observability and more.",
+    "language": "Python",
+    "topics": [
+      "agent",
+      "ai",
+      "chatbot",
+      "enterprise",
+      "finetune",
+      "genai",
+      "gpt",
+      "langchian",
+      "llama",
+      "llm",
+      "llmdevops",
+      "llmops",
+      "ocr",
+      "openai",
+      "orchestration",
+      "python",
+      "rag",
+      "react",
+      "sft",
+      "workflow"
+    ]
+  },
+  {
+    "fullName": "jesseovo/last30days-skill-cn",
+    "stars": 1188,
+    "pushedAt": "2026-07-20T08:55:57Z",
+    "archived": false,
+    "description": "last30days-cn 是一个 AI Agent 技能（Skill），能够自动搜索中国互联网 8 大主流平台最近 30 天的内容，综合分析后生成有据可查的研究报告。",
+    "language": "Python",
+    "topics": [
+      "claude-code",
+      "openclaw",
+      "openclaw-skills",
+      "rednotebook",
+      "research",
+      "tiktok",
+      "web-search"
+    ]
+  },
+  {
+    "fullName": "fei-away/codex-dream-skin",
+    "stars": 11585,
+    "pushedAt": "2026-07-20T17:11:00Z",
+    "archived": false,
+    "description": "Codex Dream Skin",
+    "language": "JavaScript",
+    "topics": []
+  },
+  {
+    "fullName": "shubhamsaboo/awesome-llm-apps",
+    "stars": 125885,
+    "pushedAt": "2026-07-22T04:18:45Z",
+    "archived": false,
+    "description": "100+ AI Agents, Agent Skills and RAG Apps - Free and Open Source.",
+    "language": "Python",
+    "topics": [
+      "agents",
+      "llms",
+      "python",
+      "rag"
+    ]
+  },
+  {
+    "fullName": "keli-wen/agentic-harness-patterns-skill",
+    "stars": 294,
+    "pushedAt": "2026-04-02T16:04:42Z",
+    "archived": false,
+    "description": "Agent skill for harness engineering — memory, permissions, context engineering, multi-agent coordination. Distilled from Claude Code, with Codex CLI and Gemini CLI on the roadmap. EN/ZH. Install via npx skills add.",
+    "language": "",
+    "topics": [
+      "agent",
+      "claude-code",
+      "codex",
+      "contexts",
+      "gemini-cli",
+      "harness-engineering",
+      "skills"
+    ]
+  },
+  {
+    "fullName": "openhands/openhands",
+    "stars": 81618,
+    "pushedAt": "2026-07-22T00:29:12Z",
+    "archived": false,
+    "description": "🙌 OpenHands: AI-Driven Development",
+    "language": "Python",
+    "topics": [
+      "agent",
+      "artificial-intelligence",
+      "chatgpt",
+      "claude-ai",
+      "cli",
+      "developer-tools",
+      "gpt",
+      "llm",
+      "openai"
+    ]
+  },
+  {
+    "fullName": "nutlope/hallmark",
+    "stars": 15069,
+    "pushedAt": "2026-06-26T10:08:58Z",
+    "archived": false,
+    "description": "Anti-AI-slop design skill for Claude Code, Cursor, and Codex.",
+    "language": "CSS",
+    "topics": []
+  },
+  {
+    "fullName": "davila7/claude-code-templates",
+    "stars": 29821,
+    "pushedAt": "2026-07-22T04:10:30Z",
+    "archived": false,
+    "description": "CLI tool for configuring and monitoring Claude Code",
+    "language": "Python",
+    "topics": [
+      "anthropic",
+      "anthropic-claude",
+      "claude",
+      "claude-code"
+    ]
+  }
+]

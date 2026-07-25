@@ -10,3 +10,6 @@ dashboard.html
 
 # Node依赖（如果scripts将来引入）
 node_modules/
+
+# 大文件说明（不排除，作为知识库关联产物保留）：
+# - analysis/full-code-index-v2.json (91M): Pipeline代码索引产物，可重新生成但作为2026-07快照保留

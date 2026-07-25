@@ -1,0 +1,44 @@
+[01:00:03] === Daily Knowledge Pipeline ===
+[01:00:03] === Daily Knowledge Pipeline ===
+[01:00:03] Date: 2026-07-23
+[01:00:03] Date: 2026-07-23
+[01:00:03] Last run: never, lookback: 7 days
+[01:00:03] Last run: never, lookback: 7 days
+[01:00:03] >>> STEP 1: Fetch Feishu messages
+[01:00:03] >>> STEP 1: Fetch Feishu messages
+[01:00:06] Saved 38 messages
+[01:00:06] >>> STEP 2: Extract URLs
+[01:00:06] Found 30 WeChat URLs, 1 GitHub URLs
+[01:00:06] >>> STEP 3: Fetch WeChat article fulltext
+[01:00:06] === Daily: Fetch WeChat Fulltext ===
+[01:00:06] Need fulltext: 11 / 30
+[01:00:11] [1/11] https://mp.weixin.qq.com/s/Rf32OCWDM-mf1ocfKKQbUw
+[01:00:21]   OK: "Codex、Claude Code的推理档位，其实就是一句提示词。" len=3482
+[01:00:33] [2/11] https://mp.weixin.qq.com/s/XGr_xRO6B4kokU28vM1Wrg
+[01:00:41]   OK: "DeepSeek 官方都点赞的终端 Agent：不绑模型、不收费、Rust 原生" len=5568
+[01:00:56] [3/11] https://mp.weixin.qq.com/s/qcqKKiIt50xjLouhSf4GCQ
+[01:01:06]   OK: "AI 设计终于不靠抽卡了！if Studio 把设计专家做成流水线" len=3888
+[01:01:23] [4/11] https://mp.weixin.qq.com/s/hj_ZzBhmQRbavfqqCc4Ivw
+[01:01:33]   OK: "开源「用 AI 10倍速学习任何知识」.SKILL，我用 Qwen3.8 做出来" len=3895
+[01:01:48] [5/11] https://mp.weixin.qq.com/s/IT1W7N-NmZrbYmv0SWCIKQ
+[01:01:55]   OK: "开源n8n-to-skill，我的工作流可以体面退休了" len=2882
+[01:02:12] [6/11] https://mp.weixin.qq.com/s/6dydOuzrPy8jFG68wlXTpA
+[01:02:20]   OK: "测完这个Agent，我觉得收藏夹里的视频教程可以清空了" len=4235
+[01:02:35] [7/11] https://mp.weixin.qq.com/s/3SwmgwDcRUzOb1yjCP4A3Q
+[01:02:42]   OK: "被阿里悄悄上线的Qwen-Image-3.0惊到了！【附25个神仙玩法】" len=15942
+[01:02:58] [8/11] https://mp.weixin.qq.com/s/ZBMX33VCeTGsi5LuzKOomQ
+[01:03:07]   OK: "用GPT批量生成了8组AI美女，真正有用的只有这套提示词框架！" len=2636
+[01:03:23] [9/11] https://mp.weixin.qq.com/s/qQhq9nxoeCD68iMwQoEVFQ
+[01:03:31]   OK: "腾讯悄悄上线了他们第一个设计Agent - Miora。" len=4878
+[01:03:44] [10/11] https://mp.weixin.qq.com/s/AH9BJqOH1boh_HgcjEpW-A
+[01:03:52]   BLOCKED/short: 199 chars
+[01:04:07] [11/11] https://mp.weixin.qq.com/s/l1trHXYD_IK0KJcFXOjalA
+[01:04:15]   BLOCKED/short: 168 chars
+[01:04:16] Fulltext done: fetched=9 blocked=2
+[01:04:16] >>> STEP 4: Clone and scan new GitHub repos
+[01:04:16] >>> STEP 5: Regenerate wiki
+[01:04:17] Wiki regenerated
+[01:04:17] >>> STEP 6: Daily summary
+[01:04:17] Summary written
+[01:04:17] Last-run checkpoint saved
+[01:04:17] === Pipeline Complete ===

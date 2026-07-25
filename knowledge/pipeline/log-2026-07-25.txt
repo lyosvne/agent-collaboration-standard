@@ -1,0 +1,27 @@
+[01:00:02] === Daily Knowledge Pipeline ===
+[01:00:02] Date: 2026-07-25
+[01:00:02] Last run: 2026-07-24T01:00:04.757Z, lookback: 2 days
+[01:00:02] >>> STEP 1: Fetch Feishu messages
+[01:00:03] === Daily Knowledge Pipeline ===
+[01:00:03] Date: 2026-07-25
+[01:00:03] Last run: 2026-07-24T01:00:04.757Z, lookback: 2 days
+[01:00:03] >>> STEP 1: Fetch Feishu messages
+[01:00:05] Saved 8 messages
+[01:00:05] >>> STEP 2: Extract URLs
+[01:00:05] Found 6 WeChat URLs, 0 GitHub URLs
+[01:00:05] >>> STEP 3: Fetch WeChat article fulltext
+[01:00:05] === Daily: Fetch WeChat Fulltext ===
+[01:00:05] Need fulltext: 2 / 6
+[01:00:08] [1/2] https://mp.weixin.qq.com/s/_4akygfUUnSF02u-7v4iOA
+[01:00:17]   OK: "Mindwalk：可视化 Agent 走过的路" len=624
+[01:00:34] [2/2] https://mp.weixin.qq.com/s/s1qdCZSt9oaUSTJdRnpjng
+[01:00:40]   OK: "别乱写了！这21套 GPT-2提示词直接封神（建议收藏）" len=479
+[01:00:41] Fulltext done: fetched=2 blocked=0
+[01:00:41] >>> STEP 4: Clone and scan new GitHub repos
+[01:00:41] No new GitHub URLs
+[01:00:41] >>> STEP 5: Regenerate wiki
+[01:00:41] Wiki regenerated
+[01:00:41] >>> STEP 6: Daily summary
+[01:00:41] Summary written
+[01:00:41] Last-run checkpoint saved
+[01:00:41] === Pipeline Complete ===

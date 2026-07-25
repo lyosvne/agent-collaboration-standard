@@ -1,0 +1,3323 @@
+{
+  "Agent Harness/Orchestration": [
+    {
+      "dirName": "obra__superpowers",
+      "title": "Superpowers",
+      "description": "Superpowers is a complete software development methodology for your coding agents, built on top of a set of composable skills and some initial instruc",
+      "languages": [
+        ".sh",
+        "JavaScript",
+        "TypeScript"
+      ],
+      "skillCount": 14,
+      "fileCount": 153,
+      "refCount": 18
+    },
+    {
+      "dirName": "anthropics__skills",
+      "title": "Skills",
+      "description": "> **Note:** This repository contains Anthropic's implementation of skills for Claude. For information about the Agent Skills standard, see [agentskill",
+      "languages": [
+        "Python",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 18,
+      "fileCount": 292,
+      "refCount": 9
+    },
+    {
+      "dirName": "mattpocock__skills",
+      "title": "Skills For Real Engineers",
+      "description": "My agent skills that I use every day to do real engineering - not vibe coding.",
+      "languages": [
+        ".sh"
+      ],
+      "skillCount": 41,
+      "fileCount": 145,
+      "refCount": 6
+    },
+    {
+      "dirName": "NousResearch__hermes-agent",
+      "title": "Hermes Agent ☤",
+      "description": "**The self-improving AI agent built by [Nous Research](https://nousresearch.com).** It's the only agent with a built-in learning loop — it creates ski",
+      "languages": [
+        "Python",
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 178,
+      "fileCount": 5671,
+      "refCount": 6
+    },
+    {
+      "dirName": "VoltAgent__awesome-design-md",
+      "title": "Awesome DESIGN.md",
+      "description": "Copy a DESIGN.md into your project, tell your AI agent “build me a page that looks like this,” and generate high-quality UI that stays visually consis",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 150,
+      "refCount": 5
+    },
+    {
+      "dirName": "coreyhaines31__marketingskills",
+      "title": "Marketing Skills for AI Agents",
+      "description": "A collection of AI agent skills focused on marketing tasks. Built for technical marketers and founders who want AI coding agents to help with conversi",
+      "languages": [
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 47,
+      "fileCount": 408,
+      "refCount": 4
+    },
+    {
+      "dirName": "DeusData__codebase-memory-mcp",
+      "title": "codebase-memory-mcp",
+      "description": "**The fastest and most efficient code intelligence engine for AI coding agents.** Full-indexes an average repository in milliseconds, the Linux kernel",
+      "languages": [
+        "C",
+        "C/C++",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 756,
+      "refCount": 4
+    },
+    {
+      "dirName": "eze-is__web-access",
+      "title": "留空 = 每次启动都询问偏好；设值 = 固定使用该浏览器",
+      "description": "AI Agent 原本的联网能力（WebSearch、WebFetch）缺少调度策略和浏览器自动化能力。这个 Agent Skill 补上的是：**联网策略 + CDP 浏览器操作 + 站点经验积累**。兼容所有支持 SKILL.md 的 Agent（Claude Code、Cursor、Gemin",
+      "languages": [],
+      "skillCount": 1,
+      "fileCount": 10,
+      "refCount": 4
+    },
+    {
+      "dirName": "nexu-io__open-design",
+      "title": "One-line install into the agent you're using:",
+      "description": "> 🔥 **Open Design 0.13.0 — _Stay in Flow_ is here.** Long design sessions used to break on every interruption — a run lost its place, a model picker ",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "Python"
+      ],
+      "skillCount": 527,
+      "fileCount": 10820,
+      "refCount": 4
+    },
+    {
+      "dirName": "shanraisshan__claude-code-best-practice",
+      "title": "claude-code-best-practice",
+      "description": "from vibe coding to agentic engineering - practice makes claude perfect",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 299,
+      "refCount": 4
+    },
+    {
+      "dirName": "warpdotdev__warp",
+      "title": "warpdotdev__warp",
+      "description": "> OpenAI is the founding sponsor of the new, open-source Warp repository, and the new agentic management workflows are powered by GPT models.",
+      "languages": [
+        "Rust",
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 22,
+      "fileCount": 5185,
+      "refCount": 4
+    },
+    {
+      "dirName": "google-labs-code__design.md",
+      "title": "DESIGN.md",
+      "description": "A format specification for describing a visual identity to coding agents. DESIGN.md gives agents a persistent, structured understanding of a design sy",
+      "languages": [
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 91,
+      "refCount": 3
+    },
+    {
+      "dirName": "JCodesMore__ai-website-cloner-template",
+      "title": "AI Website Cloner Template",
+      "description": "A reusable template for reverse-engineering any website into a clean, modern Next.js codebase using AI coding agents.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 26,
+      "refCount": 3
+    },
+    {
+      "dirName": "lewislulu__html-ppt-skill",
+      "title": "html-ppt — HTML PPT Studio",
+      "description": "> A world-class AgentSkill for producing professional HTML presentations in",
+      "languages": [
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 1,
+      "fileCount": 224,
+      "refCount": 3
+    },
+    {
+      "dirName": "Panniantong__Agent-Reach",
+      "title": "只预览，不实际删除",
+      "description": "AI Agent 已经能帮你写代码、改文档、管项目——但你让它去网上找点东西，它就抓瞎了：",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 1,
+      "fileCount": 90,
+      "refCount": 3
+    },
+    {
+      "dirName": "anthropics__financial-services",
+      "title": "Claude for Financial Services",
+      "description": "Reference agents, skills, and data connectors for the financial-services workflows we see most — investment banking, equity research, private equity, ",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 117,
+      "fileCount": 285,
+      "refCount": 2
+    },
+    {
+      "dirName": "coleam00__Archon",
+      "title": ".archon/workflows/build-feature.yaml",
+      "description": "The first open-source harness builder for AI coding. Make AI coding deterministic and repeatable.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 701,
+      "refCount": 2
+    },
+    {
+      "dirName": "forrestchang__andrej-karpathy-skills",
+      "title": "Karpathy-Inspired Claude Code Guidelines",
+      "description": "> Check out my new project [Multica](https://github.com/multica-ai/multica) — an open-source platform for running and managing coding agents with reus",
+      "languages": [],
+      "skillCount": 1,
+      "fileCount": 6,
+      "refCount": 2
+    },
+    {
+      "dirName": "heygen-com__hyperframes",
+      "title": "macOS",
+      "description": "HyperFrames is an open-source framework for turning HTML, CSS, media, and seekable animations into deterministic MP4 videos. Use it locally with the C",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 19,
+      "fileCount": 4076,
+      "refCount": 2
+    },
+    {
+      "dirName": "HKUDS__CLI-Anything",
+      "title": "Browse what is available",
+      "description": "CLI-Anything: Bridging the Gap Between AI Agents and the World's Software</strong><br>",
+      "languages": [
+        "Python",
+        ".sh",
+        "C#"
+      ],
+      "skillCount": 150,
+      "fileCount": 1765,
+      "refCount": 2
+    },
+    {
+      "dirName": "HKUDS__ViMax",
+      "title": "HKUDS__ViMax",
+      "description": "🎬 **Director**, **Screenwriter**, **Producer**, and **Video Generator** **All-in-One**! We're exploring a future where AI becomes a complete creative",
+      "languages": [
+        "Python",
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 156,
+      "refCount": 2
+    },
+    {
+      "dirName": "humanlayer__12-factor-agents",
+      "title": "12-Factor Agents - Principles for building reliable LLM applications",
+      "description": "*In the spirit of [12 Factor Apps](https://12factor.net/)*.  *The source for this project is public at https://github.com/humanlayer/12-factor-agents,",
+      "languages": [
+        "TypeScript",
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 472,
+      "refCount": 2
+    },
+    {
+      "dirName": "joeynyc__hermes-skins",
+      "title": "Hermes Skins",
+      "description": "Custom skins (visual themes) for the [Hermes](https://github.com/NousResearch/hermes-agent) CLI agent.",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 40,
+      "refCount": 2
+    },
+    {
+      "dirName": "JuliusBrussee__caveman",
+      "title": "macOS · Linux · WSL · Git Bash",
+      "description": "Make your AI coding agent talk like a caveman.<br>",
+      "languages": [
+        "Python",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 11,
+      "fileCount": 148,
+      "refCount": 2
+    },
+    {
+      "dirName": "karpathy__autoresearch",
+      "title": "autoresearch",
+      "description": "*One day, frontier AI research used to be done by meat computers in between eating, sleeping, having other fun, and synchronizing once in a while usin",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 8,
+      "refCount": 2
+    },
+    {
+      "dirName": "lsdefine__GenericAgent",
+      "title": "GenericAgent",
+      "description": "**A Minimal, Self-Evolving Autonomous Agent Framework**",
+      "languages": [
+        "Python",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 224,
+      "refCount": 2
+    },
+    {
+      "dirName": "mcp-use__mcp-use",
+      "title": "Start server with auto-inspector",
+      "description": "to build MCP Apps for ChatGPT / Claude & MCP Servers for AI Agents.",
+      "languages": [
+        "Python",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 4,
+      "fileCount": 764,
+      "refCount": 2
+    },
+    {
+      "dirName": "MemTensor__MemOS",
+      "title": "1. Add a memory",
+      "description": "**MemOS** is a Memory Operating System for LLMs and AI agents that unifies **store / retrieve / manage** for long-term memory, enabling **context-awar",
+      "languages": [
+        "TypeScript",
+        "Python",
+        "TypeScript"
+      ],
+      "skillCount": 4,
+      "fileCount": 1579,
+      "refCount": 2
+    },
+    {
+      "dirName": "microsoft__Intelligent-Terminal",
+      "title": "Welcome to the Intelligent Terminal repo",
+      "description": "Intelligent Terminal is an experimental fork of [Windows Terminal](https://github.com/microsoft/terminal) with native agent integration.",
+      "languages": [
+        "C++",
+        "C/C++",
+        ".hpp"
+      ],
+      "skillCount": 0,
+      "fileCount": 3783,
+      "refCount": 2
+    },
+    {
+      "dirName": "microsoft__SkillOpt",
+      "title": "SkillOpt: Executive Strategy for Self-Evolving Agent Skills",
+      "description": "*Train agent skills like you train neural networks — with epochs, (mini-)batchsize, learning rates, and validation gates — but without touching model ",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 3,
+      "fileCount": 321,
+      "refCount": 2
+    },
+    {
+      "dirName": "mvanhorn__last30days-skill",
+      "title": "/last30days",
+      "description": "**An AI agent-led search engine scored by upvotes, likes, and real money - not editors.**",
+      "languages": [
+        "Python",
+        "Go",
+        ".sh"
+      ],
+      "skillCount": 1,
+      "fileCount": 363,
+      "refCount": 2
+    },
+    {
+      "dirName": "nexu-io__html-anything",
+      "title": "HTML Anything",
+      "description": "> **Markdown is the draft. HTML is what humans read. Your local agent writes it.** The agentic HTML editor — in the agentic era, you don't hand-edit d",
+      "languages": [
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 161,
+      "refCount": 2
+    },
+    {
+      "dirName": "nexu-io__html-video",
+      "title": "html-video",
+      "description": "> **HTML becomes video — on your laptop.** Bring your local coding agent (Open Design · Windsurf CLI · Trae CLI · Claude Code · Cursor · Codex · Gemin",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 14,
+      "fileCount": 277,
+      "refCount": 2
+    },
+    {
+      "dirName": "NVIDIA__cosmos",
+      "title": "Cosmos",
+      "description": "NVIDIA Cosmos is an open platform of world models, datasets, and tools that enables developers to build Physical AI for robots, autonomous vehicles, s",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 121,
+      "refCount": 2
+    },
+    {
+      "dirName": "NVIDIA__SkillSpector",
+      "title": "SkillSpector",
+      "description": "**Security scanner for AI agent skills.** Detect vulnerabilities, malicious patterns, and security risks before installing agent skills.",
+      "languages": [
+        "Python",
+        "TypeScript",
+        ".sh"
+      ],
+      "skillCount": 23,
+      "fileCount": 234,
+      "refCount": 2
+    },
+    {
+      "dirName": "rohitg00__agentmemory",
+      "title": "If you hit EACCES on macOS/Linux system Node installs, retry with:",
+      "description": "Your coding agent remembers everything. No more re-explaining.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        ".sh"
+      ],
+      "skillCount": 15,
+      "fileCount": 595,
+      "refCount": 2
+    },
+    {
+      "dirName": "ruvnet__ruflo",
+      "title": "Ruflo",
+      "description": "**An agent meta-harness for Claude Code and Codex.**",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        ".sh"
+      ],
+      "skillCount": 136,
+      "fileCount": 3440,
+      "refCount": 2
+    },
+    {
+      "dirName": "tutti-os__tutti",
+      "title": "tutti-os__tutti",
+      "description": "**Where people and agents build in tune.**",
+      "languages": [
+        "TypeScript",
+        "Go",
+        "TypeScript"
+      ],
+      "skillCount": 3,
+      "fileCount": 2845,
+      "refCount": 2
+    },
+    {
+      "dirName": "withastro__flue",
+      "title": "Flue — The Agent Harness Framework",
+      "description": "Not another SDK. Build autonomous agents and powerful AI workflows with Flue's programmable TypeScript harness.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        ".sh"
+      ],
+      "skillCount": 2,
+      "fileCount": 958,
+      "refCount": 2
+    },
+    {
+      "dirName": "xaspx__hermes-control-interface",
+      "title": "Hermes Control Interface",
+      "description": "A self-hosted web dashboard for the [Hermes AI agent](https://github.com/NousResearch/hermes-agent) stack. Manage agents, chat, terminals, files, cron",
+      "languages": [
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 117,
+      "refCount": 2
+    },
+    {
+      "dirName": "XMUDeepLIT__Awesome-Self-Evolving-Agents",
+      "title": "Awesome-Self-Evolving-Agents",
+      "description": "This repository provides a comprehensive collection of research papers, benchmarks, and open-source projects on **Self-Evolving Agents**. It includes ",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 6,
+      "refCount": 2
+    },
+    {
+      "dirName": "1jehuang__jcode",
+      "title": "jcode",
+      "description": "The next generation coding agent harness to raise the skill ceiling. <br>",
+      "languages": [
+        "Rust",
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 1502,
+      "refCount": 1
+    },
+    {
+      "dirName": "1st1__lat.md",
+      "title": "1st1__lat.md",
+      "description": "`AGENTS.md` doesn't scale. A single flat file can describe a small project, but as a codebase grows, maintaining one monolithic document becomes impra",
+      "languages": [
+        "TypeScript",
+        "Rust",
+        "Python"
+      ],
+      "skillCount": 1,
+      "fileCount": 201,
+      "refCount": 1
+    },
+    {
+      "dirName": "aaif-goose__goose",
+      "title": "goose",
+      "description": "_your native open source AI agent — desktop app, CLI, and API — for code, workflows, and everything in between_",
+      "languages": [
+        "Rust",
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 1938,
+      "refCount": 1
+    },
+    {
+      "dirName": "aiming-lab__Agent0",
+      "title": "Agent0 Series: Self-Evolving Agents from Zero Data",
+      "description": "**Unleashing Autonomous Agent Evolution via Tool-Integrated Reasoning**",
+      "languages": [
+        "Python",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 882,
+      "refCount": 1
+    },
+    {
+      "dirName": "alibaba__OpenSandbox",
+      "title": "or",
+      "description": "OpenSandbox is a **general-purpose sandbox platform** for AI applications, offering multi-language SDKs, unified sandbox APIs, and Docker/Kubernetes r",
+      "languages": [
+        "Go",
+        "Python",
+        "TypeScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 1424,
+      "refCount": 1
+    },
+    {
+      "dirName": "alibaba__page-agent",
+      "title": "Page Agent",
+      "description": "The GUI Agent Living in Your Webpage. One script gives any web page its own AI agent.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 213,
+      "refCount": 1
+    },
+    {
+      "dirName": "aws__agent-toolkit-for-aws",
+      "title": "Agent Toolkit for AWS",
+      "description": "Help AI coding agents build, deploy, and manage applications on AWS.",
+      "languages": [
+        "Python",
+        ".sh",
+        "TypeScript"
+      ],
+      "skillCount": 131,
+      "fileCount": 1179,
+      "refCount": 1
+    },
+    {
+      "dirName": "badlogic__pi-mono",
+      "title": "Pi Agent Harness",
+      "description": "> New issues and PRs from new contributors are auto-closed by default. Maintainers review auto-closed issues daily. See [CONTRIBUTING.md](CONTRIBUTING",
+      "languages": [
+        "TypeScript",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 939,
+      "refCount": 1
+    },
+    {
+      "dirName": "budibase__budibase",
+      "title": "budibase__budibase",
+      "description": "Budibase is an open-source operations platform that saves engineers 100s of hours building Agents, Apps and Automations, securely.",
+      "languages": [
+        "TypeScript",
+        "Svelte",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 2520,
+      "refCount": 1
+    },
+    {
+      "dirName": "BuilderIO__agent-native",
+      "title": "Agent-Native",
+      "description": "Agent-Native is an open-source framework for rapidly building robust applications with agents at their core.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "Rust"
+      ],
+      "skillCount": 21,
+      "fileCount": 9808,
+      "refCount": 1
+    },
+    {
+      "dirName": "bytedance-seed__m3-agent",
+      "title": "bytedance-seed__m3-agent",
+      "description": "We introduce M3-Agent, a novel multimodal agent framework equipped with long-term memory. Like humans, M3-Agent can process real-time visual and audit",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 37,
+      "refCount": 1
+    },
+    {
+      "dirName": "bytedance__UI-TARS-desktop",
+      "title": "Launch with `npx`.",
+      "description": "It primarily ships with a <a href=\"https://agent-tars.com/guide/basic/cli.html\" target=\"_blank\">CLI</a> and <a href=\"https://agent-tars.com/guide/basi",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 1475,
+      "refCount": 1
+    },
+    {
+      "dirName": "ChiTing111__last30days-skill-cn",
+      "title": "📰 last30days-cn — 中国平台深度研究引擎",
+      "description": "**last30days-cn** 是一个 AI Agent 技能（Skill），能够自动搜索中国互联网 8 大主流平台最近 30 天的内容，综合分析后生成有据可查的研究报告。",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 2,
+      "fileCount": 100,
+      "refCount": 1
+    },
+    {
+      "dirName": "Claw-AI-Lab__Claw-AI-Lab",
+      "title": "Create python environment",
+      "description": "**Claw AI Lab** is a lab-native multi-agent research platform for interactive and scalable AI-driven science. It enables users to create a full AI res",
+      "languages": [
+        "Python",
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 338,
+      "refCount": 1
+    },
+    {
+      "dirName": "ComposioHQ__awesome-claude-skills",
+      "title": "My Skill Name",
+      "description": "A comprehensive and curated list of 1000+ production ready and practical Claude Skills and Plugins for enhancing productivity across usecases on not j",
+      "languages": [
+        "Python",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 864,
+      "fileCount": 1131,
+      "refCount": 1
+    },
+    {
+      "dirName": "datawhalechina__Agent-Learning-Hub",
+      "title": "Agent Learning Hub",
+      "description": "A curated AI Agent learning roadmap for people who want to build useful, reliable agents instead of collecting random links.",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 4,
+      "refCount": 1
+    },
+    {
+      "dirName": "diffusionstudio__lottie",
+      "title": "diffusionstudio__lottie",
+      "description": "**Text-to-lottie** is an open-source framework for generating production ready Lottie animations with claude code/codex or any other coding agent supp",
+      "languages": [
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 78,
+      "refCount": 1
+    },
+    {
+      "dirName": "earendil-works__pi",
+      "title": "Pi Agent Harness",
+      "description": "> New issues and PRs from new contributors are auto-closed by default. Maintainers review auto-closed issues daily. See [CONTRIBUTING.md](CONTRIBUTING",
+      "languages": [
+        "TypeScript",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 939,
+      "refCount": 1
+    },
+    {
+      "dirName": "elder-plinius__CL4R1T4S",
+      "title": "CL4R1T4S",
+      "description": "AI SYSTEMS TRANSPARENCY AND OBSERVABILITY FOR ALL! Full extracted system prompts, guidelines, and tools from OpenAI, Google, Anthropic, xAI, Perplexit",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 70,
+      "refCount": 1
+    },
+    {
+      "dirName": "EvoAgentX__EvoAgentX",
+      "title": "Create a new conda environment",
+      "description": "Building a Self-Evolving Ecosystem of AI Agents",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 540,
+      "refCount": 1
+    },
+    {
+      "dirName": "facebookresearch__Hyperagents",
+      "title": "API keys, put these into .env file",
+      "description": "sudo dnf install -y graphviz graphviz-devel cmake ninja-build bzip2-devel zlib-devel ncurses-devel libffi-devel",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 144,
+      "refCount": 1
+    },
+    {
+      "dirName": "figma__mcp-server-guide",
+      "title": "Figma MCP Server Guide",
+      "description": "The Figma MCP server brings Figma directly into your workflow by providing important design information and context to AI agents generating code from ",
+      "languages": [
+        "JavaScript",
+        "Python",
+        "TypeScript"
+      ],
+      "skillCount": 14,
+      "fileCount": 120,
+      "refCount": 1
+    },
+    {
+      "dirName": "Fokkyp__SoftwareCopyright-Skill",
+      "title": "Software Copyright Materials Skill",
+      "description": "这是一个用于生成中文软件著作权申请资料的通用 Skill 仓库，适用于支持本地 Skill 目录机制的 coding agent 软件。",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 1,
+      "fileCount": 57,
+      "refCount": 1
+    },
+    {
+      "dirName": "frdel__agent-zero",
+      "title": "Agent Zero",
+      "description": "Agent Zero is an open agent framework for work that needs more than chat: a Dockerized Linux desktop, a browser with DOM annotation, live document cow",
+      "languages": [
+        "Python",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 29,
+      "fileCount": 2088,
+      "refCount": 1
+    },
+    {
+      "dirName": "garrytan__gstack",
+      "title": "gstack",
+      "description": "> \"I don't think I've typed like a line of code probably since December, basically, which is an extremely large change.\" — [Andrej Karpathy](https://f",
+      "languages": [
+        "TypeScript",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 59,
+      "fileCount": 1070,
+      "refCount": 1
+    },
+    {
+      "dirName": "google-ai-edge__LiteRT-LM",
+      "title": "LiteRT-LM",
+      "description": "LiteRT-LM is Google's **production-ready** orchestration layer to run LLMs with",
+      "languages": [
+        "C/C++",
+        "Python",
+        "TypeScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 978,
+      "refCount": 1
+    },
+    {
+      "dirName": "hesreallyhim__awesome-claude-code",
+      "title": "Table of Contents",
+      "description": "_A hand-picked collection of the finest of resources for the most awesome of agents, [Claude Code](https://code.claude.com/docs/), the undisputed cham",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 41,
+      "refCount": 1
+    },
+    {
+      "dirName": "HKUDS__DeepTutor",
+      "title": "DeepTutor: Lifelong Personalized Tutoring",
+      "description": "[Features](#-key-features) · [Get Started](#-get-started) · [Explore](#-explore-deeptutor) · [CLI](#%EF%B8%8F-deeptutor-cli--agent-native-interface) ·",
+      "languages": [
+        "Python",
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 6,
+      "fileCount": 1617,
+      "refCount": 1
+    },
+    {
+      "dirName": "Hmbown__DeepSeek-TUI",
+      "title": "Codewhale",
+      "description": "A coding agent for your terminal. Works with any model; open models first.",
+      "languages": [
+        "Rust",
+        "TypeScript",
+        ".sh"
+      ],
+      "skillCount": 20,
+      "fileCount": 975,
+      "refCount": 1
+    },
+    {
+      "dirName": "hugohe3__ppt-master",
+      "title": "PPT Master — AI generates native PowerPoint from any document",
+      "description": "Thanks to [Kimi](https://www.kimi.com/code/?aff=ppt-master) for sponsoring this project! [Kimi K2.7](https://platform.kimi.ai/docs/guide/kimi-k2-7-cod",
+      "languages": [
+        "Python",
+        "JavaScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 13438,
+      "refCount": 1
+    },
+    {
+      "dirName": "interviewstreet__hiring-agent",
+      "title": "Hiring Agent",
+      "description": "Hiring Agent parses a resume PDF to Markdown, extracts sectioned JSON using a local or hosted LLM, augments the data with GitHub profile and repositor",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 25,
+      "refCount": 1
+    },
+    {
+      "dirName": "iOfficeAI__OfficeCLI",
+      "title": "OfficeCLI",
+      "description": "> **OfficeCLI is the world's first and the best Office suite designed for AI agents.**",
+      "languages": [
+        "C#",
+        ".sh",
+        "Python"
+      ],
+      "skillCount": 12,
+      "fileCount": 1181,
+      "refCount": 1
+    },
+    {
+      "dirName": "itwanger__PaiAgent",
+      "title": "PaiAgent",
+      "description": "[快速开始](#-快速开始) • [功能特性](#-核心特性) • [技术架构](#-技术架构) • [使用文档](./USER_GUIDE.md) • [开发进度](./PROGRESS.md)",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 75,
+      "refCount": 1
+    },
+    {
+      "dirName": "jamiepine__voicebox",
+      "title": "Generate speech",
+      "description": "Clone any voice. Generate speech. Dictate into any app. Talk to agents in voices you own.<br/>",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 647,
+      "refCount": 1
+    },
+    {
+      "dirName": "JimLiu__baoyu-skills",
+      "title": "baoyu-skills",
+      "description": "Skills shared by Baoyu for improving daily work efficiency with AI Agents (Claude Code, Codex, etc.).",
+      "languages": [
+        "TypeScript",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 21,
+      "fileCount": 807,
+      "refCount": 1
+    },
+    {
+      "dirName": "K-Dense-AI__scientific-agent-skills",
+      "title": "Scientific Agent Skills",
+      "description": "> **🔔 Claude Scientific Skills is now Scientific Agent Skills.** Same skills, broader compatibility — now works with any AI agent that supports the o",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 149,
+      "fileCount": 1371,
+      "refCount": 1
+    },
+    {
+      "dirName": "kangarooking__system-prompt-skills",
+      "title": "System Prompt Skills",
+      "description": "一套可直接使用的 Agent skill 工具包——从 165 个顶级 AI 产品系统提示词中，蒸馏出 15 个可复用的系统提示词设计模式。",
+      "languages": [],
+      "skillCount": 15,
+      "fileCount": 21,
+      "refCount": 1
+    },
+    {
+      "dirName": "karpathy__nanochat",
+      "title": "nanochat",
+      "description": "nanochat is the simplest experimental harness for training LLMs. It is designed to run on a single GPU node, the code is minimal/hackable, and it cove",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 50,
+      "refCount": 1
+    },
+    {
+      "dirName": "kenn-io__agentsview",
+      "title": "agentsview",
+      "description": "Browse, search, and track costs across all your AI coding agents. One binary, no",
+      "languages": [
+        "Go",
+        "TypeScript",
+        "Svelte"
+      ],
+      "skillCount": 0,
+      "fileCount": 1602,
+      "refCount": 1
+    },
+    {
+      "dirName": "kepano__obsidian-skills",
+      "title": "kepano__obsidian-skills",
+      "description": "These skills follow the [Agent Skills specification](https://agentskills.io/specification) so they can be used by any skills-compatible agent, includi",
+      "languages": [],
+      "skillCount": 5,
+      "fileCount": 12,
+      "refCount": 1
+    },
+    {
+      "dirName": "lance-format__lance-context",
+      "title": "lance-context",
+      "description": "**A storage engine for AI data — agent memory and RL training data — built on [Lance](https://lancedb.github.io/lance/).**",
+      "languages": [
+        "Rust",
+        "Python",
+        "TypeScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 139,
+      "refCount": 1
+    },
+    {
+      "dirName": "langchain-ai__langgraph-reflection",
+      "title": "🦜🪞LangGraph-Reflection",
+      "description": "This prebuilt graph is an agent that uses a reflection-style architecture to check and improve an initial agent's output.",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 6,
+      "refCount": 1
+    },
+    {
+      "dirName": "LearningCircuit__local-deep-research",
+      "title": "Local Deep Research",
+      "description": "**AI-powered research assistant for deep, agentic research**",
+      "languages": [
+        "Python",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 2989,
+      "refCount": 1
+    },
+    {
+      "dirName": "letta-ai__letta-code",
+      "title": "Letta Code",
+      "description": "Letta Code is a stateful agent harness for creating agents that are more like people than tools. Letta Code agents have memory, identity, and a sense ",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 18,
+      "fileCount": 1594,
+      "refCount": 1
+    },
+    {
+      "dirName": "liaohch3__claude-tap",
+      "title": "claude-tap",
+      "description": "`claude-tap` is a local proxy and trace viewer for AI coding agents. Run your CLI through it, or listen to local app transcripts, then inspect the rea",
+      "languages": [
+        "Python",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 174,
+      "refCount": 1
+    },
+    {
+      "dirName": "libtv-labs__libtv-skills",
+      "title": "🎬 libtv-skills",
+      "description": "> AI Agent Skills for [LibLib.tv](https://www.liblib.tv) — 让你的 AI Agent 轻松调用 LibTV 的生图、生视频等 AIGC 能力。",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 1,
+      "fileCount": 9,
+      "refCount": 1
+    },
+    {
+      "dirName": "mblode__agent-skills",
+      "title": "Agent Skills",
+      "description": "Works with Claude Code, OpenCode, Codex, and Cursor.",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 26,
+      "fileCount": 511,
+      "refCount": 1
+    },
+    {
+      "dirName": "mem0ai__mem0",
+      "title": "Introduction",
+      "description": "All benchmarks run on the same production-representative model stack. Single-pass retrieval (one call, no agentic loops) at a top_200 retrieval budget",
+      "languages": [
+        "TypeScript",
+        "Python",
+        "TypeScript"
+      ],
+      "skillCount": 32,
+      "fileCount": 1687,
+      "refCount": 1
+    },
+    {
+      "dirName": "modelscope__AgentEvolver",
+      "title": "option 1: minimal example without ReMe (using built-in datasets within environme",
+      "description": "**AgentEvolver** is an end-to-end, self-evolving training framework that unifies self-questioning, self-navigating, and self-attributing into a cohesi",
+      "languages": [
+        "Python",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 356,
+      "refCount": 1
+    },
+    {
+      "dirName": "msitarzewski__agency-agents",
+      "title": "🎭 The Agency: AI Specialists Ready to Transform Your Workflow",
+      "description": "> **A complete AI agency at your fingertips** - From frontend wizards to Reddit community ninjas, from whimsy injectors to reality checkers. Each agen",
+      "languages": [
+        ".sh",
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 326,
+      "refCount": 1
+    },
+    {
+      "dirName": "multica-ai__multica",
+      "title": "Multica",
+      "description": "The open-source managed agents platform.<br/>",
+      "languages": [
+        "Go",
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 8,
+      "fileCount": 3400,
+      "refCount": 1
+    },
+    {
+      "dirName": "op7418__Claude-to-IM-skill",
+      "title": "Claude-to-IM Skill",
+      "description": "Bridge Claude Code / Codex to IM platforms — chat with AI coding agents from Telegram, Discord, Feishu/Lark, QQ, or WeChat.",
+      "languages": [
+        "TypeScript",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 51,
+      "refCount": 1
+    },
+    {
+      "dirName": "op7418__guizang-material-illustration",
+      "title": "歸藏的材质插画 skill",
+      "description": "一个适配 Claude Code / Codex 等 Agent 环境的配图 Skill，用来把文章、笔记、图表截图、产品概念、工作汇报、教学材料和人文观点，生成**带中文标签的歸藏材质插画**。",
+      "languages": [],
+      "skillCount": 1,
+      "fileCount": 12,
+      "refCount": 1
+    },
+    {
+      "dirName": "openai__openai-agents-python",
+      "title": "OpenAI Agents SDK [![PyPI](https://img.shields.io/pypi/v/openai-agents?label=pyp",
+      "description": "The OpenAI Agents SDK is a lightweight yet powerful framework for building multi-agent workflows. It is provider-agnostic, supporting the OpenAI Respo",
+      "languages": [
+        "Python",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 3,
+      "fileCount": 1281,
+      "refCount": 1
+    },
+    {
+      "dirName": "OpenBMB__PilotDeck",
+      "title": "then open http://localhost:3001, or the URL printed by the command",
+      "description": "Task-oriented AI Agent productivity platform — redefining operational boundaries and memory evolution, one WorkSpace at a time.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 31,
+      "fileCount": 1096,
+      "refCount": 1
+    },
+    {
+      "dirName": "OthmanAdi__planning-with-files",
+      "title": "Planning with Files",
+      "description": "> 📣 **New in [v3.0.0](https://github.com/OthmanAdi/planning-with-files/releases/tag/v3.0.0):** opt-in autonomous and gated modes for long-running age",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 6,
+      "fileCount": 191,
+      "refCount": 1
+    },
+    {
+      "dirName": "pbakaus__impeccable",
+      "title": "Impeccable",
+      "description": "Design guidance for AI coding agents. 1 skill, 23 commands, live browser iteration, and 46 deterministic detector rules for AI-generated frontend desi",
+      "languages": [
+        "JavaScript",
+        "JavaScript",
+        "TypeScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 915,
+      "refCount": 1
+    },
+    {
+      "dirName": "pixijs__pixijs-skills",
+      "title": "pixijs__pixijs-skills",
+      "description": "AI skills for [PixiJS](https://pixijs.com) v8, the fast 2D rendering library for WebGL, WebGPU, and Canvas. They teach agents correct PixiJS usage: Ap",
+      "languages": [
+        "JavaScript"
+      ],
+      "skillCount": 26,
+      "fileCount": 73,
+      "refCount": 1
+    },
+    {
+      "dirName": "qufei1993__skills-hub",
+      "title": "Skills Hub (Tauri Desktop)",
+      "description": "A cross-platform desktop app (Tauri + React) for installing, organizing, updating, and syncing Agent Skills to multiple AI coding tools' global or pro",
+      "languages": [
+        "Rust",
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 180,
+      "refCount": 1
+    },
+    {
+      "dirName": "sanyuan0704__sanyuan-skills",
+      "title": "sanyuan-skills",
+      "description": "A collection of production-grade agent skills for Claude Code and other AI agent terminals.",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 6,
+      "fileCount": 32,
+      "refCount": 1
+    },
+    {
+      "dirName": "shareAI-lab__learn-claude-code",
+      "title": "Learn Claude Code -- Harness Engineering for Real Agents",
+      "description": "[English](./README.md) | [中文](./README-zh.md) | [日本語](./README-ja.md)",
+      "languages": [
+        "TypeScript",
+        "Python",
+        "TypeScript"
+      ],
+      "skillCount": 4,
+      "fileCount": 437,
+      "refCount": 1
+    },
+    {
+      "dirName": "Shichun-Liu__Agent-Memory-Paper-List",
+      "title": "Shichun-Liu__Agent-Memory-Paper-List",
+      "description": "Memory serves as the cornerstone of foundation model-based agents, underpinning their ability to perform long-horizon reasoning, adapt continually, an",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 4,
+      "refCount": 1
+    },
+    {
+      "dirName": "stanford-iris-lab__meta-harness-tbench2-artifact",
+      "title": "Meta-Harness",
+      "description": "Agent scaffold for [Terminal-Bench 2.0](https://tbench.ai), built on top of [Terminus-KIRA](https://github.com/krafton-ai/KIRA) by KRAFTON AI and [Har",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 5,
+      "refCount": 1
+    },
+    {
+      "dirName": "tavily-ai__skills",
+      "title": "Tavily Agent Skills",
+      "description": "Web search, content extraction, site crawling, URL discovery, and deep research — powered by the Tavily CLI.",
+      "languages": [],
+      "skillCount": 8,
+      "fileCount": 16,
+      "refCount": 1
+    },
+    {
+      "dirName": "tractorjuice__arc-kit",
+      "title": "ArcKit: The Enterprise Architecture Governance Harness",
+      "description": "**Build better enterprise architecture through structured strategy, design, delivery, and assurance workflows.**",
+      "languages": [
+        "Python",
+        ".sh",
+        "TypeScript"
+      ],
+      "skillCount": 8,
+      "fileCount": 1729,
+      "refCount": 1
+    },
+    {
+      "dirName": "vercel-labs__agent-skills",
+      "title": "Agent Skills",
+      "description": "A collection of skills for AI coding agents. Skills are packaged instructions and scripts that extend agent capabilities.",
+      "languages": [
+        "TypeScript",
+        ".sh"
+      ],
+      "skillCount": 9,
+      "fileCount": 433,
+      "refCount": 1
+    },
+    {
+      "dirName": "wechatpay-apiv3__wechatpay-skills",
+      "title": "wechatpay-apiv3__wechatpay-skills",
+      "description": "微信支付为 AI Agent 提供了专业的技能包（Skills），将产品的业务知识、代码示例和接入规范以 Agent 可理解的方式组织，使 Agent 能够准确地协助开发者完成微信支付的接入工作。",
+      "languages": [
+        ".sh",
+        "Python"
+      ],
+      "skillCount": 1,
+      "fileCount": 12,
+      "refCount": 1
+    },
+    {
+      "dirName": "wshobson__agents",
+      "title": "Agentic Plugin Marketplace",
+      "description": "> Production-ready agentic workflow building blocks: **94 plugins**, **203 agents**,",
+      "languages": [
+        "Python",
+        ".sh",
+        "C#"
+      ],
+      "skillCount": 180,
+      "fileCount": 860,
+      "refCount": 1
+    },
+    {
+      "dirName": "yezannnnn__agentGroup",
+      "title": "aiGroup - AI团队协作系统",
+      "description": "1. **模型智能选择**: 根据任务复杂度选择Haiku/Sonnet/Opus",
+      "languages": [
+        "Python",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 26,
+      "fileCount": 377,
+      "refCount": 1
+    },
+    {
+      "dirName": "YishenTu__claudian",
+      "title": "Claudian",
+      "description": "An Obsidian plugin that embeds AI coding agents (Claude Code, Codex, Opencode, Pi, and more to come) in your vault. Your vault becomes the agent's wor",
+      "languages": [
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 753,
+      "refCount": 1
+    },
+    {
+      "dirName": "zilliztech__claude-context",
+      "title": "IMPORTANT: the top-level key is `mcp_servers` rather than `mcpServers`.",
+      "description": "> 🆕 **Looking for persistent memory for Claude Code?** Check out [memsearch Claude Code plugin](https://github.com/zilliztech/memsearch#for-claude-co",
+      "languages": [
+        "TypeScript",
+        "Python",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 169,
+      "refCount": 1
+    },
+    {
+      "dirName": "agent-skills",
+      "title": "Agent Skills",
+      "description": "**Production-grade engineering skills for AI coding agents.**",
+      "languages": [
+        "JavaScript",
+        ".sh",
+        "TypeScript"
+      ],
+      "skillCount": 24,
+      "fileCount": 146,
+      "refCount": 0
+    },
+    {
+      "dirName": "awesome-design-md",
+      "title": "Awesome DESIGN.md",
+      "description": "Copy a DESIGN.md into your project, tell your AI agent “build me a page that looks like this,” and generate high-quality UI that stays visually consis",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 150,
+      "refCount": 0
+    },
+    {
+      "dirName": "html-video",
+      "title": "html-video",
+      "description": "> **HTML becomes video — on your laptop.** Bring your local coding agent (Open Design · Windsurf CLI · Trae CLI · Claude Code · Cursor · Codex · Gemin",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 14,
+      "fileCount": 277,
+      "refCount": 0
+    },
+    {
+      "dirName": "hyperframes",
+      "title": "macOS",
+      "description": "HyperFrames is an open-source framework for turning HTML, CSS, media, and seekable animations into deterministic MP4 videos. Use it locally with the C",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 19,
+      "fileCount": 4046,
+      "refCount": 0
+    },
+    {
+      "dirName": "OpenChronicle",
+      "title": "OpenChronicle",
+      "description": "Open-source, local-first memory for any tool-capable LLM agent.",
+      "languages": [
+        "Python",
+        ".sh",
+        "Swift"
+      ],
+      "skillCount": 0,
+      "fileCount": 79,
+      "refCount": 0
+    },
+    {
+      "dirName": "routa",
+      "title": "Routa",
+      "description": "**Workspace-first multi-agent coordination platform for software delivery**",
+      "languages": [
+        "TypeScript",
+        "Rust",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 2417,
+      "refCount": 0
+    },
+    {
+      "dirName": "taste-skill",
+      "title": "Taste Skill",
+      "description": "Portable **Agent Skills** that upgrade AI-built interfaces: stronger layout, typography, motion, and spacing instead of boilerplate-looking UIs. This ",
+      "languages": [
+        ".sh"
+      ],
+      "skillCount": 13,
+      "fileCount": 53,
+      "refCount": 0
+    }
+  ],
+  "Skills Collections": [
+    {
+      "dirName": "dracohu2025-cloud__draco-skills-collection",
+      "title": "Draco Skills Collection",
+      "description": "它适合做每天固定时间的 AI 早报：抓候选、核验来源、写中文摘要、发布飞书文档，再归档到多维表。",
+      "languages": [
+        "Python",
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 44,
+      "fileCount": 549,
+      "refCount": 12
+    },
+    {
+      "dirName": "nextlevelbuilder__ui-ux-pro-max-skill",
+      "title": "[UI UX Pro Max](https://uupm.cc)",
+      "description": "An AI skill that provides design intelligence for building professional UI/UX across multiple platforms and frameworks.",
+      "languages": [
+        "Python",
+        "TypeScript",
+        ".sh"
+      ],
+      "skillCount": 6,
+      "fileCount": 242,
+      "refCount": 5
+    },
+    {
+      "dirName": "KKKKhazix__khazix-skills",
+      "title": "🧰 Khazix Skills",
+      "description": "都是在自己项目里跑通了一段时间，确实省事，才搬出来开源的。没什么花活，就是几个挺实用的东西。",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 5,
+      "fileCount": 22,
+      "refCount": 4
+    },
+    {
+      "dirName": "phuryn__pm-skills",
+      "title": "PM Skills Marketplace: The AI Operating System for Better Product Decisions",
+      "description": "> 68 PM skills and 42 chained workflows across 9 plugins. Claude Code, Cowork, and more. From discovery to strategy, execution, launch, growth, and sh",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 68,
+      "fileCount": 128,
+      "refCount": 3
+    },
+    {
+      "dirName": "deanpeters__Product-Manager-Skills",
+      "title": "Product Manager Skills",
+      "description": "╔════════════════════════════════════════════════════════════════════╗",
+      "languages": [
+        ".sh",
+        "Python",
+        "JavaScript"
+      ],
+      "skillCount": 70,
+      "fileCount": 298,
+      "refCount": 2
+    },
+    {
+      "dirName": "emilkowalski__skills",
+      "title": "Skills For Design Engineers",
+      "description": "For designers and engineers to help them build better user interfaces.",
+      "languages": [],
+      "skillCount": 6,
+      "fileCount": 11,
+      "refCount": 2
+    },
+    {
+      "dirName": "MiniMax-AI__skills",
+      "title": "MiniMax Skills",
+      "description": "> **Beta** — This project is under active development. Skills, APIs, and configuration formats may change without notice. We welcome feedback and cont",
+      "languages": [
+        "Python",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 22,
+      "fileCount": 337,
+      "refCount": 2
+    },
+    {
+      "dirName": "slavingia__skills",
+      "title": "The Minimalist Entrepreneur — Claude Code Skills",
+      "description": "Claude Code skills based on [The Minimalist Entrepreneur](https://www.minimalistentrepreneur.com/) by Sahil Lavingia.",
+      "languages": [],
+      "skillCount": 10,
+      "fileCount": 11,
+      "refCount": 2
+    },
+    {
+      "dirName": "greensock__gsap-skills",
+      "title": "GSAP AI Skills",
+      "description": "███████╗██╗  ██╗██╗██╗     ██╗     ███████╗",
+      "languages": [
+        "JavaScript",
+        "Vue",
+        "TypeScript"
+      ],
+      "skillCount": 8,
+      "fileCount": 36,
+      "refCount": 1
+    },
+    {
+      "dirName": "kangarooking__buffett-letters-skill",
+      "title": "Buffett Letters Skill",
+      "description": "一套可直接使用的 AI skill 工具包——把沃伦·巴菲特 60+ 年致股东信中的核心投资方法拆成了 20 个可单独触发、也可组合调用的判断模块。",
+      "languages": [],
+      "skillCount": 20,
+      "fileCount": 54,
+      "refCount": 1
+    },
+    {
+      "dirName": "kangarooking__kangarooking-skills",
+      "title": "袋鼠帝 Skills 技能仓库",
+      "description": "├── apimart-image-gen/       # APIMart GPT-Image-2 异步图片生成与下载",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 16,
+      "fileCount": 127,
+      "refCount": 1
+    },
+    {
+      "dirName": "kangarooking__no-rules-rules-skill",
+      "title": "No Rules Rules Skill",
+      "description": "一套可直接使用的 AI skill 工具包——把网飞\"自由与责任\"文化的组织设计方法拆成了 10 个可单独触发、也可组合调用的管理模块。",
+      "languages": [],
+      "skillCount": 10,
+      "fileCount": 33,
+      "refCount": 1
+    },
+    {
+      "dirName": "kangarooking__poor-charlies-almanack-skill",
+      "title": "Poor Charlie's Almanack Skill",
+      "description": "一套可直接使用的 AI skill 工具包——把查理·芒格的核心思维方法拆成了 12 个可单独触发、也可组合调用的判断模块。",
+      "languages": [],
+      "skillCount": 12,
+      "fileCount": 74,
+      "refCount": 1
+    },
+    {
+      "dirName": "kangarooking__promo-creator-skills",
+      "title": "Promo Creator Skills",
+      "description": "> 一套面向真实产品宣传片的 production-grade Skills：产品判断、叙事结构、视觉规划、HyperFrames 剪辑、BGM 设计和交付清单，全链路跑通。",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 7,
+      "fileCount": 13,
+      "refCount": 1
+    },
+    {
+      "dirName": "mukul975__Anthropic-Cybersecurity-Skills",
+      "title": "Anthropic Cybersecurity Skills",
+      "description": "**817 production-grade cybersecurity skills · 29 security domains · 6 framework mappings · 26+ AI platforms**",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 817,
+      "fileCount": 4493,
+      "refCount": 1
+    },
+    {
+      "dirName": "remotion-dev__skills",
+      "title": "@remotion/skills",
+      "description": "This is an internal package and has no documentation.",
+      "languages": [
+        "TypeScript"
+      ],
+      "skillCount": 17,
+      "fileCount": 107,
+      "refCount": 1
+    },
+    {
+      "dirName": "skills",
+      "title": "MiniMax Skills",
+      "description": "> **Beta** — This project is under active development. Skills, APIs, and configuration formats may change without notice. We welcome feedback and cont",
+      "languages": [
+        "Python",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 22,
+      "fileCount": 337,
+      "refCount": 0
+    },
+    {
+      "dirName": "slavingia-skills",
+      "title": "The Minimalist Entrepreneur — Claude Code Skills",
+      "description": "Claude Code skills based on [The Minimalist Entrepreneur](https://www.minimalistentrepreneur.com/) by Sahil Lavingia.",
+      "languages": [],
+      "skillCount": 10,
+      "fileCount": 11,
+      "refCount": 0
+    }
+  ],
+  "MCP Servers/Tools": [
+    {
+      "dirName": "cloudflare__mcp",
+      "title": "Cloudflare MCP Server",
+      "description": "> A token-efficient MCP server for the entire Cloudflare API. 2500 endpoints in 1k tokens, powered by [Code Mode](https://blog.cloudflare.com/code-mod",
+      "languages": [
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 55,
+      "refCount": 1
+    },
+    {
+      "dirName": "czlonkowski__n8n-mcp",
+      "title": "n8n-MCP",
+      "description": "A Model Context Protocol (MCP) server that provides AI assistants with comprehensive access to n8n node documentation, properties, and operations. Dep",
+      "languages": [
+        "TypeScript",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 15,
+      "fileCount": 816,
+      "refCount": 1
+    },
+    {
+      "dirName": "hangwin__mcp-chrome",
+      "title": "Chrome MCP Server 🚀",
+      "description": "> 🌟 **Turn your Chrome browser into your intelligent assistant** - Let AI take control of your browser, transforming it into a powerful AI-controlled",
+      "languages": [
+        "TypeScript",
+        "JavaScript",
+        "Vue"
+      ],
+      "skillCount": 0,
+      "fileCount": 355,
+      "refCount": 1
+    },
+    {
+      "dirName": "wonderwhy-er__DesktopCommanderMCP",
+      "title": "Desktop Commander MCP",
+      "description": "Work with code and text, run processes, and automate tasks, going far beyond other AI editors - while using host client subscriptions instead of API t",
+      "languages": [
+        "TypeScript",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 18,
+      "fileCount": 286,
+      "refCount": 1
+    }
+  ],
+  "Code Intelligence/Memory": [
+    {
+      "dirName": "areal-project__AReaL",
+      "title": "Install flash-attn pre-built wheel first to avoid compiling from source",
+      "description": "**AReaL** is a reinforcement learning (RL) infrastructure designed to bridge foundation",
+      "languages": [
+        "Python",
+        ".sh",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 1048,
+      "refCount": 3
+    },
+    {
+      "dirName": "Lum1104__Understand-Anything",
+      "title": "Generate Chinese content (知识图节点描述和 Dashboard UI)",
+      "description": "**You just joined a new team. The codebase is 200,000 lines of code. Where do you even start?**",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "Python"
+      ],
+      "skillCount": 9,
+      "fileCount": 362,
+      "refCount": 3
+    },
+    {
+      "dirName": "supertone-inc__supertonic",
+      "title": "Supertonic — Lightning Fast, On-Device, Accurate TTS",
+      "description": "**Supertonic** is a lightning-fast, on-device multilingual text-to-speech system designed for local inference with minimal overhead. Powered by ONNX R",
+      "languages": [
+        "Swift",
+        "JavaScript",
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 104,
+      "refCount": 2
+    },
+    {
+      "dirName": "swc-project__swc",
+      "title": "Documentation",
+      "description": "SWC (stands for `Speedy Web Compiler`) is a super-fast TypeScript / JavaScript compiler written in Rust. It's a library for Rust and JavaScript at the",
+      "languages": [
+        "JavaScript",
+        "TypeScript",
+        "Rust"
+      ],
+      "skillCount": 0,
+      "fileCount": 37670,
+      "refCount": 2
+    },
+    {
+      "dirName": "unclecode__crawl4ai",
+      "title": "🚀🤖 Crawl4AI: Open-source LLM Friendly Web Crawler & Scraper.",
+      "description": "Reliable, large-scale web extraction, now built to be _**drastically more cost-effective**_ than any of the existing solutions.",
+      "languages": [
+        "Python",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 886,
+      "refCount": 2
+    },
+    {
+      "dirName": "areal-project__AReaL-MinT",
+      "title": "Create venv inheriting system packages (torch, sglang, areal, transformers)",
+      "description": "[MinT](https://github.com/MindLab-Research/mindlab-toolkit) is RL training infrastructure for LLMs: a script on a CPU-only machine defines the data, l",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 69,
+      "refCount": 1
+    },
+    {
+      "dirName": "DavidHDev__react-bits",
+      "title": "Example: Add a component via shadcn",
+      "description": "React Bits helps you **ship stunning interfaces faster**. Instead of spending hours crafting animations from scratch, grab a polished component and cu",
+      "languages": [
+        "JavaScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 2159,
+      "refCount": 1
+    },
+    {
+      "dirName": "deepseek-ai__DeepGEMM",
+      "title": "DeepGEMM",
+      "description": "DeepGEMM is a unified, high-performance tensor core kernel library that brings together the key computation primitives of modern large language models",
+      "languages": [
+        ".hpp",
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 131,
+      "refCount": 1
+    },
+    {
+      "dirName": "EverMind-AI__evermem-claude-code",
+      "title": "EverMem Plugin for Claude Code",
+      "description": "Persistent memory for Claude Code. Automatically saves and recalls context from past coding sessions.",
+      "languages": [
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 39,
+      "refCount": 1
+    },
+    {
+      "dirName": "HKUDS__LightRAG",
+      "title": "🚀 LightRAG: Simple and Fast Retrieval-Augmented Generation",
+      "description": "*Figure 1: LightRAG Indexing Flowchart - Img Caption : [Source](https://learnopencv.com/lightrag/)*",
+      "languages": [
+        "Python",
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 755,
+      "refCount": 1
+    },
+    {
+      "dirName": "lance-format__lance-graph",
+      "title": "Lance Graph",
+      "description": "Lance Graph is a Cypher-capable graph query engine built in Rust with Python bindings for building high-performance, scalable, and serverless multimod",
+      "languages": [
+        "Rust",
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 138,
+      "refCount": 1
+    },
+    {
+      "dirName": "Mark7766__ai-coding-ok",
+      "title": "🧠 ai-coding-ok",
+      "description": "> **The PDCA memory loop for AI coding.**",
+      "languages": [
+        ".sh",
+        "Python"
+      ],
+      "skillCount": 2,
+      "fileCount": 23,
+      "refCount": 1
+    },
+    {
+      "dirName": "notdog1998__yourself-skill",
+      "title": "自己.skill",
+      "description": "**Part A — Self Memory（自我记忆）+ Part B — Persona（人格模型）**<br>",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 2,
+      "fileCount": 23,
+      "refCount": 1
+    },
+    {
+      "dirName": "Open-LLM-VTuber__Open-LLM-VTuber",
+      "title": "🎉🎉🎉 Related Projects",
+      "description": "> **📢 v2.0 Development**: We are focusing on Open-LLM-VTuber v2.0 — a complete rewrite of the codebase. v2.0 is currently in its early discussion and",
+      "languages": [
+        "Python",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 234,
+      "refCount": 1
+    },
+    {
+      "dirName": "rowboatlabs__rowboat",
+      "title": "rowboatlabs__rowboat",
+      "description": "Rowboat indexes your work into a living knowledge graph and uses that to get work done on your machine. It includes work surfaces for collaborating wi",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 605,
+      "refCount": 1
+    },
+    {
+      "dirName": "Soul-AILab__SoulX-Podcast",
+      "title": "If you are in mainland China, you can set the mirror as follows:",
+      "description": "SoulX-Podcast is designed for podcast-style multi-turn, multi-speaker dialogic speech generation, while also achieving superior performance in the con",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 59,
+      "refCount": 1
+    },
+    {
+      "dirName": "vastsa__FileCodeBox",
+      "title": "FileCodeBox",
+      "description": "[在线演示](https://share.lanol.cn)　·　[使用文档](https://fcb-docs.aiuo.net/)　·　[English](./readme_en.md)",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 85,
+      "refCount": 1
+    }
+  ],
+  "UI/Design Tools": [
+    {
+      "dirName": "nashsu__llm_wiki",
+      "title": "LLM Wiki",
+      "description": "LLM reads your documents, builds a structured wiki, and keeps it current.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "Rust"
+      ],
+      "skillCount": 0,
+      "fileCount": 425,
+      "refCount": 5
+    },
+    {
+      "dirName": "github__spec-kit",
+      "title": "Check whether a newer release is available (read-only — does not modify anything",
+      "description": "Spec-Driven Development **flips the script** on traditional software development. For decades, code has been king — specifications were just scaffoldi",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 438,
+      "refCount": 4
+    },
+    {
+      "dirName": "AgriciDaniel__claude-obsidian",
+      "title": "claude-obsidian: Self-Organizing AI Second Brain for Obsidian + Claude Code",
+      "description": "Claude + Obsidian knowledge companion and self-organizing AI second brain. A running AI notetaker that builds and maintains a persistent, compounding ",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 15,
+      "fileCount": 166,
+      "refCount": 3
+    },
+    {
+      "dirName": "Cocoon-AI__architecture-diagram-generator",
+      "title": "Architecture Diagram Generator",
+      "description": "**Need an architecture diagram? Get AI to build you one.**",
+      "languages": [],
+      "skillCount": 1,
+      "fileCount": 12,
+      "refCount": 2
+    },
+    {
+      "dirName": "Fission-AI__OpenSpec",
+      "title": "Fission-AI__OpenSpec",
+      "description": "→ built for brownfield not just greenfield",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 12,
+      "fileCount": 816,
+      "refCount": 2
+    },
+    {
+      "dirName": "larksuite__cli",
+      "title": "lark-cli",
+      "description": "[中文版](./README.zh.md) | [English](./README.md)",
+      "languages": [
+        "Go",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 34,
+      "fileCount": 2421,
+      "refCount": 2
+    },
+    {
+      "dirName": "tursodatabase__turso",
+      "title": "↑            ↑       ↑                           ↑",
+      "description": "An in-process SQL database, compatible with SQLite, and now with a Postgres frontend too.",
+      "languages": [
+        "Rust",
+        "Python",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 2039,
+      "refCount": 2
+    },
+    {
+      "dirName": "alam00000__bentopdf",
+      "title": "Navigate to the extracted folder",
+      "description": "**BentoPDF** is a powerful, privacy-first, client-side PDF toolkit that is self hostable and allows you to manipulate, edit, merge, and process PDF fi",
+      "languages": [
+        "TypeScript",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 1592,
+      "refCount": 1
+    },
+    {
+      "dirName": "anthropics__knowledge-work-plugins",
+      "title": "Knowledge Work Plugins",
+      "description": "Plugins that turn Claude into a specialist for your role, team, and company. Built for [Claude Cowork](https://claude.com/product/cowork), also compat",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 210,
+      "fileCount": 841,
+      "refCount": 1
+    },
+    {
+      "dirName": "asgeirtj__system_prompts_leaks",
+      "title": "System Prompts Leaks",
+      "description": "> **The Washington Post** built its interactive story on prompts from this repo: [See the hidden rules behind AI. Then use them to rewrite this articl",
+      "languages": [
+        "JavaScript",
+        "Python"
+      ],
+      "skillCount": 9,
+      "fileCount": 397,
+      "refCount": 1
+    },
+    {
+      "dirName": "cobusgreyling__loop-engineering",
+      "title": "Loop Engineering",
+      "description": "> **Stop prompting. Design the loop. Get a score.**",
+      "languages": [
+        "TypeScript",
+        ".sh",
+        "Python"
+      ],
+      "skillCount": 12,
+      "fileCount": 380,
+      "refCount": 1
+    },
+    {
+      "dirName": "codecrafters-io__build-your-own-x",
+      "title": "codecrafters-io__build-your-own-x",
+      "description": "This repository is a compilation of well-written, step-by-step guides for re-creating our favorite technologies from scratch.",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 3,
+      "refCount": 1
+    },
+    {
+      "dirName": "comfyanonymous__ComfyUI",
+      "title": "ComfyUI",
+      "description": "**The most powerful and modular AI engine for content creation.**",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 920,
+      "refCount": 1
+    },
+    {
+      "dirName": "datawhalechina__easy-vibe",
+      "title": "datawhalechina__easy-vibe",
+      "description": "Jump right in and vibe together — if you can talk, you can build apps.<br>",
+      "languages": [
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 2056,
+      "refCount": 1
+    },
+    {
+      "dirName": "gsd-build__get-shit-done",
+      "title": "GSD Has Moved",
+      "description": "This repository is no longer the active home for GSD development.",
+      "languages": [
+        "TypeScript",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 1432,
+      "refCount": 1
+    },
+    {
+      "dirName": "guokaigdg__animal-island-ui",
+      "title": "🏝 Animal-Island-UI",
+      "description": "A React UI component library inspired by Animal Crossing: New Horizons",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 745,
+      "refCount": 1
+    },
+    {
+      "dirName": "kunchenguid__no-mistakes",
+      "title": "do some work in the branch...",
+      "description": "src=\"https://img.shields.io/github/actions/workflow/status/kunchenguid/no-mistakes/release.yml?style=flat-square&label=release\"",
+      "languages": [
+        "Go",
+        ".sh",
+        "TypeScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 548,
+      "refCount": 1
+    },
+    {
+      "dirName": "LanRhyme__MicYou",
+      "title": "LanRhyme__MicYou",
+      "description": "MicYou turns your Android device into a microphone for your PC. Built with Kotlin Multiplatform and Jetpack Compose/Material 3.",
+      "languages": [
+        "Rust",
+        "Vue",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 236,
+      "refCount": 1
+    },
+    {
+      "dirName": "lihaoyun6__QuickRecorder",
+      "title": "<p align=\"center\">",
+      "description": "Download the latest installation file [here](../../releases/latest) or install via Homebrew:",
+      "languages": [
+        "Swift"
+      ],
+      "skillCount": 0,
+      "fileCount": 153,
+      "refCount": 1
+    },
+    {
+      "dirName": "magicmirrororg__magicmirror",
+      "title": "![MagicMirror²: The open source modular smart mirror platform.](.github/header.p",
+      "description": "**MagicMirror²** is an open source modular smart mirror platform. With a growing list of installable modules, the **MagicMirror²** allows you to conve",
+      "languages": [
+        "JavaScript",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 413,
+      "refCount": 1
+    },
+    {
+      "dirName": "nvbn__thefuck",
+      "title": "The Fuck [![Version][version-badge]][version-link] [![Build Status][workflow-bad",
+      "description": "*The Fuck* is a magnificent app, inspired by a [@liamosaur](https://twitter.com/liamosaur/)",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 430,
+      "refCount": 1
+    },
+    {
+      "dirName": "OpenBMB__VoxCPM",
+      "title": "Voice design (no reference audio needed)",
+      "description": "👋 Join our community for discussion and support!",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 73,
+      "refCount": 1
+    },
+    {
+      "dirName": "playcanvas__supersplat",
+      "title": "SuperSplat Editor",
+      "description": "The SuperSplat Editor is a free and open source tool for inspecting, editing, optimizing and publishing 3D Gaussian Splats. It is built on web technol",
+      "languages": [
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 243,
+      "refCount": 1
+    },
+    {
+      "dirName": "public-apis__public-apis",
+      "title": "APILayer Unified Suite in now Live! 🎉 🥳",
+      "description": "[APILayer unified suite](https://apilayer.com/?utm_source=Github&utm_medium=Referral&utm_campaign=Public-apis-repo) allows you to integrate production",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 12,
+      "refCount": 1
+    },
+    {
+      "dirName": "titanwings__colleague-skill",
+      "title": "🧬 dot-skill（同事.skill）",
+      "description": "🧑‍💼 &nbsp;Your colleague quit, your mentor graduated, your teammate transferred — taking their whole playbook and context with them?<br>",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 1,
+      "fileCount": 101,
+      "refCount": 1
+    },
+    {
+      "dirName": "Z4nzu__hackingtool",
+      "title": "Build",
+      "description": "> **Title:** `[Tool Request] ToolName — Category`",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 55,
+      "refCount": 1
+    }
+  ],
+  "Research/Deep Research": [
+    {
+      "dirName": "Chen-chen429__viking-media-ai-search",
+      "title": "Viking AI Search - 多模态智能素材库最佳实践",
+      "description": "本项目展示了如何使用 [Viking AI 搜索 CLI](https://github.com/volcengine/SearchCLI) 快速构建一个多模态智能素材库。通过本指南，你可以实现从 0 到 1 的应用搭建，并体验自动化策略评测与调优（A/B Test）闭环。",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 20,
+      "refCount": 2
+    },
+    {
+      "dirName": "Imbad0202__academic-research-skills",
+      "title": "Academic Research Skills for Claude Code",
+      "description": "[简体中文版](README.zh-CN.md) | [繁體中文版](README.zh-TW.md) | [日本語版](README.ja-JP.md) | [한국어](README.ko-KR.md)",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 4,
+      "fileCount": 1006,
+      "refCount": 2
+    },
+    {
+      "dirName": "alchaincyf__darwin-skill",
+      "title": "达尔文.skill 2.0",
+      "description": "受 [Andrej Karpathy 的 autoresearch](https://github.com/karpathy/autoresearch) 启发，将自主实验循环从模型训练搬到 Skill 优化领域。一个只能向前转的棘轮。",
+      "languages": [],
+      "skillCount": 1,
+      "fileCount": 36,
+      "refCount": 1
+    },
+    {
+      "dirName": "assafelovic__gpt-researcher",
+      "title": "🔎 GPT Researcher",
+      "description": "[English](README.md) | [中文](README-zh_CN.md) | [日本語](README-ja_JP.md) | [한국어](README-ko_KR.md)",
+      "languages": [
+        "Python",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 676,
+      "refCount": 1
+    },
+    {
+      "dirName": "ChinaSiro__claude-code-sourcemap",
+      "title": "claude-code-sourcemap",
+      "description": "> This repository is **unofficial** and is reconstructed from the public npm package and source map analysis, **for research purposes only**.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 1895,
+      "refCount": 1
+    },
+    {
+      "dirName": "google-research__timesfm",
+      "title": "TimesFM",
+      "description": "TimesFM (Time Series Foundation Model) is a pretrained time-series foundation",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 1,
+      "fileCount": 99,
+      "refCount": 1
+    },
+    {
+      "dirName": "karpathy__jobs",
+      "title": "US Job Market Visualizer",
+      "description": "A research tool for visually exploring Bureau of Labor Statistics [Occupational Outlook Handbook](https://www.bls.gov/ooh/) data. This is not a report",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 360,
+      "refCount": 1
+    },
+    {
+      "dirName": "volcengine__SearchCLI",
+      "title": "SearchCLI",
+      "description": "English | [简体中文](README.zh_CN.md) | [日本語](README.ja_JP.md) | [Deutsch](README.de_DE.md) | [한국어](README.ko_KR.md) | [Français](README.fr_FR.md) | [Русс",
+      "languages": [
+        "TypeScript",
+        ".sh",
+        "Python"
+      ],
+      "skillCount": 12,
+      "fileCount": 215,
+      "refCount": 1
+    },
+    {
+      "dirName": "Wechat-ggGitHub__Lumi",
+      "title": "Wechat-ggGitHub__Lumi",
+      "description": "Lumi is a native macOS voice AI assistant. It lives in your menu bar — you speak, it listens, it gets things done. Search the web, write code, control",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "Swift"
+      ],
+      "skillCount": 0,
+      "fileCount": 120,
+      "refCount": 1
+    }
+  ],
+  "Security": [
+    {
+      "dirName": "microsoft__markitdown",
+      "title": "MarkItDown",
+      "description": "> MarkItDown performs I/O with the privileges of the current process. Like open() or requests.get(), it will access resources that the process itself ",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 150,
+      "refCount": 2
+    }
+  ],
+  "Productivity/Workflow": [
+    {
+      "dirName": "iptv-org__iptv",
+      "title": "IPTV [![update](https://github.com/iptv-org/iptv/actions/workflows/update.yml/ba",
+      "description": "Collection of publicly available IPTV (Internet Protocol television) channels from all over the world.",
+      "languages": [
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 456,
+      "refCount": 2
+    },
+    {
+      "dirName": "makeplane__plane",
+      "title": "makeplane__plane",
+      "description": "src=\"https://media.docs.plane.so/GitHub-readme/github-top.webp\"",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 3128,
+      "refCount": 2
+    },
+    {
+      "dirName": "openai__codex-plugin-cc",
+      "title": "Codex plugin for Claude Code",
+      "description": "Use Codex from inside Claude Code for code reviews or to delegate tasks to Codex.",
+      "languages": [
+        "TypeScript"
+      ],
+      "skillCount": 3,
+      "fileCount": 59,
+      "refCount": 1
+    },
+    {
+      "dirName": "thunderbird__thunderbolt",
+      "title": "Thunderbolt [![CI](https://github.com/thunderbird/thunderbolt/actions/workflows/",
+      "description": "**AI You Control: Choose your models. Own your data. Eliminate vendor lock-in.**",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 1602,
+      "refCount": 1
+    },
+    {
+      "dirName": "travisvn__awesome-claude-skills",
+      "title": "Awesome Claude Skills",
+      "description": "> A curated list of awesome Claude Skills, resources, and tools for customizing Claude AI workflows",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 2,
+      "refCount": 1
+    },
+    {
+      "dirName": "tt-a1i__archify",
+      "title": "Archify",
+      "description": "**Generate beautiful architecture, technical workflow, sequence, data-flow, and lifecycle diagrams in chat. Switch dark / light. Copy to clipboard or ",
+      "languages": [
+        ".sh"
+      ],
+      "skillCount": 1,
+      "fileCount": 123,
+      "refCount": 1
+    }
+  ],
+  "Video/Media Generation": [
+    {
+      "dirName": "bradautomates__claude-video",
+      "title": "/watch",
+      "description": "**Give Claude the ability to watch any video.**",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 1,
+      "fileCount": 27,
+      "refCount": 2
+    },
+    {
+      "dirName": "browser-use__video-use",
+      "title": "video-use",
+      "description": "Introducing **video-use** — edit videos with Claude Code. 100% open source.",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 2,
+      "fileCount": 31,
+      "refCount": 2
+    },
+    {
+      "dirName": "jianchang512__pyvideotrans",
+      "title": "pyVideoTrans",
+      "description": "> Sponsors: **[Recall.ai](https://www.recall.ai/product/meeting-transcription-api?utm_source=github&utm_medium=sponsorship&utm_campaign=jianchang512-p",
+      "languages": [
+        "Python",
+        "C/C++",
+        "C++"
+      ],
+      "skillCount": 0,
+      "fileCount": 532,
+      "refCount": 2
+    },
+    {
+      "dirName": "webadderallorg__Recordly",
+      "title": "Core Features",
+      "description": "[Recordly](https://www.recordly.dev) is your **open-source screen recorder** and editor for **walkthroughs, demos, product videos**, and more.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "C++"
+      ],
+      "skillCount": 0,
+      "fileCount": 695,
+      "refCount": 2
+    },
+    {
+      "dirName": "AIDC-AI__Pixelle-Video",
+      "title": "使用 uv 运行（推荐，会自动安装依赖）",
+      "description": "https://github.com/user-attachments/assets/a42e7457-fcc8-40da-83fc-784c45a8b95d",
+      "languages": [
+        "Python",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 307,
+      "refCount": 1
+    },
+    {
+      "dirName": "Anil-matcha__Open-Generative-AI",
+      "title": "Open Generative AI — Unrestricted Open-Source Alternative to AI Video Platforms",
+      "description": "> **The free, open-source alternative to AI Video Platforms.** Generate AI images and videos using 200+ state-of-the-art models — no content filters, ",
+      "languages": [
+        "JavaScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 138,
+      "refCount": 1
+    },
+    {
+      "dirName": "roboflow__supervision",
+      "title": "5",
+      "description": "src=\"https://media.roboflow.com/open-source/supervision/rf-supervision-banner.png?updatedAt=1678995927529\"",
+      "languages": [
+        "Python",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 0,
+      "fileCount": 373,
+      "refCount": 1
+    },
+    {
+      "dirName": "xushanpei__open-file-viewer",
+      "title": "Open File Viewer",
+      "description": "Open File Viewer is a file preview SDK for modern web applications. It brings PDFs, Office documents, images, audio and video, archives, emails, drawi",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "Svelte"
+      ],
+      "skillCount": 0,
+      "fileCount": 138,
+      "refCount": 1
+    },
+    {
+      "dirName": "YouMind-OpenLab__awesome-gpt-image-2",
+      "title": "🚀 Awesome GPT Image 2 Prompts",
+      "description": "> 💡 🎬 Take it further with **Seedance 2** — pair GPT Image 2 stills with Seedance for jaw-dropping AI videos, 2000+ prompts to explore 👉 [awesome-s",
+      "languages": [
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 31,
+      "refCount": 1
+    }
+  ],
+  "Browser/Web Automation": [
+    {
+      "dirName": "CloakHQ__CloakBrowser",
+      "title": "With Playwright",
+      "description": "Not a patched config. Not a JS injection. A real Chromium binary with fingerprints modified at the C++ source level. Antibot systems score it as a nor",
+      "languages": [
+        "C#",
+        "Python",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 193,
+      "refCount": 3
+    },
+    {
+      "dirName": "hyperbrowserai__hyperbrowser-app-examples",
+      "title": "Hyperbrowser Example Web Apps",
+      "description": "Welcome to the **Hyperbrowser Example Web Apps** repository! 🚀",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 1323,
+      "refCount": 2
+    },
+    {
+      "dirName": "4ier__neo",
+      "title": "Neo",
+      "description": "**Turn any web app into an API.** No official API needed. No browser automation.",
+      "languages": [
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 1,
+      "fileCount": 28,
+      "refCount": 1
+    },
+    {
+      "dirName": "automaapp__automa",
+      "title": "Automa",
+      "description": "An extension for automating your browser by connecting blocks. <br />",
+      "languages": [
+        "JavaScript",
+        "Vue"
+      ],
+      "skillCount": 0,
+      "fileCount": 507,
+      "refCount": 1
+    },
+    {
+      "dirName": "D4Vinci__Scrapling",
+      "title": "Platinum Sponsors",
+      "description": "Scrapling is an adaptive Web Scraping framework that handles everything from a single request to a full-scale crawl.",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 1,
+      "fileCount": 227,
+      "refCount": 1
+    },
+    {
+      "dirName": "firecrawl__firecrawl",
+      "title": "**🔥 Firecrawl**",
+      "description": "src=\"https://raw.githubusercontent.com/firecrawl/firecrawl/main/img/firecrawl_logo.png\"",
+      "languages": [
+        "TypeScript",
+        "Python",
+        "C#"
+      ],
+      "skillCount": 0,
+      "fileCount": 1026,
+      "refCount": 1
+    },
+    {
+      "dirName": "lightpanda-io__browser",
+      "title": "lightpanda-io__browser",
+      "description": "Not a Chromium fork. Not a WebKit patch. A new browser, written in Zig.",
+      "languages": [
+        ".zig",
+        "JavaScript",
+        "Rust"
+      ],
+      "skillCount": 0,
+      "fileCount": 920,
+      "refCount": 1
+    },
+    {
+      "dirName": "Stirling-Tools__Stirling-PDF",
+      "title": "Stirling-Tools__Stirling-PDF",
+      "description": "Stirling PDF is a powerful, open-source PDF editing platform. Run it as a personal desktop app, in the browser, or deploy it on your own servers with ",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 1640,
+      "refCount": 1
+    }
+  ],
+  "Infrastructure/DevOps": [
+    {
+      "dirName": "Kong__insomnia",
+      "title": "Insomnia API Client",
+      "description": "Insomnia is an open-source, cross-platform API client for GraphQL, REST, WebSockets, Server-Sent Events (SSE), gRPC and any other HTTP compatible prot",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 1274,
+      "refCount": 2
+    },
+    {
+      "dirName": "decolua__9router",
+      "title": "Headroom service in same Docker network",
+      "description": "**Never stop coding. Save 20-40% tokens with RTK + auto-fallback to FREE & cheap AI models.**",
+      "languages": [
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 9,
+      "fileCount": 1195,
+      "refCount": 1
+    },
+    {
+      "dirName": "glitternetwork__pinme",
+      "title": "PinMe",
+      "description": "Create and deploy your web in one command.",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 7,
+      "fileCount": 103,
+      "refCount": 1
+    }
+  ],
+  "Frameworks/SDKs": [
+    {
+      "dirName": "nutllwhy__hyperframes-motion-library",
+      "title": "视频动效系统",
+      "description": "这是一套以 HyperFrames 为渲染内核的本地动效资产库。每个动效都是一个可独立预览、校验和渲染的模板；文案、数字、颜色等可变内容通过参数传入，不需要改动动画源码。",
+      "languages": [
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 272,
+      "refCount": 2
+    },
+    {
+      "dirName": "operand__agency",
+      "title": "Summary",
+      "description": "Agency is a python library that provides an [Actor",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 0,
+      "fileCount": 76,
+      "refCount": 2
+    }
+  ],
+  "Educational/Reference": [
+    {
+      "dirName": "dracohu2025-cloud__t2i_museum",
+      "title": "t2i_museum",
+      "description": "`t2i_museum` is a local-first collector and study workspace for AIGC text-to-image examples, with a focus on:",
+      "languages": [
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 79,
+      "refCount": 2
+    },
+    {
+      "dirName": "freeCodeCamp__freeCodeCamp",
+      "title": "freeCodeCamp__freeCodeCamp",
+      "description": "[freeCodeCamp.org](https://www.freecodecamp.org) is a friendly community where you can learn to code for free. It is run by a [donor-supported 501(c)(",
+      "languages": [
+        "TypeScript",
+        "TypeScript",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 19315,
+      "refCount": 2
+    },
+    {
+      "dirName": "virgiliojr94__book-to-skill",
+      "title": "Process several files together into a unified skill",
+      "description": "🏆 <strong>#10 Python Repository of the Day</strong> and <strong>#25 Repository of the Day</strong> on Trendshift (May 23, 2026)",
+      "languages": [
+        "Python"
+      ],
+      "skillCount": 1,
+      "fileCount": 35,
+      "refCount": 2
+    },
+    {
+      "dirName": "666ghj__MiroFish",
+      "title": "Copy the example configuration file",
+      "description": "[English](./README.md) | [中文文档](./README-ZH.md)",
+      "languages": [
+        "Python",
+        "Vue",
+        "JavaScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 91,
+      "refCount": 1
+    },
+    {
+      "dirName": "github__awesome-copilot",
+      "title": "github__awesome-copilot",
+      "description": "",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "Helvesec__rmux",
+      "title": "e.g., rmux claude --dangerously-skip-permissions",
+      "description": "> RMUX now has an E2E web multiplexing feature. [Learn more in the docs.](docs/web-share.md)",
+      "languages": [
+        "Rust",
+        ".sh",
+        "Python"
+      ],
+      "skillCount": 1,
+      "fileCount": 2049,
+      "refCount": 1
+    },
+    {
+      "dirName": "lfnovo__open-notebook",
+      "title": "lfnovo__open-notebook",
+      "description": "An open source, privacy-focused alternative to Google's Notebook LM!",
+      "languages": [
+        "Python",
+        "TypeScript",
+        "TypeScript"
+      ],
+      "skillCount": 0,
+      "fileCount": 528,
+      "refCount": 1
+    },
+    {
+      "dirName": "openai__plugins",
+      "title": "Plugins",
+      "description": "This repository contains a curated collection of Codex plugin examples.",
+      "languages": [
+        "Python",
+        "JavaScript",
+        ".sh"
+      ],
+      "skillCount": 602,
+      "fileCount": 3636,
+      "refCount": 1
+    },
+    {
+      "dirName": "TapXWorld__ChinaTextbook",
+      "title": "TapXWorld__ChinaTextbook",
+      "description": "",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "loop-engineering-orange-book",
+      "title": "Loop Engineering: Stop Asking Me What It Is",
+      "description": "> 橙皮书 (Orange Book) Series · by HuaShu (花叔)",
+      "languages": [],
+      "skillCount": 0,
+      "fileCount": 11,
+      "refCount": 0
+    }
+  ],
+  "Other": [
+    {
+      "dirName": "anthropics__claude-plugins-official",
+      "title": "Claude Code Plugins Directory",
+      "skillCount": 30,
+      "refCount": 7
+    },
+    {
+      "dirName": "bytedance__deer-flow",
+      "title": "🦌 DeerFlow - 2.0",
+      "skillCount": 23,
+      "refCount": 6
+    },
+    {
+      "dirName": "affaan-m__everything-claude-code",
+      "title": "or",
+      "skillCount": 797,
+      "refCount": 5
+    },
+    {
+      "dirName": "abhigyanpatwari__GitNexus",
+      "title": "GitNexus",
+      "skillCount": 14,
+      "refCount": 4
+    },
+    {
+      "dirName": "affaan-m__ECC",
+      "title": "or",
+      "skillCount": 797,
+      "refCount": 4
+    },
+    {
+      "dirName": "colbymchenry__codegraph",
+      "title": "CodeGraph",
+      "skillCount": 0,
+      "refCount": 4
+    },
+    {
+      "dirName": "anthropics__claude-code",
+      "title": "Claude Code",
+      "skillCount": 10,
+      "refCount": 3
+    },
+    {
+      "dirName": "calesthio__OpenMontage",
+      "title": ".env — every key is optional, add what you have",
+      "skillCount": 0,
+      "refCount": 3
+    },
+    {
+      "dirName": "chatwoot__chatwoot",
+      "title": "Chatwoot",
+      "skillCount": 0,
+      "refCount": 3
+    },
+    {
+      "dirName": "farion1231__cc-switch",
+      "title": "CC Switch",
+      "skillCount": 0,
+      "refCount": 3
+    },
+    {
+      "dirName": "penpot__penpot",
+      "title": "penpot__penpot",
+      "skillCount": 0,
+      "refCount": 3
+    },
+    {
+      "dirName": "stablyai__orca",
+      "title": "macOS (Homebrew)",
+      "skillCount": 8,
+      "refCount": 3
+    },
+    {
+      "dirName": "thedotmack__claude-mem",
+      "title": "thedotmack__claude-mem",
+      "skillCount": 21,
+      "refCount": 3
+    },
+    {
+      "dirName": "tinyhumansai__openhuman",
+      "title": "Install",
+      "skillCount": 0,
+      "refCount": 3
+    },
+    {
+      "dirName": "apple__container",
+      "title": "apple__container",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "can1357__oh-my-pi",
+      "title": "zsh — add to ~/.zshrc (or write the output into a file on your $fpath)",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "CopilotKit__CopilotKit",
+      "title": "CopilotKit",
+      "skillCount": 14,
+      "refCount": 2
+    },
+    {
+      "dirName": "DietrichGebert__ponytail",
+      "title": "DietrichGebert__ponytail",
+      "skillCount": 6,
+      "refCount": 2
+    },
+    {
+      "dirName": "EverMind-AI__EverOS",
+      "title": "or: pip install everos",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "instructkr__claude-code",
+      "title": "Claw Code",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "isboyjc__claude-code",
+      "title": "Claude Code Source (v2.1.88)",
+      "skillCount": 1,
+      "refCount": 2
+    },
+    {
+      "dirName": "khoj-ai__khoj",
+      "title": "khoj-ai__khoj",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "LMCache__LMCache",
+      "title": "LMCache__LMCache",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "Lordog__dive-into-llms",
+      "title": "Lordog__dive-into-llms",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "meshery__meshery",
+      "title": "Functionality",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "n0-computer__iroh",
+      "title": "n0-computer__iroh",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "rohitg00__ai-engineering-from-scratch",
+      "title": "├── prompt-loss-function-selector.md",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "ruvnet__RuView",
+      "title": "π RuView",
+      "skillCount": 10,
+      "refCount": 2
+    },
+    {
+      "dirName": "s0xDk__ghostty-blackhole",
+      "title": "Ghostty Blackhole",
+      "skillCount": 0,
+      "refCount": 2
+    },
+    {
+      "dirName": "alchaincyf__huashu-md-html",
+      "title": "huashu-md-html",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "Alishahryar1__free-claude-code",
+      "title": "🤖 Free Claude Code",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "antirez__ds4",
+      "title": "DwarfStar",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "chaitin__SafeLine",
+      "title": "chaitin__SafeLine",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "chopratejas__headroom",
+      "title": "1 — Install",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "danny-avila__LibreChat",
+      "title": "✨ Features",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "darrylmorley__whatcable",
+      "title": "WhatCable",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "DayuanJiang__next-ai-draw-io",
+      "title": "Next AI Draw.io",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "dbeaver__dbeaver",
+      "title": "DBeaver",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "diegosouzapw__OmniRoute",
+      "title": "🚀 OmniRoute — The Free AI Gateway",
+      "skillCount": 45,
+      "refCount": 1
+    },
+    {
+      "dirName": "EverMind-AI__Raven",
+      "title": "Raven",
+      "skillCount": 2,
+      "refCount": 1
+    },
+    {
+      "dirName": "giuseppe-trisciuoglio__developer-kit",
+      "title": "Install from marketplace",
+      "skillCount": 128,
+      "refCount": 1
+    },
+    {
+      "dirName": "google-ai-edge__gallery",
+      "title": "Google AI Edge Gallery ✨",
+      "skillCount": 11,
+      "refCount": 1
+    },
+    {
+      "dirName": "harry0703__MoneyPrinterTurbo",
+      "title": "MoneyPrinterTurbo 💸",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "helloianneo__ian-handdrawn-ppt",
+      "title": "Ian Handdrawn PPT",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "Hmbown__CodeWhale",
+      "title": "Codewhale",
+      "skillCount": 20,
+      "refCount": 1
+    },
+    {
+      "dirName": "instructkr__claw-code",
+      "title": "Claw Code",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "jackfrued__python-100-days",
+      "title": "jackfrued__python-100-days",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "karpathy__llm-council",
+      "title": "LLM Council",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "leilei926524-tech__anti-distill",
+      "title": "anti-distill skill 反蒸馏skill",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "manaflow-ai__cmux",
+      "title": "manaflow-ai__cmux",
+      "skillCount": 20,
+      "refCount": 1
+    },
+    {
+      "dirName": "mattpocock__dictionary-of-ai-coding",
+      "title": "AI Coding Dictionary",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "microsoft__PowerToys",
+      "title": "microsoft__PowerToys",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "mksglu__context-mode",
+      "title": "Context Mode",
+      "skillCount": 10,
+      "refCount": 1
+    },
+    {
+      "dirName": "moeru-ai__airi",
+      "title": "Or",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "nocobase__nocobase",
+      "title": "Install NocoBase CLI",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "ogulcancelik__herdr",
+      "title": "herdr",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "op7418__NanoBanana-PPT-Skills",
+      "title": "NanoBanana PPT Skills",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "palemoky__chinese-poetry-api",
+      "title": "完整克隆（包含 submodules）",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "perkfly__ex-skill",
+      "title": "前任.skill",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "presenton__presenton",
+      "title": "Open-Source AI Presentation Generator and API (Gamma, Canva, Beautiful AI, Deckt",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "psteger__openclaw",
+      "title": "psteger__openclaw",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "refactoringhq__tolaria",
+      "title": "💧 Tolaria",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "rtk-ai__rtk",
+      "title": "1. Install for your AI tool",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "safishamsi__graphify",
+      "title": "or install uv:",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "sansan0__TrendRadar",
+      "title": "config.yaml 快速启用示例",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "SimoneAvogadro__android-reverse-engineering-skill",
+      "title": "Android Reverse Engineering & API Extraction — Claude Code skill",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "sirmalloc__ccstatusline",
+      "title": "ccstatusline",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "slopus__happy",
+      "title": "Instead of claude, use:",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "sxyazi__yazi",
+      "title": "sxyazi__yazi",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "t8y2__dbx",
+      "title": "or via Homebrew",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "tanbiralam__claude-code",
+      "title": "Claude Code — Leaked Source (2026-03-31)",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "tanweai__pua",
+      "title": "pua",
+      "skillCount": 42,
+      "refCount": 1
+    },
+    {
+      "dirName": "Thysrael__Horizon",
+      "title": "Install with uv (recommended)",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "Tracer-Cloud__opensre",
+      "title": "Tracer-Cloud__opensre",
+      "skillCount": 6,
+      "refCount": 1
+    },
+    {
+      "dirName": "vogtsw__boss-skills",
+      "title": "老板.skill",
+      "skillCount": 2,
+      "refCount": 1
+    },
+    {
+      "dirName": "volcengine__OpenViking",
+      "title": "choose OpenAI Codex when prompted",
+      "skillCount": 19,
+      "refCount": 1
+    },
+    {
+      "dirName": "wanikua__danghuangshang",
+      "title": "🏛️ 当皇上 ✖️ OpenClaw",
+      "skillCount": 17,
+      "refCount": 1
+    },
+    {
+      "dirName": "WICG__html-in-canvas",
+      "title": "HTML-in-Canvas",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "xiaoheizi8__crush-skills",
+      "title": "暗恋对象.skill",
+      "skillCount": 1,
+      "refCount": 1
+    },
+    {
+      "dirName": "xoai__sage-wiki",
+      "title": "sage-wiki",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "yikart__AiToEarn",
+      "title": "[Aitoearn：#1 AI内容营销智能体](https://aitoearn.ai)",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "yizhiyanhua-ai__fireworks-tech-graph",
+      "title": "fireworks-tech-graph",
+      "skillCount": 2,
+      "refCount": 1
+    },
+    {
+      "dirName": "Zackriya-Solutions__meetily",
+      "title": "Zackriya-Solutions__meetily",
+      "skillCount": 0,
+      "refCount": 1
+    },
+    {
+      "dirName": "cangjie-skill",
+      "title": "Cangjie Skill",
+      "skillCount": 1,
+      "refCount": 0
+    }
+  ]
+}

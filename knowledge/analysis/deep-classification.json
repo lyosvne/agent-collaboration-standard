@@ -1,0 +1,3180 @@
+{
+  "MCP_Server": [
+    {
+      "dir": "warpdotdev__warp",
+      "codeFiles": 2000,
+      "skills": 22,
+      "loc": 712863,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "can1357__oh-my-pi",
+      "codeFiles": 1997,
+      "skills": 0,
+      "loc": 651062,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "NousResearch__hermes-agent",
+      "codeFiles": 1916,
+      "skills": 178,
+      "loc": 595496,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "ruvnet__ruflo",
+      "codeFiles": 1695,
+      "skills": 136,
+      "loc": 568585,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "tinyhumansai__openhuman",
+      "codeFiles": 2000,
+      "skills": 0,
+      "loc": 549616,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "1jehuang__jcode",
+      "codeFiles": 1133,
+      "skills": 0,
+      "loc": 546881,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "kenn-io__agentsview",
+      "codeFiles": 1494,
+      "skills": 0,
+      "loc": 505076,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "BuilderIO__agent-native",
+      "codeFiles": 2000,
+      "skills": 20,
+      "loc": 502872,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "multica-ai__multica",
+      "codeFiles": 2000,
+      "skills": 8,
+      "loc": 472962,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "routa",
+      "codeFiles": 1551,
+      "skills": 0,
+      "loc": 451412,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "larksuite__cli",
+      "codeFiles": 1745,
+      "skills": 28,
+      "loc": 446751,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "isboyjc__claude-code",
+      "codeFiles": 1830,
+      "skills": 1,
+      "loc": 415139,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "tanbiralam__claude-code",
+      "codeFiles": 1868,
+      "skills": 0,
+      "loc": 415116,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "ChinaSiro__claude-code-sourcemap",
+      "codeFiles": 1820,
+      "skills": 0,
+      "loc": 414831,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "volcengine__OpenViking",
+      "codeFiles": 1505,
+      "skills": 9,
+      "loc": 405757,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "nexu-io__open-design",
+      "codeFiles": 1469,
+      "skills": 200,
+      "loc": 395480,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "diegosouzapw__OmniRoute",
+      "codeFiles": 2000,
+      "skills": 46,
+      "loc": 376569,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "ruvnet__RuView",
+      "codeFiles": 1076,
+      "skills": 10,
+      "loc": 351594,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "tutti-os__tutti",
+      "codeFiles": 2000,
+      "skills": 3,
+      "loc": 349664,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "tursodatabase__turso",
+      "codeFiles": 903,
+      "skills": 0,
+      "loc": 343386,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "danny-avila__LibreChat",
+      "codeFiles": 2000,
+      "skills": 1,
+      "loc": 317878,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "Hmbown__CodeWhale",
+      "codeFiles": 648,
+      "skills": 8,
+      "loc": 314583,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "Hmbown__DeepSeek-TUI",
+      "codeFiles": 648,
+      "skills": 8,
+      "loc": 314044,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "microsoft__Intelligent-Terminal",
+      "codeFiles": 1277,
+      "skills": 1,
+      "loc": 307799,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "Stirling-Tools__Stirling-PDF",
+      "codeFiles": 2000,
+      "skills": 0,
+      "loc": 298804,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "CopilotKit__CopilotKit",
+      "codeFiles": 2000,
+      "skills": 14,
+      "loc": 297510,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "dbeaver__dbeaver",
+      "codeFiles": 2000,
+      "skills": 0,
+      "loc": 286821,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "moeru-ai__airi",
+      "codeFiles": 2000,
+      "skills": 1,
+      "loc": 275409,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "t8y2__dbx",
+      "codeFiles": 1103,
+      "skills": 1,
+      "loc": 273120,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "aaif-goose__goose",
+      "codeFiles": 891,
+      "skills": 0,
+      "loc": 268475,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "yikart__AiToEarn",
+      "codeFiles": 1907,
+      "skills": 13,
+      "loc": 259193,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "budibase__budibase",
+      "codeFiles": 2000,
+      "skills": 0,
+      "loc": 254545,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "chopratejas__headroom",
+      "codeFiles": 775,
+      "skills": 0,
+      "loc": 247832,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "mukul975__Anthropic-Cybersecurity-Skills",
+      "codeFiles": 1094,
+      "skills": 200,
+      "loc": 245745,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "letta-ai__letta-code",
+      "codeFiles": 842,
+      "skills": 18,
+      "loc": 236613,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "abhigyanpatwari__GitNexus",
+      "codeFiles": 863,
+      "skills": 14,
+      "loc": 229968,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "HKUDS__CLI-Anything",
+      "codeFiles": 848,
+      "skills": 150,
+      "loc": 226414,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "MemTensor__MemOS",
+      "codeFiles": 919,
+      "skills": 6,
+      "loc": 226068,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "HKUDS__DeepTutor",
+      "codeFiles": 942,
+      "skills": 6,
+      "loc": 224435,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "nocobase__nocobase",
+      "codeFiles": 2000,
+      "skills": 6,
+      "loc": 223299,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "LMCache__LMCache",
+      "codeFiles": 834,
+      "skills": 0,
+      "loc": 214909,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "DavidHDev__react-bits",
+      "codeFiles": 826,
+      "skills": 0,
+      "loc": 207461,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "datawhalechina__easy-vibe",
+      "codeFiles": 567,
+      "skills": 0,
+      "loc": 205644,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "alibaba__OpenSandbox",
+      "codeFiles": 1086,
+      "skills": 1,
+      "loc": 205399,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "OpenBMB__PilotDeck",
+      "codeFiles": 909,
+      "skills": 31,
+      "loc": 195341,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "refactoringhq__tolaria",
+      "codeFiles": 870,
+      "skills": 0,
+      "loc": 188316,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "rowboatlabs__rowboat",
+      "codeFiles": 1145,
+      "skills": 0,
+      "loc": 187275,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "Tracer-Cloud__opensre",
+      "codeFiles": 1232,
+      "skills": 6,
+      "loc": 186501,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "farion1231__cc-switch",
+      "codeFiles": 515,
+      "skills": 0,
+      "loc": 181324,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "NVIDIA__cosmos",
+      "codeFiles": 740,
+      "skills": 0,
+      "loc": 178079,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "Kong__insomnia",
+      "codeFiles": 1170,
+      "skills": 0,
+      "loc": 171314,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "hangwin__mcp-chrome",
+      "codeFiles": 508,
+      "skills": 0,
+      "loc": 171084,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "iOfficeAI__OfficeCLI",
+      "codeFiles": 348,
+      "skills": 12,
+      "loc": 164231,
+      "hasMcp": true,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "LearningCircuit__local-deep-research",
+      "codeFiles": 622,
+      "skills": 0,
+      "loc": 163211,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "lightpanda-io__browser",
+      "codeFiles": 478,
+      "skills": 0,
+      "loc": 156729,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "EverMind-AI__Raven",
+      "codeFiles": 761,
+      "skills": 2,
+      "loc": 155700,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "bytedance__deer-flow",
+      "codeFiles": 827,
+      "skills": 0,
+      "loc": 153018,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "aiming-lab__Agent0",
+      "codeFiles": 708,
+      "skills": 0,
+      "loc": 147629,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "rohitg00__ai-engineering-from-scratch",
+      "codeFiles": 677,
+      "skills": 0,
+      "loc": 145397,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "frdel__agent-zero",
+      "codeFiles": 723,
+      "skills": 29,
+      "loc": 144808,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "bytedance__UI-TARS-desktop",
+      "codeFiles": 1128,
+      "skills": 0,
+      "loc": 144656,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "slopus__happy",
+      "codeFiles": 841,
+      "skills": 0,
+      "loc": 138535,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "presenton__presenton",
+      "codeFiles": 580,
+      "skills": 0,
+      "loc": 129828,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "mcp-use__mcp-use",
+      "codeFiles": 605,
+      "skills": 4,
+      "loc": 127143,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "decolua__9router",
+      "codeFiles": 824,
+      "skills": 9,
+      "loc": 119638,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "mem0ai__mem0",
+      "codeFiles": 645,
+      "skills": 32,
+      "loc": 110423,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "penpot__penpot",
+      "codeFiles": 577,
+      "skills": 0,
+      "loc": 110257,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "thunderbird__thunderbolt",
+      "codeFiles": 882,
+      "skills": 0,
+      "loc": 106167,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "coleam00__Archon",
+      "codeFiles": 561,
+      "skills": 0,
+      "loc": 102148,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "DeusData__codebase-memory-mcp",
+      "codeFiles": 463,
+      "skills": 0,
+      "loc": 97316,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "openai__openai-agents-python",
+      "codeFiles": 286,
+      "skills": 0,
+      "loc": 94171,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "YishenTu__claudian",
+      "codeFiles": 372,
+      "skills": 0,
+      "loc": 82380,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "affaan-m__ECC",
+      "codeFiles": 305,
+      "skills": 200,
+      "loc": 79846,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "affaan-m__everything-claude-code",
+      "codeFiles": 305,
+      "skills": 200,
+      "loc": 79846,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "czlonkowski__n8n-mcp",
+      "codeFiles": 316,
+      "skills": 15,
+      "loc": 76707,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "EvoAgentX__EvoAgentX",
+      "codeFiles": 252,
+      "skills": 0,
+      "loc": 73786,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "thedotmack__claude-mem",
+      "codeFiles": 342,
+      "skills": 21,
+      "loc": 72559,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "darrylmorley__whatcable",
+      "codeFiles": 248,
+      "skills": 0,
+      "loc": 71843,
+      "hasMcp": true,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "google-ai-edge__LiteRT-LM",
+      "codeFiles": 368,
+      "skills": 1,
+      "loc": 69986,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "nashsu__llm_wiki",
+      "codeFiles": 229,
+      "skills": 0,
+      "loc": 69083,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "colbymchenry__codegraph",
+      "codeFiles": 210,
+      "skills": 0,
+      "loc": 68264,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "jamiepine__voicebox",
+      "codeFiles": 375,
+      "skills": 0,
+      "loc": 67353,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "unclecode__crawl4ai",
+      "codeFiles": 143,
+      "skills": 0,
+      "loc": 64874,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "khoj-ai__khoj",
+      "codeFiles": 313,
+      "skills": 0,
+      "loc": 58791,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "xoai__sage-wiki",
+      "codeFiles": 253,
+      "skills": 0,
+      "loc": 57447,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "instructkr__claude-code",
+      "codeFiles": 160,
+      "skills": 0,
+      "loc": 54276,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "instructkr__claw-code",
+      "codeFiles": 160,
+      "skills": 0,
+      "loc": 54276,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "withastro__flue",
+      "codeFiles": 305,
+      "skills": 1,
+      "loc": 53675,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "yezannnnn__agentGroup",
+      "codeFiles": 140,
+      "skills": 26,
+      "loc": 49043,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "EverMind-AI__EverOS",
+      "codeFiles": 327,
+      "skills": 0,
+      "loc": 43740,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "rohitg00__agentmemory",
+      "codeFiles": 226,
+      "skills": 15,
+      "loc": 41540,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "Alishahryar1__free-claude-code",
+      "codeFiles": 258,
+      "skills": 0,
+      "loc": 40779,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "mvanhorn__last30days-skill",
+      "codeFiles": 106,
+      "skills": 1,
+      "loc": 39211,
+      "hasMcp": true,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "modelscope__AgentEvolver",
+      "codeFiles": 168,
+      "skills": 0,
+      "loc": 38386,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "safishamsi__graphify",
+      "codeFiles": 91,
+      "skills": 1,
+      "loc": 35597,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "assafelovic__gpt-researcher",
+      "codeFiles": 237,
+      "skills": 1,
+      "loc": 35487,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "DayuanJiang__next-ai-draw-io",
+      "codeFiles": 133,
+      "skills": 0,
+      "loc": 34412,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "mksglu__context-mode",
+      "codeFiles": 100,
+      "skills": 10,
+      "loc": 32556,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "shareAI-lab__learn-claude-code",
+      "codeFiles": 100,
+      "skills": 4,
+      "loc": 30615,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "wonderwhy-er__DesktopCommanderMCP",
+      "codeFiles": 126,
+      "skills": 18,
+      "loc": 30381,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "microsoft__SkillOpt",
+      "codeFiles": 127,
+      "skills": 3,
+      "loc": 29191,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "sansan0__TrendRadar",
+      "codeFiles": 69,
+      "skills": 0,
+      "loc": 28927,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "Anil-matcha__Open-Generative-AI",
+      "codeFiles": 84,
+      "skills": 0,
+      "loc": 27553,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "alibaba__page-agent",
+      "codeFiles": 152,
+      "skills": 0,
+      "loc": 22161,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "NVIDIA__SkillSpector",
+      "codeFiles": 84,
+      "skills": 0,
+      "loc": 19097,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "itwanger__PaiAgent",
+      "codeFiles": 163,
+      "skills": 1,
+      "loc": 18467,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "Open-LLM-VTuber__Open-LLM-VTuber",
+      "codeFiles": 112,
+      "skills": 0,
+      "loc": 18100,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "ComposioHQ__awesome-claude-skills",
+      "codeFiles": 61,
+      "skills": 200,
+      "loc": 17327,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "zilliztech__claude-context",
+      "codeFiles": 69,
+      "skills": 0,
+      "loc": 17287,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "anthropics__skills",
+      "codeFiles": 67,
+      "skills": 18,
+      "loc": 15920,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "xaspx__hermes-control-interface",
+      "codeFiles": 43,
+      "skills": 0,
+      "loc": 12247,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "D4Vinci__Scrapling",
+      "codeFiles": 52,
+      "skills": 1,
+      "loc": 11607,
+      "hasMcp": true,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "giuseppe-trisciuoglio__developer-kit",
+      "codeFiles": 38,
+      "skills": 128,
+      "loc": 11092,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "Wechat-ggGitHub__Lumi",
+      "codeFiles": 88,
+      "skills": 0,
+      "loc": 11066,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "Thysrael__Horizon",
+      "codeFiles": 45,
+      "skills": 0,
+      "loc": 10745,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "chaitin__SafeLine",
+      "codeFiles": 120,
+      "skills": 0,
+      "loc": 10546,
+      "hasMcp": true,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "OpenChronicle",
+      "codeFiles": 40,
+      "skills": 0,
+      "loc": 10294,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "1st1__lat.md",
+      "codeFiles": 49,
+      "skills": 1,
+      "loc": 8731,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "microsoft__markitdown",
+      "codeFiles": 49,
+      "skills": 0,
+      "loc": 7696,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "titanwings__colleague-skill",
+      "codeFiles": 23,
+      "skills": 1,
+      "loc": 6641,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "cobusgreyling__loop-engineering",
+      "codeFiles": 31,
+      "skills": 12,
+      "loc": 6153,
+      "hasMcp": true,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "cloudflare__mcp",
+      "codeFiles": 23,
+      "skills": 0,
+      "loc": 5432,
+      "hasMcp": true,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "Panniantong__Agent-Reach",
+      "codeFiles": 35,
+      "skills": 1,
+      "loc": 5408,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "JuliusBrussee__caveman",
+      "codeFiles": 30,
+      "skills": 11,
+      "loc": 4928,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "DietrichGebert__ponytail",
+      "codeFiles": 30,
+      "skills": 6,
+      "loc": 4157,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "msitarzewski__agency-agents",
+      "codeFiles": 11,
+      "skills": 0,
+      "loc": 3654,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "EverMind-AI__evermem-claude-code",
+      "codeFiles": 20,
+      "skills": 0,
+      "loc": 3075,
+      "hasMcp": true,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    }
+  ],
+  "Skills_Collection": [
+    {
+      "dir": "MiniMax-AI__skills",
+      "codeFiles": 70,
+      "skills": 22,
+      "loc": 29096,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "skills",
+      "codeFiles": 70,
+      "skills": 22,
+      "loc": 29096,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "ChiTing111__last30days-skill-cn",
+      "codeFiles": 57,
+      "skills": 2,
+      "loc": 15727,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "coreyhaines31__marketingskills",
+      "codeFiles": 66,
+      "skills": 47,
+      "loc": 14914,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "anthropics__knowledge-work-plugins",
+      "codeFiles": 26,
+      "skills": 200,
+      "loc": 9767,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "yizhiyanhua-ai__fireworks-tech-graph",
+      "codeFiles": 27,
+      "skills": 2,
+      "loc": 7868,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "guokaigdg__animal-island-ui",
+      "codeFiles": 53,
+      "skills": 1,
+      "loc": 5582,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "Fokkyp__SoftwareCopyright-Skill",
+      "codeFiles": 11,
+      "skills": 1,
+      "loc": 4464,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "diffusionstudio__lottie",
+      "codeFiles": 28,
+      "skills": 1,
+      "loc": 3553,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "AgriciDaniel__claude-obsidian",
+      "codeFiles": 12,
+      "skills": 15,
+      "loc": 3431,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "figma__mcp-server-guide",
+      "codeFiles": 14,
+      "skills": 14,
+      "loc": 2633,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "bradautomates__claude-video",
+      "codeFiles": 10,
+      "skills": 1,
+      "loc": 2537,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "obra__superpowers",
+      "codeFiles": 12,
+      "skills": 14,
+      "loc": 2396,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "agent-skills",
+      "codeFiles": 24,
+      "skills": 24,
+      "loc": 2376,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "virgiliojr94__book-to-skill",
+      "codeFiles": 16,
+      "skills": 1,
+      "loc": 1990,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "SimoneAvogadro__android-reverse-engineering-skill",
+      "codeFiles": 7,
+      "skills": 1,
+      "loc": 1967,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "browser-use__video-use",
+      "codeFiles": 7,
+      "skills": 2,
+      "loc": 1946,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "perkfly__ex-skill",
+      "codeFiles": 7,
+      "skills": 1,
+      "loc": 1781,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "vercel-labs__agent-skills",
+      "codeFiles": 9,
+      "skills": 9,
+      "loc": 1707,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "4ier__neo",
+      "codeFiles": 11,
+      "skills": 1,
+      "loc": 1510,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "vogtsw__boss-skills",
+      "codeFiles": 8,
+      "skills": 2,
+      "loc": 1478,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "xiaoheizi8__crush-skills",
+      "codeFiles": 6,
+      "skills": 1,
+      "loc": 1195,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "notdog1998__yourself-skill",
+      "codeFiles": 6,
+      "skills": 2,
+      "loc": 933,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "KKKKhazix__khazix-skills",
+      "codeFiles": 4,
+      "skills": 5,
+      "loc": 902,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "nutllwhy__hyperframes-motion-library",
+      "codeFiles": 8,
+      "skills": 0,
+      "loc": 884,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "wechatpay-apiv3__wechatpay-skills",
+      "codeFiles": 2,
+      "skills": 1,
+      "loc": 684,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "Mark7766__ai-coding-ok",
+      "codeFiles": 3,
+      "skills": 2,
+      "loc": 541,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "libtv-labs__libtv-skills",
+      "codeFiles": 6,
+      "skills": 1,
+      "loc": 530,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "phuryn__pm-skills",
+      "codeFiles": 1,
+      "skills": 68,
+      "loc": 508,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "glitternetwork__pinme",
+      "codeFiles": 12,
+      "skills": 7,
+      "loc": 468,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "mblode__agent-skills",
+      "codeFiles": 3,
+      "skills": 26,
+      "loc": 465,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "sanyuan0704__sanyuan-skills",
+      "codeFiles": 3,
+      "skills": 6,
+      "loc": 369,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "kangarooking__promo-creator-skills",
+      "codeFiles": 1,
+      "skills": 7,
+      "loc": 292,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "cangjie-skill",
+      "codeFiles": 1,
+      "skills": 1,
+      "loc": 226,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "lewislulu__html-ppt-skill",
+      "codeFiles": 2,
+      "skills": 1,
+      "loc": 119,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "tt-a1i__archify",
+      "codeFiles": 1,
+      "skills": 1,
+      "loc": 45,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "taste-skill",
+      "codeFiles": 1,
+      "skills": 13,
+      "loc": 26,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "alchaincyf__darwin-skill",
+      "codeFiles": 0,
+      "skills": 1,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "Cocoon-AI__architecture-diagram-generator",
+      "codeFiles": 0,
+      "skills": 1,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "emilkowalski__skills",
+      "codeFiles": 0,
+      "skills": 6,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "eze-is__web-access",
+      "codeFiles": 0,
+      "skills": 1,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "forrestchang__andrej-karpathy-skills",
+      "codeFiles": 0,
+      "skills": 1,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "greensock__gsap-skills",
+      "codeFiles": 0,
+      "skills": 8,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "helloianneo__ian-handdrawn-ppt",
+      "codeFiles": 0,
+      "skills": 1,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "kangarooking__buffett-letters-skill",
+      "codeFiles": 0,
+      "skills": 20,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "kangarooking__no-rules-rules-skill",
+      "codeFiles": 0,
+      "skills": 10,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "kangarooking__poor-charlies-almanack-skill",
+      "codeFiles": 0,
+      "skills": 12,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "kangarooking__system-prompt-skills",
+      "codeFiles": 0,
+      "skills": 15,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "kepano__obsidian-skills",
+      "codeFiles": 0,
+      "skills": 5,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "leilei926524-tech__anti-distill",
+      "codeFiles": 0,
+      "skills": 1,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "op7418__guizang-material-illustration",
+      "codeFiles": 0,
+      "skills": 1,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "openai__codex-plugin-cc",
+      "codeFiles": 0,
+      "skills": 3,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "pixijs__pixijs-skills",
+      "codeFiles": 0,
+      "skills": 26,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "slavingia-skills",
+      "codeFiles": 0,
+      "skills": 10,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "slavingia__skills",
+      "codeFiles": 0,
+      "skills": 10,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "tavily-ai__skills",
+      "codeFiles": 0,
+      "skills": 8,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": true,
+      "hasWeb": false
+    }
+  ],
+  "Agent_Tool": [
+    {
+      "dir": "microsoft__PowerToys",
+      "codeFiles": 2000,
+      "skills": 0,
+      "loc": 225767,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "comfyanonymous__ComfyUI",
+      "codeFiles": 641,
+      "skills": 0,
+      "loc": 211202,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "rtk-ai__rtk",
+      "codeFiles": 133,
+      "skills": 0,
+      "loc": 64066,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "jianchang512__pyvideotrans",
+      "codeFiles": 400,
+      "skills": 0,
+      "loc": 59660,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "666ghj__MiroFish",
+      "codeFiles": 57,
+      "skills": 0,
+      "loc": 34268,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "github__spec-kit",
+      "codeFiles": 128,
+      "skills": 0,
+      "loc": 32606,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "facebookresearch__Hyperagents",
+      "codeFiles": 118,
+      "skills": 0,
+      "loc": 26589,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "lance-format__lance-graph",
+      "codeFiles": 78,
+      "skills": 0,
+      "loc": 26309,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "AIDC-AI__Pixelle-Video",
+      "codeFiles": 115,
+      "skills": 0,
+      "loc": 26216,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "liaohch3__claude-tap",
+      "codeFiles": 58,
+      "skills": 0,
+      "loc": 25835,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "lsdefine__GenericAgent",
+      "codeFiles": 67,
+      "skills": 0,
+      "loc": 23095,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "karpathy__nanochat",
+      "codeFiles": 33,
+      "skills": 0,
+      "loc": 7132,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "Soul-AILab__SoulX-Podcast",
+      "codeFiles": 29,
+      "skills": 0,
+      "loc": 6671,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "bytedance-seed__m3-agent",
+      "codeFiles": 21,
+      "skills": 0,
+      "loc": 5719,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "interviewstreet__hiring-agent",
+      "codeFiles": 11,
+      "skills": 0,
+      "loc": 4229,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "operand__agency",
+      "codeFiles": 10,
+      "skills": 0,
+      "loc": 1592,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "stanford-iris-lab__meta-harness-tbench2-artifact",
+      "codeFiles": 2,
+      "skills": 0,
+      "loc": 1385,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "s0xDk__ghostty-blackhole",
+      "codeFiles": 7,
+      "skills": 0,
+      "loc": 850,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "Chen-chen429__viking-media-ai-search",
+      "codeFiles": 12,
+      "skills": 0,
+      "loc": 594,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "langchain-ai__langgraph-reflection",
+      "codeFiles": 1,
+      "skills": 0,
+      "loc": 50,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": false
+    }
+  ],
+  "Web_App": [
+    {
+      "dir": "alam00000__bentopdf",
+      "codeFiles": 364,
+      "skills": 0,
+      "loc": 81329,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "webadderallorg__Recordly",
+      "codeFiles": 295,
+      "skills": 0,
+      "loc": 69541,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "playcanvas__supersplat",
+      "codeFiles": 138,
+      "skills": 0,
+      "loc": 27834,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "LanRhyme__MicYou",
+      "codeFiles": 146,
+      "skills": 0,
+      "loc": 27488,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "xushanpei__open-file-viewer",
+      "codeFiles": 37,
+      "skills": 0,
+      "loc": 23069,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "dracohu2025-cloud__t2i_museum",
+      "codeFiles": 36,
+      "skills": 0,
+      "loc": 8941,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "YouMind-OpenLab__awesome-gpt-image-2",
+      "codeFiles": 6,
+      "skills": 0,
+      "loc": 2735,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": true
+    }
+  ],
+  "Agent_Skills_Framework": [
+    {
+      "dir": "Helvesec__rmux",
+      "codeFiles": 1147,
+      "skills": 1,
+      "loc": 450410,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "manaflow-ai__cmux",
+      "codeFiles": 2000,
+      "skills": 20,
+      "loc": 424065,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "stablyai__orca",
+      "codeFiles": 2000,
+      "skills": 8,
+      "loc": 389710,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "heygen-com__hyperframes",
+      "codeFiles": 1257,
+      "skills": 19,
+      "loc": 273312,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "hyperframes",
+      "codeFiles": 1250,
+      "skills": 19,
+      "loc": 272833,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "kunchenguid__no-mistakes",
+      "codeFiles": 496,
+      "skills": 1,
+      "loc": 132166,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "ogulcancelik__herdr",
+      "codeFiles": 233,
+      "skills": 1,
+      "loc": 127237,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "areal-project__AReaL",
+      "codeFiles": 427,
+      "skills": 0,
+      "loc": 109517,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "badlogic__pi-mono",
+      "codeFiles": 417,
+      "skills": 0,
+      "loc": 98189,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "earendil-works__pi",
+      "codeFiles": 417,
+      "skills": 0,
+      "loc": 98189,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "openai__plugins",
+      "codeFiles": 324,
+      "skills": 200,
+      "loc": 95561,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "Imbad0202__academic-research-skills",
+      "codeFiles": 235,
+      "skills": 4,
+      "loc": 90236,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "hugohe3__ppt-master",
+      "codeFiles": 184,
+      "skills": 1,
+      "loc": 86155,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "hyperbrowserai__hyperbrowser-app-examples",
+      "codeFiles": 698,
+      "skills": 0,
+      "loc": 78197,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "K-Dense-AI__scientific-agent-skills",
+      "codeFiles": 263,
+      "skills": 149,
+      "loc": 72428,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "sxyazi__yazi",
+      "codeFiles": 1072,
+      "skills": 0,
+      "loc": 72292,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "dracohu2025-cloud__draco-skills-collection",
+      "codeFiles": 279,
+      "skills": 44,
+      "loc": 69913,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "calesthio__OpenMontage",
+      "codeFiles": 219,
+      "skills": 0,
+      "loc": 64855,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "garrytan__gstack",
+      "codeFiles": 248,
+      "skills": 58,
+      "loc": 59282,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "JimLiu__baoyu-skills",
+      "codeFiles": 222,
+      "skills": 21,
+      "loc": 49877,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "aws__agent-toolkit-for-aws",
+      "codeFiles": 135,
+      "skills": 131,
+      "loc": 44428,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "Claw-AI-Lab__Claw-AI-Lab",
+      "codeFiles": 159,
+      "skills": 0,
+      "loc": 44162,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "gsd-build__get-shit-done",
+      "codeFiles": 191,
+      "skills": 0,
+      "loc": 40395,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "Fission-AI__OpenSpec",
+      "codeFiles": 200,
+      "skills": 12,
+      "loc": 35294,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "sirmalloc__ccstatusline",
+      "codeFiles": 196,
+      "skills": 0,
+      "loc": 31425,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "Lum1104__Understand-Anything",
+      "codeFiles": 187,
+      "skills": 9,
+      "loc": 30826,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "OthmanAdi__planning-with-files",
+      "codeFiles": 138,
+      "skills": 6,
+      "loc": 27833,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "volcengine__SearchCLI",
+      "codeFiles": 147,
+      "skills": 12,
+      "loc": 23098,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "lance-format__lance-context",
+      "codeFiles": 53,
+      "skills": 0,
+      "loc": 19829,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "tractorjuice__arc-kit",
+      "codeFiles": 69,
+      "skills": 11,
+      "loc": 19773,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "wanikua__danghuangshang",
+      "codeFiles": 90,
+      "skills": 17,
+      "loc": 19113,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "nexu-io__html-anything",
+      "codeFiles": 89,
+      "skills": 81,
+      "loc": 18401,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "qufei1993__skills-hub",
+      "codeFiles": 59,
+      "skills": 0,
+      "loc": 15282,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "pbakaus__impeccable",
+      "codeFiles": 118,
+      "skills": 1,
+      "loc": 14415,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "anthropics__claude-plugins-official",
+      "codeFiles": 46,
+      "skills": 30,
+      "loc": 12895,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "harry0703__MoneyPrinterTurbo",
+      "codeFiles": 39,
+      "skills": 1,
+      "loc": 12688,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "google-research__timesfm",
+      "codeFiles": 41,
+      "skills": 1,
+      "loc": 11262,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "wshobson__agents",
+      "codeFiles": 36,
+      "skills": 180,
+      "loc": 9622,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "kangarooking__kangarooking-skills",
+      "codeFiles": 40,
+      "skills": 16,
+      "loc": 8749,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "tanweai__pua",
+      "codeFiles": 48,
+      "skills": 42,
+      "loc": 7967,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "deanpeters__Product-Manager-Skills",
+      "codeFiles": 26,
+      "skills": 70,
+      "loc": 7591,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "html-video",
+      "codeFiles": 57,
+      "skills": 14,
+      "loc": 6795,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "nexu-io__html-video",
+      "codeFiles": 57,
+      "skills": 14,
+      "loc": 6795,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": true
+    },
+    {
+      "dir": "anthropics__claude-code",
+      "codeFiles": 34,
+      "skills": 10,
+      "loc": 6192,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "google-ai-edge__gallery",
+      "codeFiles": 40,
+      "skills": 11,
+      "loc": 5369,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "op7418__Claude-to-IM-skill",
+      "codeFiles": 22,
+      "skills": 1,
+      "loc": 4684,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "op7418__NanoBanana-PPT-Skills",
+      "codeFiles": 10,
+      "skills": 1,
+      "loc": 3086,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "anthropics__financial-services",
+      "codeFiles": 17,
+      "skills": 117,
+      "loc": 2923,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "alchaincyf__huashu-md-html",
+      "codeFiles": 4,
+      "skills": 1,
+      "loc": 1497,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "asgeirtj__system_prompts_leaks",
+      "codeFiles": 3,
+      "skills": 9,
+      "loc": 899,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "mattpocock__skills",
+      "codeFiles": 5,
+      "skills": 41,
+      "loc": 345,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    },
+    {
+      "dir": "remotion-dev__skills",
+      "codeFiles": 3,
+      "skills": 17,
+      "loc": 340,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": true,
+      "hasWeb": false
+    }
+  ],
+  "Python_CLI": [
+    {
+      "dir": "antirez__ds4",
+      "codeFiles": 29,
+      "skills": 0,
+      "loc": 15831,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "OpenBMB__VoxCPM",
+      "codeFiles": 41,
+      "skills": 0,
+      "loc": 11128,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "nvbn__thefuck",
+      "codeFiles": 206,
+      "skills": 0,
+      "loc": 6992,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "areal-project__AReaL-MinT",
+      "codeFiles": 33,
+      "skills": 0,
+      "loc": 6816,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    }
+  ],
+  "CLI_Tool": [
+    {
+      "dir": "swc-project__swc",
+      "codeFiles": 1402,
+      "skills": 0,
+      "loc": 350366,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "apple__container",
+      "codeFiles": 422,
+      "skills": 0,
+      "loc": 63155,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "automaapp__automa",
+      "codeFiles": 436,
+      "skills": 0,
+      "loc": 61697,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "n0-computer__iroh",
+      "codeFiles": 111,
+      "skills": 0,
+      "loc": 42003,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "CloakHQ__CloakBrowser",
+      "codeFiles": 76,
+      "skills": 0,
+      "loc": 23530,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "magicmirrororg__magicmirror",
+      "codeFiles": 63,
+      "skills": 0,
+      "loc": 15041,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "iptv-org__iptv",
+      "codeFiles": 46,
+      "skills": 0,
+      "loc": 3884,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "nextlevelbuilder__ui-ux-pro-max-skill",
+      "codeFiles": 19,
+      "skills": 0,
+      "loc": 3763,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    }
+  ],
+  "Doc_Only": [
+    {
+      "dir": "awesome-design-md",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "codecrafters-io__build-your-own-x",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "datawhalechina__Agent-Learning-Hub",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "elder-plinius__CL4R1T4S",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "github__awesome-copilot",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "loop-engineering-orange-book",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "Lordog__dive-into-llms",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "psteger__openclaw",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "Shichun-Liu__Agent-Memory-Paper-List",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "travisvn__awesome-claude-skills",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "VoltAgent__awesome-design-md",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "XMUDeepLIT__Awesome-Self-Evolving-Agents",
+      "codeFiles": 0,
+      "skills": 0,
+      "loc": 0,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    }
+  ],
+  "Agent_WebApp": [
+    {
+      "dir": "chatwoot__chatwoot",
+      "codeFiles": 2000,
+      "skills": 0,
+      "loc": 220039,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "makeplane__plane",
+      "codeFiles": 2000,
+      "skills": 0,
+      "loc": 214896,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "meshery__meshery",
+      "codeFiles": 1225,
+      "skills": 0,
+      "loc": 208894,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "firecrawl__firecrawl",
+      "codeFiles": 745,
+      "skills": 0,
+      "loc": 161234,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "HKUDS__LightRAG",
+      "codeFiles": 263,
+      "skills": 0,
+      "loc": 84326,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "Zackriya-Solutions__meetily",
+      "codeFiles": 334,
+      "skills": 0,
+      "loc": 82155,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "freeCodeCamp__freeCodeCamp",
+      "codeFiles": 701,
+      "skills": 0,
+      "loc": 81013,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "lfnovo__open-notebook",
+      "codeFiles": 281,
+      "skills": 0,
+      "loc": 45405,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "humanlayer__12-factor-agents",
+      "codeFiles": 170,
+      "skills": 0,
+      "loc": 11930,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "HKUDS__ViMax",
+      "codeFiles": 70,
+      "skills": 0,
+      "loc": 11266,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    },
+    {
+      "dir": "JCodesMore__ai-website-cloner-template",
+      "codeFiles": 6,
+      "skills": 0,
+      "loc": 210,
+      "hasMcp": false,
+      "hasAgent": true,
+      "hasSkill": false,
+      "hasWeb": true
+    }
+  ],
+  "API_Backend": [
+    {
+      "dir": "deepseek-ai__DeepGEMM",
+      "codeFiles": 72,
+      "skills": 0,
+      "loc": 12726,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "palemoky__chinese-poetry-api",
+      "codeFiles": 61,
+      "skills": 0,
+      "loc": 10090,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "karpathy__llm-council",
+      "codeFiles": 16,
+      "skills": 0,
+      "loc": 1565,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    }
+  ],
+  "Design_UI": [
+    {
+      "dir": "google-labs-code__design.md",
+      "codeFiles": 49,
+      "skills": 0,
+      "loc": 5108,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": true
+    }
+  ],
+  "Python_Lib": [
+    {
+      "dir": "roboflow__supervision",
+      "codeFiles": 85,
+      "skills": 0,
+      "loc": 35219,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "vastsa__FileCodeBox",
+      "codeFiles": 28,
+      "skills": 0,
+      "loc": 7221,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "Z4nzu__hackingtool",
+      "codeFiles": 40,
+      "skills": 0,
+      "loc": 5281,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "jackfrued__python-100-days",
+      "codeFiles": 61,
+      "skills": 0,
+      "loc": 2439,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "hesreallyhim__awesome-claude-code",
+      "codeFiles": 15,
+      "skills": 0,
+      "loc": 2304,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    }
+  ],
+  "other": [
+    {
+      "dir": "supertone-inc__supertonic",
+      "codeFiles": 34,
+      "skills": 0,
+      "loc": 11007,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "lihaoyun6__QuickRecorder",
+      "codeFiles": 27,
+      "skills": 0,
+      "loc": 7909,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "karpathy__jobs",
+      "codeFiles": 8,
+      "skills": 0,
+      "loc": 1091,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "karpathy__autoresearch",
+      "codeFiles": 2,
+      "skills": 0,
+      "loc": 1021,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "public-apis__public-apis",
+      "codeFiles": 3,
+      "skills": 0,
+      "loc": 610,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "shanraisshan__claude-code-best-practice",
+      "codeFiles": 1,
+      "skills": 0,
+      "loc": 369,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "joeynyc__hermes-skins",
+      "codeFiles": 2,
+      "skills": 0,
+      "loc": 322,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    },
+    {
+      "dir": "mattpocock__dictionary-of-ai-coding",
+      "codeFiles": 1,
+      "skills": 0,
+      "loc": 168,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    }
+  ],
+  "TS_Lib": [
+    {
+      "dir": "WICG__html-in-canvas",
+      "codeFiles": 15,
+      "skills": 0,
+      "loc": 3017,
+      "hasMcp": false,
+      "hasAgent": false,
+      "hasSkill": false,
+      "hasWeb": false
+    }
+  ]
+}

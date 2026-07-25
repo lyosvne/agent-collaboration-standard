@@ -1,0 +1,62 @@
+[
+  {
+    "owner": "phodal",
+    "repo": "routa",
+    "url": "https://github.com/phodal/routa",
+    "dirName": "phodal__routa"
+  },
+  {
+    "owner": "addyosmani",
+    "repo": "agent-skills",
+    "url": "https://github.com/addyosmani/agent-skills",
+    "dirName": "addyosmani__agent-skills"
+  },
+  {
+    "owner": "kangarooking",
+    "repo": "cangjie-skill",
+    "url": "https://github.com/kangarooking/cangjie-skill",
+    "dirName": "kangarooking__cangjie-skill"
+  },
+  {
+    "owner": "TapXWorld",
+    "repo": "ChinaTextbook",
+    "url": "https://github.com/TapXWorld/ChinaTextbook",
+    "dirName": "TapXWorld__ChinaTextbook"
+  },
+  {
+    "owner": "keli-wen",
+    "repo": "agentic-harness-patterns-skill",
+    "url": "https://github.com/keli-wen/agentic-harness-patterns-skill",
+    "dirName": "keli-wen__agentic-harness-patterns-skill"
+  },
+  {
+    "owner": "bytedance",
+    "repo": "DeerFlow",
+    "url": "https://github.com/bytedance/DeerFlow",
+    "dirName": "bytedance__DeerFlow"
+  },
+  {
+    "owner": "Leonxlnx",
+    "repo": "taste-skill",
+    "url": "https://github.com/Leonxlnx/taste-skill",
+    "dirName": "Leonxlnx__taste-skill"
+  },
+  {
+    "owner": "coder-brzhang",
+    "repo": "hermes-rs",
+    "url": "https://github.com/coder-brzhang/hermes-rs",
+    "dirName": "coder-brzhang__hermes-rs"
+  },
+  {
+    "owner": "firecrawl",
+    "repo": "firecra",
+    "url": "https://github.com/firecrawl/firecra",
+    "dirName": "firecrawl__firecra"
+  },
+  {
+    "owner": "alibaba",
+    "repo": "zvec01",
+    "url": "https://github.com/alibaba/zvec01",
+    "dirName": "alibaba__zvec01"
+  }
+]

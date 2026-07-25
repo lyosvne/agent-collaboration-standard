@@ -1,0 +1,2130 @@
+[
+  {
+    "owner": "1jehuang",
+    "repo": "jcode",
+    "dir": "1jehuang__jcode",
+    "codeFiles": 1133,
+    "skills": 0
+  },
+  {
+    "owner": "1st1",
+    "repo": "lat.md",
+    "dir": "1st1__lat.md",
+    "codeFiles": 49,
+    "skills": 1
+  },
+  {
+    "owner": "4ier",
+    "repo": "neo",
+    "dir": "4ier__neo",
+    "codeFiles": 11,
+    "skills": 1
+  },
+  {
+    "owner": "666ghj",
+    "repo": "MiroFish",
+    "dir": "666ghj__MiroFish",
+    "codeFiles": 57,
+    "skills": 0
+  },
+  {
+    "owner": "aaif-goose",
+    "repo": "goose",
+    "dir": "aaif-goose__goose",
+    "codeFiles": 891,
+    "skills": 0
+  },
+  {
+    "owner": "abhigyanpatwari",
+    "repo": "GitNexus",
+    "dir": "abhigyanpatwari__GitNexus",
+    "codeFiles": 863,
+    "skills": 14
+  },
+  {
+    "owner": "affaan-m",
+    "repo": "ECC",
+    "dir": "affaan-m__ECC",
+    "codeFiles": 305,
+    "skills": 200
+  },
+  {
+    "owner": "affaan-m",
+    "repo": "everything-claude-code",
+    "dir": "affaan-m__everything-claude-code",
+    "codeFiles": 305,
+    "skills": 200
+  },
+  {
+    "owner": "AgriciDaniel",
+    "repo": "claude-obsidian",
+    "dir": "AgriciDaniel__claude-obsidian",
+    "codeFiles": 12,
+    "skills": 15
+  },
+  {
+    "owner": "AIDC-AI",
+    "repo": "Pixelle-Video",
+    "dir": "AIDC-AI__Pixelle-Video",
+    "codeFiles": 115,
+    "skills": 0
+  },
+  {
+    "owner": "aiming-lab",
+    "repo": "Agent0",
+    "dir": "aiming-lab__Agent0",
+    "codeFiles": 708,
+    "skills": 0
+  },
+  {
+    "owner": "alam00000",
+    "repo": "bentopdf",
+    "dir": "alam00000__bentopdf",
+    "codeFiles": 364,
+    "skills": 0
+  },
+  {
+    "owner": "alchaincyf",
+    "repo": "darwin-skill",
+    "dir": "alchaincyf__darwin-skill",
+    "codeFiles": 0,
+    "skills": 1
+  },
+  {
+    "owner": "alchaincyf",
+    "repo": "huashu-md-html",
+    "dir": "alchaincyf__huashu-md-html",
+    "codeFiles": 4,
+    "skills": 1
+  },
+  {
+    "owner": "alibaba",
+    "repo": "OpenSandbox",
+    "dir": "alibaba__OpenSandbox",
+    "codeFiles": 1086,
+    "skills": 1
+  },
+  {
+    "owner": "alibaba",
+    "repo": "page-agent",
+    "dir": "alibaba__page-agent",
+    "codeFiles": 152,
+    "skills": 0
+  },
+  {
+    "owner": "Alishahryar1",
+    "repo": "free-claude-code",
+    "dir": "Alishahryar1__free-claude-code",
+    "codeFiles": 258,
+    "skills": 0
+  },
+  {
+    "owner": "Anil-matcha",
+    "repo": "Open-Generative-AI",
+    "dir": "Anil-matcha__Open-Generative-AI",
+    "codeFiles": 84,
+    "skills": 0
+  },
+  {
+    "owner": "anthropics",
+    "repo": "claude-code",
+    "dir": "anthropics__claude-code",
+    "codeFiles": 34,
+    "skills": 10
+  },
+  {
+    "owner": "anthropics",
+    "repo": "claude-plugins-official",
+    "dir": "anthropics__claude-plugins-official",
+    "codeFiles": 46,
+    "skills": 30
+  },
+  {
+    "owner": "anthropics",
+    "repo": "financial-services",
+    "dir": "anthropics__financial-services",
+    "codeFiles": 17,
+    "skills": 117
+  },
+  {
+    "owner": "anthropics",
+    "repo": "knowledge-work-plugins",
+    "dir": "anthropics__knowledge-work-plugins",
+    "codeFiles": 26,
+    "skills": 200
+  },
+  {
+    "owner": "anthropics",
+    "repo": "skills",
+    "dir": "anthropics__skills",
+    "codeFiles": 67,
+    "skills": 18
+  },
+  {
+    "owner": "antirez",
+    "repo": "ds4",
+    "dir": "antirez__ds4",
+    "codeFiles": 29,
+    "skills": 0
+  },
+  {
+    "owner": "apple",
+    "repo": "container",
+    "dir": "apple__container",
+    "codeFiles": 422,
+    "skills": 0
+  },
+  {
+    "owner": "areal-project",
+    "repo": "AReaL",
+    "dir": "areal-project__AReaL",
+    "codeFiles": 427,
+    "skills": 0
+  },
+  {
+    "owner": "areal-project",
+    "repo": "AReaL-MinT",
+    "dir": "areal-project__AReaL-MinT",
+    "codeFiles": 33,
+    "skills": 0
+  },
+  {
+    "owner": "asgeirtj",
+    "repo": "system_prompts_leaks",
+    "dir": "asgeirtj__system_prompts_leaks",
+    "codeFiles": 3,
+    "skills": 9
+  },
+  {
+    "owner": "assafelovic",
+    "repo": "gpt-researcher",
+    "dir": "assafelovic__gpt-researcher",
+    "codeFiles": 237,
+    "skills": 1
+  },
+  {
+    "owner": "automaapp",
+    "repo": "automa",
+    "dir": "automaapp__automa",
+    "codeFiles": 436,
+    "skills": 0
+  },
+  {
+    "owner": "aws",
+    "repo": "agent-toolkit-for-aws",
+    "dir": "aws__agent-toolkit-for-aws",
+    "codeFiles": 135,
+    "skills": 131
+  },
+  {
+    "owner": "badlogic",
+    "repo": "pi-mono",
+    "dir": "badlogic__pi-mono",
+    "codeFiles": 417,
+    "skills": 0
+  },
+  {
+    "owner": "bradautomates",
+    "repo": "claude-video",
+    "dir": "bradautomates__claude-video",
+    "codeFiles": 10,
+    "skills": 1
+  },
+  {
+    "owner": "browser-use",
+    "repo": "video-use",
+    "dir": "browser-use__video-use",
+    "codeFiles": 7,
+    "skills": 2
+  },
+  {
+    "owner": "budibase",
+    "repo": "budibase",
+    "dir": "budibase__budibase",
+    "codeFiles": 2000,
+    "skills": 0
+  },
+  {
+    "owner": "BuilderIO",
+    "repo": "agent-native",
+    "dir": "BuilderIO__agent-native",
+    "codeFiles": 2000,
+    "skills": 20
+  },
+  {
+    "owner": "bytedance-seed",
+    "repo": "m3-agent",
+    "dir": "bytedance-seed__m3-agent",
+    "codeFiles": 21,
+    "skills": 0
+  },
+  {
+    "owner": "bytedance",
+    "repo": "deer-flow",
+    "dir": "bytedance__deer-flow",
+    "codeFiles": 827,
+    "skills": 0
+  },
+  {
+    "owner": "bytedance",
+    "repo": "UI-TARS-desktop",
+    "dir": "bytedance__UI-TARS-desktop",
+    "codeFiles": 1128,
+    "skills": 0
+  },
+  {
+    "owner": "calesthio",
+    "repo": "OpenMontage",
+    "dir": "calesthio__OpenMontage",
+    "codeFiles": 219,
+    "skills": 0
+  },
+  {
+    "owner": "can1357",
+    "repo": "oh-my-pi",
+    "dir": "can1357__oh-my-pi",
+    "codeFiles": 1997,
+    "skills": 0
+  },
+  {
+    "owner": "chaitin",
+    "repo": "SafeLine",
+    "dir": "chaitin__SafeLine",
+    "codeFiles": 120,
+    "skills": 0
+  },
+  {
+    "owner": "chatwoot",
+    "repo": "chatwoot",
+    "dir": "chatwoot__chatwoot",
+    "codeFiles": 2000,
+    "skills": 0
+  },
+  {
+    "owner": "Chen-chen429",
+    "repo": "viking-media-ai-search",
+    "dir": "Chen-chen429__viking-media-ai-search",
+    "codeFiles": 12,
+    "skills": 0
+  },
+  {
+    "owner": "ChinaSiro",
+    "repo": "claude-code-sourcemap",
+    "dir": "ChinaSiro__claude-code-sourcemap",
+    "codeFiles": 1820,
+    "skills": 0
+  },
+  {
+    "owner": "ChiTing111",
+    "repo": "last30days-skill-cn",
+    "dir": "ChiTing111__last30days-skill-cn",
+    "codeFiles": 57,
+    "skills": 2
+  },
+  {
+    "owner": "chopratejas",
+    "repo": "headroom",
+    "dir": "chopratejas__headroom",
+    "codeFiles": 775,
+    "skills": 0
+  },
+  {
+    "owner": "Claw-AI-Lab",
+    "repo": "Claw-AI-Lab",
+    "dir": "Claw-AI-Lab__Claw-AI-Lab",
+    "codeFiles": 159,
+    "skills": 0
+  },
+  {
+    "owner": "CloakHQ",
+    "repo": "CloakBrowser",
+    "dir": "CloakHQ__CloakBrowser",
+    "codeFiles": 76,
+    "skills": 0
+  },
+  {
+    "owner": "cloudflare",
+    "repo": "mcp",
+    "dir": "cloudflare__mcp",
+    "codeFiles": 23,
+    "skills": 0
+  },
+  {
+    "owner": "cobusgreyling",
+    "repo": "loop-engineering",
+    "dir": "cobusgreyling__loop-engineering",
+    "codeFiles": 31,
+    "skills": 12
+  },
+  {
+    "owner": "Cocoon-AI",
+    "repo": "architecture-diagram-generator",
+    "dir": "Cocoon-AI__architecture-diagram-generator",
+    "codeFiles": 0,
+    "skills": 1
+  },
+  {
+    "owner": "codecrafters-io",
+    "repo": "build-your-own-x",
+    "dir": "codecrafters-io__build-your-own-x",
+    "codeFiles": 0,
+    "skills": 0
+  },
+  {
+    "owner": "colbymchenry",
+    "repo": "codegraph",
+    "dir": "colbymchenry__codegraph",
+    "codeFiles": 210,
+    "skills": 0
+  },
+  {
+    "owner": "coleam00",
+    "repo": "Archon",
+    "dir": "coleam00__Archon",
+    "codeFiles": 561,
+    "skills": 0
+  },
+  {
+    "owner": "comfyanonymous",
+    "repo": "ComfyUI",
+    "dir": "comfyanonymous__ComfyUI",
+    "codeFiles": 641,
+    "skills": 0
+  },
+  {
+    "owner": "ComposioHQ",
+    "repo": "awesome-claude-skills",
+    "dir": "ComposioHQ__awesome-claude-skills",
+    "codeFiles": 61,
+    "skills": 200
+  },
+  {
+    "owner": "CopilotKit",
+    "repo": "CopilotKit",
+    "dir": "CopilotKit__CopilotKit",
+    "codeFiles": 2000,
+    "skills": 14
+  },
+  {
+    "owner": "coreyhaines31",
+    "repo": "marketingskills",
+    "dir": "coreyhaines31__marketingskills",
+    "codeFiles": 66,
+    "skills": 47
+  },
+  {
+    "owner": "czlonkowski",
+    "repo": "n8n-mcp",
+    "dir": "czlonkowski__n8n-mcp",
+    "codeFiles": 316,
+    "skills": 15
+  },
+  {
+    "owner": "D4Vinci",
+    "repo": "Scrapling",
+    "dir": "D4Vinci__Scrapling",
+    "codeFiles": 52,
+    "skills": 1
+  },
+  {
+    "owner": "danny-avila",
+    "repo": "LibreChat",
+    "dir": "danny-avila__LibreChat",
+    "codeFiles": 2000,
+    "skills": 1
+  },
+  {
+    "owner": "darrylmorley",
+    "repo": "whatcable",
+    "dir": "darrylmorley__whatcable",
+    "codeFiles": 248,
+    "skills": 0
+  },
+  {
+    "owner": "datawhalechina",
+    "repo": "Agent-Learning-Hub",
+    "dir": "datawhalechina__Agent-Learning-Hub",
+    "codeFiles": 0,
+    "skills": 0
+  },
+  {
+    "owner": "datawhalechina",
+    "repo": "easy-vibe",
+    "dir": "datawhalechina__easy-vibe",
+    "codeFiles": 567,
+    "skills": 0
+  },
+  {
+    "owner": "DavidHDev",
+    "repo": "react-bits",
+    "dir": "DavidHDev__react-bits",
+    "codeFiles": 826,
+    "skills": 0
+  },
+  {
+    "owner": "DayuanJiang",
+    "repo": "next-ai-draw-io",
+    "dir": "DayuanJiang__next-ai-draw-io",
+    "codeFiles": 133,
+    "skills": 0
+  },
+  {
+    "owner": "dbeaver",
+    "repo": "dbeaver",
+    "dir": "dbeaver__dbeaver",
+    "codeFiles": 2000,
+    "skills": 0
+  },
+  {
+    "owner": "deanpeters",
+    "repo": "Product-Manager-Skills",
+    "dir": "deanpeters__Product-Manager-Skills",
+    "codeFiles": 26,
+    "skills": 70
+  },
+  {
+    "owner": "decolua",
+    "repo": "9router",
+    "dir": "decolua__9router",
+    "codeFiles": 824,
+    "skills": 9
+  },
+  {
+    "owner": "deepseek-ai",
+    "repo": "DeepGEMM",
+    "dir": "deepseek-ai__DeepGEMM",
+    "codeFiles": 72,
+    "skills": 0
+  },
+  {
+    "owner": "DeusData",
+    "repo": "codebase-memory-mcp",
+    "dir": "DeusData__codebase-memory-mcp",
+    "codeFiles": 463,
+    "skills": 0
+  },
+  {
+    "owner": "diegosouzapw",
+    "repo": "OmniRoute",
+    "dir": "diegosouzapw__OmniRoute",
+    "codeFiles": 2000,
+    "skills": 46
+  },
+  {
+    "owner": "DietrichGebert",
+    "repo": "ponytail",
+    "dir": "DietrichGebert__ponytail",
+    "codeFiles": 30,
+    "skills": 6
+  },
+  {
+    "owner": "diffusionstudio",
+    "repo": "lottie",
+    "dir": "diffusionstudio__lottie",
+    "codeFiles": 28,
+    "skills": 1
+  },
+  {
+    "owner": "dracohu2025-cloud",
+    "repo": "draco-skills-collection",
+    "dir": "dracohu2025-cloud__draco-skills-collection",
+    "codeFiles": 279,
+    "skills": 44
+  },
+  {
+    "owner": "dracohu2025-cloud",
+    "repo": "t2i_museum",
+    "dir": "dracohu2025-cloud__t2i_museum",
+    "codeFiles": 36,
+    "skills": 0
+  },
+  {
+    "owner": "earendil-works",
+    "repo": "pi",
+    "dir": "earendil-works__pi",
+    "codeFiles": 417,
+    "skills": 0
+  },
+  {
+    "owner": "elder-plinius",
+    "repo": "CL4R1T4S",
+    "dir": "elder-plinius__CL4R1T4S",
+    "codeFiles": 0,
+    "skills": 0
+  },
+  {
+    "owner": "emilkowalski",
+    "repo": "skills",
+    "dir": "emilkowalski__skills",
+    "codeFiles": 0,
+    "skills": 6
+  },
+  {
+    "owner": "EverMind-AI",
+    "repo": "evermem-claude-code",
+    "dir": "EverMind-AI__evermem-claude-code",
+    "codeFiles": 20,
+    "skills": 0
+  },
+  {
+    "owner": "EverMind-AI",
+    "repo": "EverOS",
+    "dir": "EverMind-AI__EverOS",
+    "codeFiles": 327,
+    "skills": 0
+  },
+  {
+    "owner": "EverMind-AI",
+    "repo": "Raven",
+    "dir": "EverMind-AI__Raven",
+    "codeFiles": 761,
+    "skills": 2
+  },
+  {
+    "owner": "EvoAgentX",
+    "repo": "EvoAgentX",
+    "dir": "EvoAgentX__EvoAgentX",
+    "codeFiles": 252,
+    "skills": 0
+  },
+  {
+    "owner": "eze-is",
+    "repo": "web-access",
+    "dir": "eze-is__web-access",
+    "codeFiles": 0,
+    "skills": 1
+  },
+  {
+    "owner": "facebookresearch",
+    "repo": "Hyperagents",
+    "dir": "facebookresearch__Hyperagents",
+    "codeFiles": 118,
+    "skills": 0
+  },
+  {
+    "owner": "farion1231",
+    "repo": "cc-switch",
+    "dir": "farion1231__cc-switch",
+    "codeFiles": 515,
+    "skills": 0
+  },
+  {
+    "owner": "figma",
+    "repo": "mcp-server-guide",
+    "dir": "figma__mcp-server-guide",
+    "codeFiles": 14,
+    "skills": 14
+  },
+  {
+    "owner": "firecrawl",
+    "repo": "firecrawl",
+    "dir": "firecrawl__firecrawl",
+    "codeFiles": 745,
+    "skills": 0
+  },
+  {
+    "owner": "Fission-AI",
+    "repo": "OpenSpec",
+    "dir": "Fission-AI__OpenSpec",
+    "codeFiles": 200,
+    "skills": 12
+  },
+  {
+    "owner": "Fokkyp",
+    "repo": "SoftwareCopyright-Skill",
+    "dir": "Fokkyp__SoftwareCopyright-Skill",
+    "codeFiles": 11,
+    "skills": 1
+  },
+  {
+    "owner": "forrestchang",
+    "repo": "andrej-karpathy-skills",
+    "dir": "forrestchang__andrej-karpathy-skills",
+    "codeFiles": 0,
+    "skills": 1
+  },
+  {
+    "owner": "frdel",
+    "repo": "agent-zero",
+    "dir": "frdel__agent-zero",
+    "codeFiles": 723,
+    "skills": 29
+  },
+  {
+    "owner": "freeCodeCamp",
+    "repo": "freeCodeCamp",
+    "dir": "freeCodeCamp__freeCodeCamp",
+    "codeFiles": 701,
+    "skills": 0
+  },
+  {
+    "owner": "garrytan",
+    "repo": "gstack",
+    "dir": "garrytan__gstack",
+    "codeFiles": 248,
+    "skills": 58
+  },
+  {
+    "owner": "github",
+    "repo": "awesome-copilot",
+    "dir": "github__awesome-copilot",
+    "codeFiles": 0,
+    "skills": 0
+  },
+  {
+    "owner": "github",
+    "repo": "spec-kit",
+    "dir": "github__spec-kit",
+    "codeFiles": 128,
+    "skills": 0
+  },
+  {
+    "owner": "giuseppe-trisciuoglio",
+    "repo": "developer-kit",
+    "dir": "giuseppe-trisciuoglio__developer-kit",
+    "codeFiles": 38,
+    "skills": 128
+  },
+  {
+    "owner": "glitternetwork",
+    "repo": "pinme",
+    "dir": "glitternetwork__pinme",
+    "codeFiles": 12,
+    "skills": 7
+  },
+  {
+    "owner": "google-ai-edge",
+    "repo": "gallery",
+    "dir": "google-ai-edge__gallery",
+    "codeFiles": 40,
+    "skills": 11
+  },
+  {
+    "owner": "google-ai-edge",
+    "repo": "LiteRT-LM",
+    "dir": "google-ai-edge__LiteRT-LM",
+    "codeFiles": 368,
+    "skills": 1
+  },
+  {
+    "owner": "google-labs-code",
+    "repo": "design.md",
+    "dir": "google-labs-code__design.md",
+    "codeFiles": 49,
+    "skills": 0
+  },
+  {
+    "owner": "google-research",
+    "repo": "timesfm",
+    "dir": "google-research__timesfm",
+    "codeFiles": 41,
+    "skills": 1
+  },
+  {
+    "owner": "greensock",
+    "repo": "gsap-skills",
+    "dir": "greensock__gsap-skills",
+    "codeFiles": 0,
+    "skills": 8
+  },
+  {
+    "owner": "gsd-build",
+    "repo": "get-shit-done",
+    "dir": "gsd-build__get-shit-done",
+    "codeFiles": 191,
+    "skills": 0
+  },
+  {
+    "owner": "guokaigdg",
+    "repo": "animal-island-ui",
+    "dir": "guokaigdg__animal-island-ui",
+    "codeFiles": 53,
+    "skills": 1
+  },
+  {
+    "owner": "hangwin",
+    "repo": "mcp-chrome",
+    "dir": "hangwin__mcp-chrome",
+    "codeFiles": 508,
+    "skills": 0
+  },
+  {
+    "owner": "harry0703",
+    "repo": "MoneyPrinterTurbo",
+    "dir": "harry0703__MoneyPrinterTurbo",
+    "codeFiles": 39,
+    "skills": 1
+  },
+  {
+    "owner": "helloianneo",
+    "repo": "ian-handdrawn-ppt",
+    "dir": "helloianneo__ian-handdrawn-ppt",
+    "codeFiles": 0,
+    "skills": 1
+  },
+  {
+    "owner": "Helvesec",
+    "repo": "rmux",
+    "dir": "Helvesec__rmux",
+    "codeFiles": 1147,
+    "skills": 1
+  },
+  {
+    "owner": "hesreallyhim",
+    "repo": "awesome-claude-code",
+    "dir": "hesreallyhim__awesome-claude-code",
+    "codeFiles": 15,
+    "skills": 0
+  },
+  {
+    "owner": "heygen-com",
+    "repo": "hyperframes",
+    "dir": "heygen-com__hyperframes",
+    "codeFiles": 1257,
+    "skills": 19
+  },
+  {
+    "owner": "HKUDS",
+    "repo": "CLI-Anything",
+    "dir": "HKUDS__CLI-Anything",
+    "codeFiles": 848,
+    "skills": 150
+  },
+  {
+    "owner": "HKUDS",
+    "repo": "DeepTutor",
+    "dir": "HKUDS__DeepTutor",
+    "codeFiles": 942,
+    "skills": 6
+  },
+  {
+    "owner": "HKUDS",
+    "repo": "LightRAG",
+    "dir": "HKUDS__LightRAG",
+    "codeFiles": 263,
+    "skills": 0
+  },
+  {
+    "owner": "HKUDS",
+    "repo": "ViMax",
+    "dir": "HKUDS__ViMax",
+    "codeFiles": 70,
+    "skills": 0
+  },
+  {
+    "owner": "Hmbown",
+    "repo": "CodeWhale",
+    "dir": "Hmbown__CodeWhale",
+    "codeFiles": 648,
+    "skills": 8
+  },
+  {
+    "owner": "Hmbown",
+    "repo": "DeepSeek-TUI",
+    "dir": "Hmbown__DeepSeek-TUI",
+    "codeFiles": 648,
+    "skills": 8
+  },
+  {
+    "owner": "hugohe3",
+    "repo": "ppt-master",
+    "dir": "hugohe3__ppt-master",
+    "codeFiles": 184,
+    "skills": 1
+  },
+  {
+    "owner": "humanlayer",
+    "repo": "12-factor-agents",
+    "dir": "humanlayer__12-factor-agents",
+    "codeFiles": 170,
+    "skills": 0
+  },
+  {
+    "owner": "hyperbrowserai",
+    "repo": "hyperbrowser-app-examples",
+    "dir": "hyperbrowserai__hyperbrowser-app-examples",
+    "codeFiles": 698,
+    "skills": 0
+  },
+  {
+    "owner": "Imbad0202",
+    "repo": "academic-research-skills",
+    "dir": "Imbad0202__academic-research-skills",
+    "codeFiles": 235,
+    "skills": 4
+  },
+  {
+    "owner": "instructkr",
+    "repo": "claude-code",
+    "dir": "instructkr__claude-code",
+    "codeFiles": 160,
+    "skills": 0
+  },
+  {
+    "owner": "instructkr",
+    "repo": "claw-code",
+    "dir": "instructkr__claw-code",
+    "codeFiles": 160,
+    "skills": 0
+  },
+  {
+    "owner": "interviewstreet",
+    "repo": "hiring-agent",
+    "dir": "interviewstreet__hiring-agent",
+    "codeFiles": 11,
+    "skills": 0
+  },
+  {
+    "owner": "iOfficeAI",
+    "repo": "OfficeCLI",
+    "dir": "iOfficeAI__OfficeCLI",
+    "codeFiles": 348,
+    "skills": 12
+  },
+  {
+    "owner": "iptv-org",
+    "repo": "iptv",
+    "dir": "iptv-org__iptv",
+    "codeFiles": 46,
+    "skills": 0
+  },
+  {
+    "owner": "isboyjc",
+    "repo": "claude-code",
+    "dir": "isboyjc__claude-code",
+    "codeFiles": 1830,
+    "skills": 1
+  },
+  {
+    "owner": "itwanger",
+    "repo": "PaiAgent",
+    "dir": "itwanger__PaiAgent",
+    "codeFiles": 163,
+    "skills": 1
+  },
+  {
+    "owner": "jackfrued",
+    "repo": "python-100-days",
+    "dir": "jackfrued__python-100-days",
+    "codeFiles": 61,
+    "skills": 0
+  },
+  {
+    "owner": "jamiepine",
+    "repo": "voicebox",
+    "dir": "jamiepine__voicebox",
+    "codeFiles": 375,
+    "skills": 0
+  },
+  {
+    "owner": "JCodesMore",
+    "repo": "ai-website-cloner-template",
+    "dir": "JCodesMore__ai-website-cloner-template",
+    "codeFiles": 6,
+    "skills": 0
+  },
+  {
+    "owner": "jianchang512",
+    "repo": "pyvideotrans",
+    "dir": "jianchang512__pyvideotrans",
+    "codeFiles": 400,
+    "skills": 0
+  },
+  {
+    "owner": "JimLiu",
+    "repo": "baoyu-skills",
+    "dir": "JimLiu__baoyu-skills",
+    "codeFiles": 222,
+    "skills": 21
+  },
+  {
+    "owner": "joeynyc",
+    "repo": "hermes-skins",
+    "dir": "joeynyc__hermes-skins",
+    "codeFiles": 2,
+    "skills": 0
+  },
+  {
+    "owner": "JuliusBrussee",
+    "repo": "caveman",
+    "dir": "JuliusBrussee__caveman",
+    "codeFiles": 30,
+    "skills": 11
+  },
+  {
+    "owner": "K-Dense-AI",
+    "repo": "scientific-agent-skills",
+    "dir": "K-Dense-AI__scientific-agent-skills",
+    "codeFiles": 263,
+    "skills": 149
+  },
+  {
+    "owner": "kangarooking",
+    "repo": "buffett-letters-skill",
+    "dir": "kangarooking__buffett-letters-skill",
+    "codeFiles": 0,
+    "skills": 20
+  },
+  {
+    "owner": "kangarooking",
+    "repo": "kangarooking-skills",
+    "dir": "kangarooking__kangarooking-skills",
+    "codeFiles": 40,
+    "skills": 16
+  },
+  {
+    "owner": "kangarooking",
+    "repo": "no-rules-rules-skill",
+    "dir": "kangarooking__no-rules-rules-skill",
+    "codeFiles": 0,
+    "skills": 10
+  },
+  {
+    "owner": "kangarooking",
+    "repo": "poor-charlies-almanack-skill",
+    "dir": "kangarooking__poor-charlies-almanack-skill",
+    "codeFiles": 0,
+    "skills": 12
+  },
+  {
+    "owner": "kangarooking",
+    "repo": "promo-creator-skills",
+    "dir": "kangarooking__promo-creator-skills",
+    "codeFiles": 1,
+    "skills": 7
+  },
+  {
+    "owner": "kangarooking",
+    "repo": "system-prompt-skills",
+    "dir": "kangarooking__system-prompt-skills",
+    "codeFiles": 0,
+    "skills": 15
+  },
+  {
+    "owner": "karpathy",
+    "repo": "autoresearch",
+    "dir": "karpathy__autoresearch",
+    "codeFiles": 2,
+    "skills": 0
+  },
+  {
+    "owner": "karpathy",
+    "repo": "jobs",
+    "dir": "karpathy__jobs",
+    "codeFiles": 8,
+    "skills": 0
+  },
+  {
+    "owner": "karpathy",
+    "repo": "llm-council",
+    "dir": "karpathy__llm-council",
+    "codeFiles": 16,
+    "skills": 0
+  },
+  {
+    "owner": "karpathy",
+    "repo": "nanochat",
+    "dir": "karpathy__nanochat",
+    "codeFiles": 33,
+    "skills": 0
+  },
+  {
+    "owner": "kenn-io",
+    "repo": "agentsview",
+    "dir": "kenn-io__agentsview",
+    "codeFiles": 1494,
+    "skills": 0
+  },
+  {
+    "owner": "kepano",
+    "repo": "obsidian-skills",
+    "dir": "kepano__obsidian-skills",
+    "codeFiles": 0,
+    "skills": 5
+  },
+  {
+    "owner": "khoj-ai",
+    "repo": "khoj",
+    "dir": "khoj-ai__khoj",
+    "codeFiles": 313,
+    "skills": 0
+  },
+  {
+    "owner": "KKKKhazix",
+    "repo": "khazix-skills",
+    "dir": "KKKKhazix__khazix-skills",
+    "codeFiles": 4,
+    "skills": 5
+  },
+  {
+    "owner": "Kong",
+    "repo": "insomnia",
+    "dir": "Kong__insomnia",
+    "codeFiles": 1170,
+    "skills": 0
+  },
+  {
+    "owner": "kunchenguid",
+    "repo": "no-mistakes",
+    "dir": "kunchenguid__no-mistakes",
+    "codeFiles": 496,
+    "skills": 1
+  },
+  {
+    "owner": "lance-format",
+    "repo": "lance-context",
+    "dir": "lance-format__lance-context",
+    "codeFiles": 53,
+    "skills": 0
+  },
+  {
+    "owner": "lance-format",
+    "repo": "lance-graph",
+    "dir": "lance-format__lance-graph",
+    "codeFiles": 78,
+    "skills": 0
+  },
+  {
+    "owner": "langchain-ai",
+    "repo": "langgraph-reflection",
+    "dir": "langchain-ai__langgraph-reflection",
+    "codeFiles": 1,
+    "skills": 0
+  },
+  {
+    "owner": "LanRhyme",
+    "repo": "MicYou",
+    "dir": "LanRhyme__MicYou",
+    "codeFiles": 146,
+    "skills": 0
+  },
+  {
+    "owner": "larksuite",
+    "repo": "cli",
+    "dir": "larksuite__cli",
+    "codeFiles": 1745,
+    "skills": 28
+  },
+  {
+    "owner": "LearningCircuit",
+    "repo": "local-deep-research",
+    "dir": "LearningCircuit__local-deep-research",
+    "codeFiles": 622,
+    "skills": 0
+  },
+  {
+    "owner": "leilei926524-tech",
+    "repo": "anti-distill",
+    "dir": "leilei926524-tech__anti-distill",
+    "codeFiles": 0,
+    "skills": 1
+  },
+  {
+    "owner": "letta-ai",
+    "repo": "letta-code",
+    "dir": "letta-ai__letta-code",
+    "codeFiles": 842,
+    "skills": 18
+  },
+  {
+    "owner": "lewislulu",
+    "repo": "html-ppt-skill",
+    "dir": "lewislulu__html-ppt-skill",
+    "codeFiles": 2,
+    "skills": 1
+  },
+  {
+    "owner": "lfnovo",
+    "repo": "open-notebook",
+    "dir": "lfnovo__open-notebook",
+    "codeFiles": 281,
+    "skills": 0
+  },
+  {
+    "owner": "liaohch3",
+    "repo": "claude-tap",
+    "dir": "liaohch3__claude-tap",
+    "codeFiles": 58,
+    "skills": 0
+  },
+  {
+    "owner": "libtv-labs",
+    "repo": "libtv-skills",
+    "dir": "libtv-labs__libtv-skills",
+    "codeFiles": 6,
+    "skills": 1
+  },
+  {
+    "owner": "lightpanda-io",
+    "repo": "browser",
+    "dir": "lightpanda-io__browser",
+    "codeFiles": 478,
+    "skills": 0
+  },
+  {
+    "owner": "lihaoyun6",
+    "repo": "QuickRecorder",
+    "dir": "lihaoyun6__QuickRecorder",
+    "codeFiles": 27,
+    "skills": 0
+  },
+  {
+    "owner": "LMCache",
+    "repo": "LMCache",
+    "dir": "LMCache__LMCache",
+    "codeFiles": 834,
+    "skills": 0
+  },
+  {
+    "owner": "Lordog",
+    "repo": "dive-into-llms",
+    "dir": "Lordog__dive-into-llms",
+    "codeFiles": 0,
+    "skills": 0
+  },
+  {
+    "owner": "lsdefine",
+    "repo": "GenericAgent",
+    "dir": "lsdefine__GenericAgent",
+    "codeFiles": 67,
+    "skills": 0
+  },
+  {
+    "owner": "Lum1104",
+    "repo": "Understand-Anything",
+    "dir": "Lum1104__Understand-Anything",
+    "codeFiles": 187,
+    "skills": 9
+  },
+  {
+    "owner": "magicmirrororg",
+    "repo": "magicmirror",
+    "dir": "magicmirrororg__magicmirror",
+    "codeFiles": 63,
+    "skills": 0
+  },
+  {
+    "owner": "makeplane",
+    "repo": "plane",
+    "dir": "makeplane__plane",
+    "codeFiles": 2000,
+    "skills": 0
+  },
+  {
+    "owner": "manaflow-ai",
+    "repo": "cmux",
+    "dir": "manaflow-ai__cmux",
+    "codeFiles": 2000,
+    "skills": 20
+  },
+  {
+    "owner": "Mark7766",
+    "repo": "ai-coding-ok",
+    "dir": "Mark7766__ai-coding-ok",
+    "codeFiles": 3,
+    "skills": 2
+  },
+  {
+    "owner": "mattpocock",
+    "repo": "dictionary-of-ai-coding",
+    "dir": "mattpocock__dictionary-of-ai-coding",
+    "codeFiles": 1,
+    "skills": 0
+  },
+  {
+    "owner": "mattpocock",
+    "repo": "skills",
+    "dir": "mattpocock__skills",
+    "codeFiles": 5,
+    "skills": 41
+  },
+  {
+    "owner": "mblode",
+    "repo": "agent-skills",
+    "dir": "mblode__agent-skills",
+    "codeFiles": 3,
+    "skills": 26
+  },
+  {
+    "owner": "mcp-use",
+    "repo": "mcp-use",
+    "dir": "mcp-use__mcp-use",
+    "codeFiles": 605,
+    "skills": 4
+  },
+  {
+    "owner": "mem0ai",
+    "repo": "mem0",
+    "dir": "mem0ai__mem0",
+    "codeFiles": 645,
+    "skills": 32
+  },
+  {
+    "owner": "MemTensor",
+    "repo": "MemOS",
+    "dir": "MemTensor__MemOS",
+    "codeFiles": 919,
+    "skills": 6
+  },
+  {
+    "owner": "meshery",
+    "repo": "meshery",
+    "dir": "meshery__meshery",
+    "codeFiles": 1225,
+    "skills": 0
+  },
+  {
+    "owner": "microsoft",
+    "repo": "Intelligent-Terminal",
+    "dir": "microsoft__Intelligent-Terminal",
+    "codeFiles": 1277,
+    "skills": 1
+  },
+  {
+    "owner": "microsoft",
+    "repo": "markitdown",
+    "dir": "microsoft__markitdown",
+    "codeFiles": 49,
+    "skills": 0
+  },
+  {
+    "owner": "microsoft",
+    "repo": "PowerToys",
+    "dir": "microsoft__PowerToys",
+    "codeFiles": 2000,
+    "skills": 0
+  },
+  {
+    "owner": "microsoft",
+    "repo": "SkillOpt",
+    "dir": "microsoft__SkillOpt",
+    "codeFiles": 127,
+    "skills": 3
+  },
+  {
+    "owner": "MiniMax-AI",
+    "repo": "skills",
+    "dir": "MiniMax-AI__skills",
+    "codeFiles": 70,
+    "skills": 22
+  },
+  {
+    "owner": "mksglu",
+    "repo": "context-mode",
+    "dir": "mksglu__context-mode",
+    "codeFiles": 100,
+    "skills": 10
+  },
+  {
+    "owner": "modelscope",
+    "repo": "AgentEvolver",
+    "dir": "modelscope__AgentEvolver",
+    "codeFiles": 168,
+    "skills": 0
+  },
+  {
+    "owner": "moeru-ai",
+    "repo": "airi",
+    "dir": "moeru-ai__airi",
+    "codeFiles": 2000,
+    "skills": 1
+  },
+  {
+    "owner": "msitarzewski",
+    "repo": "agency-agents",
+    "dir": "msitarzewski__agency-agents",
+    "codeFiles": 11,
+    "skills": 0
+  },
+  {
+    "owner": "mukul975",
+    "repo": "Anthropic-Cybersecurity-Skills",
+    "dir": "mukul975__Anthropic-Cybersecurity-Skills",
+    "codeFiles": 1094,
+    "skills": 200
+  },
+  {
+    "owner": "multica-ai",
+    "repo": "multica",
+    "dir": "multica-ai__multica",
+    "codeFiles": 2000,
+    "skills": 8
+  },
+  {
+    "owner": "mvanhorn",
+    "repo": "last30days-skill",
+    "dir": "mvanhorn__last30days-skill",
+    "codeFiles": 106,
+    "skills": 1
+  },
+  {
+    "owner": "n0-computer",
+    "repo": "iroh",
+    "dir": "n0-computer__iroh",
+    "codeFiles": 111,
+    "skills": 0
+  },
+  {
+    "owner": "nashsu",
+    "repo": "llm_wiki",
+    "dir": "nashsu__llm_wiki",
+    "codeFiles": 229,
+    "skills": 0
+  },
+  {
+    "owner": "nextlevelbuilder",
+    "repo": "ui-ux-pro-max-skill",
+    "dir": "nextlevelbuilder__ui-ux-pro-max-skill",
+    "codeFiles": 19,
+    "skills": 0
+  },
+  {
+    "owner": "nexu-io",
+    "repo": "html-anything",
+    "dir": "nexu-io__html-anything",
+    "codeFiles": 89,
+    "skills": 81
+  },
+  {
+    "owner": "nexu-io",
+    "repo": "html-video",
+    "dir": "nexu-io__html-video",
+    "codeFiles": 57,
+    "skills": 14
+  },
+  {
+    "owner": "nexu-io",
+    "repo": "open-design",
+    "dir": "nexu-io__open-design",
+    "codeFiles": 1469,
+    "skills": 200
+  },
+  {
+    "owner": "nocobase",
+    "repo": "nocobase",
+    "dir": "nocobase__nocobase",
+    "codeFiles": 2000,
+    "skills": 6
+  },
+  {
+    "owner": "notdog1998",
+    "repo": "yourself-skill",
+    "dir": "notdog1998__yourself-skill",
+    "codeFiles": 6,
+    "skills": 2
+  },
+  {
+    "owner": "NousResearch",
+    "repo": "hermes-agent",
+    "dir": "NousResearch__hermes-agent",
+    "codeFiles": 1916,
+    "skills": 178
+  },
+  {
+    "owner": "nutllwhy",
+    "repo": "hyperframes-motion-library",
+    "dir": "nutllwhy__hyperframes-motion-library",
+    "codeFiles": 8,
+    "skills": 0
+  },
+  {
+    "owner": "nvbn",
+    "repo": "thefuck",
+    "dir": "nvbn__thefuck",
+    "codeFiles": 206,
+    "skills": 0
+  },
+  {
+    "owner": "NVIDIA",
+    "repo": "cosmos",
+    "dir": "NVIDIA__cosmos",
+    "codeFiles": 740,
+    "skills": 0
+  },
+  {
+    "owner": "NVIDIA",
+    "repo": "SkillSpector",
+    "dir": "NVIDIA__SkillSpector",
+    "codeFiles": 84,
+    "skills": 0
+  },
+  {
+    "owner": "obra",
+    "repo": "superpowers",
+    "dir": "obra__superpowers",
+    "codeFiles": 12,
+    "skills": 14
+  },
+  {
+    "owner": "ogulcancelik",
+    "repo": "herdr",
+    "dir": "ogulcancelik__herdr",
+    "codeFiles": 233,
+    "skills": 1
+  },
+  {
+    "owner": "op7418",
+    "repo": "Claude-to-IM-skill",
+    "dir": "op7418__Claude-to-IM-skill",
+    "codeFiles": 22,
+    "skills": 1
+  },
+  {
+    "owner": "op7418",
+    "repo": "guizang-material-illustration",
+    "dir": "op7418__guizang-material-illustration",
+    "codeFiles": 0,
+    "skills": 1
+  },
+  {
+    "owner": "op7418",
+    "repo": "NanoBanana-PPT-Skills",
+    "dir": "op7418__NanoBanana-PPT-Skills",
+    "codeFiles": 10,
+    "skills": 1
+  },
+  {
+    "owner": "Open-LLM-VTuber",
+    "repo": "Open-LLM-VTuber",
+    "dir": "Open-LLM-VTuber__Open-LLM-VTuber",
+    "codeFiles": 112,
+    "skills": 0
+  },
+  {
+    "owner": "openai",
+    "repo": "codex-plugin-cc",
+    "dir": "openai__codex-plugin-cc",
+    "codeFiles": 0,
+    "skills": 3
+  },
+  {
+    "owner": "openai",
+    "repo": "openai-agents-python",
+    "dir": "openai__openai-agents-python",
+    "codeFiles": 286,
+    "skills": 0
+  },
+  {
+    "owner": "openai",
+    "repo": "plugins",
+    "dir": "openai__plugins",
+    "codeFiles": 324,
+    "skills": 200
+  },
+  {
+    "owner": "OpenBMB",
+    "repo": "PilotDeck",
+    "dir": "OpenBMB__PilotDeck",
+    "codeFiles": 909,
+    "skills": 31
+  },
+  {
+    "owner": "OpenBMB",
+    "repo": "VoxCPM",
+    "dir": "OpenBMB__VoxCPM",
+    "codeFiles": 41,
+    "skills": 0
+  },
+  {
+    "owner": "operand",
+    "repo": "agency",
+    "dir": "operand__agency",
+    "codeFiles": 10,
+    "skills": 0
+  },
+  {
+    "owner": "OthmanAdi",
+    "repo": "planning-with-files",
+    "dir": "OthmanAdi__planning-with-files",
+    "codeFiles": 138,
+    "skills": 6
+  },
+  {
+    "owner": "palemoky",
+    "repo": "chinese-poetry-api",
+    "dir": "palemoky__chinese-poetry-api",
+    "codeFiles": 61,
+    "skills": 0
+  },
+  {
+    "owner": "Panniantong",
+    "repo": "Agent-Reach",
+    "dir": "Panniantong__Agent-Reach",
+    "codeFiles": 35,
+    "skills": 1
+  },
+  {
+    "owner": "pbakaus",
+    "repo": "impeccable",
+    "dir": "pbakaus__impeccable",
+    "codeFiles": 118,
+    "skills": 1
+  },
+  {
+    "owner": "penpot",
+    "repo": "penpot",
+    "dir": "penpot__penpot",
+    "codeFiles": 577,
+    "skills": 0
+  },
+  {
+    "owner": "perkfly",
+    "repo": "ex-skill",
+    "dir": "perkfly__ex-skill",
+    "codeFiles": 7,
+    "skills": 1
+  },
+  {
+    "owner": "phuryn",
+    "repo": "pm-skills",
+    "dir": "phuryn__pm-skills",
+    "codeFiles": 1,
+    "skills": 68
+  },
+  {
+    "owner": "pixijs",
+    "repo": "pixijs-skills",
+    "dir": "pixijs__pixijs-skills",
+    "codeFiles": 0,
+    "skills": 26
+  },
+  {
+    "owner": "playcanvas",
+    "repo": "supersplat",
+    "dir": "playcanvas__supersplat",
+    "codeFiles": 138,
+    "skills": 0
+  },
+  {
+    "owner": "presenton",
+    "repo": "presenton",
+    "dir": "presenton__presenton",
+    "codeFiles": 580,
+    "skills": 0
+  },
+  {
+    "owner": "psteger",
+    "repo": "openclaw",
+    "dir": "psteger__openclaw",
+    "codeFiles": 0,
+    "skills": 0
+  },
+  {
+    "owner": "public-apis",
+    "repo": "public-apis",
+    "dir": "public-apis__public-apis",
+    "codeFiles": 3,
+    "skills": 0
+  },
+  {
+    "owner": "qufei1993",
+    "repo": "skills-hub",
+    "dir": "qufei1993__skills-hub",
+    "codeFiles": 59,
+    "skills": 0
+  },
+  {
+    "owner": "refactoringhq",
+    "repo": "tolaria",
+    "dir": "refactoringhq__tolaria",
+    "codeFiles": 870,
+    "skills": 0
+  },
+  {
+    "owner": "remotion-dev",
+    "repo": "skills",
+    "dir": "remotion-dev__skills",
+    "codeFiles": 3,
+    "skills": 17
+  },
+  {
+    "owner": "roboflow",
+    "repo": "supervision",
+    "dir": "roboflow__supervision",
+    "codeFiles": 85,
+    "skills": 0
+  },
+  {
+    "owner": "rohitg00",
+    "repo": "agentmemory",
+    "dir": "rohitg00__agentmemory",
+    "codeFiles": 226,
+    "skills": 15
+  },
+  {
+    "owner": "rohitg00",
+    "repo": "ai-engineering-from-scratch",
+    "dir": "rohitg00__ai-engineering-from-scratch",
+    "codeFiles": 677,
+    "skills": 0
+  },
+  {
+    "owner": "rowboatlabs",
+    "repo": "rowboat",
+    "dir": "rowboatlabs__rowboat",
+    "codeFiles": 1145,
+    "skills": 0
+  },
+  {
+    "owner": "rtk-ai",
+    "repo": "rtk",
+    "dir": "rtk-ai__rtk",
+    "codeFiles": 133,
+    "skills": 0
+  },
+  {
+    "owner": "ruvnet",
+    "repo": "ruflo",
+    "dir": "ruvnet__ruflo",
+    "codeFiles": 1695,
+    "skills": 136
+  },
+  {
+    "owner": "ruvnet",
+    "repo": "RuView",
+    "dir": "ruvnet__RuView",
+    "codeFiles": 1076,
+    "skills": 10
+  },
+  {
+    "owner": "s0xDk",
+    "repo": "ghostty-blackhole",
+    "dir": "s0xDk__ghostty-blackhole",
+    "codeFiles": 7,
+    "skills": 0
+  },
+  {
+    "owner": "safishamsi",
+    "repo": "graphify",
+    "dir": "safishamsi__graphify",
+    "codeFiles": 91,
+    "skills": 1
+  },
+  {
+    "owner": "sansan0",
+    "repo": "TrendRadar",
+    "dir": "sansan0__TrendRadar",
+    "codeFiles": 69,
+    "skills": 0
+  },
+  {
+    "owner": "sanyuan0704",
+    "repo": "sanyuan-skills",
+    "dir": "sanyuan0704__sanyuan-skills",
+    "codeFiles": 3,
+    "skills": 6
+  },
+  {
+    "owner": "shanraisshan",
+    "repo": "claude-code-best-practice",
+    "dir": "shanraisshan__claude-code-best-practice",
+    "codeFiles": 1,
+    "skills": 0
+  },
+  {
+    "owner": "shareAI-lab",
+    "repo": "learn-claude-code",
+    "dir": "shareAI-lab__learn-claude-code",
+    "codeFiles": 100,
+    "skills": 4
+  },
+  {
+    "owner": "Shichun-Liu",
+    "repo": "Agent-Memory-Paper-List",
+    "dir": "Shichun-Liu__Agent-Memory-Paper-List",
+    "codeFiles": 0,
+    "skills": 0
+  },
+  {
+    "owner": "SimoneAvogadro",
+    "repo": "android-reverse-engineering-skill",
+    "dir": "SimoneAvogadro__android-reverse-engineering-skill",
+    "codeFiles": 7,
+    "skills": 1
+  },
+  {
+    "owner": "sirmalloc",
+    "repo": "ccstatusline",
+    "dir": "sirmalloc__ccstatusline",
+    "codeFiles": 196,
+    "skills": 0
+  },
+  {
+    "owner": "slavingia",
+    "repo": "skills",
+    "dir": "slavingia__skills",
+    "codeFiles": 0,
+    "skills": 10
+  },
+  {
+    "owner": "slopus",
+    "repo": "happy",
+    "dir": "slopus__happy",
+    "codeFiles": 841,
+    "skills": 0
+  },
+  {
+    "owner": "Soul-AILab",
+    "repo": "SoulX-Podcast",
+    "dir": "Soul-AILab__SoulX-Podcast",
+    "codeFiles": 29,
+    "skills": 0
+  },
+  {
+    "owner": "stablyai",
+    "repo": "orca",
+    "dir": "stablyai__orca",
+    "codeFiles": 2000,
+    "skills": 8
+  },
+  {
+    "owner": "stanford-iris-lab",
+    "repo": "meta-harness-tbench2-artifact",
+    "dir": "stanford-iris-lab__meta-harness-tbench2-artifact",
+    "codeFiles": 2,
+    "skills": 0
+  },
+  {
+    "owner": "Stirling-Tools",
+    "repo": "Stirling-PDF",
+    "dir": "Stirling-Tools__Stirling-PDF",
+    "codeFiles": 2000,
+    "skills": 0
+  },
+  {
+    "owner": "supertone-inc",
+    "repo": "supertonic",
+    "dir": "supertone-inc__supertonic",
+    "codeFiles": 34,
+    "skills": 0
+  },
+  {
+    "owner": "swc-project",
+    "repo": "swc",
+    "dir": "swc-project__swc",
+    "codeFiles": 1402,
+    "skills": 0
+  },
+  {
+    "owner": "sxyazi",
+    "repo": "yazi",
+    "dir": "sxyazi__yazi",
+    "codeFiles": 1072,
+    "skills": 0
+  },
+  {
+    "owner": "t8y2",
+    "repo": "dbx",
+    "dir": "t8y2__dbx",
+    "codeFiles": 1103,
+    "skills": 1
+  },
+  {
+    "owner": "tanbiralam",
+    "repo": "claude-code",
+    "dir": "tanbiralam__claude-code",
+    "codeFiles": 1868,
+    "skills": 0
+  },
+  {
+    "owner": "tanweai",
+    "repo": "pua",
+    "dir": "tanweai__pua",
+    "codeFiles": 48,
+    "skills": 42
+  },
+  {
+    "owner": "tavily-ai",
+    "repo": "skills",
+    "dir": "tavily-ai__skills",
+    "codeFiles": 0,
+    "skills": 8
+  },
+  {
+    "owner": "thedotmack",
+    "repo": "claude-mem",
+    "dir": "thedotmack__claude-mem",
+    "codeFiles": 342,
+    "skills": 21
+  },
+  {
+    "owner": "thunderbird",
+    "repo": "thunderbolt",
+    "dir": "thunderbird__thunderbolt",
+    "codeFiles": 882,
+    "skills": 0
+  },
+  {
+    "owner": "Thysrael",
+    "repo": "Horizon",
+    "dir": "Thysrael__Horizon",
+    "codeFiles": 45,
+    "skills": 0
+  },
+  {
+    "owner": "tinyhumansai",
+    "repo": "openhuman",
+    "dir": "tinyhumansai__openhuman",
+    "codeFiles": 2000,
+    "skills": 0
+  },
+  {
+    "owner": "titanwings",
+    "repo": "colleague-skill",
+    "dir": "titanwings__colleague-skill",
+    "codeFiles": 23,
+    "skills": 1
+  },
+  {
+    "owner": "Tracer-Cloud",
+    "repo": "opensre",
+    "dir": "Tracer-Cloud__opensre",
+    "codeFiles": 1232,
+    "skills": 6
+  },
+  {
+    "owner": "tractorjuice",
+    "repo": "arc-kit",
+    "dir": "tractorjuice__arc-kit",
+    "codeFiles": 69,
+    "skills": 11
+  },
+  {
+    "owner": "travisvn",
+    "repo": "awesome-claude-skills",
+    "dir": "travisvn__awesome-claude-skills",
+    "codeFiles": 0,
+    "skills": 0
+  },
+  {
+    "owner": "tt-a1i",
+    "repo": "archify",
+    "dir": "tt-a1i__archify",
+    "codeFiles": 1,
+    "skills": 1
+  },
+  {
+    "owner": "tursodatabase",
+    "repo": "turso",
+    "dir": "tursodatabase__turso",
+    "codeFiles": 903,
+    "skills": 0
+  },
+  {
+    "owner": "tutti-os",
+    "repo": "tutti",
+    "dir": "tutti-os__tutti",
+    "codeFiles": 2000,
+    "skills": 3
+  },
+  {
+    "owner": "unclecode",
+    "repo": "crawl4ai",
+    "dir": "unclecode__crawl4ai",
+    "codeFiles": 143,
+    "skills": 0
+  },
+  {
+    "owner": "vastsa",
+    "repo": "FileCodeBox",
+    "dir": "vastsa__FileCodeBox",
+    "codeFiles": 28,
+    "skills": 0
+  },
+  {
+    "owner": "vercel-labs",
+    "repo": "agent-skills",
+    "dir": "vercel-labs__agent-skills",
+    "codeFiles": 9,
+    "skills": 9
+  },
+  {
+    "owner": "virgiliojr94",
+    "repo": "book-to-skill",
+    "dir": "virgiliojr94__book-to-skill",
+    "codeFiles": 16,
+    "skills": 1
+  },
+  {
+    "owner": "vogtsw",
+    "repo": "boss-skills",
+    "dir": "vogtsw__boss-skills",
+    "codeFiles": 8,
+    "skills": 2
+  },
+  {
+    "owner": "volcengine",
+    "repo": "OpenViking",
+    "dir": "volcengine__OpenViking",
+    "codeFiles": 1505,
+    "skills": 9
+  },
+  {
+    "owner": "volcengine",
+    "repo": "SearchCLI",
+    "dir": "volcengine__SearchCLI",
+    "codeFiles": 147,
+    "skills": 12
+  },
+  {
+    "owner": "VoltAgent",
+    "repo": "awesome-design-md",
+    "dir": "VoltAgent__awesome-design-md",
+    "codeFiles": 0,
+    "skills": 0
+  },
+  {
+    "owner": "wanikua",
+    "repo": "danghuangshang",
+    "dir": "wanikua__danghuangshang",
+    "codeFiles": 90,
+    "skills": 17
+  },
+  {
+    "owner": "warpdotdev",
+    "repo": "warp",
+    "dir": "warpdotdev__warp",
+    "codeFiles": 2000,
+    "skills": 22
+  },
+  {
+    "owner": "webadderallorg",
+    "repo": "Recordly",
+    "dir": "webadderallorg__Recordly",
+    "codeFiles": 295,
+    "skills": 0
+  },
+  {
+    "owner": "Wechat-ggGitHub",
+    "repo": "Lumi",
+    "dir": "Wechat-ggGitHub__Lumi",
+    "codeFiles": 88,
+    "skills": 0
+  },
+  {
+    "owner": "wechatpay-apiv3",
+    "repo": "wechatpay-skills",
+    "dir": "wechatpay-apiv3__wechatpay-skills",
+    "codeFiles": 2,
+    "skills": 1
+  },
+  {
+    "owner": "WICG",
+    "repo": "html-in-canvas",
+    "dir": "WICG__html-in-canvas",
+    "codeFiles": 15,
+    "skills": 0
+  },
+  {
+    "owner": "withastro",
+    "repo": "flue",
+    "dir": "withastro__flue",
+    "codeFiles": 305,
+    "skills": 1
+  },
+  {
+    "owner": "wonderwhy-er",
+    "repo": "DesktopCommanderMCP",
+    "dir": "wonderwhy-er__DesktopCommanderMCP",
+    "codeFiles": 126,
+    "skills": 18
+  },
+  {
+    "owner": "wshobson",
+    "repo": "agents",
+    "dir": "wshobson__agents",
+    "codeFiles": 36,
+    "skills": 180
+  },
+  {
+    "owner": "xaspx",
+    "repo": "hermes-control-interface",
+    "dir": "xaspx__hermes-control-interface",
+    "codeFiles": 43,
+    "skills": 0
+  },
+  {
+    "owner": "xiaoheizi8",
+    "repo": "crush-skills",
+    "dir": "xiaoheizi8__crush-skills",
+    "codeFiles": 6,
+    "skills": 1
+  },
+  {
+    "owner": "XMUDeepLIT",
+    "repo": "Awesome-Self-Evolving-Agents",
+    "dir": "XMUDeepLIT__Awesome-Self-Evolving-Agents",
+    "codeFiles": 0,
+    "skills": 0
+  },
+  {
+    "owner": "xoai",
+    "repo": "sage-wiki",
+    "dir": "xoai__sage-wiki",
+    "codeFiles": 253,
+    "skills": 0
+  },
+  {
+    "owner": "xushanpei",
+    "repo": "open-file-viewer",
+    "dir": "xushanpei__open-file-viewer",
+    "codeFiles": 37,
+    "skills": 0
+  },
+  {
+    "owner": "yezannnnn",
+    "repo": "agentGroup",
+    "dir": "yezannnnn__agentGroup",
+    "codeFiles": 140,
+    "skills": 26
+  },
+  {
+    "owner": "yikart",
+    "repo": "AiToEarn",
+    "dir": "yikart__AiToEarn",
+    "codeFiles": 1907,
+    "skills": 13
+  },
+  {
+    "owner": "YishenTu",
+    "repo": "claudian",
+    "dir": "YishenTu__claudian",
+    "codeFiles": 372,
+    "skills": 0
+  },
+  {
+    "owner": "yizhiyanhua-ai",
+    "repo": "fireworks-tech-graph",
+    "dir": "yizhiyanhua-ai__fireworks-tech-graph",
+    "codeFiles": 27,
+    "skills": 2
+  },
+  {
+    "owner": "YouMind-OpenLab",
+    "repo": "awesome-gpt-image-2",
+    "dir": "YouMind-OpenLab__awesome-gpt-image-2",
+    "codeFiles": 6,
+    "skills": 0
+  },
+  {
+    "owner": "Z4nzu",
+    "repo": "hackingtool",
+    "dir": "Z4nzu__hackingtool",
+    "codeFiles": 40,
+    "skills": 0
+  },
+  {
+    "owner": "Zackriya-Solutions",
+    "repo": "meetily",
+    "dir": "Zackriya-Solutions__meetily",
+    "codeFiles": 334,
+    "skills": 0
+  },
+  {
+    "owner": "zilliztech",
+    "repo": "claude-context",
+    "dir": "zilliztech__claude-context",
+    "codeFiles": 69,
+    "skills": 0
+  }
+]

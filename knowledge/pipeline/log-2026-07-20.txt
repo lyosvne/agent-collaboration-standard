@@ -1,0 +1,52 @@
+[16:00:08] === Daily Knowledge Pipeline Starting ===
+[16:00:08] Date: 2026-07-20
+[16:00:08] Base: C:\Users\Admin\Documents\Codex\knowledge-audit-2026-07
+[16:00:08] >>> STEP: 1-fetch-feishu-messages
+[16:00:08] No Feishu fetch method configured. Place new messages JSON at: C:\Users\Admin\Documents\Codex\knowledge-audit-2026-07\raw\daily-messages-2026-07-20.json
+[16:00:08] <<< DONE: 1-fetch-feishu-messages
+[16:00:08] >>> STEP: 2-extract-wechat-urls
+[16:00:08] No messages file found, skipping URL extraction
+[16:00:08] <<< DONE: 2-extract-wechat-urls
+[16:00:08] >>> STEP: 3-fetch-article-fulltext
+[16:00:08] No WeChat URLs file found, skipping fulltext fetch
+[16:00:08] <<< DONE: 3-fetch-article-fulltext
+[16:00:08] >>> STEP: 4-clone-scan-repos
+[16:00:08] No GitHub URLs file found, skipping clone
+[16:00:08] <<< DONE: 4-clone-scan-repos
+[16:00:08] >>> STEP: 5-fetch-stars
+[16:00:08] Fetching star data for new repos...
+[16:00:08] <<< DONE: 5-fetch-stars
+[16:00:08] >>> STEP: 6-analyze-archive
+[16:00:08] Running analysis and archiving to knowledge base...
+[16:00:09] gen-wiki warning: Command failed: node gen-wiki-fixed.cjs
+[16:00:12] <<< DONE: 6-analyze-archive
+[16:00:12] >>> STEP: 7-daily-summary
+[16:00:12] Daily summary written to C:\Users\Admin\Documents\Codex\knowledge-audit-2026-07\Knowledge\wiki\insights\daily-2026-07-20.md
+[16:00:12] <<< DONE: 7-daily-summary
+[16:00:12] === Daily Pipeline Complete ===
+[21:00:06] === Daily Knowledge Pipeline Starting ===
+[21:00:06] Date: 2026-07-20
+[21:00:06] Base: C:\Users\Admin\Documents\Codex\knowledge-audit-2026-07
+[21:00:06] >>> STEP: 1-fetch-feishu-messages
+[21:00:06] No Feishu fetch method configured. Place new messages JSON at: C:\Users\Admin\Documents\Codex\knowledge-audit-2026-07\raw\daily-messages-2026-07-20.json
+[21:00:06] <<< DONE: 1-fetch-feishu-messages
+[21:00:06] >>> STEP: 2-extract-wechat-urls
+[21:00:06] No messages file found, skipping URL extraction
+[21:00:06] <<< DONE: 2-extract-wechat-urls
+[21:00:06] >>> STEP: 3-fetch-article-fulltext
+[21:00:06] No WeChat URLs file found, skipping fulltext fetch
+[21:00:06] <<< DONE: 3-fetch-article-fulltext
+[21:00:06] >>> STEP: 4-clone-scan-repos
+[21:00:06] No GitHub URLs file found, skipping clone
+[21:00:06] <<< DONE: 4-clone-scan-repos
+[21:00:06] >>> STEP: 5-fetch-stars
+[21:00:06] Fetching star data for new repos...
+[21:00:07] <<< DONE: 5-fetch-stars
+[21:00:07] >>> STEP: 6-analyze-archive
+[21:00:07] Running analysis and archiving to knowledge base...
+[21:00:07] gen-wiki warning: Command failed: node gen-wiki-fixed.cjs
+[21:00:13] <<< DONE: 6-analyze-archive
+[21:00:13] >>> STEP: 7-daily-summary
+[21:00:13] Daily summary written to C:\Users\Admin\Documents\Codex\knowledge-audit-2026-07\Knowledge\wiki\insights\daily-2026-07-20.md
+[21:00:13] <<< DONE: 7-daily-summary
+[21:00:13] === Daily Pipeline Complete ===

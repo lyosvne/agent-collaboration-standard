@@ -1,0 +1,26 @@
+{
+    "feishu":  {
+                   "self_chat_id":  "oc_52c68d36f05c845d45d9312fd25158a4",
+                   "lark_cli_path":  "C:\\Users\\Admin\\AppData\\Roaming\\npm\\lark-cli.ps1",
+                   "app_id":  null,
+                   "app_secret":  null,
+                   "note":  "Set lark_cli_path or app_id/app_secret for automated message fetching. Without these, manually place new messages JSON in raw/daily-messages-YYYY-MM-DD.json"
+               },
+    "schedule":  {
+                     "time":  "09:00",
+                     "retry_on_failure":  true,
+                     "max_retries":  3
+                 },
+    "paths":  {
+                  "base":  "C:\\Users\\Admin\\Documents\\Codex\\knowledge-audit-2026-07",
+                  "knowledge_base":  "C:\\Users\\Admin\\Documents\\Codex\\knowledge-audit-2026-07\\Knowledge",
+                  "repos_dir":  "C:\\Users\\Admin\\Documents\\Codex\\knowledge-audit-2026-07\\repos",
+                  "playwright":  "C:/Users/Admin/AppData/Local/trae-tools/wechat-playwright-reader/node_modules/playwright"
+              },
+    "analysis":  {
+                     "wechat_fetch_timeout_ms":  60000,
+                     "clone_depth":  1,
+                     "github_api_interval_ms":  1200,
+                     "min_stars_for_deep_analysis":  50
+                 }
+}

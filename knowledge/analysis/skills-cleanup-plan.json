@@ -1,0 +1,604 @@
+{
+  "keep": [
+    {
+      "name": "collaboration-bootstrap",
+      "desc": "",
+      "category": "GATE"
+    },
+    {
+      "name": "git-truth-guardian",
+      "desc": "",
+      "category": "GATE"
+    },
+    {
+      "name": "verification-gate",
+      "desc": "",
+      "category": "GATE"
+    },
+    {
+      "name": "debugging-gate",
+      "desc": "",
+      "category": "GATE"
+    },
+    {
+      "name": "plan-gate",
+      "desc": "",
+      "category": "GATE"
+    },
+    {
+      "name": "review-gate",
+      "desc": "",
+      "category": "GATE"
+    },
+    {
+      "name": "security-boundary-gate",
+      "desc": "",
+      "category": "GATE"
+    },
+    {
+      "name": "lark-im",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-doc",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-base",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-sheets",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-calendar",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-wiki",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-apps",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-mail",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-task",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-drive",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-slides",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-contact",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-shared",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-approval",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-vc",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-event",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "c360-shared",
+      "desc": "",
+      "category": "C360"
+    },
+    {
+      "name": "c360-account",
+      "desc": "",
+      "category": "C360"
+    },
+    {
+      "name": "c360-contact",
+      "desc": "",
+      "category": "C360"
+    },
+    {
+      "name": "c360-opportunity",
+      "desc": "",
+      "category": "C360"
+    },
+    {
+      "name": "c360-order",
+      "desc": "",
+      "category": "C360"
+    },
+    {
+      "name": "c360-follow-up",
+      "desc": "",
+      "category": "C360"
+    },
+    {
+      "name": "brainstorming",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "prd",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "research",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "edit-article",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "writing-skills",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "writing-great-skills",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "teach",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "grill-me",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "domain-modeling",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "ubiquitous-language",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "to-prd",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "to-issues",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "tdd",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "implement",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "code-review",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "executing-plans",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "dispatching-parallel-agents",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "typescript-lsp",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "resolving-merge-conflicts",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "finishing-a-development-branch",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "subagent-driven-development",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "cross-agent-handoff",
+      "desc": "",
+      "category": "COORD"
+    },
+    {
+      "name": "using-superpowers",
+      "desc": "",
+      "category": "COORD"
+    },
+    {
+      "name": "wayfinder",
+      "desc": "",
+      "category": "COORD"
+    },
+    {
+      "name": "handoff",
+      "desc": "",
+      "category": "COORD"
+    },
+    {
+      "name": "wizard",
+      "desc": "",
+      "category": "COORD"
+    },
+    {
+      "name": "triage",
+      "desc": "",
+      "category": "COORD"
+    },
+    {
+      "name": "qa",
+      "desc": "",
+      "category": "COORD"
+    },
+    {
+      "name": "ask-matt",
+      "desc": "",
+      "category": "COORD"
+    },
+    {
+      "name": "loop-me",
+      "desc": "",
+      "category": "COORD"
+    },
+    {
+      "name": "shadcn-ui",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "design-lark-chart",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "minimalist-ui",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "tweaks",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "kanban-board",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "design-an-interface",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "prototype",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "wireframe-sketch",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "html-ppt-pitch-deck",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "wechat-article-reader",
+      "desc": "",
+      "category": "UTIL"
+    },
+    {
+      "name": "tavily-research",
+      "desc": "",
+      "category": "UTIL"
+    },
+    {
+      "name": "obsidian-vault",
+      "desc": "",
+      "category": "UTIL"
+    },
+    {
+      "name": "feishu-cli-operator",
+      "desc": "",
+      "category": "UTIL"
+    }
+  ],
+  "merge": [
+    {
+      "name": "writing-beats",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "writing-shape",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "writing-fragments",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "writing-plans",
+      "desc": "",
+      "category": "WRITING"
+    }
+  ],
+  "archive": [
+    {
+      "name": "lark-attendance",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-minutes",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-note",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-okr",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-whiteboard",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-markdown",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-openapi-explorer",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-vc-agent",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-workflow-meeting-summary",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-workflow-standup-report",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "lark-skill-maker",
+      "desc": "",
+      "category": "LARK"
+    },
+    {
+      "name": "c360-campaign",
+      "desc": "",
+      "category": "C360"
+    },
+    {
+      "name": "c360-lead",
+      "desc": "",
+      "category": "C360"
+    },
+    {
+      "name": "c360-tenant",
+      "desc": "",
+      "category": "C360"
+    },
+    {
+      "name": "c360-ticket",
+      "desc": "",
+      "category": "C360"
+    },
+    {
+      "name": "grill-with-docs",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "grilling",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "design-brief",
+      "desc": "",
+      "category": "WRITING"
+    },
+    {
+      "name": "test-driven-development",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "requesting-code-review",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "receiving-code-review",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "setup-pre-commit",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "setup-matt-pocock-skills",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "migrate-to-shoehorn",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "scaffold-exercises",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "systematic-debugging",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "diagnosing-bugs",
+      "desc": "",
+      "category": "DEV"
+    },
+    {
+      "name": "claude-handoff",
+      "desc": "",
+      "category": "COORD"
+    },
+    {
+      "name": "html-ppt-tech-sharing",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "html-ppt-weekly-report",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "weekly-update",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "meeting-notes",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "team-okrs",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "web-design-guidelines",
+      "desc": "",
+      "category": "DESIGN"
+    },
+    {
+      "name": "full-output-enforcement",
+      "desc": "",
+      "category": "UTIL"
+    },
+    {
+      "name": "context-check",
+      "desc": "",
+      "category": "UTIL"
+    },
+    {
+      "name": "context-monitor-setup",
+      "desc": "",
+      "category": "UTIL"
+    }
+  ],
+  "unknown": [
+    {
+      "name": "codebase-design",
+      "desc": ""
+    },
+    {
+      "name": "git-guardrails-claude-code",
+      "desc": ""
+    },
+    {
+      "name": "improve-codebase-architecture",
+      "desc": ""
+    },
+    {
+      "name": "request-refactor-plan",
+      "desc": ""
+    },
+    {
+      "name": "using-git-worktrees",
+      "desc": ""
+    },
+    {
+      "name": "verification-before-completion",
+      "desc": ""
+    }
+  ]
+}
