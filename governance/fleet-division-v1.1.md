@@ -1,3 +1,10 @@
+---
+version: "v1.1"
+status: "active"
+type: "governance"
+title: "编队分工"
+signoff: "用户 2026-07-23"
+---
 # 编队分工提案 v1.1：自进化系统全职能映射
 
 > 签发: Qoder（主架构职能）| 裁定: 用户 | 日期: 2026-07-23

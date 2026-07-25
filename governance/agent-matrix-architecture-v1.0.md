@@ -1,3 +1,10 @@
+---
+version: "v1.0"
+status: "active"
+type: "architecture-truth"
+title: "架构真值"
+signoff: "ZCode 2026-07-23"
+---
 # 智能体矩阵架构真值 v1.0
 
 > 签发: ZCode | 裁定: 用户（林于炜）| 日期: 2026-07-23

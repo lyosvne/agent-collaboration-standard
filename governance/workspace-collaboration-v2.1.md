@@ -1,3 +1,11 @@
+---
+version: "v2.1"
+status: "active"
+type: "collaboration-protocol"
+supersedes: "workspace-collaboration-v2.0"
+title: "协作协议"
+signoff: "用户 2026-07-23"
+---
 # Workspace Collective Collaboration Protocol
 
 > 继承: Aetheris blueprint v1.8 → v2.0.1 草案 → **v2.1 定稿**
@@ -114,6 +122,7 @@
 - 漂移治理：Pi cron 体检（只读）→ 分级报告 → 代劳 push（授权内）/提醒 pull（不代劳）
 - 交互分层：飞书 = 对话窗口（指令/通知/移动审批）；Aetheris 网页 = 工作台（任务板/状态/知识）
 - Qoder↔Pi 回传：**Webhook 主通道**（Pi 注册 endpoint 订阅 session.status_idled 等生命周期事件，HMAC-SHA256 签名，at-least-once 投递）+ **SSE 补充**（token 级流式输出，用于进度展示）+ **轮询兜底**（webhook 失败降级）
+- **执行纪律（终局已定）**：①不偏离既定架构——执行中如发现需要改变架构方向（新增模块、改变设计、扩大范围），必须停下来向用户确认，不得自行决定；②不被技术分支带偏——遇到问题先回到终极目标问"这对目标有用吗"，无用则立即收手转向，不在技术细节里深挖。
 
 ---
 
