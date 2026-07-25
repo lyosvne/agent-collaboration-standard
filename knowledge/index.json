@@ -1,0 +1,260 @@
+{
+  "generated_at": "2026-07-20T13:55:55.484Z",
+  "version": "2.0-full-star-verified",
+  "coverage": {
+    "oss_repos_tracked": 304,
+    "repos_with_verified_stars": 303,
+    "repos_code_scanned": 323,
+    "wechat_articles_fulltext": 526,
+    "articles_analyzed": 489,
+    "skills_classified": 4238,
+    "skill_categories": 19,
+    "article_repo_linkages": 296
+  },
+  "tier_distribution": {
+    "S": 14,
+    "A": 33,
+    "B": 164,
+    "C": 91,
+    "D": 21
+  },
+  "module_distribution": {
+    "hermes:agent-loop": 53,
+    "hermes:memory": 15,
+    "knowledge": 25,
+    "hermes:skill-extractor": 69,
+    "frontend": 64,
+    "matters": 14,
+    "model-router": 35,
+    "hermes:task-orchestration": 3,
+    "hermes:system-prompt": 3,
+    "hermes:tool-orchestration": 24,
+    "feishu": 1,
+    "hermes:security": 4,
+    "rules": 1,
+    "news": 3,
+    "hermes:context": 5,
+    "unknown": 4
+  },
+  "wiki_pages": 87,
+  "daily_pipeline": {
+    "interval": "5 hours",
+    "status": "registered",
+    "task_name": "KnowledgeAudit-DailyPipeline",
+    "note": "Requires lark-cli config for Feishu message fetch, see daily/config.json"
+  },
+  "top_20": [
+    {
+      "name": "codecrafters-io/build-your-own-x",
+      "stars": 528884,
+      "tier": "B",
+      "module": "frontend",
+      "fit": 0.22
+    },
+    {
+      "name": "freeCodeCamp/freeCodeCamp",
+      "stars": 452108,
+      "tier": "A",
+      "module": "hermes:tool-orchestration",
+      "fit": 4.5
+    },
+    {
+      "name": "public-apis/public-apis",
+      "stars": 451463,
+      "tier": "B",
+      "module": "hermes:agent-loop",
+      "fit": 0.53
+    },
+    {
+      "name": "obra/superpowers",
+      "stars": 257687,
+      "tier": "A",
+      "module": "hermes:skill-extractor",
+      "fit": 6.5
+    },
+    {
+      "name": "affaan-m/ECC",
+      "stars": 231054,
+      "tier": "S",
+      "module": "hermes:skill-extractor",
+      "fit": 8.5
+    },
+    {
+      "name": "affaan-m/everything-claude-code",
+      "stars": 231054,
+      "tier": "A",
+      "module": "hermes:skill-extractor",
+      "fit": 6
+    },
+    {
+      "name": "NousResearch/hermes-agent",
+      "stars": 217354,
+      "tier": "S",
+      "module": "hermes:agent-loop",
+      "fit": 14
+    },
+    {
+      "name": "jackfrued/python-100-days",
+      "stars": 184276,
+      "tier": "B",
+      "module": "hermes:memory",
+      "fit": 1.75
+    },
+    {
+      "name": "mattpocock/skills",
+      "stars": 177801,
+      "tier": "A",
+      "module": "hermes:skill-extractor",
+      "fit": 6
+    },
+    {
+      "name": "microsoft/markitdown",
+      "stars": 167470,
+      "tier": "B",
+      "module": "hermes:tool-orchestration",
+      "fit": 3.15
+    },
+    {
+      "name": "anthropics/skills",
+      "stars": 162583,
+      "tier": "S",
+      "module": "hermes:skill-extractor",
+      "fit": 9.45
+    },
+    {
+      "name": "firecrawl/firecrawl",
+      "stars": 153142,
+      "tier": "B",
+      "module": "model-router",
+      "fit": 3
+    },
+    {
+      "name": "anthropics/claude-code",
+      "stars": 138261,
+      "tier": "B",
+      "module": "hermes:security",
+      "fit": 3.38
+    },
+    {
+      "name": "microsoft/PowerToys",
+      "stars": 136578,
+      "tier": "B",
+      "module": "frontend",
+      "fit": 1.13
+    },
+    {
+      "name": "msitarzewski/agency-agents",
+      "stars": 134221,
+      "tier": "B",
+      "module": "hermes:memory",
+      "fit": 1.13
+    },
+    {
+      "name": "iptv-org/iptv",
+      "stars": 133447,
+      "tier": "B",
+      "module": "model-router",
+      "fit": 3.75
+    },
+    {
+      "name": "garrytan/gstack",
+      "stars": 123029,
+      "tier": "A",
+      "module": "hermes:skill-extractor",
+      "fit": 5.5
+    },
+    {
+      "name": "github/spec-kit",
+      "stars": 122434,
+      "tier": "A",
+      "module": "matters",
+      "fit": 7
+    },
+    {
+      "name": "farion1231/cc-switch",
+      "stars": 118941,
+      "tier": "B",
+      "module": "model-router",
+      "fit": 1.13
+    },
+    {
+      "name": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "stars": 107872,
+      "tier": "A",
+      "module": "frontend",
+      "fit": 6
+    }
+  ],
+  "s_tier": [
+    {
+      "name": "NousResearch/hermes-agent",
+      "stars": 217354,
+      "module": "hermes:agent-loop"
+    },
+    {
+      "name": "mem0ai/mem0",
+      "stars": 61242,
+      "module": "hermes:memory"
+    },
+    {
+      "name": "BuilderIO/agent-native",
+      "stars": 3794,
+      "module": "hermes:agent-loop"
+    },
+    {
+      "name": "ruvnet/ruflo",
+      "stars": 65219,
+      "module": "knowledge"
+    },
+    {
+      "name": "abhigyanpatwari/GitNexus",
+      "stars": 44353,
+      "module": "hermes:skill-extractor"
+    },
+    {
+      "name": "thedotmack/claude-mem",
+      "stars": 87898,
+      "module": "hermes:memory"
+    },
+    {
+      "name": "alibaba/page-agent",
+      "stars": 27097,
+      "module": "frontend"
+    },
+    {
+      "name": "Anil-matcha/Open-Generative-AI",
+      "stars": 23995,
+      "module": "hermes:agent-loop"
+    },
+    {
+      "name": "dracohu2025-cloud/draco-skills-collection",
+      "stars": 222,
+      "module": "hermes:skill-extractor"
+    },
+    {
+      "name": "anthropics/skills",
+      "stars": 162583,
+      "module": "hermes:skill-extractor"
+    },
+    {
+      "name": "anthropics/knowledge-work-plugins",
+      "stars": 22862,
+      "module": "hermes:skill-extractor"
+    },
+    {
+      "name": "alam00000/bentopdf",
+      "stars": 14178,
+      "module": "matters"
+    },
+    {
+      "name": "affaan-m/ECC",
+      "stars": 231054,
+      "module": "hermes:skill-extractor"
+    },
+    {
+      "name": "anthropics/claude-plugins-official",
+      "stars": 32318,
+      "module": "hermes:skill-extractor"
+    }
+  ]
+}

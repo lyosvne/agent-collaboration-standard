@@ -1,0 +1,12 @@
+# Obsidian本地UI配置（每机器不同）
+.obsidian/
+
+# 可由build-dashboard.cjs重新生成的产物
+dashboard.html
+
+# 临时文件
+*.tmp
+*~
+
+# Node依赖（如果scripts将来引入）
+node_modules/
