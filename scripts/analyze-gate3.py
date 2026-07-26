@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """临时分析脚本：分析门禁 3 命中分布，决定关键词补齐方案。用完可删。"""
+import os
 import subprocess
 from pathlib import Path
 from collections import Counter
 
-STANDARDS = Path(r"C:\Users\Admin\.agent-collaboration\standards")
+# 路径策略（Phase D-B，2026-07-26）：扫描 git 仓库 governance/ 真值，环境变量可覆盖
+REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
+STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
 TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
 # 扩展历史关键词
 HISTORY_KW = ["退役", "retire", "历史", "归档", "已删", "淘汰", "废弃",
@@ -18,6 +21,7 @@ print()
 
 dir_counter = Counter()
 remaining = []
+prefix = str(STANDARDS).replace("\\", "/") + "/"
 for line in lines:
     if "[RETIRED-" in line:
         continue
@@ -26,7 +30,6 @@ for line in lines:
         continue
     fpath, lineno, content = m
     fpath_norm = fpath.replace("\\", "/")
-    prefix = "C:/Users/Admin/.agent-collaboration/standards/"
     if fpath_norm.startswith(prefix):
         fpath_norm = fpath_norm[len(prefix):]
     parent = "/".join(fpath_norm.split("/")[:-1]) or "(root)"

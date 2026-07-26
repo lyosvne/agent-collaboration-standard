@@ -23,10 +23,16 @@ gen-scan-patterns.py — 从 redact-map.txt 自动派生 scan-patterns.txt
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
-SRC = Path.home() / ".agent-collaboration" / "archive" / "secret-patterns"
+# 路径策略（Phase D-B，2026-07-26）：
+#   SECRET_PATTERNS_DIR: secret 扫描 patterns（默认 ~/.config/agent-collaboration/secret-patterns/，含 token 不入 git）
+#   旧位置 ~/.agent-collaboration/archive/secret-patterns/ 已废弃（本机降级为只读历史快照）
+SRC = Path(os.environ.get(
+    "SECRET_PATTERNS_DIR",
+    str(Path.home() / ".config" / "agent-collaboration" / "secret-patterns")))
 REDACT_MAP = SRC / "redact-map.txt"
 SCAN_PATTERNS = SRC / "scan-patterns.txt"
 

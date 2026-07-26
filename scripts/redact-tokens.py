@@ -24,9 +24,15 @@ from pathlib import Path
 
 REPO = Path.home() / "Documents" / "trae_projects" / "agent-collaboration-standard"
 SRC = Path.home() / ".agent-collaboration"
-REDACT_MAP = SRC / "archive" / "secret-patterns" / "redact-map.txt"
+# 路径策略（Phase D-B，2026-07-26）：
+#   REDACT_MAP 从 ~/.config/agent-collaboration/secret-patterns/ 读（环境变量可覆盖）
+#   旧位置 ~/.agent-collaboration/archive/secret-patterns/ 已废弃（本机降级为只读历史快照）
+SECRET_PATTERNS_DIR = Path(__import__("os").environ.get(
+    "SECRET_PATTERNS_DIR",
+    str(Path.home() / ".config" / "agent-collaboration" / "secret-patterns")))
+REDACT_MAP = SECRET_PATTERNS_DIR / "redact-map.txt"
 
-# 扫描范围: 工作树 + 源端（两处都要脱敏, 否则 mirror 会把脏版本拉回工作树）
+# 扫描范围: git 真值（archive + governance/specs）+ 本机历史快照（仍可能含旧脏版本，过渡期保留双源清理）
 SCAN_DIRS = [
     REPO / "archive",
     REPO / "governance" / "specs",

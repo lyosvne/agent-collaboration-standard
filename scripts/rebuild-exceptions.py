@@ -25,15 +25,21 @@ rebuild-exceptions.py — 重建例外清单（ROLE 保留 + HISTORY 逐条登�
 """
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 
-STANDARDS = Path(r"C:\Users\Admin\.agent-collaboration\standards")
-EXC_FILE = Path(r"C:\Users\Admin\.agent-collaboration\archive\retired-terms-exceptions-20260726.md")
-OVERRIDES_FILE = Path(r"C:\Users\Admin\.agent-collaboration\archive\retired-terms-manual-history-overrides-20260726.md")
+# 路径策略（Phase D-B，2026-07-26）:
+#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 git 仓库 governance/）
+#   exceptions/overrides: git 仓库 archive/（已纳入 git 真值）
+# 本机 ~/.agent-collaboration/ 自 Phase D 起降级为只读历史快照，不再作活跃扫描源
+REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
+STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
+EXC_FILE = REPO / "archive" / "retired-terms-exceptions-20260726.md"
+OVERRIDES_FILE = REPO / "archive" / "retired-terms-manual-history-overrides-20260726.md"
 TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
 LINE_RE = re.compile(r"^(.+?):([0-9]+):(.*)$")
 

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """列出 38 条命中明细 + 分类，供人工过目。"""
+import os
 import re
 import subprocess
 from pathlib import Path
 from collections import Counter
 
-STANDARDS = Path(r"C:\Users\Admin\.agent-collaboration\standards")
+# 路径策略（Phase D-B，2026-07-26）：扫描 git 仓库 governance/ 真值，环境变量可覆盖
+REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
+STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
 TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
 prefix = str(STANDARDS).replace("\\", "/") + "/"
 pat = "|".join(TERMS)

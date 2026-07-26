@@ -27,10 +27,11 @@
 
 ## HISTORY（保留，不替换）
 
-共 127 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
+共 128 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
 
 | 文件 | 行 | 工具 | 内容预览 | 分类 |
 |---|---|---|---|---|
+| LOCAL-USAGE.md | 21 | Trae IDE | > 2026-07-26 C 选项：Trae IDE 已退役为编队角色（软件保留个人用），编队里 Trae 系只保留 SOLO 独立角色。原 B1 合并方案已撤销。 | 历史叙述 |
 | agent-matrix-architecture-v1.0.md | 66 | Codex | \| **Codex** \| ⛔ 淘汰 \| 本地用方舟模型,云沙箱绑OpenAI调不动,GUI/CLI两套维护重 \| | 历史叙述 |
 | agent-matrix-architecture-v1.0.md | 67 | Trae IDE | \| **Trae IDE（编队角色）** \| ⛔ 退役为编队角色 \| 2026-07-26 C 选项裁定：编队里 Trae 系只保留 SOLO 一个独立角色（端到端测试/QA）。Trae IDE 退到个人工具，不进 Pi 调度。软件保 | 历史叙述 |
 | agent-matrix-architecture-v1.0.md | 68 | Claude Code | \| **Claude Code** \| ⛔ 退役完成 \| 2026-07-25 退役，2026-07-26 密钥清理完成（详见 `.claude/RETIREMENT-STATUS.md`） \| | 历史叙述 |
@@ -65,7 +66,7 @@
 | global-roadmap-v1.1.md | 15 | Codex | > 依据: 北极星v1.2 + Aetheris蓝图v1.11 + soul.yaml + Codex知识库战略洞察 + 全量资产调研 + Qoder客户端两轮审查 | 人工确认HISTORY |
 | global-roadmap-v1.1.md | 66 | Codex | - 退役清理完成（Codex/CC/QoderWork退役收尾，知识库归属已定） | 历史叙述 |
 | global-roadmap-v1.1.md | 66 | QoderWork | - 退役清理完成（Codex/CC/QoderWork退役收尾，知识库归属已定） | 历史叙述 |
-| global-roadmap-v1.1.md | 234 | Trae IDE | - Trae IDE 已于 2026-07-26 C 选项裁定退役为编队角色（软件保留供个人使用，不进 Pi 调度链）。编队里 Trae 系只保留 **Trae SOLO 一个独立角色**（端到端测试/QA，Aetheris `agent/ | 历史叙述 |
+| global-roadmap-v1.1.md | 248 | Trae IDE | - Trae IDE 已于 2026-07-26 C 选项裁定退役为编队角色（软件保留供个人使用，不进 Pi 调度链）。编队里 Trae 系只保留 **Trae SOLO 一个独立角色**（端到端测试/QA，Aetheris `agent/ | 历史叙述 |
 | specs/agent-collaboration-git-sync-plan.md | 48 | Trae IDE | \| 3. Phase A 词表漏 Trae IDE + 扫描范围窄 + 无机器判定规则 \| 词表补齐 + 扫描范围扩到所有导入目录 + 历史引用建例外清单 \| | 历史叙述 |
 | specs/agent-collaboration-git-sync-plan.md | 66 | Claude Code | "Claude Code": "[RETIRED-CC-2026-07-25]", | 方案示例代码 |
 | specs/agent-collaboration-git-sync-plan.md | 67 | claude-zhipu | "claude-zhipu": "[RETIRED-CC-2026-07-25]", | 方案示例代码 |

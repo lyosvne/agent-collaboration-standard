@@ -29,12 +29,19 @@ from datetime import datetime
 from pathlib import Path
 
 REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard")) if (os := __import__("os")) else None
-STANDARDS = Path.home() / ".agent-collaboration" / "standards"
-SECRET_PATTERNS_DIR = Path.home() / ".agent-collaboration" / "archive" / "secret-patterns"
+# 路径策略（Phase D-B，2026-07-26）:
+#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 git 仓库 governance/）
+#   SECRET_PATTERNS_DIR: secret 扫描 patterns（默认 ~/.config/agent-collaboration/secret-patterns/，含 token 不入 git）
+#   exceptions/overrides: git 仓库 archive/（已纳入 git 真值）
+# 本机 ~/.agent-collaboration/ 自 Phase D 起降级为只读历史快照，不再作活跃扫描源
+STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
+SECRET_PATTERNS_DIR = Path(os.environ.get(
+    "SECRET_PATTERNS_DIR",
+    str(Path.home() / ".config" / "agent-collaboration" / "secret-patterns")))
 PATTERNS_FILE = SECRET_PATTERNS_DIR / "scan-patterns.txt"
 REDACT_MAP_FILE = SECRET_PATTERNS_DIR / "redact-map.txt"
-EXCEPTIONS_FILE = Path.home() / ".agent-collaboration" / "archive" / "retired-terms-exceptions-20260726.md"
-OVERRIDES_FILE = Path.home() / ".agent-collaboration" / "archive" / "retired-terms-manual-history-overrides-20260726.md"
+EXCEPTIONS_FILE = REPO / "archive" / "retired-terms-exceptions-20260726.md"
+OVERRIDES_FILE = REPO / "archive" / "retired-terms-manual-history-overrides-20260726.md"
 EVIDENCE_DIR = REPO / ".review-evidence"
 
 RETIRED_TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]

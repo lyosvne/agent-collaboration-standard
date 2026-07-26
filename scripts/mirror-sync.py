@@ -226,6 +226,11 @@ def print_report(report: SyncReport) -> None:
 
 # ---------- 主入口 ----------
 
+# ⚠️ Phase D 后语义变化（2026-07-26 标注，逻辑未改）:
+#   Phase D 前: SRC_ROOT(~/.agent-collaboration/) 是活跃真值, DST_ROOT(git仓库) 是镜像目标
+#   Phase D 后: SRC_ROOT 降级为只读历史快照, DST_ROOT(git仓库 governance/) 升为真值
+#   当前 "本机→git" 的 mirror 方向可能需反转，或本脚本整体废弃（真值已在 git，无需 mirror）
+#   本轮不动逻辑，留长期卫生阶段评审，避免引入新 fail-open
 SRC_ROOT = Path(os.path.expanduser("~/.agent-collaboration"))
 DST_ROOT = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
 
