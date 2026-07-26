@@ -71,7 +71,7 @@ Pi（ECS）能做的：
 代劳 push 的实际执行者：
   方案 A（当前）：Pi 通知 → agent 自行 push（用户常设授权仍有效，只是执行者是 agent 自己）
   方案 B（未来增强）：各 agent 本机装轻量 cron 自动 push 自己的 agent/<name> 分支
-  方案 C（远期）：Pi 通过 agent 的通信通道（Qoder 有 webhook/SSE）下发 push 指令
+  方案 C（远期）：Pi 通过 agent 的通信通道（Qoder SSE/轮询，无 Webhook）下发 push 指令
 ```
 
 **用户常设授权仍然有效**：授权的是"push agent/<name> 分支"这个动作的合规性，

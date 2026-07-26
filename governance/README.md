@@ -9,7 +9,7 @@
 |------|------|------|
 | `north-star-v1.0.md` | 北极星（方向环 M1 唯一校准基准） | 用户定稿生效 2026-07-23 |
 | `workspace-collaboration-v2.1.md` | 协作协议（编队宪法） | 用户裁定生效 2026-07-23 |
-| `agent-matrix-architecture-v1.0.md` | 架构真值（ZCode 签发） | 生效（webhook 表述经复核确认正确） |
+| `agent-matrix-architecture-v1.0.md` | 架构真值（ZCode 签发） | 生效（Qoder 通道 2026-07-26 用户裁定为 SSE+轮询，无 Webhook） |
 | `fleet-division-v1.1.md` | G+M 双环分工 + 真值/工具链注册表 | 用户批准 2026-07-23 |
 | `specs/qoder-sse-consumer-design.md` | 实施规格：Pi 侧 Qoder SSE 消费器 | 待 ZCode review |
 | `specs/pi-feishu-bridge-design.md` | 实施规格：飞书移动端桥接 | 待 ZCode review |

@@ -23,7 +23,7 @@ signoff: "ZCode 2026-07-23"
                 【中央协调"孩子"】
               Pi orchestrator(ECS 24h daemon)
               ├─ 漂移治理 cron(核心实用功能)
-              ├─ webhook 接收队列(Qoder/Mira 回传)
+              ├─ SSE 接收队列(Qoder 回传) + 轮询兜底（2026-07-26 用户裁定：Qoder 无 Webhook，本机实证 SSE+轮询）
               ├─ subprocess 调度(Kimi)
               └─ MCP server(Trae 主动汇报/外部读取)
                         │
@@ -55,7 +55,7 @@ signoff: "ZCode 2026-07-23"
 
 | 智能体 | 定位 | 被调度方式 | 云沙箱 | 模型 |
 |---|---|---|---|---|
-| **Qoder** | 可调度云执行节点 | REST API + Webhook + SSE(唯一支持外部调度的云沙箱) | ✅ 官方托管(2vCPU/8GB) | 自有套餐 |
+| **Qoder** | 可调度云执行节点 | REST API + SSE(唯一支持外部调度的云沙箱；无 Webhook，2026-07-26 用户裁定) | ✅ 官方托管(2vCPU/8GB) | 自有套餐 |
 | **Kimi** | 可调度云执行节点 | Pi subprocess(ECS sandbox) | ❌ 纯CLI,Pi sandbox补 | kimi-code/k3 |
 | **Mira** | 云端特化(生图+评审) | Pi 调度(类Kimi) + webhook外发 + git推送 | 云端原生 | 自有套餐 |
 
@@ -111,7 +111,7 @@ ECS aetherisonline.xyz
 
 ### 4.1 ZCode ↔ Qoder(主控↔被调度)
 - **ZCode→Qoder**:MCP 包装 Qoder REST API,秒级近实时调度
-- **Qoder→ZCode**:webhook 回传 Pi → Pi 写共享文件 → ZCode 读取(依赖ZCode活跃)
+- **Qoder→ZCode**:SSE 回传 Pi → Pi 写共享文件 → ZCode 读取(依赖ZCode活跃)；轮询兜底
 - **上下文共享**:产物级(git) + Pi 中转字段级,非 live session
 
 ### 4.2 ZCode ↔ Trae(主控↔平行工作者)
@@ -234,7 +234,7 @@ ECS aetherisonline.xyz
 1. **CC→ZCode 迁移**(进行中,主仓库同步+身份/规则/配置迁移)
 2. **Pi ECS 部署验证**(地基测试)
 3. **Pi 漂移治理上线**(第一个实用功能)
-4. **Qoder API 接入 Pi**(webhook 接收队列)
+4. **Qoder API 接入 Pi**(SSE 接收队列 + 轮询兜底)
 5. **飞书移动端 → Pi 桥接**(pi-feishu)
 6. **Mira 接入**(特化能力)
 7. **Trae MCP 主动汇报**(可选优化)

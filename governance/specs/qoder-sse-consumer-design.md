@@ -1,25 +1,29 @@
-# 设计规格：Pi 侧 Qoder 事件消费器（Webhook 主 + SSE 补充 + 轮询兜底）
+# 设计规格：Pi 侧 Qoder 事件消费器（SSE 主 + 轮询兜底，无 Webhook）
 
-> 签发: Qoder | 状态: 草案（待用户裁定分工后生效实施）| 日期: 2026-07-23（v2 修订：webhook 纠错）
-> 依据: docs.qoder.com 官方 API 契约（webhook + SSE + list-events 均已验证）+ 架构真值 v1.0
+> 签发: Qoder | 状态: 草案（待用户裁定分工后生效实施）| 日期: 2026-07-26（v3 修订：无 Webhook 终局裁定）
+> 依据: Qoder Cloud Agents API 本机实证（qoder-bridge.py 实现）+ 架构真值 v1.0 + 用户裁定
 > Review: ZCode（对等互检）| 裁定: 用户
-> 修订记录: v1 错误声称"无 Webhook"；v2 经 ZCode 质疑后复核确认 webhook 完整存在，重构为三模设计
+> 修订记录:
+>   - v1：声称"无 Webhook"（正确）
+>   - v2：经 ZCode 质疑后"复核确认 webhook 完整存在"，重构为三模设计（**错误**，webhook 未实证）
+>   - v3：用户 2026-07-26 裁定"以本机实现为准（SSE+轮询）"，回归 v1 立场，确认 Qoder Cloud Agents API **无 Webhook**，v2 的 webhook 纠错本身才是错的
 
 ---
 
 ## 1. 背景与目标
 
-架构 v1.0 设计「Qoder webhook → Pi」**经复核确认正确**。本规格定义 Pi 侧完整的事件消费方案：
+架构 v1.0 设计「Qoder SSE → Pi」**经本机实证确认正确**（qoder-bridge.py 的 stream_response + get_events 已跑通）。本规格定义 Pi 侧完整的事件消费方案：
 
 ```
 Pi(ECS daemon) --REST--> Qoder Cloud (创建 Session / 发消息)
-Qoder Cloud --Webhook--> Pi endpoint (生命周期事件推送，主通道)
-Pi(ECS daemon) <--SSE---- Qoder Cloud (stream-events, token级流式，补充通道)
+Pi(ECS daemon) <--SSE---- Qoder Cloud (stream-events, token级流式，主通道)
 Pi(ECS daemon) --GET-----> Qoder Cloud (list-events 轮询, 兜底)
 Pi --写--> ECS 共享文件 / Aetheris(真值层) / 飞书通知
 ```
 
-## 2. 官方 API 契约（已核查，非假设）
+**无 Webhook 通道**（Qoder Cloud Agents API 当前不支持 webhook 注册，本机实证 + 用户 2026-07-26 裁定）。
+
+## 2. 官方 API 契约（本机实证，非假设）
 
 | 操作 | 端点 | 说明 |
 |------|------|------|
@@ -28,10 +32,10 @@ Pi --写--> ECS 共享文件 / Aetheris(真值层) / 飞书通知
 | 建 Agent | `POST /api/v1/cloud/agents` | body: name/model/system/tools |
 | 建 Session | `POST /api/v1/cloud/sessions` | body: `{"agent", "environment_id"}` → `sess_*` |
 | 发消息 | Session send（user.message） | 触发任务执行 |
-| **注册 Webhook** | `POST /api/v1/cloud/webhook_endpoints` | body: url + events(支持 `*` 通配)；返回 signing_secret（一次性） |
-| **Webhook 事件** | 系统推送到注册 URL | session.status_idled / session.created / agent.* 等；HMAC-SHA256 签名；at-least-once + 指数退避重试 |
 | **订阅 SSE** | `GET /api/v1/cloud/sessions/{id}/events/stream` | token 级流式；`Accept: text/event-stream`；Last-Event-ID 重连 |
-| 轮询降级 | `GET .../events`（list-events） | webhook+SSE 均失败时的兜底 |
+| 轮询兜底 | `GET .../events`（list-events） | SSE 断流/失败时的降级 |
+
+**无 Webhook 端点**（Qoder Cloud Agents API 不提供 webhook 注册，v2 文档的 `POST /api/v1/cloud/webhook_endpoints` 是错误声明，未经实证）。
 
 认证：所有请求 `Authorization: Bearer $QODER_PAT`。
 
@@ -105,4 +109,4 @@ ECS: /opt/pi/outbox/qoder/<session_id>/
 
 - 前置：用户裁定分工（本规格实施权）；ECS 上 Pi daemon 就绪（ZCode 的部署验证任务）
 - 依赖：`QODER_PAT`（用户在 Qoder 控制台创建后按 T2 注入）；账号首次需 `POST /environments`
-- 不依赖：Webhook（不存在）、Qoder 侧任何改造
+- 不依赖：Webhook（Qoder API 不支持）、Qoder 侧任何改造

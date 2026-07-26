@@ -81,6 +81,8 @@ Minimum start output:
 
 ## Shared Completion Protocol
 
+> **权威声明（节点 3 round2）**：完成契约的权威最小字段以 `workspace-collaboration-v2.1.md` §5 为准（治理层）。本节提供操作步骤 + 扩展字段（Recommended next command / Rollback 细项等），不复制 §5 的最低门槛。
+
 Before claiming completion:
 
 1. Re-read the user's request.

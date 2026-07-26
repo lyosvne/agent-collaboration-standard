@@ -1,6 +1,6 @@
 # 退役工具引用例外清单（节点 1 Phase A 输出，v2 重建）
 
-> 生成: 2026-07-26（初版）/ 2026-07-26（v2 重建，HISTORY 逐条登记）
+> 生成: 2026-07-26（初版）/ 2026-07-27（v2 重建，HISTORY 逐条登记）
 > 依据: grep 扫描 standards/ 全部退役词命中 + 自动分类
 > 用途: 节点 2 评审时核对门禁 4（历史引用 100% 命中此清单）
 
@@ -14,16 +14,6 @@
 
 | 文件 | 行 | 工具 | 内容预览 | 理由 |
 |---|---|---|---|---|
-| standards/unified-agent-collaboration-standard.md | 60 | Claude Code | "Choose the agent owner: Trae IDE, Claude Code..." | CC 作为编队可选 owner（已退役）|
-| standards/unified-agent-collaboration-standard.md | 60 | Trae IDE | 同上 | Trae IDE 作为编队可选 owner（退役为编队角色）|
-| standards/unified-agent-collaboration-standard.md | 104 | Claude Code | "Claude Code may keep Superpowers..." | CC 单独能力描述（已退役）|
-| standards/unified-agent-collaboration-standard.md | 122 | Trae IDE | "### Trae IDE" | Trae IDE 单独章节（退役为编队角色）|
-| standards/unified-agent-collaboration-standard.md | 127 | Claude Code | "### Claude Code" | CC 单独章节（已退役）|
-| standards/unified-agent-collaboration-standard.md | 135 | Claude Code | "Must follow the same standards as Trae IDE..." | CC 协作要求（已退役）|
-| standards/unified-agent-collaboration-standard.md | 135 | Trae IDE | 同上 | Trae IDE 协作要求（退役为编队角色）|
-| standards/unified-agent-collaboration-standard.md | 184 | Claude Code | "claude-zhipu launch command" | CC 启动命令（已退役）|
-| standards/unified-agent-collaboration-standard.md | 184 | claude-zhipu | 同上 | CC 启动命令（已退役）|
-| standards/fleet-division-v1.1.md | 87 | Codex | "G4 批量任务 \| Codex \| 原承接者" | Codex 作为原承接者描述（已退役）|
 
 ## HISTORY（保留，不替换）
 
