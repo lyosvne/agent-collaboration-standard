@@ -1,0 +1,59 @@
+# Phase D Round 5 最终定点复核
+
+**复核对象**：`af307d383ec6a3e2394f3529b8729c56613a9c59`  
+**复核方式**：独立 clone、同步并检出 `review/phaseD-20260726`，检查完整 diff 并执行定点验证。工作树保持干净，未执行修改、删除、push、rebase 或 reset。
+
+## 1. `redact-tokens.py` SyntaxError
+
+### ✅ 已修复
+
+证据：
+
+- `scripts/redact-tokens.py:25` 已显式添加 `import os`。
+- `scripts/redact-tokens.py:26-28` 的 `Path(os.environ.get(...))` 括号已完整闭合。
+- 实际执行指定检查：
+
+```bash
+python -c "import ast; ast.parse(open('scripts/redact-tokens.py').read())"
+```
+
+命令成功退出，无 `SyntaxError`。
+
+## 2. `mirror-sync.py` REPO 硬编码
+
+### ✅ 已修复
+
+证据：
+
+- `scripts/mirror-sync.py:234-236`：旧快照源支持通过 `LEGACY_SNAPSHOT_ROOT` 覆盖。
+- `scripts/mirror-sync.py:237-239`：`DST_ROOT` 已改为：
+  - 优先读取 `REPO_ROOT`；
+  - 默认从 `Path(__file__).resolve().parents[1]` 推导当前仓库根。
+- 原有 `~/Documents/trae_projects/agent-collaboration-standard` 固定 checkout 路径已删除。
+- `build_plan()` 中所有 Git 目标继续由新的 `DST_ROOT` 派生，不再跨 checkout 混读。
+
+## 3. `configs` 旧权限文档操作性措辞
+
+### ✅ 已修复
+
+证据：
+
+- `configs/permission-tightening-change-list.md:3-7`
+- `configs/proposed-permission-baseline.md:3-7`
+
+两份文件顶部均已明确说明：
+
+1. 文件属于 **2026-05-10 历史文档**；
+2. Claude Code 已退役，配置或提案不再活跃；
+3. 旧路径已经降级为只读历史快照；
+4. 旧路径不得继续作为备份或写入目标；
+5. 文档仅作历史记录，**禁止按此执行**；
+6. 同时给出现行权限基线入口。
+
+虽然正文仍保留当时的操作步骤，但顶部声明位置显著、措辞明确，并同时提供现行入口，已经足以避免其被合理误认为现行操作指引。
+
+## 最终结论
+
+# **PASS**
+
+Round 3 指出的三个阻断均已完成针对性修复，没有发现新的定点阻断。Round 4 对软观察项的文案清理也已同步落实，不影响本次最终结论。

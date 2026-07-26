@@ -1,0 +1,72 @@
+# Phase D Round 5 定点复核
+
+**复核对象**：`af307d383ec6a3e2394f3529b8729c56613a9c59`  
+**复核方式**：独立克隆并检出 `review/phaseD-20260726`，确认远端分支与目标提交一致；检查完整提交 diff，并执行定点验证。工作树未修改，未执行 push、rebase、reset 或删除操作。
+
+## 1. `redact-tokens.py` SyntaxError
+
+### ✅ 已修复
+
+**证据：**
+
+- `scripts/redact-tokens.py:25` 已显式加入 `import os`。
+- `scripts/redact-tokens.py:26-28` 的 `Path(os.environ.get(...))` 括号已经完整闭合。
+- 仓库根默认通过 `Path(__file__).resolve().parents[1]` 推导，并允许 `REPO_ROOT` 覆盖。
+- 以下语法检查实际通过，无 `SyntaxError`：
+
+```bash
+python -c "import ast; ast.parse(open('scripts/redact-tokens.py').read())"
+python -m py_compile scripts/redact-tokens.py
+```
+
+- 额外执行 `redact-tokens.py --help`，脚本可以正常解析并启动。
+
+## 2. `mirror-sync.py` REPO 硬编码
+
+### ✅ 已修复
+
+**证据：**
+
+- `scripts/mirror-sync.py:234-236`：`SRC_ROOT` 支持通过 `LEGACY_SNAPSHOT_ROOT` 覆盖。
+- `scripts/mirror-sync.py:237-239`：`DST_ROOT` 已改为：
+
+```python
+DST_ROOT = Path(os.environ.get(
+    "REPO_ROOT",
+    str(Path(__file__).resolve().parents[1])))
+```
+
+- 原来的 `~/Documents/trae_projects/agent-collaboration-standard` 硬编码已经不存在。
+- `build_plan()` 中所有 Git 目标路径均继续从 `DST_ROOT` 派生，不会默认读取另一固定 checkout。
+- 额外确认 `--apply` 仍 fail-closed，实测返回 **exit code 1**。
+
+## 3. `configs/` 旧权限文档操作性措辞
+
+### ✅ 已修复
+
+**证据：**
+
+- `configs/permission-tightening-change-list.md:3-7` 已在标题后直接声明：
+  - 文档属于 **2026-05-10 历史记录**；
+  - Claude Code 已退役，配置不再活跃；
+  - 旧路径不再作为备份或写入目标；
+  - **“本文档仅作历史记录，禁止按此执行”**；
+  - 指向现行权限基线。
+- `configs/proposed-permission-baseline.md:3-7` 提供同等清晰的历史声明，并明确旧备份路径不得再作为写入目标。
+- 虽然后文仍保留当时的操作步骤和路径，但这是历史记录所需内容；顶部声明位置醒目、措辞明确，并给出现行规范入口，已足以避免其被合理理解为现行操作指引。
+
+## 软观察
+
+Round 3 提及的软观察也已同步处理，包括：
+
+- `mirror-sync.py` 的 `--apply` 帮助及 dry-run 提示；
+- `complete-exceptions.py` 的 fail-closed 注释；
+- `list-hits.py` 的“需人工判定”措辞；
+- secret patterns 旧位置的迁移标注；
+- workspace collaboration 文档中的历史时态说明。
+
+这些不影响本轮三项阻断判定。
+
+# 最终结论：**PASS**
+
+Round 3 的三个指定阻断均已得到可验证修复，未发现需要继续阻断 Phase D 的问题。
