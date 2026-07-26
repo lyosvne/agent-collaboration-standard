@@ -110,4 +110,4 @@ Pi 内任意组件请求 T3 动作
 
 - 前置：用户裁定分工；Pi daemon ECS 部署验证通过（ZCode 任务）
 - 依赖：飞书 app 凭证（lark-cli 已有本机登录态，ECS 侧需一次性配置）
-- 关联：Trae SOLO Mobile 仅作 Trae 专项补充，不经本桥接（v1.0 已裁定）
+- 关联：Trae SOLO Mobile 仅作 Trae SOLO 专项补充，不经本桥接（v1.0 已裁定）

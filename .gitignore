@@ -1,0 +1,23 @@
+# agent-collaboration-standard 仓库 .gitignore
+# 创建: 2026-07-26 (Phase B.3, v3.4 方案)
+
+# 含已删除密钥的归档（密钥已物理删除，目录名留作历史标记）
+archive/cc-retirement-20260726/
+
+# 本地备份目录
+backups/
+
+# 临时备份文件
+*.pre-rotation-bak
+
+# secret 扫描 patterns 文件（含 token 前缀，不入 git）
+# 注: 实际 patterns 文件在 ~/.agent-collaboration/archive/secret-patterns/，仓库内不存
+# 此规则防御性: 万一误拷入仓库也忽略
+secret-patterns/
+
+# 评审证据目录（本地留存, 供节点 2 评审, 不入 git）
+.review-evidence/
+
+# Python
+__pycache__/
+*.pyc

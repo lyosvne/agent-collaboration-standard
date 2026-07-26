@@ -1,0 +1,40 @@
+
+## 结论：✅ 通过
+
+2 处修订均已核实，v3.3 的两个阻断点完整闭环。B 已放行部分确认未被触动。
+
+## 逐项核对
+
+### 修复 1：门禁 4 grep fail-open（v3.3 A/C 阻断）✅
+
+```bash
+grep -rn "Claude Code\|claude-zhipu\|..." ...   # BRE，\| 是"或"，正确（未改，本就对）
+grep -E "退役|retire|历史|归档|已删"              # ERE，去掉反斜杠后 | 是"或"，正确（本次修复）
+```
+
+- 修复后 `HISTORY_KEYS_FILE` 能真实产出历史引用键，`comm -23` 比对恢复有效。
+- 全文复查其余 grep：A.2 的 `grep -qE`（无反斜杠，对）、门禁 3 的两处 BRE `\|`（对）。**无同类残留**。
+- 失败语义确认：MISSING 非空 → `exit 1`，硬门禁，fail-closed。
+
+### 修复 2：路径硬编码（v3.3 C 备注 1）✅
+
+```awk
+print "'"$HOME"'/.agent-collaboration/"file":"line"|"tool
+```
+
+- shell 引号拼接 `'"$HOME"'` 语法正确，awk 拿到的是展开后的绝对路径。
+- 键一致性验证：HISTORY 侧来自 `grep -rn ~/...`（tilde 展开为 `$HOME/...`），EXCEPTION 侧构造 `$HOME/.agent-collaboration/<file>:<line>|<tool>`，两侧前缀同源，可正确 join。
+- 全文复查：A.4 的 `target="$HOME/..."` 已是 v3.3 修好的，无其他 `/c/Users/Admin` 残留。
+
+## 非阻断备注（不影响放行，执行时留意）
+
+1. **门禁 4 比对对路径格式敏感**：若 grep -rn 输出与 awk 构造的路径出现格式差异（如尾部斜杠导致 `//`），后果是门禁**误报失败**——fail-closed，非 fail-open，现场一眼可修，不构成阻断。
+2. **词表口径差**（v3.3 遗留，B 已放行范围）：A.2 启发式含 `previous|was|had been`，门禁 3/4 的过滤词表不含。纯英文历史叙述会被门禁 3 误判为"角色引用未清零"——同样 fail-closed，误伤方向，不是漏放方向。
+
+## 判定
+
+- v3.3 阻断（门禁 4 fail-open）：**已闭环**
+- v3.3 C 备注 1（路径硬编码）：**已闭环**
+- 新引入风险：**无**（两处残留备注均为 fail-closed 方向）
+
+评审方 C 放行 v3.4。若 A 同步确认修复 1，三方一致，可进入节点 2（执行 + 10 条门禁实测）。

@@ -1,0 +1,64 @@
+# 节点1 二轮重审 — 评审方A(opus4.8p) 复核结论
+
+## 结论:仍不通过(1 阻断未解决)
+
+我在 v2.0 提的唯一阻断(方案文档含 token 明文)**在 v3.0 未被解决,且实际上更严重了**。v3.0 声称"方案文档不再含任何 token 片段",此声明与文档实际内容**不符**。
+
+---
+
+## 一、我的阻断复核:未解决 ❌
+
+**v3.0 的修复思路**:把扫描模式外置到 `secret-patterns/scan-patterns.txt`,方案文档只引用文件路径——思路正确。
+
+**但执行自相矛盾**:Step 4 里为了"说明 patterns 文件格式",把该文件的**完整内容原样贴进了方案文档**:
+
+```
+# scan-patterns.txt
+[ANTHROPIC-REDACTED]      ← 与 v2.0 line 163 同一个 token 前缀,原样保留
+[ANYGEN-REDACTED]             ← ANYGEN token 片段
+[ZCODE-REDACTED]      ← 【新增】ZCode 当前在用 token 前缀
+```
+
+三个问题:
+
+1. **原阻断字符串未消除**:`[ANTHROPIC-REDACTED]` 就是 v2.0 line 163 的那一段,只是换了个位置。外置文件的意义(方案文档不含 secret)被"贴出文件内容"这一步直接抵消。
+
+2. **新引入了活跃凭证前缀**:`[ZCODE-REDACTED]` 被注明是"ZCode 在用 token",属于**当前有效凭证**。把在用凭证的 15 位十六进制前缀写进可能入库的 spec,是比 v2.0 更高的风险等级。
+
+3. **自扫描陷阱复现**:这正是我 v2.0 的核心担忧。本 sync-plan 是 `specs/` 下文档;若它被 `git add`,Step 4 核查2 会 `git diff --cached | xargs grep -lF "[ANTHROPIC-REDACTED]"` 命中**方案文档自身** → 扫描永远失败或需要给自己开豁免。patterns 文件被 `--exclude` 排除了,但**方案文档没有**。
+
+**修复要求**:方案文档删除 patterns 文件的字面内容,只保留"格式说明 + 文件路径",token 前缀一律用 `<hash-prefix-redacted>` 之类占位;并明确本 spec 是否入库、若入库如何避免自扫描。
+
+---
+
+## 二、B 的 5 阻断复核
+
+| B 阻断 | v3.0 状态 | 判定 |
+|---|---|---|
+| 1. 扫描 grep 字符类错误 + 文件类型限定 | 改 `grep -F` 字面匹配 + 去 include 限定 + `git diff --cached` | ✅ 设计已解决(见下附带发现的脚本健壮性小 bug) |
+| 2. 同步策略语义混乱 | §二 每目录显式声明 mirror/selective-mirror/add-only/不导入/不动,mirror 用 `--delete` | ✅ 解决 |
+| 3. 词表漏 Trae + 范围窄 + 无机器判定 | §一补 Trae IDE;A.3 例外清单;机器判定=现行0/历史100% | ⚠️ 大体解决,**但有语义漏洞**(见附带发现) |
+| 4. 回滚不分普通/泄密 | §四拆两套,泄密先撤凭证再清历史,禁止 revert 当完成 | ✅ 解决,质量好 |
+| 5. 缺可量化门禁 | §五 10 条门禁 + 同一 SHA + 证据文件 | ✅ 解决 |
+
+**B 的 5 阻断实质已响应**(4 条干净解决,1 条有残留),方向正确。
+
+---
+
+## 三、附带发现(非我的阻断,供 C 汇总)
+
+1. **B.3 的处理原则被自己的脚本违反**:§一原则说"保留工具作为历史叙述的引用",但 A.2 的 `sed 's/Claude Code/[RETIRED-CC]/g'` 是**全局无差别替换**,历史叙述里的 "Claude Code" 也会被替掉。role/history 区分只对 Trae IDE 做了,对 CC/Codex/QoderWork **没做**。要么四个词都走 A.3 的清单判定,要么明确"仅 Trae 需区分、其余全替换"的理由。
+
+2. **Step 4 脚本健壮性**:`git diff --cached --name-only | xargs grep` 在暂存区为空时 xargs 会让 grep 读 stdin 卡住;文件名含空格会拆词。建议 `xargs -r -d '\n'` 或 `-z` 配合 `--name-only -z`。§〇表宣称"全二进制扫描",但实现只是文本 grep,措辞需对齐。
+
+3. **C 备注3(reset --hard 红线)**:§〇表称"已在 Step 1 标注",但 Step 1 代码块内我没看到该红线提示(只在 §4.1 出现)。请 C 自行确认。
+
+4. **命名不一致**(极小):§〇表写策略为 "mirror/overwrite/add-only/manual-merge",§二实际用 "mirror/selective-mirror/add-only/不导入/不动"。overwrite/manual-merge 从未使用。
+
+---
+
+## 四、给 C 的裁决建议
+
+- **A 的阻断:保留,不通过**。这是 hard blocker——方案文档删干净 token 前缀(尤其 `[ZCODE-REDACTED]` 活跃凭证)、并解决 spec 自扫描问题之前,不应放行到节点2。
+- B 的 5 阻断实质解决,不构成新的 A 侧阻断。
+- 修复面很小(删几行文档 + 占位化),预计一轮即可闭环,建议出 v3.1 后我做**定点复核**(只看方案文档 secret 段 + 自扫描处理),无需三轮全审。

@@ -64,8 +64,8 @@ signoff: "ZCode 2026-07-23"
 | 智能体 | 状态 | 原因 |
 |---|---|---|
 | **Codex** | ⛔ 淘汰 | 本地用方舟模型,云沙箱绑OpenAI调不动,GUI/CLI两套维护重 |
-| **Trae SOLO(云端)** | 孤岛独立使用 | 云端网络白名单锁死(仅依赖源),无对外API,移动端可管自家任务 |
-| **Claude Code** | ⛔ 退役中 | CC→ZCode 迁移进行中 |
+| **Trae IDE（编队角色）** | ⛔ 退役为编队角色 | 2026-07-26 C 选项裁定：编队里 Trae 系只保留 SOLO 一个独立角色（端到端测试/QA）。Trae IDE 退到个人工具，不进 Pi 调度。软件保留，Aetheris 历史分支待合并入 `agent/solo` |
+| **Claude Code** | ⛔ 退役完成 | 2026-07-25 退役，2026-07-26 密钥清理完成（详见 `.claude/RETIREMENT-STATUS.md`） |
 
 ---
 
@@ -133,7 +133,7 @@ ECS aetherisonline.xyz
 ### 4.5 移动端 → 编队
 - **统一入口:飞书移动端**(pi-feishu + 互动卡片审批)
 - 不依赖任何PC开机(Pi常驻ECS)
-- Trae SOLO Mobile 作为 Trae 专项补充(只能管Trae自家)
+- Trae SOLO Mobile 作为 Trae SOLO 的移动形态（编队里 Trae 系唯一角色的移动入口）
 
 ---
 
@@ -247,7 +247,7 @@ ECS aetherisonline.xyz
 |---|---|---|
 | 中央协调体 | Pi(非ruflo/DeerFlow/aily) | 源码精读,成长性+协调+同栈 |
 | Codex 去留 | 淘汰 | 云沙箱绑OpenAI+GUI/CLI两套+本地已换方舟 |
-| Trae SOLO 定位 | 孤岛独立使用 | 云端网络白名单锁死+无对外API |
+| Trae IDE 退役为编队角色 | 2026-07-26 C 选项裁定 | 编队里 Trae 系只保留 SOLO 独立角色（端到端测试/QA），Trae IDE 退到个人工具；Aetheris 分支合并见独立任务 |
 | 移动端入口 | 飞书(非Trae Mobile) | 审批按钮+统一收口+不依赖PC |
 | 上下文共享粒度 | commit级(非keystroke) | 已被并发坑过,git是同步层 |
 | 漂移治理 | Pi轮询+代劳push+提醒pull | agent不可靠,系统强制同步 |

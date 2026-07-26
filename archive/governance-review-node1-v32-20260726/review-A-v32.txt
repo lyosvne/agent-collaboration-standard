@@ -1,0 +1,30 @@
+# 节点1 四轮定点复核 — 评审方A（v3.2）
+
+按约定,本轮仅核对两点,不重开其他议题。
+
+## 核对一:方案文档是否真的零 token 残留 ✅ 闭环
+
+逐处扫描全文所有可能残留位:
+
+| 位置 | v3.2 内容 | 判定 |
+|---|---|---|
+| §〇 v3.1→v3.2 修订对照表(A 行) | "已退役 ANTHROPIC + ANYGEN token"(描述,不写明文) | ✅ 净 |
+| §〇 v2.0→v3.0 对照表(A 阻断行) | "含完整 token 字符串(已退役 ANTHROPIC + ANYGEN token)作为 grep 模式" —— 纯叙述历史事实 | ✅ 净 |
+| Step 4 patterns 文件块 | `<anthropic-token-prefix>` / `<anygen-token-prefix>` / `<zcode-active-token-prefix>` 全为占位符 | ✅ 净 |
+| 退役词表 retired-terms.txt | 均为工具名(Claude Code/Codex…)→占位符,非密钥 | ✅ 净 |
+
+全文无任何 `sk-` 类前缀、无高熵串、无明文 token 片段。**我在 v3.1 维持的阻断(方案文档残留 token)在 v3.2 已闭环。**
+
+## 核对二:`git grep --cached` 修订是否合理 ✅ 合理
+
+- **核心机制正确**:`git grep --cached -l -F "$pattern"` 直接扫暂存区 blob(index),不读工作树,`-F` 字面匹配 + 内部处理文件名,彻底规避了 v3.1 `xargs grep` 的文件名空格/换行断裂问题。B.1 + C 备注成立地闭环。
+- **配套断言到位**:patterns 有效性校验(`VALID_COUNT < 1` fail)、暂存区非空校验(`STAGED_COUNT=0` fail)均已补,patterns 空转假通过风险已堵。
+- **顺序正确**:`git add .` 在扫描前,扫的是实际入库内容;命中即 `git reset` + `exit 1`,门禁语义闭合。
+
+## 非阻断观察(不影响本轮结论,供节点2 参考)
+
+patterns 文件示例行带行尾注释(如 `<anthropic-token-prefix>     # 例:8-12 字符前缀`)。当前过滤 `grep -vE '^\s*#|^\s*$|^\s*<'` 只剔除**行首** `#`,不剥离**行尾**内联注释。若用户填入真实前缀时保留了 `PREFIX  # 备注`,`git grep -F` 会把整行(含注释)当字面串检索,导致永不命中——安全门禁的**假阴性**。建议 patterns 提取时补一步 `sed 's/[[:space:]]*#.*//'` 去尾注,或在文件说明里硬性要求"一行仅一个纯值、禁带注释"。
+
+## 本轮结论
+
+评审方A 之前的阻断(token 残留)与 `git grep --cached` 合理性——**两点均在 v3.2 闭环,A 侧无剩余阻断**。上述内联注释项为节点2 门禁健壮性的加固建议,非放行前提。A 侧对 v3.2 予以放行。

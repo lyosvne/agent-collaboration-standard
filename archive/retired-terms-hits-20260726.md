@@ -1,0 +1,153 @@
+# 退役工具引用命中清单（待人工标注）
+
+生成时间: 2026-07-26T04:20:25Z
+
+## Claude Code
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/agent-matrix-architecture-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0-draft.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/governance-review-process.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/mira-integration-status.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/review-process-lessons.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/workspace-collaboration-v2.1.md
+
+## claude-zhipu
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+
+## Codex
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/agent-matrix-architecture-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/agent-matrix-architecture-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0-draft.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0-draft.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0-draft.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0-draft.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0-draft.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0-draft.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/north-star-v1.3-roadmap-annex.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/north-star-v1.3-roadmap-annex.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/north-star-v1.3-roadmap-annex.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/north-star-v1.3-roadmap-annex.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/fleet-division-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/fleet-division-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/fleet-division-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/fleet-division-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/fleet-division-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/fleet-division-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/global-roadmap-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/global-roadmap-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/global-roadmap-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/full-survey-method.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/full-survey-method.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/full-survey-method.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/full-survey-method.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/full-survey-method.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/kimi-integration-status.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/mira-vs-larkcli-capabilities.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/mira-vs-larkcli-capabilities.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/survey-zcode.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/survey-zcode.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/survey-zcode.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/survey-zcode.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/survey-zcode.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/workspace-collaboration-v2.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/workspace-collaboration-v2.1.md
+
+## QoderWork
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0-draft.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0-draft.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/global-roadmap-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/north-star-v1.3-roadmap-annex.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/archive/north-star-v1.3-roadmap-annex.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/global-roadmap-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/global-roadmap-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/full-survey-method.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/survey-zcode.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/workspace-collaboration-v2.1.md
+
+## Trae IDE
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/agent-matrix-architecture-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/agent-matrix-architecture-v1.0.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/fleet-division-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/global-roadmap-v1.1.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/agent-collaboration-git-sync-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/o1-governance-plan.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/specs/trae-solo-branch-merge-task.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+- [ ] [ROLE?] C:/Users/Admin/.agent-collaboration/standards/unified-agent-collaboration-standard.md
+

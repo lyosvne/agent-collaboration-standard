@@ -2,7 +2,7 @@
 
 ## Positioning
 
-This is the shared operating standard for Trae IDE, Claude Code, Trae SOLO PC, GitHub, and future cloud coding agents.
+This is the shared operating standard for [RETIRED-TRAE-IDE-编队角色], [RETIRED-CC-2026-07-25], Trae SOLO PC, GitHub, and future cloud coding agents.
 
 It is not tied to any project.
 
@@ -57,7 +57,7 @@ Before substantive work:
 2. Identify the current source of truth.
 3. Check repository state if the task touches code.
 4. Read tool and project entry rules relevant to the task.
-5. Choose the agent owner: Trae IDE, Claude Code, Trae SOLO PC, cloud agent, or human.
+5. Choose the agent owner: [RETIRED-TRAE-IDE-编队角色], [RETIRED-CC-2026-07-25], Trae SOLO PC, cloud agent, or human.
 6. State the smallest safe next action.
 
 Minimum start output:
@@ -101,7 +101,7 @@ For code, configuration, data, deployment, or rule changes, include rollback:
 - Rollback method:
 - Rollback verification:
 
-Claude Code may keep Superpowers or TDD checklists internally, but cross-agent output must use the shared start and finish fields.
+[RETIRED-CC-2026-07-25] may keep Superpowers or TDD checklists internally, but cross-agent output must use the shared start and finish fields.
 
 ## Shared Commands
 
@@ -119,12 +119,12 @@ Every meaningful finish must include a copyable next command and a recommended n
 
 ## Tool Roles
 
-### Trae IDE
+### [RETIRED-TRAE-IDE-编队角色]
 
 - Local integration lead.
 - Best for workspace-wide context, file edits, diagnostics, local verification, user-facing synthesis, and final closeout.
 
-### Claude Code
+### [RETIRED-CC-2026-07-25]
 
 - Deep engineering executor.
 - Best for Superpowers-style planning, TDD, subagent execution, code review, refactoring, and long autonomous engineering tasks.
@@ -132,7 +132,7 @@ Every meaningful finish must include a copyable next command and a recommended n
 ### Trae SOLO PC
 
 - Independent autonomous coding agent.
-- Must follow the same start, verification, Git, and handoff standards as Trae IDE and Claude Code.
+- Must follow the same start, verification, Git, and handoff standards as [RETIRED-TRAE-IDE-编队角色] and [RETIRED-CC-2026-07-25].
 - Should be configured as a full agent, not a lightweight mobile-only assistant.
 
 ### Trae SOLO Mobile
@@ -181,7 +181,7 @@ Ask before:
 - Prefer default DNS when it works. On this machine, removing fixed `github.com` hosts entries restored GitHub via `20.205.243.166`.
 - Only edit `hosts` after explicit human approval, with a backup and rollback path.
 - If a temporary GitHub IP is needed, test the candidate IP before writing it. Do not assume `140.82.121.4` or `140.82.112.4` is stable.
-- Local Zhipu-backed Claude Code launch command: `C:\Users\Admin\.local\bin\claude-zhipu.cmd`.
+- Local Zhipu-backed [RETIRED-CC-2026-07-25] launch command: `C:\Users\Admin\.local\bin\[RETIRED-CC-2026-07-25].cmd`.
 
 ## Skill Rules
 

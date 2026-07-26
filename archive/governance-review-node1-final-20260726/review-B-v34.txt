@@ -1,0 +1,15 @@
+## 评审方 B — 节点 1 六轮复核 v3.4
+
+**结论：✅ 通过，可放行节点 1。**
+
+仅核对两处修订：
+
+1. **门禁 4 grep 修复完整**
+   - `grep -E "退役|retire|历史|归档|已删"` 使用了正确的 ERE alternation。
+   - 历史引用可正常进入 `HISTORY_KEYS_FILE`，消除了原先键集合恒空导致的 fail-open。
+
+2. **路径硬编码修复完整**
+   - 例外清单键改由 `$HOME/.agent-collaboration/` 构造。
+   - 与前面 `~/.agent-collaboration/standards/` 展开后的路径形式一致，`comm` 比对逻辑不受影响。
+
+**未发现由这两行修改引入的回归。v3.3 中 B 已放行部分保持有效。**

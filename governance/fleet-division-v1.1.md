@@ -77,14 +77,14 @@ signoff: "用户 2026-07-23"
 
 ## 3. 职能缺口清单（需用户确认承接）
 
-以下 7 项职能在 Mira 特化、Codex 淘汰、Trae SOLO 孤岛化后**悬空**，按自进化闭环逐环检查得出：
+以下 7 项职能在 Mira 特化、Codex 淘汰、Trae IDE 退役为编队角色（2026-07-26 C 选项，SOLO 作为 Trae 系唯一独立角色）后**悬空**，按自进化闭环逐环检查得出：
 
 | # | 悬空职能 | 原承接者 | 影响环节 | 建议承接 | 理由 |
 |---|---------|---------|---------|---------|------|
 | G1 | **PM/优先级管理/任务板治理** | Mira（原 PM） | ②决策 | **三分**: 用户(战略优先级) + Pi(运行时任务板) + Qoder(规划文档) | 自进化系统不需要单点 PM，需要的是"战略-运行-规划"三层分治 |
 | G2 | **记忆维护 + 记忆层(OpenViking)规划** | Mira | ⑤沉淀 | **Qoder 规划 + Pi 运行时积累** | 记忆层规划本质是架构工作（归主架构）；日常记忆写入由 Pi 在调度中自动沉淀 |
-| G3 | **产品测试/QA/E2E** | Trae SOLO（原测试总监） | ④验证 | **Trae 本机吸收**（本地沙箱不限网络，可跑浏览器测试） | Trae 系血统职能回归；Mira 评审是静态审查，动态测试需要执行环境 |
-| G4 | **批量任务** | Codex | ③执行 | **Qoder Cloud Sessions fan-out**（官方支持"fan out parallel Sessions 批量处理"） | API 实证能力，Pi 一次派发 N 个 Session 即批量 |
+| G3 | **产品测试/QA/E2E** | Trae SOLO（测试总监，Aetheris `agent/solo` 分支实际产出证实） | ④验证 | **Trae SOLO 承接**（独立角色保留，端到端测试/QA 是其核心职能） | SOLO 在 W2/W3/W4 已实际产出（dispatcher red/green、test baseline、wave4 owner plan）；Mira 评审是静态审查，动态测试需要执行环境 |
+| G4 | **批量任务** | [RETIRED-CODEX-2026-07-25] | ③执行 | **Qoder Cloud Sessions fan-out**（官方支持"fan out parallel Sessions 批量处理"） | API 实证能力，Pi 一次派发 N 个 Session 即批量 |
 | G5 | **知识调研/情报** | Codex（曾做知识库调研） | ①感知 | **Qoder**（research/tavily 等 skills）+ 可经 Pi 分派任意空闲 agent | 调研是规划的上游，与主架构职能天然耦合 |
 | G6 | **Pi 成长治理（新能力上线把关）** | 无（新职能） | ⑥进化 | **流水线**: Qoder 出 Extension 规格 → ZCode 实现复杂件 → Mira 评审 → 用户批准上线 | "孩子长新器官"必须有质量门，否则自进化变成自污染 |
 | G7 | **ECS 常态运维/灾备**（daemon 挂了谁救） | 无（新职能） | 全环节地基 | **ZCode**（唯一有 ECS SSH 工作区）+ Pi 自愈（recoverAfterRestart）+ 飞书告警兜底 | 部署验证已归 ZCode，运维是其自然延伸 |
@@ -180,4 +180,4 @@ G1-G7 闭合的是"运转环"，M 系列闭合的是"方向环"——没有方�
 |------|------|---------|
 | ruflo | ⛔ 不采用 | 源码实证：claude-flow 换皮、federation 空壳 |
 | aily | ⛔ 不采用（调研参考保留） | ZCode 实测，Pi 胜出 |
-| Codex | ⛔ 淘汰（用户确认） | 云沙箱绑 OpenAI 无外部钩子、双套维护重 |
+| [RETIRED-CODEX-2026-07-25] | ⛔ 淘汰（用户确认） | 云沙箱绑 OpenAI 无外部钩子、双套维护重 |
