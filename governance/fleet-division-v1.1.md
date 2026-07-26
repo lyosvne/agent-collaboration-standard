@@ -160,7 +160,7 @@ G1-G7 闭合的是"运转环"，M 系列闭合的是"方向环"——没有方�
 |------|------|------|
 | **代码唯一硬真值** | `https://github.com/lyosvne/Aetheris-link.git` 的 `origin/master` | 全编队硬同步点；各 agent 工作分支 `agent/<name>`（claude/kimi/qoder/solo/trae/mira） |
 | 全局协作标准 | `https://github.com/lyosvne/agent-collaboration-standard` | START_HERE 引用的跨 agent 操作语言 |
-| 本地协作入口 | `C:\Users\Admin\.agent-collaboration\`（standards/templates/registry） | 协议 v2.0.1、架构真值 v1.0、交接包与回执 |
+| 本地协作入口（git 真值） | `C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\`（governance/templates/registry） | 协议 v2.1、架构真值 v1.0、交接包与回执；本机 `~/.agent-collaboration\` 自 2026-07-26 Phase D 起降级为只读历史快照 |
 | 持久真值层（运行时） | ECS `aetherisonline.xyz` 上的 Aetheris（真值层+记忆） | matter/task/decision/knowledge + 审计轨迹 |
 | 知识库 | `C:\Users\Admin\Documents\Codex\knowledge-audit-2026-07\Knowledge` | 331 开源项目调研沉淀（Pi/ruflo 选型依据来源） |
 

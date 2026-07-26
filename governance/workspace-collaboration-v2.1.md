@@ -28,7 +28,7 @@ signoff: "用户 2026-07-23"
 冲突裁决顺序：
 1. 用户红线与即时指令
 2. 本协议 v2.1
-3. 架构真值 v1.0（`.agent-collaboration/standards/agent-matrix-architecture-v1.0.md`）+ 编队分工 v1.1
+3. 架构真值 v1.0（`governance/agent-matrix-architecture-v1.0.md`）+ 编队分工 v1.1
 4. 各项目内部文档
 5. 代码与 Git 历史
 6. 历史归档记录
