@@ -12,7 +12,7 @@ It is not project-specific.
 ## Read Order
 
 1. `START_HERE.md`
-2. `standards/unified-agent-collaboration-standard.md`
+2. `governance/unified-agent-collaboration-standard.md`
 3. `registry/skill-registry.md`
 4. `templates/handoff-pack.md`
 5. `configs/tool-entry-map.md`
@@ -22,7 +22,7 @@ It is not project-specific.
 
 ## Useful Operating Files
 
-- `standards/cloud-agent-connection-protocol.md`
+- `governance/cloud-agent-connection-protocol.md`
 - `templates/cloud-agent-task-pack.md`
 - `templates/agent-entry-checklist.md`
 - `templates/skill-usage-log.md`

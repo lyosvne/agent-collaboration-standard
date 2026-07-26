@@ -10,25 +10,25 @@ GitHub standard source: `https://github.com/lyosvne/agent-collaboration-standard
 
 ## Read Order
 
-1. `standards/unified-agent-collaboration-standard.md`
+1. `governance/unified-agent-collaboration-standard.md`
 2. `registry/skill-registry.md`
 3. `templates/handoff-pack.md`
 4. `configs/tool-entry-map.md`
-5. `standards/cloud-agent-connection-protocol.md` when work involves cloud agents.
+5. `governance/cloud-agent-connection-protocol.md` when work involves cloud agents.
 6. Project-specific entry files after entering a project.
 
 ## Target System (目标体系) — Read Before Acting on Goals
 
 The target system has a single git truth source. Read in gradient order:
 
-1. **北极星 (校准基准)**: `standards/north-star-v1.2.md` — 终局/第一性原则/红线/不可委托清单
-2. **全局路线图 (执行罗盘)**: `standards/global-roadmap-v1.1.md` — 七维度/四阶段O/KR/评估反馈体系
-3. **编队分工 (组织链)**: `standards/fleet-division-v1.1.md` — G/M双环治理模型
-4. **架构真值**: `standards/agent-matrix-architecture-v1.0.md`
-5. **协作协议**: `standards/workspace-collaboration-v2.1.md`
+1. **北极星 (校准基准)**: `governance/north-star-v1.2.md` — 终局/第一性原则/红线/不可委托清单
+2. **全局路线图 (执行罗盘)**: `governance/global-roadmap-v1.1.md` — 七维度/四阶段O/KR/评估反馈体系
+3. **编队分工 (组织链)**: `governance/fleet-division-v1.1.md` — G/M双环治理模型
+4. **架构真值**: `governance/agent-matrix-architecture-v1.0.md`
+5. **协作协议**: `governance/workspace-collaboration-v2.1.md`
 
 Truth source: `https://github.com/lyosvne/agent-collaboration-standard` → `governance/` 目录
-Local mirror: `C:\Users\Admin\.agent-collaboration\standards\` (read-only mirror of `governance/`)
+Local snapshot (read-only, 2026-07-26 Phase D 起降级为历史快照): `C:\Users\Admin\.agent-collaboration\standards\`
 
 ## Version Declaration Convention (版本声明约定)
 
