@@ -173,7 +173,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 ## 当前位置
 
-**O1（基座就绪）Phase D 全部完成（A+B），待 push + ECS 同步 + Pi 治理纳入（2026-07-26 更新）。**
+**O1（基座就绪）Phase D 全部完成 + 三方评审通过，待合并 master + push + ECS 同步（2026-07-26 更新）。**
 
 ### 已完成（O1 协作底座 + 退役清理 + 治理真值）
 - CC→ZCode 迁移（CC 完全退役 + 密钥清除本机零残留）
@@ -198,14 +198,23 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
     - 7 个 scripts 路径常量切环境变量 + git 仓库 fallback（gate-checks/rebuild-exceptions/complete-exceptions/analyze-gate3/list-hits/gen-scan-patterns/redact-tokens）
     - STANDARDS 扫描基准从本机 `~/.agent-collaboration/standards/` 切 git 仓库 `governance/`（修正 fail-closed 语义漂移）
     - secret-patterns 迁到 `~/.config/agent-collaboration/secret-patterns/`（语义正确：门禁工具的敏感配置，非治理真值）
-    - mirror-sync.py 语义反转标注（不动逻辑，留长期卫生阶段评审）
+    - mirror-sync.py `--apply` 禁用（Phase D 后原方向会覆盖 git 真值）+ DST_ROOT 改 REPO 推导
+    - REPO 统一从 `Path(__file__).resolve().parents[1]` 推导（避免跨 checkout 混读，round4 修复 A+B 共识阻断）
     - fail-closed 门禁 4 测试全过（默认配置 / fallback / 不存在目录 exit 1 / rebuild 重建后）
+  - **Phase D 三方交叉评审通过（2026-07-26，5 轮迭代）**：
+    - round1：A 4 阻断 + B 3 阻断 + C timeout（cantus 深度思考特性）
+    - round2：修复 A+B 共识 4 阻断（路径补扫/REPO 推导/mirror 禁用/complete-exc fail-closed）
+    - round3：A FAIL + B FAIL（redact-tokens SyntaxError + mirror REPO + configs 残留）+ C PASS（拆分任务策略奏效）
+    - round4：修复 round3 共识 3 阻断 + 软观察清理
+    - round5：A PASS + B PASS（C 已在 round3 PASS，round4 未触及 C 审范围）
+    - 三方一致通过，评审证据 11 文件归档 `archive/governance-review-phaseD-20260726/`
+    - 关键教训：自检漏跑 `ast.parse` 导致 SyntaxError regression；门禁 fail-closed 实战验证（捕获 token/现行角色/exceptions 漏登）
 
 ### O1 待完成（P0 阻断真退出）
-1. **Phase D-A/B 本地 commits push 到 origin/master**（红线：push 需用户授权；当前本地 ahead 4+1，含 Phase D-A 4 commits + Phase D-B 待 commit）
-2. **ECS governance-mirror 同步**（Phase D-A/B 的 START_HERE/LOCAL-USAGE/roadmap/scripts 改动需 SSH ECS git pull，否则 ECS dispatch 透出的是旧版）
+1. **Phase D 合并 review/phaseD-20260726 → master + push**（三方评审已通过，红线：merge + push 需用户授权；当前 review 分支 ahead master 9 commits）
+2. **ECS governance-mirror 同步**（Phase D 的 START_HERE/LOCAL-USAGE/roadmap/scripts 改动需 SSH ECS git pull，否则 ECS dispatch 透出的是旧版）
 3. **5 域一致性真闭环**（ECS/Git/云端/本地/知识库 单一真值，当前 git 域完成 + 本地降级为快照 + ECS 待同步）
-4. **Pi 漂移治理纳入** + **时序版本自动化**（触发条件 = Phase D 全部完成 + push）
+4. **Pi 漂移治理纳入** + **时序版本自动化**（触发条件 = Phase D 合并 master + push）
 5. **`.zcode/AGENTS.md` 路径声明切换**（红线：全局配置，需用户单独审；当前仍指向 `~/.agent-collaboration/standards/`，因快照保留不断链）
 
 ### 节点 2 评审新暴露的真缺口（2026-07-26 新增，无历史章节承载）
@@ -253,6 +262,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v1.4 Phase D 评审通过 | 2026-07-26 | §当前位置更新：Phase D 三方交叉评审 5 轮通过（A+B+C 一致）；round4 修复 redact-tokens SyntaxError + mirror REPO 推导 + configs 历史标注；待办改为合并 master + push + ECS 同步 |
 | v1.3 Phase D-B 收尾 | 2026-07-26 | §当前位置更新：Phase D-B 完成（scripts 解硬依赖 + 扫描基准切 git 仓库 governance/ 真值 + patterns 迁 ~/.config/）；Phase D 全部完成（A+B）；fail-closed 门禁 4 测试全过；待办改为 push + ECS 同步 + Pi 治理纳入 |
 | v1.2 Phase D-A 收尾 | 2026-07-26 | §当前位置更新：Phase D-A 完成（路径声明切换 + 抢救入库，commits a4e98d8/36a49d3/51f16b5）；缺口 #4 dispatch 透出闭环标记（第 1 批已完成）；增 Phase D-B 待办（scripts 解硬依赖）+ .zcode/AGENTS.md 待用户单独审；manual-overrides 缺口 #7 从 53→54 条更新 |
 | v1.1节点2收尾更新 | 2026-07-26 | §当前位置全面更新：Phase C 合并 master 完成(b2eb24e)；Mira/Kimi/CC 退役标 done；增补节点2评审暴露的4项真缺口(dispatch透出/dispatch spec/scripts归属/manual-overrides可持续性)；指向 node2-review-retrospective §三 |
