@@ -59,6 +59,12 @@ With no extra arguments, `:CHECK` must:
 
 `:CHECK` must not automatically rewrite local rules or repository files. Fixes require a follow-up `:ONE` task.
 
+**Exception**: see "Announcement-Driven Self-Actuating `:CHECK`" under
+the Rule Update Lifecycle section below. When a `rule-upgrade-*.md`
+announcement file exists in the project's coordination directory and
+this agent has not yet acked it, `:CHECK` is allowed (and required)
+to write the missing `rule-ack` event and push, idempotently.
+
 ## Input Precision
 
 `:ONE` may be used with either precise or fuzzy human input.
@@ -392,3 +398,50 @@ rules and the global standard. The Rule Update Lifecycle is the
 write-side counterpart: it is how new rules **enter** the global
 standard so that subsequent `:CHECK` runs see them. The two are
 designed to compose without overlap.
+
+### Announcement-Driven Self-Actuating `:CHECK`
+
+The proposer of an upgrade publishes an **announcement file** in the
+project's coordination directory at:
+
+```
+.agents/coordination/rule-upgrade-<slug>.md
+```
+
+The slug should match the upgrade's `upgrade_id`. The file is the
+single source of truth for what an agent must do to ack this
+particular upgrade — not chat, not a long human-typed directive.
+
+When an agent runs `:CHECK` in a project, it must additionally:
+
+1. List files matching `.agents/coordination/rule-upgrade-*.md`.
+2. For each announcement file, parse its `upgrade_id` and
+   `commit_sha` (front-matter or first heading; format stable within
+   a project).
+3. Look in the project's work-ledger for a `rule-ack` event from
+   **this agent's** `agent_id` matching that `upgrade_id`.
+4. If no matching `rule-ack` exists for this agent, the announcement
+   file becomes a **self-actuating instruction**: `:CHECK` reads
+   the file, follows the steps it lists (typically: internalize at
+   an allowed path, write a `rule-ack` JSON line to the ledger,
+   commit, push), and reports the result.
+
+This is the **only** carve-out from the read-only default of
+`:CHECK`. The carve-out is narrowly scoped:
+
+- Triggered exclusively by an announcement file the agent did not
+  author and that lives on `origin/master` (so the human or the
+  proposer published it intentionally).
+- Bounded to writing one `rule-ack` line and pushing that single
+  commit. `:CHECK` may not perform any other write operation under
+  this carve-out.
+- Skipped if the agent already has a matching `rule-ack` (idempotent).
+
+The human operator therefore needs only to send `:CHECK` after a
+rule upgrade is announced. The announcement file carries the
+specifics — schema, allowed internalization paths, expected JSON
+fields, push target — so the upgrade fully decouples from chat
+length.
+
+Projects that want to disable this behavior may declare so in their
+`.agents/coordination/README.md`. By default the behavior is on.
