@@ -1,0 +1,757 @@
+diff --git a/START_HERE.md b/START_HERE.md
+index 9e5d190..c7b44e3 100644
+--- a/START_HERE.md
++++ b/START_HERE.md
+@@ -10,25 +10,25 @@ GitHub standard source: `https://github.com/lyosvne/agent-collaboration-standard
+ 
+ ## Read Order
+ 
+-1. `standards/unified-agent-collaboration-standard.md`
++1. `governance/unified-agent-collaboration-standard.md`
+ 2. `registry/skill-registry.md`
+ 3. `templates/handoff-pack.md`
+ 4. `configs/tool-entry-map.md`
+-5. `standards/cloud-agent-connection-protocol.md` when work involves cloud agents.
++5. `governance/cloud-agent-connection-protocol.md` when work involves cloud agents.
+ 6. Project-specific entry files after entering a project.
+ 
+ ## Target System (目标体系) — Read Before Acting on Goals
+ 
+ The target system has a single git truth source. Read in gradient order:
+ 
+-1. **北极星 (校准基准)**: `standards/north-star-v1.2.md` — 终局/第一性原则/红线/不可委托清单
+-2. **全局路线图 (执行罗盘)**: `standards/global-roadmap-v1.1.md` — 七维度/四阶段O/KR/评估反馈体系
+-3. **编队分工 (组织链)**: `standards/fleet-division-v1.1.md` — G/M双环治理模型
+-4. **架构真值**: `standards/agent-matrix-architecture-v1.0.md`
+-5. **协作协议**: `standards/workspace-collaboration-v2.1.md`
++1. **北极星 (校准基准)**: `governance/north-star-v1.2.md` — 终局/第一性原则/红线/不可委托清单
++2. **全局路线图 (执行罗盘)**: `governance/global-roadmap-v1.1.md` — 七维度/四阶段O/KR/评估反馈体系
++3. **编队分工 (组织链)**: `governance/fleet-division-v1.1.md` — G/M双环治理模型
++4. **架构真值**: `governance/agent-matrix-architecture-v1.0.md`
++5. **协作协议**: `governance/workspace-collaboration-v2.1.md`
+ 
+ Truth source: `https://github.com/lyosvne/agent-collaboration-standard` → `governance/` 目录
+-Local mirror: `C:\Users\Admin\.agent-collaboration\standards\` (read-only mirror of `governance/`)
++Local snapshot (read-only, 2026-07-26 Phase D 起降级为历史快照): `C:\Users\Admin\.agent-collaboration\standards\`
+ 
+ ## Version Declaration Convention (版本声明约定)
+ 
+diff --git a/archive/retired-terms-exceptions-20260726.md b/archive/retired-terms-exceptions-20260726.md
+index c51be13..b61dddf 100644
+--- a/archive/retired-terms-exceptions-20260726.md
++++ b/archive/retired-terms-exceptions-20260726.md
+@@ -31,6 +31,7 @@
+ 
+ | 文件 | 行 | 工具 | 内容预览 | 分类 |
+ |---|---|---|---|---|
++| LOCAL-USAGE.md | 21 | Trae IDE | > 2026-07-26 C 选项：Trae IDE 已退役为编队角色（软件保留个人用），编队里 Trae 系只保留 SOLO 独立角色。原 B1 合并方案已撤销。 | 历史叙述 |
+ | agent-matrix-architecture-v1.0.md | 66 | Codex | \| **Codex** \| ⛔ 淘汰 \| 本地用方舟模型,云沙箱绑OpenAI调不动,GUI/CLI两套维护重 \| | 历史叙述 |
+ | agent-matrix-architecture-v1.0.md | 67 | Trae IDE | \| **Trae IDE（编队角色）** \| ⛔ 退役为编队角色 \| 2026-07-26 C 选项裁定：编队里 Trae 系只保留 SOLO 一个独立角色（端到端测试/QA）。Trae IDE 退到个人工具，不进 Pi 调度。软件保 | 历史叙述 |
+ | agent-matrix-architecture-v1.0.md | 68 | Claude Code | \| **Claude Code** \| ⛔ 退役完成 \| 2026-07-25 退役，2026-07-26 密钥清理完成（详见 `.claude/RETIREMENT-STATUS.md`） \| | 历史叙述 |
+@@ -65,9 +66,7 @@
+ | global-roadmap-v1.1.md | 15 | Codex | > 依据: 北极星v1.2 + Aetheris蓝图v1.11 + soul.yaml + Codex知识库战略洞察 + 全量资产调研 + Qoder客户端两轮审查 | 人工确认HISTORY |
+ | global-roadmap-v1.1.md | 66 | Codex | - 退役清理完成（Codex/CC/QoderWork退役收尾，知识库归属已定） | 历史叙述 |
+ | global-roadmap-v1.1.md | 66 | QoderWork | - 退役清理完成（Codex/CC/QoderWork退役收尾，知识库归属已定） | 历史叙述 |
+-| global-roadmap-v1.1.md | 179 | Codex | O1待完成：Mira/Kimi接入、退役清理（Codex/CC/QoderWork）、ECS治理（swap/时钟/密钥）。 | 历史叙述 |
+-| global-roadmap-v1.1.md | 179 | QoderWork | O1待完成：Mira/Kimi接入、退役清理（Codex/CC/QoderWork）、ECS治理（swap/时钟/密钥）。 | 历史叙述 |
+-| global-roadmap-v1.1.md | 201 | Trae IDE | - Trae IDE 已于 2026-07-26 C 选项裁定退役为编队角色（软件保留供个人使用，不进 Pi 调度链）。编队里 Trae 系只保留 **Trae SOLO 一个独立角色**（端到端测试/QA，Aetheris `agent/ | 历史叙述 |
++| global-roadmap-v1.1.md | 248 | Trae IDE | - Trae IDE 已于 2026-07-26 C 选项裁定退役为编队角色（软件保留供个人使用，不进 Pi 调度链）。编队里 Trae 系只保留 **Trae SOLO 一个独立角色**（端到端测试/QA，Aetheris `agent/ | 历史叙述 |
+ | specs/agent-collaboration-git-sync-plan.md | 48 | Trae IDE | \| 3. Phase A 词表漏 Trae IDE + 扫描范围窄 + 无机器判定规则 \| 词表补齐 + 扫描范围扩到所有导入目录 + 历史引用建例外清单 \| | 历史叙述 |
+ | specs/agent-collaboration-git-sync-plan.md | 66 | Claude Code | "Claude Code": "[RETIRED-CC-2026-07-25]", | 方案示例代码 |
+ | specs/agent-collaboration-git-sync-plan.md | 67 | claude-zhipu | "claude-zhipu": "[RETIRED-CC-2026-07-25]", | 方案示例代码 |
+@@ -118,6 +117,7 @@
+ | specs/mira-vs-larkcli-capabilities.md | 165 | Codex | - c360 CLI 在 Mira 里能用，是因为 **c360 团队官方适配了 Mira**（飞书文档列出支持 Claudecode/Codex/Trae/Aily/Mira） | 人工确认HISTORY |
+ | specs/mira-vs-larkcli-capabilities.md | 255 | Codex | **c360 CLI 官方支持 Mira 作为 Agent 工具**（飞书文档列出支持 Claudecode/Codex/Trae/Aily/Mira）。在 Mira 里安装 c360 CLI 并完成 OAuth 授权后，可正常调用。 | 人工确认HISTORY |
+ | specs/node2-review-package-20260726.md | 90 | Codex | - **问题**：v3.4 §A.5 门禁 3 用 grep 关键词过滤，无法识别"Codex知识库"等合法引用 | 人工确认HISTORY |
++| specs/node2-review-retrospective-20260726.md | 44 | Codex | 5 轮迭代证明了:无论关键词列表收得多窄,总能构造绕过句("in case Codex fails"含 case)。最终方案是**四层防御**: | 人工确认HISTORY |
+ | specs/o1-governance-plan.md | 20 | Codex | 之前推进 O1 时只做了**工具退役**（CC/Codex/QoderWork），遗漏了**代码与文档治理**。实测盘点发现四类严重散乱： | 历史叙述 |
+ | specs/o1-governance-plan.md | 20 | QoderWork | 之前推进 O1 时只做了**工具退役**（CC/Codex/QoderWork），遗漏了**代码与文档治理**。实测盘点发现四类严重散乱： | 历史叙述 |
+ | specs/o1-governance-plan.md | 24 | Codex | 3. **知识文档**：Codex 知识库迁移后 `Documents/Codex/` 残留、各处散落知识片段 | 人工确认HISTORY |
+diff --git a/archive/retired-terms-manual-history-overrides-20260726.md b/archive/retired-terms-manual-history-overrides-20260726.md
+index f30f267..9d8fa6b 100644
+--- a/archive/retired-terms-manual-history-overrides-20260726.md
++++ b/archive/retired-terms-manual-history-overrides-20260726.md
+@@ -68,10 +68,11 @@
+ | specs/trae-solo-branch-merge-task.md | 210 | Trae IDE | 同 L53（工具状态）|
+ | specs/trae-solo-branch-merge-task.md | 211 | Trae IDE | 同 L54（工具状态）|
+ | workspace-collaboration-v2.1.md | 41 | Codex | 知识库路径引用（历史资产）|
++| specs/node2-review-retrospective-20260726.md | 44 | Codex | 门禁绕过句构造示例（"in case Codex fails" 含 case）, 讨论启发式不可能零 fail-open 的反例, 非编队角色描述 |
+ 
+ ## 审核人
+ 
+-ZCode（round4 逐条人工判定, 2026-07-26）
++ZCode（round4 逐条人工判定, 2026-07-26; Phase D-A 追加 1 条, 2026-07-26）
+ 
+ ## 复核要求
+ 
+diff --git a/governance/LOCAL-USAGE.md b/governance/LOCAL-USAGE.md
+index 6776551..87660d4 100644
+--- a/governance/LOCAL-USAGE.md
++++ b/governance/LOCAL-USAGE.md
+@@ -12,7 +12,7 @@ It is not project-specific.
+ ## Read Order
+ 
+ 1. `START_HERE.md`
+-2. `standards/unified-agent-collaboration-standard.md`
++2. `governance/unified-agent-collaboration-standard.md`
+ 3. `registry/skill-registry.md`
+ 4. `templates/handoff-pack.md`
+ 5. `configs/tool-entry-map.md`
+@@ -22,7 +22,7 @@ It is not project-specific.
+ 
+ ## Useful Operating Files
+ 
+-- `standards/cloud-agent-connection-protocol.md`
++- `governance/cloud-agent-connection-protocol.md`
+ - `templates/cloud-agent-task-pack.md`
+ - `templates/agent-entry-checklist.md`
+ - `templates/skill-usage-log.md`
+@@ -32,6 +32,19 @@ It is not project-specific.
+ - `registry/skill-governance.md`
+ - `registry/learning-ingestion-pipeline.md`
+ 
++## Phase D 存储降级声明（2026-07-26）
++
++本机 `C:\Users\Admin\.agent-collaboration\` 自 2026-07-26 Phase D 起降级为**只读历史快照**，不再作活跃真值存储。
++
++| 资源 | Phase D 前 | Phase D 后 |
++|---|---|---|
++| 治理文档真值 | `~/.agent-collaboration/standards/` | git 仓库 `governance/`（本机快照仅作历史参考） |
++| secret 扫描 patterns | `~/.agent-collaboration/archive/secret-patterns/` | `~/.config/agent-collaboration/secret-patterns/`（含 token 不入 git，环境变量 `SECRET_PATTERNS_DIR` 可覆盖） |
++| exceptions/overrides | `~/.agent-collaboration/archive/` | git 仓库 `archive/`（已纳入 git 真值） |
++| scripts 扫描基准 | 扫本机 `standards/`（滞后） | 扫 git 仓库 `governance/`（真值，环境变量 `STANDARDS_SCAN_DIR` 可覆盖） |
++
++**物理删除**：本机 `~/.agent-collaboration/` 暂不物理删除（过渡期保留双源），物理删除留第 5 批长期卫生阶段，需用户单独授权。`~/.agent-collaboration/archive/secret-patterns/` 旧位置已冻结（B.2 起 scripts 只读新位置）。
++
+ ## Hard Truth
+ 
+ - GitHub commit, branch, and PR are the only hard code sync points.
+diff --git a/governance/fleet-division-v1.1.md b/governance/fleet-division-v1.1.md
+index 4b312fe..ad60dff 100644
+--- a/governance/fleet-division-v1.1.md
++++ b/governance/fleet-division-v1.1.md
+@@ -160,7 +160,7 @@ G1-G7 闭合的是"运转环"，M 系列闭合的是"方向环"——没有方
+ |------|------|------|
+ | **代码唯一硬真值** | `https://github.com/lyosvne/Aetheris-link.git` 的 `origin/master` | 全编队硬同步点；各 agent 工作分支 `agent/<name>`（claude/kimi/qoder/solo/trae/mira） |
+ | 全局协作标准 | `https://github.com/lyosvne/agent-collaboration-standard` | START_HERE 引用的跨 agent 操作语言 |
+-| 本地协作入口 | `C:\Users\Admin\.agent-collaboration\`（standards/templates/registry） | 协议 v2.0.1、架构真值 v1.0、交接包与回执 |
++| 本地协作入口（git 真值） | `C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\`（governance/templates/registry） | 协议 v2.1、架构真值 v1.0、交接包与回执；本机 `~/.agent-collaboration\` 自 2026-07-26 Phase D 起降级为只读历史快照 |
+ | 持久真值层（运行时） | ECS `aetherisonline.xyz` 上的 Aetheris（真值层+记忆） | matter/task/decision/knowledge + 审计轨迹 |
+ | 知识库 | `C:\Users\Admin\Documents\Codex\knowledge-audit-2026-07\Knowledge` | 331 开源项目调研沉淀（Pi/ruflo 选型依据来源） |
+ 
+diff --git a/governance/global-roadmap-v1.1.md b/governance/global-roadmap-v1.1.md
+index 1103b95..7535d54 100644
+--- a/governance/global-roadmap-v1.1.md
++++ b/governance/global-roadmap-v1.1.md
+@@ -173,14 +173,14 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两
+ 
+ ## 当前位置
+ 
+-**O1（基座就绪）Phase C 完成，Phase D 待启动（2026-07-26 更新）。**
++**O1（基座就绪）Phase D 全部完成（A+B），待 push + ECS 同步 + Pi 治理纳入（2026-07-26 更新）。**
+ 
+ ### 已完成（O1 协作底座 + 退役清理 + 治理真值）
+ - CC→ZCode 迁移（CC 完全退役 + 密钥清除本机零残留）
+ - Pi ECS 部署（pi-server/pi-feishu-bridge/pi-dispatch-server 均 active）
+ - Qoder 三档 SSE 消费器 + qoder-bridge.py 统一桥
+ - 漂移治理（设计 + push 授权）
+-- 调度上下文（dispatch-server，但治理文档透出不全，见下方缺口）
++- 调度上下文（dispatch-server，第 1 批已补全 4 端点 + 启动头注入，见下方缺口 #4 闭环标记）
+ - Mira 主干接入（trunk-complete: Togo CLI v5.21 + 40 模型 + 生图 + c360）
+ - Kimi 本机调度（ZCode Bash 调 kimi.exe 实测通过）
+ - Trae 收口（C 选项: SOLO 独立角色 + Aetheris 分支合并 master）
+@@ -189,20 +189,34 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两
+   - Phase B 安全同步（commit 314b35a）
+   - 节点 2 评审 5 轮迭代三方通过（A round4 + B/C round5）
+   - **Phase C 合并 master（commit b2eb24e，2026-07-26）**
++  - **Phase D-A 路径声明切换 + 抢救入库（commits a4e98d8/36a49d3/51f16b5，2026-07-26）**：
++    - 抢救本机独有新内容（review-process-lessons §六 + session-handoff 完整版 + node2-review-package）入库
++    - START_HERE/LOCAL-USAGE 路径 standards/ → governance/（修正 P0 自相矛盾）
++    - P1 治理文档本机路径漂移修正（fleet-division/workspace-collaboration/knowledge）
++    - 本机 `~/.agent-collaboration/` 降级为只读历史快照（不物理删除，物理删除留第 5 批长期卫生阶段）
++  - **Phase D-B scripts 解硬依赖 + 扫描基准切真值（2026-07-26）**：
++    - 7 个 scripts 路径常量切环境变量 + git 仓库 fallback（gate-checks/rebuild-exceptions/complete-exceptions/analyze-gate3/list-hits/gen-scan-patterns/redact-tokens）
++    - STANDARDS 扫描基准从本机 `~/.agent-collaboration/standards/` 切 git 仓库 `governance/`（修正 fail-closed 语义漂移）
++    - secret-patterns 迁到 `~/.config/agent-collaboration/secret-patterns/`（语义正确：门禁工具的敏感配置，非治理真值）
++    - mirror-sync.py 语义反转标注（不动逻辑，留长期卫生阶段评审）
++    - fail-closed 门禁 4 测试全过（默认配置 / fallback / 不存在目录 exit 1 / rebuild 重建后）
+ 
+ ### O1 待完成（P0 阻断真退出）
+-1. **Phase D: Y 落地**（废弃 ~/.agent-collaboration 作活跃存储 + 全编队路径引用切换到 git 仓库）
+-2. **5 域一致性真闭环**（ECS/Git/云端/本地/知识库 单一真值，当前仅 git 完成）
+-3. **Pi 漂移治理纳入** + **时序版本自动化**（触发条件 = Phase D 完成）
++1. **Phase D-A/B 本地 commits push 到 origin/master**（红线：push 需用户授权；当前本地 ahead 4+1，含 Phase D-A 4 commits + Phase D-B 待 commit）
++2. **ECS governance-mirror 同步**（Phase D-A/B 的 START_HERE/LOCAL-USAGE/roadmap/scripts 改动需 SSH ECS git pull，否则 ECS dispatch 透出的是旧版）
++3. **5 域一致性真闭环**（ECS/Git/云端/本地/知识库 单一真值，当前 git 域完成 + 本地降级为快照 + ECS 待同步）
++4. **Pi 漂移治理纳入** + **时序版本自动化**（触发条件 = Phase D 全部完成 + push）
++5. **`.zcode/AGENTS.md` 路径声明切换**（红线：全局配置，需用户单独审；当前仍指向 `~/.agent-collaboration/standards/`，因快照保留不断链）
+ 
+ ### 节点 2 评审新暴露的真缺口（2026-07-26 新增，无历史章节承载）
+-4. **dispatch-server 治理文档透出缺失**（P0 传播缺口）:
+-   - `_handle_all` 只透出 1/4 治理文档（roadmap），漏了北极星 v1.2 / 架构真值 v1.0 / 编队分工 v1.1
+-   - 云端 agent（Qoder/Kimi/Mira）调度时无上下文注入，靠主动 WebFetch 碰运气
++5. ~~**dispatch-server 治理文档透出缺失**（P0 传播缺口）~~ ✅ **已闭环（2026-07-26 第 1 批）**：
++   - dispatch-server 补全 4 端点（north-star/architecture/fleet-division/start-here）+ 双源 fallback（governance-mirror 优先 + GitHub raw 兜底）
++   - qoder-bridge.py 注入 FLEET_HEADER 启动头（红线 + 编队身份 + WebFetch 指引）
++   - ECS 部署 + governance-mirror 同步 + 端到端验证（cantus 复述红线 5 条 + 北极星 + 路线图）
+    - 详见 `specs/node2-review-retrospective-20260726.md` §三
+-5. **dispatch-server 架构 spec 缺失**（生产组件无文档/无职能归属）
+-6. **scripts/ 工具脚本长期维护归属**（5 个 .py 无 spec）
+-7. **manual-history-overrides 可持续性**（53 条人工 override + 双解析函数会漂移）
++6. **dispatch-server 架构 spec 缺失**（生产组件无文档/无职能归属）
++7. **scripts/ 工具脚本长期维护归属**（5 个 .py 无 spec；Phase D-B 会触及，建议合并处理）
++8. **manual-history-overrides 可持续性**（53→54 条人工 override + 双解析函数会漂移；Phase D-A 又新增 1 条，证明可持续性问题真实存在）
+ 
+ ### O1 收口并行项（P1）
+ 8. 远程分支清理（29 条已合未删）
+@@ -239,6 +253,8 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两
+ 
+ | 版本 | 日期 | 变更 |
+ |---|---|---|
++| v1.3 Phase D-B 收尾 | 2026-07-26 | §当前位置更新：Phase D-B 完成（scripts 解硬依赖 + 扫描基准切 git 仓库 governance/ 真值 + patterns 迁 ~/.config/）；Phase D 全部完成（A+B）；fail-closed 门禁 4 测试全过；待办改为 push + ECS 同步 + Pi 治理纳入 |
++| v1.2 Phase D-A 收尾 | 2026-07-26 | §当前位置更新：Phase D-A 完成（路径声明切换 + 抢救入库，commits a4e98d8/36a49d3/51f16b5）；缺口 #4 dispatch 透出闭环标记（第 1 批已完成）；增 Phase D-B 待办（scripts 解硬依赖）+ .zcode/AGENTS.md 待用户单独审；manual-overrides 缺口 #7 从 53→54 条更新 |
+ | v1.1节点2收尾更新 | 2026-07-26 | §当前位置全面更新：Phase C 合并 master 完成(b2eb24e)；Mira/Kimi/CC 退役标 done；增补节点2评审暴露的4项真缺口(dispatch透出/dispatch spec/scripts归属/manual-overrides可持续性)；指向 node2-review-retrospective §三 |
+ | v1.1定稿 | 2026-07-25 | W5.5归属裁定为横跨O1/O2。路线图定稿生效 |
+ | v1.1修订 | 2026-07-25 | Qoder客户端19条逐条修订：补客户感知维度、O1/O2并行、KR口径量化、降级路径、事件驱动校准、不可委托清单、北极星=方向/七维度=度量、Wave↔阶段映射、文件名修正 |
+diff --git a/governance/specs/node2-review-package-20260726.md b/governance/specs/node2-review-package-20260726.md
+new file mode 100644
+index 0000000..9ece9ff
+--- /dev/null
++++ b/governance/specs/node2-review-package-20260726.md
+@@ -0,0 +1,135 @@
++---
++version: 1.0
++status: ready-for-review
++type: review-package
++created: 2026-07-26
++owner: ZCode
++title: 节点 2 评审材料包 — sync 分支 v3.4 同步
++scope: 供三方评审（A/B/C）针对 commit 314b35a 核对 v3.4 §五的 10 条门禁
++related:
++  - specs/agent-collaboration-git-sync-plan.md (v3.4 执行依据)
++  - specs/review-process-lessons.md (评审提示词优化)
++  - archive/retired-terms-exceptions-20260726.md (v2 重建, HISTORY 逐条)
++  - .review-evidence/node2-checks-20260726-152040.md (本地证据, 已 .gitignore)
++---
++
++# 节点 2 评审材料包
++
++## 〇、评审对象
++
++| 项 | 值 |
++|---|---|
++| 仓库 | https://github.com/lyosvne/agent-collaboration-standard |
++| 分支 | `sync/agent-collaboration-import-20260726-v3`（远程已 push）|
++| **commit SHA** | **`314b35aea674341b8987be17f68b94544c29c69a`** |
++| 基线（同步前）| `4250353` (tag `pre-agent-collaboration-sync-20260726-v3` + branch `backup-pre-sync-v3-20260726`) |
++| 同步方案 | v3.4（节点 1 三方一致通过）|
++| 执行者 | ZCode (GLM-5.2) |
++| 执行时间 | 2026-07-26 |
++
++## 一、10 条门禁实测值（v3.4 §五）
++
++| # | 门禁 | 预期 | 实测 | 通过 |
++|---|---|---|---|---|
++| 1 | cc-retirement 进入工作树/暂存区/tracked | 0 个 | **0 个** | ✅ |
++| 2 | secret 扫描命中（未豁免）| 0 个 | **0 个**（patterns: `[REDACTED-FRAGMENT]`，扫暂存区 blob，排除 scripts/）| ✅ |
++| 3 | 现行规范中退役角色引用 | 0 个 | **0 个**（116 条命中全部为 HISTORY，集合比对验证）| ✅ |
++| 4 | 历史引用命中已批准例外清单 | 100% | **100%**（116/116，与门禁 3 同一集合比对）| ✅ |
++| 5 | 每个源-目标映射的新增/修改/删除/排除数量 | 有清单 + 经审核 | **dry-run 输出四清单**（见下表），用户过目后 apply | ✅ |
++| 6 | dry-run 与实际暂存区文件差异 | 0 个 | **0 个**（dry-run 53+5+1，apply 后 git status 一致）| ✅ |
++| 7 | 未声明策略/未声明目标路径 | 0 个 | **0 个**（v3.4 §二 13 行映射表，每行显式策略）| ✅ |
++| 8 | 三位评审者针对同一 commit SHA 评审 | 3/3 | ⏳ **待评审**（本材料包发出后）| ⏳ |
++| 9 | 用户批准的也是同一 commit SHA | 是 | ⏳ **待用户批准**（门禁 8 通过后）| ⏳ |
++| 10 | 所有门禁输出保存为可复核证据 | 是 | ✅ `.review-evidence/node2-checks-20260726-152040.md`（本地，已 .gitignore）| ✅ |
++
++## 二、门禁 5 详细：dry-run 同步清单
++
++按 v3.4 §二策略表，每个映射的实测：
++
++| 映射 | 策略 | 新增 | 修改 | 删除 | 跳过 | 排除 |
++|---|---|---|---|---|---|---|
++| standards→governance | mirror | 11 | 5 | 1 (LOCAL-USAGE.md, 内容一致) | - | - |
++| audits | mirror | 2 | 0 | 0 | - | - |
++| configs | mirror | 6 | 0 | 0 | - | - |
++| registry | mirror | 3 | 0 | 0 | - | - |
++| project-starter | mirror | 3 | 0 | 0 | - | - |
++| archive | selective-mirror | 27 | 0 | 0 | - | cc-retirement + backups + secret-patterns |
++| templates | add-only | 0 | 0 | 0 | 17 | - |
++| docs | add-only | 0 | 0 | 0 | 1 | - |
++| README→LOCAL-USAGE | add-only(file) | 0 | 0 | 0 | 1 | - |
++| START_HERE→根 | add-only(file) | 0 | 0 | 0 | 1 | - |
++| **合计** | - | **52** | **5** | **1** | **20** | - |
++
++注：apply 时 LOCAL-USAGE.md 被 mirror 删除后由 add-only(file) 写回（内容与源一致，diff 验证 exit 0），最终结果无信息损失。
++
++## 三、本 session 现场补强（相对 v3.4 方案的偏离声明）
++
++评审方请注意以下"现场补强"，这些是 v3.4 方案未明确但本 session 发现必须处理的：
++
++### 3.1 rsync 缺失 → Python 脚本替代
++- **问题**：Git Bash 没装 rsync，v3.4 §二 的 rsync 命令无法执行
++- **处理**：写 `scripts/mirror-sync.py`，对齐 rsync `-a --delete --exclude` 语义（递归复制 + 删除目标独有 + glob 排除）
++- **评审点**：Python 脚本的 mirror 语义是否真的对齐 rsync？排除模式匹配是否正确？
++
++### 3.2 Token 脱敏（v3.0 评审 A 的 hard blocker 复现）
++- **问题**：评审归档 + specs 里发现 **43 处真实 token 片段**（`[REDACTED-FRAGMENT]` ×4 类前缀），正是 v3.0 评审 A 标记的"方案文档不含 token"硬约束违反
++- **处理**：源端 + 工作树双向脱敏为 `[ANTHROPIC-REDACTED]`/`[ANYGEN-REDACTED]`/`[ZCODE-REDACTED]`
++- **评审点**：脱敏是否彻底？是否破坏文档语义？脱敏占位符是否合适？
++
++### 3.3 Phase A HISTORY 逐条登记（修正虚标）
++- **问题**：上个 session 的 exceptions 文件 HISTORY 部分用概括描述（"130 条"），实际无法支持门禁 4 集合比对
++- **处理**：重建 exceptions 文件，HISTORY 改为 116 条逐条登记（file:line|tool + 自动分类）
++- **评审点**：116 条分类是否合理？是否有遗漏的现行角色引用？
++
++### 3.4 secret-patterns 外置（避免自扫描陷阱）
++- **问题**：脚本若硬编码 patterns 字面量，会扫到自己（v3.0 评审 A 警告）
++- **处理**：patterns 放 `~/.agent-collaboration/archive/secret-patterns/`（不入 git），脚本从外部读
++- **评审点**：外部文件机制是否可靠？scripts/ 排除是否合理？
++
++### 3.5 门禁 3/4 合并为集合比对
++- **问题**：v3.4 §A.5 门禁 3 用 grep 关键词过滤，无法识别"Codex知识库"等合法引用
++- **处理**：门禁 3/4 改用集合比对（所有命中 ⊆ exceptions 全集）
++- **评审点**：集合比对是否等价于 v3.4 原意？是否弱化了"现行角色=0"的判定？
++
++## 四、已知待治理项（不在本次评审范围）
++
++按 v3.4 commit 降级声明，以下项留待节点 3 用户裁决：
++1. unified vs workspace-collaboration 文档去留
++2. ~/.agent-collaboration/ 废弃 + 路径引用替换（Phase D）
++3. Pi 漂移治理纳入（任务已登记，触发条件 Phase D 完成）
++
++## 五、本地证据文件
++
++评审方可向 ZCode 索取以下本地证据（不入 git，避免泄露内部细节）：
++- `.review-evidence/node2-checks-20260726-152040.md`（4 门禁实测 + 暂存区统计）
++- `scripts/mirror-sync.py` / `scripts/gate-checks.py` / `scripts/redact-tokens.py`（同步工具脚本，已入 git 可直接看）
++
++## 六、评审提示词模板（基于 review-process-lessons.md 建议 1）
++
++```
++你是评审方X（模型）。按第一性原理审查 commit 314b35a 的 v3.4 同步执行。
++
++## 必须检查的 5 类问题（review-process-lessons 教训）
++1. **真值一致性**：是否真建立单一真值，还是把两套合成更大的两套
++2. **fail-open 检查**：每个门禁/扫描是否 fail-closed（失败时阻断）
++3. **代码副作用**：tr/sed/awk/string.replace 等是否破坏数据语义
++4. **grep 方言**：所有 grep -E 模式转义是否正确（ERE 不需 \|）
++5. **不可委托敬畏**：战略决策是否留给用户
++
++## 重点核对（本 session 偏离点）
++- §3.1 Python mirror 是否对齐 rsync --delete --exclude？
++- §3.2 43 处 token 脱敏是否彻底？占位符是否破坏语义？
++- §3.3 HISTORY 116 条分类是否合理？有无现行角色遗漏？
++- §3.4 secret-patterns 外置 + scripts/ 排除是否引入新 fail-open？
++- §3.5 门禁 3/4 集合比对是否弱化了"现行角色=0"判定？
++
++## 输出格式（必须）
++- 5 类问题逐条核对（✅通过/❌阻断/⚠️观察）
++- 阻断点（最多 5 个，每个含具体修法）
++- 改进建议（最多 3 个）
++- 结论：通过 / 有条件通过（列条件）/ 不通过（列阻断）
++```
++
++## 七、当前状态
++
++**ready-for-review** — 材料包就绪，待 A/B/C 三方评审（门禁 8）+ 用户批准（门禁 9）。
+diff --git a/governance/specs/review-process-lessons.md b/governance/specs/review-process-lessons.md
+index dbc51b4..bbd7600 100644
+--- a/governance/specs/review-process-lessons.md
++++ b/governance/specs/review-process-lessons.md
+@@ -156,6 +156,59 @@ B 的 10 条量化门禁、A 的"自相矛盾"检查、C 的"Pi 纳入而非另
+ 
+ **改进**：维护一份"方案设计 checklist"，基于历次评审反馈累积。
+ 
+-## 六、当前状态
++## 六、节点 2 评审新教训（2026-07-26 round1 + round2）
++
++### 6.1 三方评审调度必须用三个独立 run_in_background 调用并行
++
++**问题**：round1 首次尝试用单 Bash 命令里的 `&` 同时起 A/B,在 harness 后台任务模型下不可靠——主 shell 退出时 `&` 子进程被杀,A/B 输出 0 字节。失败后退化成串行(A→B→C),违背"A/B/C 独立并行"纪律,总时间成本从 max(A,B,C) 变 A+B+C。
++
++**根因**：把"harness 的后台任务"和"shell 的 `&` 后台"搞混。harness 的 `run_in_background` 是任务级隔离,`&` 是进程级且依赖父 shell 存活。
++
++**改进**：三方评审必须用**三个独立 `run_in_background: true` 的 Bash 调用**,在**同一条消息**里发出。禁用单命令 `&` 起多评审。
++
++### 6.2 cantus 顶层档的深度思考特性导致单次 run_task 超时
++
++**问题**：round1 C(cantus via qoder-bridge)用 run_task 单次调度,stream_response 在 cantus 长间隔下判定 timeout(270s×2)。但 cantus 实际还在 running(27 次工具调用 clone 仓库独立复核),最终 idle 但没产出 agent.message。两次 run_turn 触发都 stream timeout。
++
++**根因**:cantus 顶层档"深度思考"特性 + Qoder 平台会话超时机制,单次 stream 无法接住长间隔。
++
++**改进**:
++- cantus 评审用 run_turn 多轮 + _wait_idle 组合,而非单次 run_task
++- 或拆分任务(分段评审),每段 stream 时间可控
++- 或在 prompt 里明确要求"限制工具调用 ≤5 次,优先输出结论"(round2 C prompt 已加此约束)
++
++### 6.3 调度独立性 vs 调度方影响的边界
++
++**问题**:round1 另一会话识别"即使 A/B 用 Mira 自动调度,选材/读结果/汇总的都是 GLM-5.2,独立性打折"。这本身是对的,但不能因此放弃三方评审。
++
++**澄清**:
++- A/B/C 是**真不同模型**独立产出(Mira 切模型 + Qoder cantus),评审正文是真模型输出
++- GLM-5.2(ZCode)只做调度协调(选 prompt 模板/读结果/汇总),不修改评审正文
++- 评审包(主评审包 + prompt)是 round1 v3.4 三方一致通过的产物,不是 ZCode 即兴编写
++- 汇总时 ZCode 如实呈现三方原文 + 交叉确认,不替评审方下结论
++
++**改进**:评审包设计要"自包含"(评审方能独立复核,不依赖 ZCode 解释),prompt 要明确"你可 git clone 自行核对"。round1 B/C 都独立 clone 了仓库复核,证明独立性成立。
++
++### 6.4 fail-open 是评审核心,fail-closed 设计要"失败即阻断 + 错误可见"
++
++**问题**:round1 A/B 交叉确认的核心阻断(gate3/4 tautology)本质是 fail-open——`classify()` 永不返回 ROLE,漏替换的现行角色被静默吸收成 HISTORY。B 的另外 4 阻断也都是 fail-open(scripts/ 排除无强制机制、源缺失仅警告、patterns 覆盖不足、脱敏失败都 continue)。
++
++**根因**:v3.4 初版追求"能跑过门禁",失败处理用 print ⚠️ + continue + return 0,导致所有失败被吞,门禁恒真。
++
++**改进**(已落 round2 commit 0359227):
++- 任一失败必须 `sys.exit(1)` 或累计错误末尾 `return 1`
++- 错误信息要可见(打印到 stderr,列具体失败项)
++- 集合比对不能 tautology(校验集合和被校验集合必须来自不同源)
++- 自动分类必须有"未分类抛错"兜底,不能默认归某一类
++
++### 6.5 修复后必须复跑门禁验证"独立探针真生效"
++
++**问题**:round2 修复 gate3/4 拆分后,第一次跑门禁 gate3 失败(117 处现行角色)——因为新 gate3 把所有未替换的都当现行角色。这其实是修复**生效**的证据(之前 tautology 让这 117 处静默放行),但语义错了(117 处本是合法 HISTORY)。
++
++**改进**:修复 fail-closed 探针后,必须用真实数据复跑,验证"该阻断的阻断、该放行的放行"。round2 经过 3 次迭代(117→61→0)才让 gate3 正确三分类。这证明 fail-closed 设计需要真实数据校准,不能只看代码逻辑。
++
++## 七、当前状态
+ 
+ 本文件作为活文档，后续每次评审后追加新教训。
++
++**最近更新**:2026-07-26 节点2 round1 + round2 教训(§六.1-6.5)。
+diff --git a/governance/specs/session-handoff-20260726.md b/governance/specs/session-handoff-20260726.md
+index 205187d..de25962 100644
+--- a/governance/specs/session-handoff-20260726.md
++++ b/governance/specs/session-handoff-20260726.md
+@@ -48,19 +48,26 @@ scope: 记录当前 session 的完整可恢复状态，便于上下文 compact 
+ 
+ ## 二、当前进行中的任务
+ 
+-### O1 治理 Phase A（同步前最小语义修正）
+-
+-**进度**：
+-- ✅ A.1 扫描退役工具命中（138 处：68 ROLE? + 70 HISTORY?）
+-- ✅ A.2 生成命中清单：`archive/retired-terms-hits-20260726.md`
+-- ⏳ A.3 人工标注（138 条逐条核对 [ROLE?]/[HISTORY?] → [ROLE]/[HISTORY]）
+-- ⏳ A.4 仅替换 [ROLE]
+-- ⏳ A.5 验证门禁 3/4
+-
+-**A.3 简化建议**（待用户裁决）：
+-- 真正的 [ROLE] 引用主要在 `unified-agent-collaboration-standard.md` 和 `tool-entry-map.md`
+-- 其他 specs/ 里的引用多是"描述本次治理过程"（[HISTORY]）
+-- 可以只标这两份关键文档，其他默认 [HISTORY]
++### O1 治理 Phase A + B（已完成 2026-07-26）
++
++**Phase A**（同步前最小语义修正）：
++- ✅ A.1-A.2 扫描 + 命中清单
++- ✅ A.3-A.4 标注 + 替换 ROLE（11 条）
++- ✅ A.5 门禁 3/4（本 session 用集合比对补强）
++
++**Phase B**（安全同步，本 session 完成）：
++- ✅ B.1 tag + backup + sync 分支（上个 session）
++- ✅ B.2 mirror 同步（rsync 缺失，Python 脚本替代）
++- ✅ B.3 .gitignore
++- ✅ B.4 门禁 1-4 全部通过（fail-closed 验证有效）
++- ✅ B.5 commit `314b35a` + push sync 分支（master 未动）
++
++**本 session 现场补强**（修正上个 session 虚标）：
++1. rsync 缺失 → `scripts/mirror-sync.py`（对齐 rsync --delete --exclude）
++2. 43 处 token 片段泄露 → 全脱敏（`[REDACTED-FRAGMENT]` ×4 类前缀）
++3. Phase A HISTORY 虚标（"130 条"概括）→ 重建为 116 条逐条登记
++4. patterns 文件不存在 → 创建 scan-patterns.txt + redact-map.txt（外置）
++5. 门禁 3/4 grep 关键词过滤粗糙 → 改用集合比对
+ 
+ ## 三、待执行的后续 Phase
+ 
+@@ -68,13 +75,21 @@ scope: 记录当前 session 的完整可恢复状态，便于上下文 compact 
+ 
+ | Phase | 内容 | 状态 |
+ |---|---|---|
+-| **A** | 同步前最小语义修正（退役工具词表）| ⏳ 进行中 |
+-| **B** | 安全同步（sync 分支 + rsync + git grep + 门禁）| ⏳ 待 A 完成 |
+-| **节点 2** | 三方评审 sync 分支实际 diff | ⏳ 待 B 完成 |
++| **A** | 同步前最小语义修正（退役工具词表）| ✅ 完成（含本 session 补强）|
++| **B** | 安全同步（sync 分支 + rsync + git grep + 门禁）| ✅ 完成（commit 314b35a 已 push）|
++| **节点 2** | 三方评审 sync 分支实际 diff | ⏳ **材料包就绪，待评审** |
+ | **C** | 合并 master（用户批准）| ⏳ 待节点 2 通过 |
+ | **D** | Y 落地（废弃 `~/.agent-collaboration/` 改路径引用）| ⏳ 独立 Phase |
+ | **后续** | Pi 漂移治理纳入 + 远程分支清理 + 其他 O1 治理 | ⏳ |
+ 
++### 节点 2 评审（下一步）
++
++- **材料包**：`specs/node2-review-package-20260726.md`
++- **commit SHA**：`314b35aea674341b8987be17f68b94544c29c69a`
++- **远程分支**：`origin/sync/agent-collaboration-import-20260726-v3`
++- **评审方**：A (opus4.8p) + B (gpt5.6sol) + C (cantus)（同节点 1）
++- **重点核对**：5 类问题 + 本 session 5 个偏离点（见材料包 §三 §六）
++
+ ## 四、关键文件索引（compact 后必读）
+ 
+ ### 方案与流程
+@@ -124,14 +139,30 @@ scope: 记录当前 session 的完整可恢复状态，便于上下文 compact 
+ ## 六、下一步建议
+ 
+ ### 立即可做（不依赖用户）
+-1. 完成 Phase A.3-A.5（用简化标注法）
+-2. 执行 Phase B（按 v3.4 方案分步）
+-3. 准备节点 2 评审材料
++1. 把节点 2 评审材料包 `specs/node2-review-package-20260726.md` 分发给 A/B/C 三方
++2. 收齐三方评审意见，针对 commit 314b35a 核对 10 条门禁
+ 
+ ### 需要用户介入
+-1. Phase A.3 的 138 条标注——是否同意简化（只标 2 份关键文档）
+-2. Phase C 合并 master 批准
+-3. 节点 2 评审结果如有分歧的裁决
++1. 节点 2 评审通过后，**批准合并 master**（Phase C）
++2. 节点 2 评审结果如有分歧的裁决
++3. Phase D（Y 落地）启动时机
++
++## 七、本 Session 关键产出索引
++
++### 工具脚本（已入 git，commit 314b35a）
++- `scripts/mirror-sync.py`（rsync 替代，mirror/add-only 策略）
++- `scripts/gate-checks.py`（4 门禁执行器，fail-closed）
++- `scripts/redact-tokens.py`（token 脱敏，外部映射驱动）
++
++### 评审材料
++- `specs/node2-review-package-20260726.md`（节点 2 评审包，10 门禁实测 + 偏离声明 + 提示词）
++
++### 本地证据（不入 git）
++- `.review-evidence/node2-checks-20260726-152040.md`（4 门禁实测证据）
++
++### 外置 secret 配置（不入 git）
++- `~/.agent-collaboration/archive/secret-patterns/scan-patterns.txt`（扫描 patterns）
++- `~/.agent-collaboration/archive/secret-patterns/redact-map.txt`（脱敏映射）
+ 
+ ## 七、当前 Session 状态
+ 
+diff --git a/governance/workspace-collaboration-v2.1.md b/governance/workspace-collaboration-v2.1.md
+index d43abd1..61ca5b5 100644
+--- a/governance/workspace-collaboration-v2.1.md
++++ b/governance/workspace-collaboration-v2.1.md
+@@ -28,7 +28,7 @@ signoff: "用户 2026-07-23"
+ 冲突裁决顺序：
+ 1. 用户红线与即时指令
+ 2. 本协议 v2.1
+-3. 架构真值 v1.0（`.agent-collaboration/standards/agent-matrix-architecture-v1.0.md`）+ 编队分工 v1.1
++3. 架构真值 v1.0（`governance/agent-matrix-architecture-v1.0.md`）+ 编队分工 v1.1
+ 4. 各项目内部文档
+ 5. 代码与 Git 历史
+ 6. 历史归档记录
+diff --git a/knowledge/wiki/rules/collaboration-standard.md b/knowledge/wiki/rules/collaboration-standard.md
+index 0dd6b62..f15f4da 100644
+--- a/knowledge/wiki/rules/collaboration-standard.md
++++ b/knowledge/wiki/rules/collaboration-standard.md
+@@ -1,11 +1,11 @@
+ ---
+ title: "collaboration-standard"
+ tags: ["rules"]
+-path: "C:/Users/Admin/.agent-collaboration/standards/"
+-updated: "2026-07-21"
++path: "C:/Users/Admin/Documents/trae_projects/agent-collaboration-standard/governance/"
++updated: "2026-07-26"
+ ---
+ 
+ # collaboration-standard
+ 
+-- **Path**: C:/Users/Admin/.agent-collaboration/standards/
+-- **Desc**: cross-tool collaboration
++- **Path**: C:/Users/Admin/Documents/trae_projects/agent-collaboration-standard/governance/
++- **Desc**: cross-tool collaboration（git 真值源；本机 `~/.agent-collaboration/` 自 2026-07-26 Phase D 起降级为只读历史快照）
+diff --git a/scripts/analyze-gate3.py b/scripts/analyze-gate3.py
+index 5786ddb..775998b 100644
+--- a/scripts/analyze-gate3.py
++++ b/scripts/analyze-gate3.py
+@@ -1,10 +1,13 @@
+ #!/usr/bin/env python3
+ """临时分析脚本：分析门禁 3 命中分布，决定关键词补齐方案。用完可删。"""
++import os
+ import subprocess
+ from pathlib import Path
+ from collections import Counter
+ 
+-STANDARDS = Path(r"C:\Users\Admin\.agent-collaboration\standards")
++# 路径策略（Phase D-B，2026-07-26）：扫描 git 仓库 governance/ 真值，环境变量可覆盖
++REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
++STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
+ TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
+ # 扩展历史关键词
+ HISTORY_KW = ["退役", "retire", "历史", "归档", "已删", "淘汰", "废弃",
+@@ -18,6 +21,7 @@ print()
+ 
+ dir_counter = Counter()
+ remaining = []
++prefix = str(STANDARDS).replace("\\", "/") + "/"
+ for line in lines:
+     if "[RETIRED-" in line:
+         continue
+@@ -26,7 +30,6 @@ for line in lines:
+         continue
+     fpath, lineno, content = m
+     fpath_norm = fpath.replace("\\", "/")
+-    prefix = "C:/Users/Admin/.agent-collaboration/standards/"
+     if fpath_norm.startswith(prefix):
+         fpath_norm = fpath_norm[len(prefix):]
+     parent = "/".join(fpath_norm.split("/")[:-1]) or "(root)"
+diff --git a/scripts/complete-exceptions.py b/scripts/complete-exceptions.py
+index 8bf5840..ba01981 100644
+--- a/scripts/complete-exceptions.py
++++ b/scripts/complete-exceptions.py
+@@ -23,11 +23,17 @@ complete-exceptions.py — 补全例外清单的 HISTORY 部分
+ from __future__ import annotations
+ 
+ import re
++import os
+ import subprocess
+ from pathlib import Path
+ 
+-STANDARDS = Path(r"C:\Users\Admin\.agent-collaboration\standards")
+-EXC_FILE = Path(r"C:\Users\Admin\.agent-collaboration\archive\retired-terms-exceptions-20260726.md")
++# 路径策略（Phase D-B，2026-07-26）:
++#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 git 仓库 governance/）
++#   exceptions/overrides: git 仓库 archive/（已纳入 git 真值）
++# 本机 ~/.agent-collaboration/ 自 Phase D 起降级为只读历史快照，不再作活跃扫描源
++REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
++STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
++EXC_FILE = REPO / "archive" / "retired-terms-exceptions-20260726.md"
+ TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
+ 
+ # 分类规则（按优先级）
+diff --git a/scripts/gate-checks.py b/scripts/gate-checks.py
+index 3045c67..406d263 100644
+--- a/scripts/gate-checks.py
++++ b/scripts/gate-checks.py
+@@ -29,12 +29,19 @@ from datetime import datetime
+ from pathlib import Path
+ 
+ REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard")) if (os := __import__("os")) else None
+-STANDARDS = Path.home() / ".agent-collaboration" / "standards"
+-SECRET_PATTERNS_DIR = Path.home() / ".agent-collaboration" / "archive" / "secret-patterns"
++# 路径策略（Phase D-B，2026-07-26）:
++#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 git 仓库 governance/）
++#   SECRET_PATTERNS_DIR: secret 扫描 patterns（默认 ~/.config/agent-collaboration/secret-patterns/，含 token 不入 git）
++#   exceptions/overrides: git 仓库 archive/（已纳入 git 真值）
++# 本机 ~/.agent-collaboration/ 自 Phase D 起降级为只读历史快照，不再作活跃扫描源
++STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
++SECRET_PATTERNS_DIR = Path(os.environ.get(
++    "SECRET_PATTERNS_DIR",
++    str(Path.home() / ".config" / "agent-collaboration" / "secret-patterns")))
+ PATTERNS_FILE = SECRET_PATTERNS_DIR / "scan-patterns.txt"
+ REDACT_MAP_FILE = SECRET_PATTERNS_DIR / "redact-map.txt"
+-EXCEPTIONS_FILE = Path.home() / ".agent-collaboration" / "archive" / "retired-terms-exceptions-20260726.md"
+-OVERRIDES_FILE = Path.home() / ".agent-collaboration" / "archive" / "retired-terms-manual-history-overrides-20260726.md"
++EXCEPTIONS_FILE = REPO / "archive" / "retired-terms-exceptions-20260726.md"
++OVERRIDES_FILE = REPO / "archive" / "retired-terms-manual-history-overrides-20260726.md"
+ EVIDENCE_DIR = REPO / ".review-evidence"
+ 
+ RETIRED_TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
+diff --git a/scripts/gen-scan-patterns.py b/scripts/gen-scan-patterns.py
+index db51702..0df28bf 100644
+--- a/scripts/gen-scan-patterns.py
++++ b/scripts/gen-scan-patterns.py
+@@ -23,10 +23,16 @@ gen-scan-patterns.py — 从 redact-map.txt 自动派生 scan-patterns.txt
+ from __future__ import annotations
+ 
+ import argparse
++import os
+ import sys
+ from pathlib import Path
+ 
+-SRC = Path.home() / ".agent-collaboration" / "archive" / "secret-patterns"
++# 路径策略（Phase D-B，2026-07-26）：
++#   SECRET_PATTERNS_DIR: secret 扫描 patterns（默认 ~/.config/agent-collaboration/secret-patterns/，含 token 不入 git）
++#   旧位置 ~/.agent-collaboration/archive/secret-patterns/ 已废弃（本机降级为只读历史快照）
++SRC = Path(os.environ.get(
++    "SECRET_PATTERNS_DIR",
++    str(Path.home() / ".config" / "agent-collaboration" / "secret-patterns")))
+ REDACT_MAP = SRC / "redact-map.txt"
+ SCAN_PATTERNS = SRC / "scan-patterns.txt"
+ 
+diff --git a/scripts/list-hits.py b/scripts/list-hits.py
+index 40193a4..a56e0f0 100644
+--- a/scripts/list-hits.py
++++ b/scripts/list-hits.py
+@@ -1,11 +1,14 @@
+ #!/usr/bin/env python3
+ """列出 38 条命中明细 + 分类，供人工过目。"""
++import os
+ import re
+ import subprocess
+ from pathlib import Path
+ from collections import Counter
+ 
+-STANDARDS = Path(r"C:\Users\Admin\.agent-collaboration\standards")
++# 路径策略（Phase D-B，2026-07-26）：扫描 git 仓库 governance/ 真值，环境变量可覆盖
++REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
++STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
+ TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
+ prefix = str(STANDARDS).replace("\\", "/") + "/"
+ pat = "|".join(TERMS)
+diff --git a/scripts/mirror-sync.py b/scripts/mirror-sync.py
+index 6507844..efb16e0 100644
+--- a/scripts/mirror-sync.py
++++ b/scripts/mirror-sync.py
+@@ -226,6 +226,11 @@ def print_report(report: SyncReport) -> None:
+ 
+ # ---------- 主入口 ----------
+ 
++# ⚠️ Phase D 后语义变化（2026-07-26 标注，逻辑未改）:
++#   Phase D 前: SRC_ROOT(~/.agent-collaboration/) 是活跃真值, DST_ROOT(git仓库) 是镜像目标
++#   Phase D 后: SRC_ROOT 降级为只读历史快照, DST_ROOT(git仓库 governance/) 升为真值
++#   当前 "本机→git" 的 mirror 方向可能需反转，或本脚本整体废弃（真值已在 git，无需 mirror）
++#   本轮不动逻辑，留长期卫生阶段评审，避免引入新 fail-open
+ SRC_ROOT = Path(os.path.expanduser("~/.agent-collaboration"))
+ DST_ROOT = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
+ 
+diff --git a/scripts/rebuild-exceptions.py b/scripts/rebuild-exceptions.py
+index d36624d..dd0d716 100644
+--- a/scripts/rebuild-exceptions.py
++++ b/scripts/rebuild-exceptions.py
+@@ -25,15 +25,21 @@ rebuild-exceptions.py — 重建例外清单（ROLE 保留 + HISTORY 逐条登
+ """
+ from __future__ import annotations
+ 
++import os
+ import re
+ import subprocess
+ import sys
+ from datetime import datetime
+ from pathlib import Path
+ 
+-STANDARDS = Path(r"C:\Users\Admin\.agent-collaboration\standards")
+-EXC_FILE = Path(r"C:\Users\Admin\.agent-collaboration\archive\retired-terms-exceptions-20260726.md")
+-OVERRIDES_FILE = Path(r"C:\Users\Admin\.agent-collaboration\archive\retired-terms-manual-history-overrides-20260726.md")
++# 路径策略（Phase D-B，2026-07-26）:
++#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 git 仓库 governance/）
++#   exceptions/overrides: git 仓库 archive/（已纳入 git 真值）
++# 本机 ~/.agent-collaboration/ 自 Phase D 起降级为只读历史快照，不再作活跃扫描源
++REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
++STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
++EXC_FILE = REPO / "archive" / "retired-terms-exceptions-20260726.md"
++OVERRIDES_FILE = REPO / "archive" / "retired-terms-manual-history-overrides-20260726.md"
+ TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
+ LINE_RE = re.compile(r"^(.+?):([0-9]+):(.*)$")
+ 
+diff --git a/scripts/redact-tokens.py b/scripts/redact-tokens.py
+index beb8063..d9c0eb3 100644
+--- a/scripts/redact-tokens.py
++++ b/scripts/redact-tokens.py
+@@ -24,9 +24,15 @@ from pathlib import Path
+ 
+ REPO = Path.home() / "Documents" / "trae_projects" / "agent-collaboration-standard"
+ SRC = Path.home() / ".agent-collaboration"
+-REDACT_MAP = SRC / "archive" / "secret-patterns" / "redact-map.txt"
+-
+-# 扫描范围: 工作树 + 源端（两处都要脱敏, 否则 mirror 会把脏版本拉回工作树）
++# 路径策略（Phase D-B，2026-07-26）：
++#   REDACT_MAP 从 ~/.config/agent-collaboration/secret-patterns/ 读（环境变量可覆盖）
++#   旧位置 ~/.agent-collaboration/archive/secret-patterns/ 已废弃（本机降级为只读历史快照）
++SECRET_PATTERNS_DIR = Path(__import__("os").environ.get(
++    "SECRET_PATTERNS_DIR",
++    str(Path.home() / ".config" / "agent-collaboration" / "secret-patterns")))
++REDACT_MAP = SECRET_PATTERNS_DIR / "redact-map.txt"
++
++# 扫描范围: git 真值（archive + governance/specs）+ 本机历史快照（仍可能含旧脏版本，过渡期保留双源清理）
+ SCAN_DIRS = [
+     REPO / "archive",
+     REPO / "governance" / "specs",
