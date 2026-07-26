@@ -48,19 +48,26 @@ scope: 记录当前 session 的完整可恢复状态，便于上下文 compact �
 
 ## 二、当前进行中的任务
 
-### O1 治理 Phase A（同步前最小语义修正）
+### O1 治理 Phase A + B（已完成 2026-07-26）
 
-**进度**：
-- ✅ A.1 扫描退役工具命中（138 处：68 ROLE? + 70 HISTORY?）
-- ✅ A.2 生成命中清单：`archive/retired-terms-hits-20260726.md`
-- ⏳ A.3 人工标注（138 条逐条核对 [ROLE?]/[HISTORY?] → [ROLE]/[HISTORY]）
-- ⏳ A.4 仅替换 [ROLE]
-- ⏳ A.5 验证门禁 3/4
+**Phase A**（同步前最小语义修正）：
+- ✅ A.1-A.2 扫描 + 命中清单
+- ✅ A.3-A.4 标注 + 替换 ROLE（11 条）
+- ✅ A.5 门禁 3/4（本 session 用集合比对补强）
 
-**A.3 简化建议**（待用户裁决）：
-- 真正的 [ROLE] 引用主要在 `unified-agent-collaboration-standard.md` 和 `tool-entry-map.md`
-- 其他 specs/ 里的引用多是"描述本次治理过程"（[HISTORY]）
-- 可以只标这两份关键文档，其他默认 [HISTORY]
+**Phase B**（安全同步，本 session 完成）：
+- ✅ B.1 tag + backup + sync 分支（上个 session）
+- ✅ B.2 mirror 同步（rsync 缺失，Python 脚本替代）
+- ✅ B.3 .gitignore
+- ✅ B.4 门禁 1-4 全部通过（fail-closed 验证有效）
+- ✅ B.5 commit `314b35a` + push sync 分支（master 未动）
+
+**本 session 现场补强**（修正上个 session 虚标）：
+1. rsync 缺失 → `scripts/mirror-sync.py`（对齐 rsync --delete --exclude）
+2. 43 处 token 片段泄露 → 全脱敏（`[REDACTED-FRAGMENT]` ×4 类前缀）
+3. Phase A HISTORY 虚标（"130 条"概括）→ 重建为 116 条逐条登记
+4. patterns 文件不存在 → 创建 scan-patterns.txt + redact-map.txt（外置）
+5. 门禁 3/4 grep 关键词过滤粗糙 → 改用集合比对
 
 ## 三、待执行的后续 Phase
 
@@ -68,12 +75,20 @@ scope: 记录当前 session 的完整可恢复状态，便于上下文 compact �
 
 | Phase | 内容 | 状态 |
 |---|---|---|
-| **A** | 同步前最小语义修正（退役工具词表）| ⏳ 进行中 |
-| **B** | 安全同步（sync 分支 + rsync + git grep + 门禁）| ⏳ 待 A 完成 |
-| **节点 2** | 三方评审 sync 分支实际 diff | ⏳ 待 B 完成 |
+| **A** | 同步前最小语义修正（退役工具词表）| ✅ 完成（含本 session 补强）|
+| **B** | 安全同步（sync 分支 + rsync + git grep + 门禁）| ✅ 完成（commit 314b35a 已 push）|
+| **节点 2** | 三方评审 sync 分支实际 diff | ⏳ **材料包就绪，待评审** |
 | **C** | 合并 master（用户批准）| ⏳ 待节点 2 通过 |
 | **D** | Y 落地（废弃 `~/.agent-collaboration/` 改路径引用）| ⏳ 独立 Phase |
 | **后续** | Pi 漂移治理纳入 + 远程分支清理 + 其他 O1 治理 | ⏳ |
+
+### 节点 2 评审（下一步）
+
+- **材料包**：`specs/node2-review-package-20260726.md`
+- **commit SHA**：`314b35aea674341b8987be17f68b94544c29c69a`
+- **远程分支**：`origin/sync/agent-collaboration-import-20260726-v3`
+- **评审方**：A (opus4.8p) + B (gpt5.6sol) + C (cantus)（同节点 1）
+- **重点核对**：5 类问题 + 本 session 5 个偏离点（见材料包 §三 §六）
 
 ## 四、关键文件索引（compact 后必读）
 
@@ -124,14 +139,30 @@ scope: 记录当前 session 的完整可恢复状态，便于上下文 compact �
 ## 六、下一步建议
 
 ### 立即可做（不依赖用户）
-1. 完成 Phase A.3-A.5（用简化标注法）
-2. 执行 Phase B（按 v3.4 方案分步）
-3. 准备节点 2 评审材料
+1. 把节点 2 评审材料包 `specs/node2-review-package-20260726.md` 分发给 A/B/C 三方
+2. 收齐三方评审意见，针对 commit 314b35a 核对 10 条门禁
 
 ### 需要用户介入
-1. Phase A.3 的 138 条标注——是否同意简化（只标 2 份关键文档）
-2. Phase C 合并 master 批准
-3. 节点 2 评审结果如有分歧的裁决
+1. 节点 2 评审通过后，**批准合并 master**（Phase C）
+2. 节点 2 评审结果如有分歧的裁决
+3. Phase D（Y 落地）启动时机
+
+## 七、本 Session 关键产出索引
+
+### 工具脚本（已入 git，commit 314b35a）
+- `scripts/mirror-sync.py`（rsync 替代，mirror/add-only 策略）
+- `scripts/gate-checks.py`（4 门禁执行器，fail-closed）
+- `scripts/redact-tokens.py`（token 脱敏，外部映射驱动）
+
+### 评审材料
+- `specs/node2-review-package-20260726.md`（节点 2 评审包，10 门禁实测 + 偏离声明 + 提示词）
+
+### 本地证据（不入 git）
+- `.review-evidence/node2-checks-20260726-152040.md`（4 门禁实测证据）
+
+### 外置 secret 配置（不入 git）
+- `~/.agent-collaboration/archive/secret-patterns/scan-patterns.txt`（扫描 patterns）
+- `~/.agent-collaboration/archive/secret-patterns/redact-map.txt`（脱敏映射）
 
 ## 七、当前 Session 状态
 

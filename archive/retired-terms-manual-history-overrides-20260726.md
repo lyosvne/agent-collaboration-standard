@@ -68,10 +68,11 @@
 | specs/trae-solo-branch-merge-task.md | 210 | Trae IDE | 同 L53（工具状态）|
 | specs/trae-solo-branch-merge-task.md | 211 | Trae IDE | 同 L54（工具状态）|
 | workspace-collaboration-v2.1.md | 41 | Codex | 知识库路径引用（历史资产）|
+| specs/node2-review-retrospective-20260726.md | 44 | Codex | 门禁绕过句构造示例（"in case Codex fails" 含 case）, 讨论启发式不可能零 fail-open 的反例, 非编队角色描述 |
 
 ## 审核人
 
-ZCode（round4 逐条人工判定, 2026-07-26）
+ZCode（round4 逐条人工判定, 2026-07-26; Phase D-A 追加 1 条, 2026-07-26）
 
 ## 复核要求
 

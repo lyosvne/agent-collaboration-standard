@@ -156,6 +156,59 @@ B 的 10 条量化门禁、A 的"自相矛盾"检查、C 的"Pi 纳入而非另�
 
 **改进**：维护一份"方案设计 checklist"，基于历次评审反馈累积。
 
-## 六、当前状态
+## 六、节点 2 评审新教训（2026-07-26 round1 + round2）
+
+### 6.1 三方评审调度必须用三个独立 run_in_background 调用并行
+
+**问题**：round1 首次尝试用单 Bash 命令里的 `&` 同时起 A/B,在 harness 后台任务模型下不可靠——主 shell 退出时 `&` 子进程被杀,A/B 输出 0 字节。失败后退化成串行(A→B→C),违背"A/B/C 独立并行"纪律,总时间成本从 max(A,B,C) 变 A+B+C。
+
+**根因**：把"harness 的后台任务"和"shell 的 `&` 后台"搞混。harness 的 `run_in_background` 是任务级隔离,`&` 是进程级且依赖父 shell 存活。
+
+**改进**：三方评审必须用**三个独立 `run_in_background: true` 的 Bash 调用**,在**同一条消息**里发出。禁用单命令 `&` 起多评审。
+
+### 6.2 cantus 顶层档的深度思考特性导致单次 run_task 超时
+
+**问题**：round1 C(cantus via qoder-bridge)用 run_task 单次调度,stream_response 在 cantus 长间隔下判定 timeout(270s×2)。但 cantus 实际还在 running(27 次工具调用 clone 仓库独立复核),最终 idle 但没产出 agent.message。两次 run_turn 触发都 stream timeout。
+
+**根因**:cantus 顶层档"深度思考"特性 + Qoder 平台会话超时机制,单次 stream 无法接住长间隔。
+
+**改进**:
+- cantus 评审用 run_turn 多轮 + _wait_idle 组合,而非单次 run_task
+- 或拆分任务(分段评审),每段 stream 时间可控
+- 或在 prompt 里明确要求"限制工具调用 ≤5 次,优先输出结论"(round2 C prompt 已加此约束)
+
+### 6.3 调度独立性 vs 调度方影响的边界
+
+**问题**:round1 另一会话识别"即使 A/B 用 Mira 自动调度,选材/读结果/汇总的都是 GLM-5.2,独立性打折"。这本身是对的,但不能因此放弃三方评审。
+
+**澄清**:
+- A/B/C 是**真不同模型**独立产出(Mira 切模型 + Qoder cantus),评审正文是真模型输出
+- GLM-5.2(ZCode)只做调度协调(选 prompt 模板/读结果/汇总),不修改评审正文
+- 评审包(主评审包 + prompt)是 round1 v3.4 三方一致通过的产物,不是 ZCode 即兴编写
+- 汇总时 ZCode 如实呈现三方原文 + 交叉确认,不替评审方下结论
+
+**改进**:评审包设计要"自包含"(评审方能独立复核,不依赖 ZCode 解释),prompt 要明确"你可 git clone 自行核对"。round1 B/C 都独立 clone 了仓库复核,证明独立性成立。
+
+### 6.4 fail-open 是评审核心,fail-closed 设计要"失败即阻断 + 错误可见"
+
+**问题**:round1 A/B 交叉确认的核心阻断(gate3/4 tautology)本质是 fail-open——`classify()` 永不返回 ROLE,漏替换的现行角色被静默吸收成 HISTORY。B 的另外 4 阻断也都是 fail-open(scripts/ 排除无强制机制、源缺失仅警告、patterns 覆盖不足、脱敏失败都 continue)。
+
+**根因**:v3.4 初版追求"能跑过门禁",失败处理用 print ⚠️ + continue + return 0,导致所有失败被吞,门禁恒真。
+
+**改进**(已落 round2 commit 0359227):
+- 任一失败必须 `sys.exit(1)` 或累计错误末尾 `return 1`
+- 错误信息要可见(打印到 stderr,列具体失败项)
+- 集合比对不能 tautology(校验集合和被校验集合必须来自不同源)
+- 自动分类必须有"未分类抛错"兜底,不能默认归某一类
+
+### 6.5 修复后必须复跑门禁验证"独立探针真生效"
+
+**问题**:round2 修复 gate3/4 拆分后,第一次跑门禁 gate3 失败(117 处现行角色)——因为新 gate3 把所有未替换的都当现行角色。这其实是修复**生效**的证据(之前 tautology 让这 117 处静默放行),但语义错了(117 处本是合法 HISTORY)。
+
+**改进**:修复 fail-closed 探针后,必须用真实数据复跑,验证"该阻断的阻断、该放行的放行"。round2 经过 3 次迭代(117→61→0)才让 gate3 正确三分类。这证明 fail-closed 设计需要真实数据校准,不能只看代码逻辑。
+
+## 七、当前状态
 
 本文件作为活文档，后续每次评审后追加新教训。
+
+**最近更新**:2026-07-26 节点2 round1 + round2 教训(§六.1-6.5)。

@@ -27,7 +27,7 @@
 
 ## HISTORY（保留，不替换）
 
-共 128 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
+共 127 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
 
 | 文件 | 行 | 工具 | 内容预览 | 分类 |
 |---|---|---|---|---|
@@ -65,9 +65,7 @@
 | global-roadmap-v1.1.md | 15 | Codex | > 依据: 北极星v1.2 + Aetheris蓝图v1.11 + soul.yaml + Codex知识库战略洞察 + 全量资产调研 + Qoder客户端两轮审查 | 人工确认HISTORY |
 | global-roadmap-v1.1.md | 66 | Codex | - 退役清理完成（Codex/CC/QoderWork退役收尾，知识库归属已定） | 历史叙述 |
 | global-roadmap-v1.1.md | 66 | QoderWork | - 退役清理完成（Codex/CC/QoderWork退役收尾，知识库归属已定） | 历史叙述 |
-| global-roadmap-v1.1.md | 179 | Codex | O1待完成：Mira/Kimi接入、退役清理（Codex/CC/QoderWork）、ECS治理（swap/时钟/密钥）。 | 历史叙述 |
-| global-roadmap-v1.1.md | 179 | QoderWork | O1待完成：Mira/Kimi接入、退役清理（Codex/CC/QoderWork）、ECS治理（swap/时钟/密钥）。 | 历史叙述 |
-| global-roadmap-v1.1.md | 201 | Trae IDE | - Trae IDE 已于 2026-07-26 C 选项裁定退役为编队角色（软件保留供个人使用，不进 Pi 调度链）。编队里 Trae 系只保留 **Trae SOLO 一个独立角色**（端到端测试/QA，Aetheris `agent/ | 历史叙述 |
+| global-roadmap-v1.1.md | 234 | Trae IDE | - Trae IDE 已于 2026-07-26 C 选项裁定退役为编队角色（软件保留供个人使用，不进 Pi 调度链）。编队里 Trae 系只保留 **Trae SOLO 一个独立角色**（端到端测试/QA，Aetheris `agent/ | 历史叙述 |
 | specs/agent-collaboration-git-sync-plan.md | 48 | Trae IDE | \| 3. Phase A 词表漏 Trae IDE + 扫描范围窄 + 无机器判定规则 \| 词表补齐 + 扫描范围扩到所有导入目录 + 历史引用建例外清单 \| | 历史叙述 |
 | specs/agent-collaboration-git-sync-plan.md | 66 | Claude Code | "Claude Code": "[RETIRED-CC-2026-07-25]", | 方案示例代码 |
 | specs/agent-collaboration-git-sync-plan.md | 67 | claude-zhipu | "claude-zhipu": "[RETIRED-CC-2026-07-25]", | 方案示例代码 |
@@ -118,6 +116,7 @@
 | specs/mira-vs-larkcli-capabilities.md | 165 | Codex | - c360 CLI 在 Mira 里能用，是因为 **c360 团队官方适配了 Mira**（飞书文档列出支持 Claudecode/Codex/Trae/Aily/Mira） | 人工确认HISTORY |
 | specs/mira-vs-larkcli-capabilities.md | 255 | Codex | **c360 CLI 官方支持 Mira 作为 Agent 工具**（飞书文档列出支持 Claudecode/Codex/Trae/Aily/Mira）。在 Mira 里安装 c360 CLI 并完成 OAuth 授权后，可正常调用。 | 人工确认HISTORY |
 | specs/node2-review-package-20260726.md | 90 | Codex | - **问题**：v3.4 §A.5 门禁 3 用 grep 关键词过滤，无法识别"Codex知识库"等合法引用 | 人工确认HISTORY |
+| specs/node2-review-retrospective-20260726.md | 44 | Codex | 5 轮迭代证明了:无论关键词列表收得多窄,总能构造绕过句("in case Codex fails"含 case)。最终方案是**四层防御**: | 人工确认HISTORY |
 | specs/o1-governance-plan.md | 20 | Codex | 之前推进 O1 时只做了**工具退役**（CC/Codex/QoderWork），遗漏了**代码与文档治理**。实测盘点发现四类严重散乱： | 历史叙述 |
 | specs/o1-governance-plan.md | 20 | QoderWork | 之前推进 O1 时只做了**工具退役**（CC/Codex/QoderWork），遗漏了**代码与文档治理**。实测盘点发现四类严重散乱： | 历史叙述 |
 | specs/o1-governance-plan.md | 24 | Codex | 3. **知识文档**：Codex 知识库迁移后 `Documents/Codex/` 残留、各处散落知识片段 | 人工确认HISTORY |
