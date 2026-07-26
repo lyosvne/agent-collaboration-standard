@@ -1,0 +1,61 @@
+[warn] 调度记录落盘失败: HTTP Error 403: Forbidden
+=== C RESULT ===
+status: done
+duration: 208.3
+--- message ---
+上下文已读。开始独立复核：clone 仓库 + 检查 commit 9c5797c。Diff 已读。现在核对执行后全文状态：残留引用、交叉引用有效性、章节结构完整性。复核完成。独立 clone 于 `/data/acs-review`，checkout 9c5797c，逐项对照如下。
+
+---
+
+## 一、事实矛盾修复（2 项）
+
+| 项 | 判定 | 证据 |
+|---|---|---|
+| Trae 职责（workspace §2） | ✅ 已落实 | L62 改为 `Trae SOLO｜平行实现+本地集成+端到端测试/QA/E2E（独立角色，agent/solo 分支实际产出）`，与 fleet-division G3（L86）表述完全一致 |
+| 孤岛表 | ✅ 已落实 | L68 原"Trae SOLO（云端）孤岛"→"Trae IDE（编队角色）⛔ 已退役（2026-07-26 C 选项）"，自相矛盾消除 |
+| Qoder Webhook→SSE（workspace §6） | ✅ 已落实 | L124 改为"SSE 主通道（qoder-bridge.py 已实证）+ 轮询兜底 + 无 Webhook（2026-07-26 用户裁定）"，与工具链注册表"无 Webhook"实证一致 |
+
+## 二、unified 重定位（9 项）
+
+| # | 项 | 判定 | 证据 |
+|---|---|---|---|
+| 1 | title 改名、文件名保留 | ✅ | L1 `# Agent Operating Standard`；文件名未动；L3-5 重定位声明含职责分工说明 |
+| 2 | Positioning agent-neutral | ✅ | 删全部退役名单，改"all fleet agents (current and future)"，并加 3 条"不定义"边界（编队/方向/工具入口），各指向唯一权威 |
+| 3 | Rule Layers 权威声明 | ✅ | L29 声明：文档间冲突按 workspace §1 裁决，本节只裁同层内。核对 workspace §1 确为 6 层冲突裁决顺序，引用有效 |
+| 4 | Start Protocol step5 | ✅ | 删退役 owner 名单，改"per workspace §3 task routing"。§3 存在（任务路由） |
+| 5 | Tool Roles → Role Resolution | ✅ | 整章删除（Trae IDE/CC/SOLO PC/SOLO Mobile 全没了），新 Role Resolution 指向 workspace §2-§3 / fleet-division / tool-entry-map，三个被引文件均存在 |
+| 6 | 保留 Cloud Agents + GitHub 约束 | ✅ | 新章 `Execution Constraints (agent-neutral)` 完整保留 GitHub + Cloud Coding Agents 两小节（C 独有洞察未丢失），措辞已去角色化 |
+| 7 | Safety Red Lines 权威声明 | ✅ | L156 声明 workspace §4 为权威、不复制 Pi push 例外。核对 §4 确含 Pi 代劳 push 例外 + T1/T2/T3 分级，无双源复制 |
+| 8 | Git Rules 权威声明 | ✅ | L170 引 workspace §4/§6，本节只留操作纪律 |
+| 9 | Local GitHub Network Rules | ✅ | 标题加 `(local Windows machine only)` + 云端不适用声明；退役 CC 启动命令行已删 |
+| + | Skill Rules 交叉引用 | ✅ | 加 `registry/skill-governance.md` 唯一权威声明，文件存在 |
+| + | Completion Protocol 泛化 | ✅ | `[RETIRED-CC]` 专属句改"Any agent may keep internal methodology checklists" |
+
+## 三、START_HERE 重构（3 项）
+
+| 项 | 判定 | 证据 |
+|---|---|---|
+| One Rule 删退役角色 | ✅ | 改为"all fleet agents (current roster: ZCode/Qoder/Kimi/Mira/Trae SOLO/Pi)"+ 指向 workspace §2 权威 roster |
+| 单一 Read Order | ✅ | 原双入口（Read Order + Target System）合并为"必读 1-3（北极星/协作协议/操作标准）+ 按需 4-11"。分层逻辑清晰（方向→治理→操作→专题），11 个被引文件全部存在 |
+| Tool Routing 去名单化 | ✅ | 6 个 agent 条目全删，只留 GitHub/Cloud agents 两条不变量 + 指向 workspace §2-§3。真去名单，非注释掉 |
+
+## 四、系统性核查
+
+- **6 处冲突**：规则优先级/owner/红线/完成契约/Git/Tool Roles 全部通过"权威声明+单源引用"消除，模式一致（unified 降为操作视角，workspace 为治理权威）✅
+- **unified 残留退役引用**：全文 grep `RETIRED-|Trae IDE|Claude Code|SOLO PC|SOLO Mobile` = **零命中**（仅 L3 重定位声明引用旧 title 作历史叙述，合法）✅
+- **引用迁移归零验证**：旧 title 字面文本在现行文档（START_HERE/LOCAL-USAGE/INTEGRATION/tool-entry-map/fleet-division/skill-governance/o1-plan）中 grep = 零命中（仅 archive/ 历史归档，合法）；文件名 `unified-agent-collaboration-standard.md` 的 9 处引用因文件名未改全部仍有效 ✅
+- **exceptions 同步**：128→129 条，新增 workspace L68 Trae IDE 历史叙述条目；抽验 L41/68/69/70/71 行号与实际文件逐行吻合，rebuild 真跑了 ✅
+
+## 五、非阻断观察（3 条，均不影响判定）
+
+1. **workspace §2 孤岛表 L69**："Claude Code ⛔ 退役中" 已过时（roadmap v1.5 载明退役+密钥清理已完成）。本 commit 之前就存在、不在节点 3 范围，建议下个卫生批次改"已退役完成"。
+2. **START_HERE One Rule 相对路径**：引用 `workspace-collaboration-v2.1.md` 未带 `governance/` 前缀（START_HERE 在仓库根），Read Order 里同文件带了前缀。纯 cosmetic。
+3. **门禁本地复验受限**：我的沙箱无 `~/.config/agent-collaboration/secret-patterns/`，gate-checks.py 按设计 fail-closed 退出——这本身验证了 Phase D-B 的 fail-closed 语义正确，但意味着我无法独立复跑 4 门禁全绿（依赖 commit 声明）。文本层扫描我已用 grep 独立完成，结果干净。
+
+---
+
+## 总结：**PASS**
+
+方案 A 真落地，非表面修改：14 项检查点（2 事实矛盾 + 9 unified + 3 START_HERE）全部落实且有 diff 证据；6 处冲突通过统一的"单源权威+引用"模式消除；无退役残留；引用零断链；exceptions 行号真同步。3 条观察均为存量问题或 cosmetic，不构成 CONDITIONAL。
+
+建议下一步：按 roadmap 待办触发 **Pi 漂移治理纳入 + 时序版本自动化**（触发条件"Phase D 完成 + 节点 3 执行完成"现已满足），并在下个卫生批次顺手处理观察 1/2。

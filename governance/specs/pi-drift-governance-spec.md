@@ -58,7 +58,7 @@
 ### 4.1 代劳 push —— 架构修正（2026-07-23，ZCode 实证发现）
 
 **原设计缺陷**：规格假设 Pi 能直接访问各 agent clone 执行 push。
-**事实**：agent clone 分布在各 agent 本机（ZCode PC / Qoder 本地 / Kimi / Trae），ECS 上的 Pi 够不到。
+**事实**：agent clone 分布在各 agent 本机（ZCode PC / Qoder 本地 / Kimi / Trae SOLO），ECS 上的 Pi 够不到。
 
 **修正后方案**：
 ```
@@ -100,7 +100,7 @@ Pi（ECS）能做的：
 - Pi Extension `pi-drift-guard`（TypeScript）：cron 调度 + git 只读探测 + 分级报告 + 代劳 push（授权后启用）
 - 与 pi-feishu 的接口：`DriftReport → 漂移报告卡/告警卡`；集成提案 → 审批卡
 - 与 Aetheris 的接口：体检记录/代劳 push 审计写真值层
-- Trae PC↔Mobile：按 v1.0，统一监控 agent/trae 分支，不区分提交来源
+- Trae SOLO：统一监控 agent/solo 分支（节点 3 修订：原 agent/trae 已随 Trae IDE 退役）
 
 ## 8. 验收标准
 

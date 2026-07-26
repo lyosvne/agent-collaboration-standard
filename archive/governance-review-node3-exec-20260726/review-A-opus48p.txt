@@ -1,0 +1,213 @@
+# 节点 3 执行后独立复核
+
+**复核对象**：`master @ 9c5797c`  
+**复核方式**：全新独立 clone，执行 `fetch → checkout master → pull --ff-only`，审阅 commit stat、完整 diff、相关治理文档及全仓交叉引用。  
+**工作区状态**：HEAD 确认为 `9c5797cf2ef88cf0b474a5a59de7a2efcfd3f7d2`，未修改任何文件。
+
+## 一、方案 A 核心落地情况
+
+### 1. 事实矛盾：Trae 职责
+
+**判定：⚠️ 部分落实**
+
+已落实证据：
+
+- `governance/workspace-collaboration-v2.1.md:62` 已将原“Trae 本机吸收 SOLO”改为 **Trae SOLO 独立角色**。
+- `workspace:68` 已把 **Trae IDE** 单列到孤岛/退役表。
+- Trae SOLO 的职责明确为平行实现、本地集成、端到端测试/QA/E2E，并绑定 `agent/solo`。
+
+残留问题：
+
+- `workspace:82` 的任务路由仍写为 `Trae`，没有写成权威注册名 `Trae SOLO`。
+- `governance/fleet-division-v1.1.md:54` 仍写“**Trae 本机**”承接平行实现/本地集成。
+- `fleet-division:101` 的总览仍写 `Trae`，而不是 `Trae SOLO`。
+
+这使 workspace §2 的新注册名与其自身 §3、fleet-division 的职能映射仍存在名称歧义，尚不能认定“完全对齐”。
+
+**修法**：将 `workspace:82`、`fleet-division:54`、`fleet-division:101` 的现行角色统一为 `Trae SOLO`；历史叙述可保留原称谓并明确标注历史。
+
+---
+
+### 2. 事实矛盾：Qoder Webhook/SSE
+
+**判定：❌ 只修了 workspace，仓库现行治理事实仍冲突**
+
+已落实证据：
+
+- `workspace:124` 已改为 **SSE 主通道 + 轮询兜底 + 无 Webhook**。
+- `fleet-division-v1.1.md:172` 也写明 REST + SSE + 轮询、**无 Webhook**。
+
+但以下现行文档仍直接冲突：
+
+- `governance/agent-matrix-architecture-v1.0.md:26`：Pi 包含 `webhook 接收队列(Qoder/Mira 回传)`。
+- `agent-matrix-architecture-v1.0.md:58`：Qoder 被调度方式仍为 `REST API + Webhook + SSE`。
+- `agent-matrix-architecture-v1.0.md:114`：仍规定 `Qoder→ZCode: webhook 回传 Pi`。
+- `agent-matrix-architecture-v1.0.md:237`：仍将“Qoder API 接入 Pi（webhook 接收队列）”列为行动项。
+- `governance/specs/qoder-sse-consumer-design.md:1-18`：标题、依据、架构图仍明确规定 **Webhook 主通道**。
+- `qoder-sse-consumer-design.md:31-34`：仍声明有 Webhook 注册端点及事件推送。
+- 同一规格自身又在 `qoder-sse-consumer-design.md:108` 写“Webhook（不存在）”，形成**文档内自相矛盾**。
+- `governance/specs/pi-drift-governance-spec.md:74` 仍写“Qoder 有 webhook/SSE”。
+
+因此，“用户裁定无 Webhook”还没有传播到现行架构真值和实施规格，实际执行者仍可能按 Webhook 主通道实施。
+
+**修法**：
+
+1. 修订 `agent-matrix-architecture-v1.0.md` 中所有 Qoder Webhook 路径为 SSE + polling。
+2. 将 `qoder-sse-consumer-design.md` 升版或明确 superseded，统一标题、架构图、API 契约和依赖章节。
+3. 同步 `pi-drift-governance-spec.md`。
+4. 全仓门禁增加“现行文档不得出现 Qoder Webhook 能力声明”的检查，历史归档除外。
+
+---
+
+## 二、unified 重定位九项核对
+
+1. **✅ Title 已落实**  
+   `unified-agent-collaboration-standard.md:1` 已改为 `Agent Operating Standard`，文件名保留。
+
+2. **✅ Positioning 已落实**  
+   `unified:9-14` 已改为 agent-neutral，并明确不定义编队、路由、方向及工具入口。
+
+3. **✅ Rule Layers 权威声明已落实**  
+   `unified:30` 明确文档间冲突按 workspace §1，当前章节只处理同文档层内冲突。
+
+4. **✅ Shared Start Protocol step 5 已落实**  
+   `unified:69` 删除退役 owner 名单，改为引用 workspace §3。
+
+5. **✅ Tool Roles 已重写**  
+   `unified:129-151` 已改为 Role Resolution + agent-neutral Execution Constraints；退役编队名单已删除，GitHub 与 Cloud Coding Agents 约束保留。
+
+6. **✅ Safety Red Lines 权威声明已落实**  
+   `unified:156` 明确 workspace §4 优先，并避免复制 Pi push 例外。
+
+7. **✅ Git Rules 权威引用已落实**  
+   `unified:170` 引用 workspace §4/§6 的分支、push 和 master 集成规则。
+
+8. **✅ Local GitHub Network Rules 已落实**  
+   `unified:179` 增加 local Windows 限定；退役 Claude Code 启动命令已删除。
+
+9. **✅ Skill Rules 交叉引用已落实**  
+   `unified:191` 明确 `registry/skill-governance.md` 为 Skill 生命周期权威。
+
+### unified 残留检查
+
+**✅ 已通过**
+
+当前 `governance/unified-agent-collaboration-standard.md` 中：
+
+- 无 `RETIRED-`
+- 无 `Trae IDE`
+- 无 `Claude Code`
+
+旧标题仅在 `unified:3` 的重定位说明中出现，不属于退役工具引用。
+
+---
+
+## 三、START_HERE 重构核对
+
+### 1. One Rule
+
+**判定：✅ 已落实**
+
+- `START_HERE.md:7` 已删除 Trae IDE。
+- 当前 roster 与 workspace §2 成员一致，并明确 workspace 为权威来源。
+
+但从长期去漂移角度，One Rule 仍复制了一遍当前 roster；未来名单变化时仍可能漂移。它不违反本轮明确要求，但更稳妥的写法是只写 “all fleet agents; authoritative roster in workspace §2”。
+
+### 2. 单一 Read Order
+
+**判定：✅ 已落实**
+
+- `START_HERE:11-30` 已合并为一个分层入口。
+- 必读顺序为北极星 → workspace → Agent Operating Standard。
+- 路线图、分工、架构、Skill、handoff、工具入口和 Cloud Agent 均归入按需读取。
+- “方向 → 治理 → 操作 → 专题”的层次清晰。
+
+### 3. Tool Routing 去名单化
+
+**判定：✅ 已落实**
+
+- `START_HERE:97-103` 已删除 Trae IDE、ZCode、Qoder、Kimi、Mira、SOLO PC 的逐项路由清单。
+- 只保留 GitHub、Cloud agents 的通用约束，并将角色及路由指向 workspace §2-§3。
+
+---
+
+## 四、六处冲突消除情况
+
+1. **规则优先级：✅ 已消除**  
+   `unified:30` 将文档间冲突交给 workspace §1。
+
+2. **Owner：✅ 已消除**  
+   `unified:69` 不再维护 owner 名单，引用 workspace §3。
+
+3. **红线：✅ 已消除**  
+   `unified:156` 明确 workspace §4 优先，Pi push 例外不再形成双源复制。
+
+4. **完成契约：⚠️ 部分落实**  
+   workspace §5 与 unified Shared Completion Protocol 内容基本兼容，但 unified 的完成协议章节 `82-113` **没有像 Round1 方案要求那样明确声明 workspace §5 为治理权威**。  
+   当前没有明显字段冲突，但仍保留两个规范入口，后续可能再次漂移。
+
+   **修法**：在 `unified:82` 下增加：  
+   “完成契约的权威最小字段以 workspace §5 为准；本节仅提供操作步骤及扩展字段。”
+
+5. **Git：✅ 已消除**  
+   `unified:170` 已明确 workspace §4/§6 优先。
+
+6. **Tool Roles：✅ 已消除**  
+   unified 不再复制编队名单，职责和路由指向 workspace/fleet-division。
+
+**汇总：5 项完全消除，1 项部分消除。**
+
+---
+
+## 五、退役引用例外清单问题
+
+**判定：❌ 引入/保留了失真的门禁基线**
+
+`archive/retired-terms-exceptions-20260726.md:17-25` 仍把 unified 中旧的 Claude Code、Trae IDE 命中登记为当前 `ROLE` 例外；但这些内容已从 unified 删除，行号和内容均不存在。
+
+本 commit 只在该文件：
+
+- 将 HISTORY 计数从 128 改为 129；
+- 新增 workspace 的 Trae IDE 历史条目；
+
+却没有删除已经失效的 9 条 unified ROLE 记录。因此例外清单不是当前扫描结果的准确集合，可能掩盖未来门禁漂移。
+
+**修法**：重新生成例外集合，删除 `archive/retired-terms-exceptions-20260726.md:17-25` 的失效 unified ROLE 条目，并重新计算 ROLE/HISTORY 数量。
+
+---
+
+## 六、文件名与引用有效性
+
+**判定：✅ 文件名保留策略有效**
+
+- 文件仍为 `governance/unified-agent-collaboration-standard.md`。
+- `START_HERE.md:19` 已用新标题 `Agent Operating Standard` 引用旧文件名。
+- `governance/LOCAL-USAGE.md:15`、`knowledge/INTEGRATION.md:103` 等路径引用仍可解析。
+- 因未改文件名，不需要进行路径迁移，没有发现由本 commit 引入的断链。
+
+“引用迁移归零”在**路径层面成立**。仓库中的历史评审包和旧命中报告仍保留旧标题/旧内容，属于归档记录，不影响链接有效性。
+
+---
+
+## 七、验证结果
+
+- `git diff 9c5797c^ 9c5797c --check`：**通过**。
+- unified 退役词定向扫描：**无命中**。
+- 独立 clone、分支及 HEAD 校验：**通过**。
+- 仓库 `scripts/gate-checks.py`：**未能在独立环境完成**，因为其依赖本机外置文件：
+  - `~/.config/agent-collaboration/secret-patterns/redact-map.txt`
+  - `scan-patterns.txt`
+
+这是环境前置缺失，不是本 commit 的语法错误，但意味着 commit 描述中的“4 门禁全过”无法在干净 clone 中独立复现。
+
+## 最终结论：**CONDITIONAL**
+
+方案 A 的**四文件直接改造主体已经落地**：unified 定位、九项重构、START_HERE 单一入口、workspace 两处目标文本均完成；unified 也已清除退役引用。
+
+但不能给出 PASS，原因有三项：
+
+1. **Qoder 无 Webhook 的事实没有传播到现行架构真值和实施规格，且 SSE 规格自身矛盾。**
+2. **Trae SOLO 与 `Trae` / `Trae 本机` 的现行角色名称尚未完全统一。**
+3. **退役词例外清单保留了已不存在的 unified ROLE 条目；完成契约也缺少 workspace §5 权威声明。**
+
+完成上述修复并重跑可复现门禁后，可升级为 **PASS**。

@@ -67,7 +67,7 @@ signoff: "ZCode 2026-07-25"
 ## Kimi 编队画像（fleet-division 原文）
 
 > Kimi = 前端实现主力（前端能力极强），用户裁定
-> 执行层：深度(ZCode) / 前端(Kimi) / 平行(Trae) / 生图(Mira) / 批量(G4)
+> 执行层：深度(ZCode) / 前端(Kimi) / 平行(Trae SOLO) / 生图(Mira) / 批量(G4)
 
 ### 实际工作历史
 

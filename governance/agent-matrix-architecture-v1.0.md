@@ -25,13 +25,13 @@ signoff: "ZCode 2026-07-23"
               ├─ 漂移治理 cron(核心实用功能)
               ├─ SSE 接收队列(Qoder 回传) + 轮询兜底（2026-07-26 用户裁定：Qoder 无 Webhook，本机实证 SSE+轮询）
               ├─ subprocess 调度(Kimi)
-              └─ MCP server(Trae 主动汇报/外部读取)
+              └─ MCP server(Trae SOLO 主动汇报/外部读取)
                         │
         ┌───────────────┼───────────────────┐
         ▼               ▼                   ▼
    【主控 PC 端】    【被调度节点】      【云端特化】
    ZCode(驾驶舱)    Qoder(云端API)     Mira(生图+评审)
-   Trae(平行工作者) Kimi(ECS沙箱)     
+   Trae SOLO(平行工作者) Kimi(ECS沙箱)     
                         │
                         ▼
               【共享真值层】
@@ -49,7 +49,7 @@ signoff: "ZCode 2026-07-23"
 | 智能体 | 定位 | 调度能力 | 被调度能力 | 云沙箱 |
 |---|---|---|---|---|
 | **ZCode** | 主控驾驶舱 | 调 Qoder(MCP+API)、调 Kimi(Pi subprocess) | ❌ 无入站API,不能被外部push触发 | ❌ 无,SSH连ECS工作区 |
-| **Trae(本机)** | 平行工作者 | ❌ 不能调度别人(无原生API) | ❌ 不能被ZCode调度(无入站) | 本地沙箱不限网络 |
+| **Trae SOLO(本机)** | 平行工作者 | ❌ 不能调度别人(无原生API) | ❌ 不能被ZCode调度(无入站) | 本地沙箱不限网络 |
 
 ### 被调度层
 
@@ -114,11 +114,11 @@ ECS aetherisonline.xyz
 - **Qoder→ZCode**:SSE 回传 Pi → Pi 写共享文件 → ZCode 读取(依赖ZCode活跃)；轮询兜底
 - **上下文共享**:产物级(git) + Pi 中转字段级,非 live session
 
-### 4.2 ZCode ↔ Trae(主控↔平行工作者)
-- **不能互相调度**(Trae无入站API,ZCode无触发本地应用能力)
+### 4.2 ZCode ↔ Trae SOLO(主控↔平行工作者)
+- **不能互相调度**(Trae SOLO 无入站API,ZCode无触发本地应用能力)
 - **产物共享**:各自独立 clone + 独立分支,git 是同步层
 - **关系定位**:"共享工作区的同事",非"上下级调度"
-- **可选增强**:Trae 通过 MCP 主动向 Pi 汇报状态(状态实时,非内容)
+- **可选增强**:Trae SOLO 通过 MCP 主动向 Pi 汇报状态(状态实时,非内容)
 
 ### 4.3 Pi ↔ Kimi(调度↔被调度)
 - Pi 通过 subprocess 在 ECS sandbox 调度 Kimi
@@ -166,9 +166,9 @@ ECS aetherisonline.xyz
 - pre-commit hook:commit时检查漂移程度,警告
 - Pi 集成窗口:定期把各分支合并到master,控制漂移上限
 
-### Trae PC ↔ Trae Mobile 同步
-- Pi 监控 agent/trae 分支(不区分PC/Mobile来源)
-- 要求 Trae 任务(无论PC/Mobile下发)必须 commit 到 agent/trae
+### Trae SOLO ↔ Pi 同步（节点 3 修订：原 Trae PC/Mobile 设计已随 Trae IDE 退役过时）
+- Pi 监控 `agent/solo` 分支（原 agent/trae 已随 Trae IDE 退役，2026-07-26 C 选项后改用 agent/solo）
+- 要求 Trae SOLO 任务必须 commit 到 `agent/solo`
 - Pi 漂移治理逻辑完全适用
 
 ---
@@ -237,7 +237,7 @@ ECS aetherisonline.xyz
 4. **Qoder API 接入 Pi**(SSE 接收队列 + 轮询兜底)
 5. **飞书移动端 → Pi 桥接**(pi-feishu)
 6. **Mira 接入**(特化能力)
-7. **Trae MCP 主动汇报**(可选优化)
+7. **Trae SOLO MCP 主动汇报**(可选优化)
 
 ---
 

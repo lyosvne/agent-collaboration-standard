@@ -17,7 +17,7 @@
 
 ## HISTORY（保留，不替换）
 
-共 129 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
+共 132 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
 
 | 文件 | 行 | 工具 | 内容预览 | 分类 |
 |---|---|---|---|---|
@@ -25,6 +25,8 @@
 | agent-matrix-architecture-v1.0.md | 66 | Codex | \| **Codex** \| ⛔ 淘汰 \| 本地用方舟模型,云沙箱绑OpenAI调不动,GUI/CLI两套维护重 \| | 历史叙述 |
 | agent-matrix-architecture-v1.0.md | 67 | Trae IDE | \| **Trae IDE（编队角色）** \| ⛔ 退役为编队角色 \| 2026-07-26 C 选项裁定：编队里 Trae 系只保留 SOLO 一个独立角色（端到端测试/QA）。Trae IDE 退到个人工具，不进 Pi 调度。软件保 | 历史叙述 |
 | agent-matrix-architecture-v1.0.md | 68 | Claude Code | \| **Claude Code** \| ⛔ 退役完成 \| 2026-07-25 退役，2026-07-26 密钥清理完成（详见 `.claude/RETIREMENT-STATUS.md`） \| | 历史叙述 |
+| agent-matrix-architecture-v1.0.md | 169 | Trae IDE | ### Trae SOLO ↔ Pi 同步（节点 3 修订：原 Trae PC/Mobile 设计已随 Trae IDE 退役过时） | 历史叙述 |
+| agent-matrix-architecture-v1.0.md | 170 | Trae IDE | - Pi 监控 `agent/solo` 分支（原 agent/trae 已随 Trae IDE 退役，2026-07-26 C 选项后改用 agent/solo） | 历史叙述 |
 | agent-matrix-architecture-v1.0.md | 249 | Codex | \| Codex 去留 \| 淘汰 \| 云沙箱绑OpenAI+GUI/CLI两套+本地已换方舟 \| | 历史叙述 |
 | agent-matrix-architecture-v1.0.md | 250 | Trae IDE | \| Trae IDE 退役为编队角色 \| 2026-07-26 C 选项裁定 \| 编队里 Trae 系只保留 SOLO 独立角色（端到端测试/QA），Trae IDE 退到个人工具；Aetheris 分支合并见独立任务 \| | 历史叙述 |
 | archive/global-roadmap-v1.0-draft.md | 63 | Codex | - Codex知识库归属转移（331项目调研→迁入协作标准仓库或Aetheris知识层） | 归档文档历史引用 |
@@ -126,6 +128,7 @@
 | specs/o1-governance-plan.md | 155 | Codex | - 清理 `~/Documents/Codex/` 残留（迁移源头，已备份到 git 仓库） | 人工确认HISTORY |
 | specs/o1-governance-plan.md | 170 | Claude Code | - **更新 CC 退役相关引用**（unified-agent-collaboration-standard.md 仍引用 Claude Code） | 历史叙述 |
 | specs/o1-governance-plan.md | 208 | Codex | \| **第 3 批** \| B1 退役工具残留 + C1 Codex 收尾 \| 释放空间 + 知识归一 \| 低 \| | 历史叙述 |
+| specs/pi-drift-governance-spec.md | 103 | Trae IDE | - Trae SOLO：统一监控 agent/solo 分支（节点 3 修订：原 agent/trae 已随 Trae IDE 退役） | 历史叙述 |
 | specs/review-process-lessons.md | 60 | Claude Code | B 找到的 `tr -d ' '` 把 "Claude Code" 变 "ClaudeCode"，导致后续 case 永远不命中。 | 人工确认HISTORY |
 | specs/session-handoff-20260726.md | 28 | Trae IDE | - Trae IDE 退役为编队角色（软件保留个人用） | 历史叙述 |
 | specs/survey-zcode.md | 4 | Codex | > 范围: 本地协作资产 + GitHub代码 + ECS代码 + Codex知识库 | 人工确认HISTORY |
