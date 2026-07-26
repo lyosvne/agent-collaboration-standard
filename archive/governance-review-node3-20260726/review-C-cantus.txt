@@ -1,0 +1,101 @@
+[warn] 调度记录落盘失败: HTTP Error 403: Forbidden
+=== C NODE3 RESULT ===
+status: done
+attempts: 1
+duration: 168.7
+--- message ---
+开工。先拿全局上下文并克隆仓库。```
+[TRUTH-VERSION] agent-collaboration-standard @ 7f4cb12
+  north-star: v1.2 | roadmap: v1.1 | fleet-division: v1.1
+```
+
+已独立 clone + 通读 4 份文档（review-package / unified 193 行 / workspace 183 行 / START_HERE / LOCAL-USAGE）+ 全仓引用扫描。以下是节点 3 评审结论（AI-cantus，仅方案建议，不执行）。
+
+---
+
+## 1. 职责分析判定：⚠️ 部分成立
+
+「unified = 操作层（怎么干活），workspace = 治理层（谁干什么）」方向正确，但 ZCode 分析遗漏了 3 处重叠/冲突和 1 个结构性根因：
+
+**遗漏的重叠/冲突**：
+
+| # | 位置 | 性质 |
+|---|---|---|
+| 1 | unified「Shared Start Protocol」step 5 "Choose the agent owner"（unified:60）内嵌了一份退役 owner 名单 | **这是路由职能，与 workspace §3 任务路由直接重叠**，且名单已腐坏。不只是 Tool Roles 章过时 |
+| 2 | unified「Rule Layers」的冲突裁决顺序 vs workspace §1 的 6 层真值裁决 | **两套并行的冲突裁决体系**，未声明相互关系。目前语义上可兼容（Rule Layers 管同层规则冲突，§1 管文档间权威），但无显式声明就是漂移隐患 |
+| 3 | unified「Git Rules」 vs workspace §4 铁律（agent/<name> 分支、禁 master）+ §6 commit 粒度 | 第三处重叠，ZCode 只列了 Red Lines 和完成契约两处 |
+
+**已发生的实际漂移（不只是"重叠"）**：unified Red Lines 要求所有 `git push` 先问（unified:163），workspace §4 已有 **Pi 代劳 push 常设授权例外**（workspace:103）。两份红线清单已经内容不一致——这证明"双份红线"不是理论风险，是现实问题。
+
+**结构性根因**：Tool Roles 整章本质是治理层内容（谁干什么），从一开始就放错了文档。编队架构一变（CC/Trae IDE 退役），操作文档跟着腐坏。这正是为什么裁定必须把"编队名单/路由"从 unified 里**彻底清除**而非"更新"——更新只是重置腐坏计时器。
+
+---
+
+## 2. 方案选择：**方案 A（修正版 A′）**
+
+三方案权衡：
+
+| 方案 | 关键问题 |
+|---|---|
+| **B 合并** | workspace 是用户签署生效的治理协议（signoff 2026-07-23），吸收操作层内容需升版重走用户裁定；更致命的是把**低频稳定的治理协议**和**高频演进的操作细节**（命令/Skill 规则/字段）绑进一个 300+ 行文档——之后每次改操作细节都要动用户签署文档，长期维护性最差。"三件套对齐"论据不成立：north-star/fleet-division/workspace 是目标-组织-治理梯度，操作标准本就不属于该梯度 |
+| **C 分散** | 改动量最大，O1 收口阶段不符"最小安全改动"；且有硬伤——Human Style 放 `.zcode/AGENTS.md` 只覆盖 ZCode，**云端 agent（Qoder 三档/Kimi/Mira）读不到**，违背 START_HERE "one shared operating language"；`.zcode/AGENTS.md` 本身还是 roadmap 待办 #5 的红线项（需用户单独审），C 方案对它有依赖 |
+| **A 分工保留** | 改动最小、职责各归其位、操作层保留单一入口。缺点（命名混淆）可修正解决 |
+
+**对方案 A 的两点修正（A′）**：
+
+1. **不改文件名，只改文档内 title/Positioning**。原方案 A 的"改名 Agent Operating Standard"若动文件名，9 处引用全要迁移 + 断历史链接；只改内文 title 为 "Agent Operating Standard"，**引用迁移量降为零**。文件名重命名留到后续卫生批次（若用户仍想改）。
+2. **Tool Roles 删章时保留 "Cloud Coding Agents" 小节的操作约束**（handoff pack 必备/不继承 chat context 为权威/不依赖本地 Windows 路径/未授权不碰 secrets，unified:148-154）——这是有效的操作层内容，不是编队名单。原方案 A 描述漏了这点，整章删除会误伤。
+
+## 3. 选 A′：unified 具体删/改清单
+
+| 章节 | 动作 |
+|---|---|
+| Positioning（:3-9） | 重写为 agent-neutral："shared operating standard for all fleet agents"；编队名单一句话指向 workspace §2，**不在本文档列举任何 agent 名字** |
+| Rule Layers（:21-36） | 保留，**加一句**："文档间权威冲突按 workspace §1 真值层级裁决；本节只裁决同一文档层内的规则冲突" |
+| Shared Start Protocol step 5（:60） | 改为 "Choose the agent owner per workspace-collaboration §3 task routing"，删退役名单 |
+| Completion Protocol（:104） | 删 [RETIRED-CC] 专属句，泛化为 "Any agent may keep internal methodology checklists, but cross-agent output must use the shared fields" |
+| **Tool Roles（:120-154）** | **删除编队角色小节**（Trae IDE/CC/SOLO PC/SOLO Mobile/GitHub 名单部分），指向 workspace §2/§3；**保留** Cloud Coding Agents 操作约束 + GitHub "only hard sync surface" 一句，改为独立小节 "Execution Constraints (agent-neutral)" |
+| Safety Red Lines（:156-166） | 保留操作视角清单，**加权威声明**："权威版本为 workspace §4（含 Pi 代劳 push 例外与 T1/T2/T3 密钥分级）；本节与 §4 不一致时以 §4 为准"——消除已发生的 push 例外漂移 |
+| Git Rules（:168-175） | 保留（staging 纪律是 workspace 没有的操作细节），加一句 "分支纪律与集成窗口见 workspace §4/§6" |
+| Local GitHub Network Rules（:177-184） | 删 :184 退役 CC 启动命令行；小节标题加 "(local Windows machine only)" 限定（云端 agent 明确不适用；整节迁 configs/ 留后续批次） |
+| Skill Rules（:186-193） | 保留，加交叉引用 registry/skill-governance.md |
+
+完成契约（Minimum finish output）建议**保留在 unified**（它是操作模板的自然位置），workspace §5 保持契约声明——两者是"契约 vs 模板"关系，加一行互引即可，不算冗余。
+
+## 4. START_HERE Read Order 调整
+
+现状结构其实是合理的：unified 在**操作序列** #1，workspace 在**目标体系梯度序列** #5（north-star→roadmap→fleet-division→architecture→workspace，从方向到协议的梯度是对的）。问题只是缺显式分工声明。调整：
+
+- Read Order #1 改为：`governance/unified-agent-collaboration-standard.md` — **操作标准（怎么干活：字段/命令/红线/Git/Skill）**
+- Target System #5 改为：**协作协议（谁干什么：权威/编队/路由/双环）** — 并注明"编队名单与任务路由以此为唯一权威"
+- 顺带修 START_HERE 自身腐坏：:7 "one shared operating language across ZCode, **Trae IDE**, ..." 和 :97 Tool Routing 的 "Trae IDE: local integration lead" 仍列退役角色——**Tool Routing 一节与 workspace §2/§3 是同一腐坏模式**，建议同批改为指向 workspace（否则节点 3 修完 unified，START_HERE 里还留着一份会烂的名单）
+
+## 5. 引用更新工作量（A′ 口径）
+
+活跃引用 6 处：START_HERE:13、LOCAL-USAGE:15、o1-governance-plan（:11/:89/:168-170）、knowledge/INTEGRATION:103。
+
+- **不改文件名 → 路径迁移 0 处**
+- 需顺带更新：o1-governance-plan:89 的 "❌ 仍引用 Claude Code" 状态行（清理后改 ✅）；START_HERE:13 加分工注释
+- archive/ 下约 40 处历史引用**不动**（历史归档不改写）
+- knowledge/analysis/local-projects-code-index.json 是生成物，不手改
+
+对比：方案 B/C 均需 6 处路径迁移 + archive 判断 + 新文档建链，A′ 优势明显。
+
+## 6. 其他风险/建议
+
+1. **双红线清单是长期漂移源**——本次已实证（Pi push 例外）。A′ 的"权威声明"是最小止血；长期方案（O2+）可考虑红线单源化 + unified 只留指针，本次不扩大范围。
+2. **START_HERE 是第三份重复**：Shared Commands / Min Start/Finish Output 在 START_HERE 和 unified 各有全文。入口文档留摘要可接受，但建议 START_HERE 标注 "authority: unified"，防第三处漂移。
+3. **执行时注意 gate 脚本联动**：unified 删退役标记行会使 `retired-terms-exceptions` 的行号/条目失效（先例：a6e67e1 就是 roadmap 增行导致 L257 失效）。执行任务包里必须包含 rebuild-exceptions + gate-checks 全跑。
+4. 执行阶段按节点惯例另起任务 + 独立评审，本裁定不含实施。
+
+---
+
+## 总结
+
+- **职责分析：⚠️ 部分成立**——操作层/治理层框架对，但漏了 3 处重叠（owner 选择 vs 任务路由、Rule Layers vs §1 裁决体系、Git Rules vs §4/§6），且 Red Lines 已发生实际内容漂移（Pi push 例外），Tool Roles 放错层是腐坏根因。
+- **推荐：方案 A′（分工保留 + 两点修正）**——不改文件名只改 title（引用迁移归零）、删 Tool Roles 时保留 Cloud Agents 操作约束、重叠三处加单一权威声明、START_HERE Tool Routing 同批去名单化。
+- **理由**：O1 收口阶段改动成本最低；治理协议（用户签署、低频）与操作标准（高频演进）解耦是正确的长期结构；B 把两种变更节奏绑死，C 破坏操作层单一入口且云端 agent 覆盖有硬伤。
+
+**风险**：A′ 保留两份文档，混淆风险靠 title + Read Order 注释 + 权威声明压制，非结构性根除；若未来红线再漂移，届时再议单源化。
+
+— 评审完成，交 ZCode 汇总报用户裁决。本节点未做任何文件修改。

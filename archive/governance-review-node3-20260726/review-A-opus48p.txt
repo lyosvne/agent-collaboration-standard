@@ -1,0 +1,292 @@
+# 节点 3 独立评审结论
+
+已独立克隆并同步 `master`，评审基线为 **`7f4cb1229e4690be136bd7e0d705385ffeda800d`**。已阅读指定材料及 `START_HERE.md`，未修改任何文件、未执行推送或其他受限操作。
+
+## 1. 职责分析判定：⚠️ 部分成立
+
+“**unified 偏操作层，workspace 偏治理层**”的主判断成立，但“互补不冲突”不完全成立。
+
+### 成立的部分
+
+- `unified-agent-collaboration-standard.md` 主要回答：
+  - 开始和结束任务时怎么做；
+  - 使用哪些公共字段；
+  - 如何验证、交接、提交 Git；
+  - Skill 和安全操作遵循什么规则。
+- `workspace-collaboration-v2.1.md` 主要回答：
+  - 谁拥有最终权威；
+  - 当前编队有哪些成员；
+  - 任务应该路由给谁；
+  - G/M 双环如何运行；
+  - 当前实施优先级是什么。
+
+这种“**治理层决定责任和授权，操作层规定执行接口**”的分层是合理的，也比把所有内容合并为一份超长协议更符合长期维护原则。
+
+### 遗漏的重叠与冲突
+
+1. **规则优先级重叠**
+   - unified §Rule Layers 自己定义了一套五层优先级。
+   - workspace §1 又定义了六层真值优先级。
+   - 两者不是简单互补，遇到“全局操作标准、项目规则、Git 历史”冲突时可能得出不同结论。
+   - **建议：权威与真值优先级只能由 workspace 定义；operating standard 仅引用，不再建立平行层级。**
+
+2. **任务所有权重叠**
+   - unified §Shared Start Protocol 要求直接选择 owner，而且候选名单已经过时。
+   - workspace §§2–3 已经定义当前编队注册和任务路由。
+   - **建议：操作层只要求“依据 workspace 路由确认 owner”，不维护任何成员名单。**
+
+3. **安全授权存在实际差异**
+   - unified 要求所有 `git push` 事前询问。
+   - workspace §4 给 Pi 的限定分支代劳 push 设置了常设授权例外。
+   - 这是实际授权冲突，不只是重复。
+   - **建议：workspace 管授权和例外；operating standard 只规定执行前检查授权、分支和审计条件。**
+
+4. **完成契约重复但粒度不同**
+   - workspace §5 规定最低必报字段。
+   - unified 的完成协议还要求 `Recommended next command`、回滚细项等。
+   - **建议：workspace 保留治理上的最低完成门槛；operating standard 提供完整输出模板。**
+
+5. **Git 规则部分跨层**
+   - “谁能 push、在哪个分支工作”属于治理与授权。
+   - “不得 `git add .`、只暂存本任务文件、按验证单元提交”属于操作纪律。
+   - 目前两份文档没有明确区分这两类规则。
+
+6. **Tool Roles 不只是过时，而是放错层**
+   - 即使全部更新为 Pi/ZCode/Qoder/Kimi/Trae/Mira，未来仍会与 workspace 的编队注册发生漂移。
+   - **因此不应重写成新名单，而应删除具体角色描述并引用 workspace。**
+
+7. **Local GitHub Network Rules 不属于全局操作标准**
+   - 其中包含单机路径、机器网络故障记录、临时 IP 经验和退役启动命令。
+   - 这与 unified 声称的“not tied to any project”矛盾，也不适合作为所有 agent 的强制规则。
+   - 应迁移到本机运行手册或工具配置文档。
+
+---
+
+## 2. 方案选择：A（分工保留，建议按 A+ 落地）
+
+推荐 **方案 A**，但需要做成严格分层的 **A+**：
+
+- `workspace-collaboration-v2.1.md`：**治理协议**
+  - 权威、授权、真值层级、编队注册、路由、双环、阶段优先级。
+- `Agent Operating Standard`：**操作标准**
+  - 公共字段、开始/完成流程、操作命令、验证、Git 操作纪律、交接模板。
+- 专题文档：
+  - Skill 治理由 `registry/skill-governance.md` 负责；
+  - 机器网络排障由本机运行手册负责；
+  - 工具入口由 `configs/tool-entry-map.md` 负责。
+
+### 选择 A 的理由
+
+1. **最适合当前 O1 收口阶段**
+   - 当前首要目标是消除漂移并跑顺底座，不宜启动大规模文档重构。
+   - A 的有效改动集中在一份文件、Read Order 和少量引用，风险最低。
+
+2. **比 B 更易维护**
+   - B 会把架构、路由、红线、操作模板、Skill、Git 细节合并为约 300 行以上的单体文档。
+   - 编队变化频繁，而公共操作语言相对稳定；两者生命周期不同，不应强耦合。
+
+3. **比 C 更易消费**
+   - C 虽然专题边界最纯，但会把启动、字段、命令、完成、Git、Skill 分散到多份文件。
+   - agent 每次启动需要跨文档拼装操作协议，增加漏读和版本漂移风险，不符合 O1 的低复杂度要求。
+
+4. **与 north-star/fleet-division 一致**
+   - north-star 管“为什么和终局”；
+   - fleet-division 管“职能如何覆盖”；
+   - workspace 管“当前编队如何治理”；
+   - operating standard 管“每个 agent 如何执行”。
+   - 这是一文一责的一致性，而不是要求所有内容合并成一个“唯一文档”。
+
+---
+
+## 3. 选择 A 后，unified 应删除或修改的章节
+
+建议将标题及文件名改为 **Agent Operating Standard**。如考虑外部引用兼容，可暂时保留旧路径的弃用指引，但旧文件不得继续承载第二份有效规则正文。
+
+### 必须修改
+
+1. **Positioning**
+   - 删除所有退役工具和固定成员名称。
+   - 改为：适用于当前及未来 agent 的跨工具操作接口。
+   - 明确声明：
+     - 权威、编队、路由以 workspace 为准；
+     - 北极星和方向校准以 north-star 为准；
+     - 项目特定规则由项目入口文件提供。
+
+2. **Human Style**
+   - 改名为 `Human-facing Output Style`。
+   - 明确“用户即时要求优先”，避免“默认中文”等偏好被误读为高于用户指令的权威规则。
+   - 保留结论先行、简洁、指出风险、优先可逆方案。
+
+3. **Rule Layers**
+   - 删除独立五层权威模型。
+   - 改为引用 workspace §1。
+   - 只保留同一权威层内部的操作性消歧规则，例如：
+     - 更具体者优先；
+     - 更接近当前任务真值者优先；
+     - 更安全、可回滚者优先；
+     - 仍不清楚则停止并询问用户。
+
+4. **Shared Start Protocol**
+   - 删除固定 owner 列表。
+   - 将“Choose the agent owner”改为：
+     - 根据 workspace §§2–3 或当前有效路由确认 owner；
+     - operating standard 不自行定义编队成员。
+   - 保留 Goal、Source of truth、Scope、Risk、Verification、Next action 等字段。
+
+5. **Shared Completion Protocol**
+   - 删除退役工具专属说明。
+   - 与 workspace §5 对齐。
+   - 明确分工：
+     - workspace 定义最低完成契约；
+     - operating standard 提供展开后的标准模板。
+   - 建议保留 `Recommended next command`，但可标记为“存在明确后续动作时必填”，避免机械输出无意义命令。
+
+6. **Shared Commands**
+   - 保留 `:ALL / :ONE / :CHECK`，但标记为“共享意图协议”或“标准化指令语义”。
+   - 不应暗示每个运行时天然实现了这些命令。
+   - 实际支持情况应由 `configs/tool-entry-map.md` 或各工具入口文件声明。
+
+### 必须删除或替换
+
+7. **Tool Roles**
+   - **删除整个具体角色清单。**
+   - 不要替换为当前 Pi/ZCode/Qoder/Kimi/Trae/Mira 名单，否则未来继续双写漂移。
+   - 用一个简短的 `Role Resolution` 章节替换：
+     - 当前成员、职责和任务路由见 workspace §§2–3；
+     - 工具入口与能力适配见 `configs/tool-entry-map.md`。
+
+8. **Safety Red Lines**
+   - 不再完整复制授权清单。
+   - 改为引用 workspace §4 为唯一治理真值。
+   - 操作层仅补充执行检查：确认授权、作用域、回滚方案及审计证据。
+   - 这样可以避免 Pi push 例外再次冲突。
+
+9. **Git Rules**
+   - 保留纯操作纪律：
+     - 禁止无差别暂存；
+     - 不混入无关修改；
+     - 发现意外变化应停止；
+     - 按独立验证单元提交。
+   - 将分支授权、push 权限、master 集成窗口统一交给 workspace。
+   - 避免写成对所有项目都强制使用同一种 `agent/<name>` 分支；这是当前编队治理策略，不是普适操作标准。
+
+10. **Local GitHub Network Rules**
+    - 从全局操作标准移除。
+    - 迁移到本机运行手册或工具故障排查文档。
+    - 删除退役启动命令。
+    - 固定机器路径、历史网络地址和一次性故障结论不得留在全局规范正文。
+
+11. **Skill Rules**
+    - `registry/skill-governance.md` 已经有更完整的准入、合并、退役和沙箱规则。
+    - operating standard 中只保留一段入口引用及执行要求，避免维护两套 Skill 治理规则。
+
+---
+
+## 4. START_HERE Read Order 建议
+
+当前问题不是简单的 “unified #1、workspace #5”，而是 `START_HERE.md` 存在两套并列顺序：
+
+- 顶部 `Read Order` 把 unified 放在第一；
+- 后面的 `Target System` 又把 workspace 放在第五；
+- START_HERE 自身还重复了 Shared Commands、Start/Finish Output、Tool Routing，形成第三份规则副本。
+
+### 建议调整为分层顺序
+
+对于跨智能体、治理或重要工程任务：
+
+1. `north-star-v1.2.md`：确认目标与不可动摇边界。
+2. `workspace-collaboration-v2.1.md`：确认权威、当前编队、路由和授权。
+3. `agent-operating-standard.md`：加载公共操作字段、流程和执行纪律。
+4. `registry/skill-registry.md` / `registry/skill-governance.md`：加载能力与 Skill 规则。
+5. `templates/handoff-pack.md`：需要交接时读取。
+6. `configs/tool-entry-map.md`：按当前运行时读取。
+7. 项目入口文件：进入具体项目后读取。
+
+对于普通单 agent、小范围任务，可在 START_HERE 中定义轻量路径，但仍应明确：**出现授权、owner 或真值冲突时，回到 workspace 与 north-star。**
+
+### START_HERE 自身应精简
+
+- 删除或缩减重复的 Tool Routing。
+- Start/Finish 字段只做摘要并链接 operating standard。
+- 不在 START_HERE 再维护一份成员职责清单。
+- 修正当前 Read Order 中没有直接列入 workspace 的问题。
+- 当前文档所谓 workspace “#5”实际上位于另一组 Target System 顺序中，不应继续用两套编号表达权威关系。
+
+---
+
+## 5. 引用迁移工作量评估
+
+材料包称有 **9 处引用**；对基线 `7f4cb12` 进行独立检索后，排除 `archive/`、历史扫描报告和生成索引，发现精确文件名在活动内容中为：
+
+- **7 个文本命中**
+- 分布于 **4 个活动文件**
+  - `START_HERE.md`：1
+  - `governance/LOCAL-USAGE.md`：1
+  - `knowledge/INTEGRATION.md`：1
+  - `governance/specs/o1-governance-plan.md`：4
+
+因此，“9 处”可能混入旧路径、历史记录或此前版本统计，不能直接作为当前迁移清单。
+
+### 工作量判断
+
+- **仅修改标题和定位、不改文件名**：很低，主要是正文和 Read Order。
+- **文件改名并更新活动引用**：低，约 4 个活动文件。
+- `o1-governance-plan.md` 中部分命中属于阶段问题记录或历史判断，不应机械改写；应区分：
+  - 当前导航引用：更新；
+  - 历史陈述：保留原名，并标记后续采用的新名称。
+- `archive/` 内历史记录原则上不迁移，否则会破坏历史证据。
+- `knowledge/analysis` 下的生成索引应由索引生成流程刷新，不应手工替换。
+
+建议执行阶段先生成一份“**活动引用 / 历史引用 / 生成物引用**”分类清单，再进行迁移。
+
+---
+
+## 6. 其他风险与建议
+
+### 高优先级一致性问题
+
+1. **Qoder 回传通道存在直接矛盾**
+   - workspace §6 声称“Webhook 主通道 + SSE 补充 + 轮询兜底”。
+   - fleet-division §8.2 明确记录 Qoder Cloud Agents API“无 Webhook”，并把 SSE 作为已验证能力。
+   - north-star 当前阶段目标也是“Qoder SSE 消费器”。
+   - **建议立即裁定为 SSE 主通道、轮询兜底；除非另有已经验证的中间层 Webhook，否则删除 workspace 的 Webhook 声明。**
+
+2. **“用户唯一协调者”与 Pi 中央协调语义冲突**
+   - north-star 的终局是用户只定战略和关键决策，其余自动运转。
+   - workspace 同时称用户为“唯一协调者”，又称 Pi 为“中央协调”。
+   - 建议把用户定位统一为：
+     - **唯一最终裁判、战略授权源和 T3 审批者**；
+     - Pi 是经用户授权的运行时协调者。
+   - 否则会让系统在设计上继续依赖用户进行日常中继，与终局相反。
+
+3. **workspace 含较多阶段性实施事实**
+   - 当前 P0 顺序、临时文件信箱、具体通信实现都可能快速变化。
+   - 建议长期将稳定治理协议与阶段实施计划分离：
+     - workspace 保留稳定权威、授权、注册和路由；
+     - 阶段路线与临时通道指向 roadmap/spec。
+   - 本节点不必同步实施，但应登记为后续治理债务。
+
+4. **全局规则与 Aetheris 特定规则边界不足**
+   - operating standard 应保持跨项目通用。
+   - workspace 中的 Aetheris 真值位置、分支策略和 Pi 授权是当前体系治理，不应反向进入全局操作规则。
+
+5. **需要声明唯一归属，禁止双写**
+   - 权威/真值层级：workspace。
+   - 编队/路由：workspace。
+   - 最低完成门槛：workspace。
+   - 详细操作模板：operating standard。
+   - Skill 生命周期：skill-governance。
+   - 工具能力和入口：tool-entry-map。
+   - 本机排障：本机运行手册。
+
+---
+
+# 总结
+
+**推荐方案：A（分工保留，按 A+ 严格分层实施）。**
+
+理由是：职责分析的主方向正确，但当前两文档在规则优先级、owner 选择、安全授权、完成契约和 Git 规则上已经存在实质性重叠或冲突。最优解不是合并成单体文档，也不是把操作协议拆散，而是建立清晰的单向依赖：
+
+> **north-star 定方向 → workspace 定权威、成员和路由 → Agent Operating Standard 定执行接口 → 专题文档管理 Skill、工具与本机排障。**
+
+执行时最关键的动作是：**彻底删除 unified 中的 Tool Roles，移出 Local GitHub Network Rules，统一规则优先级和安全授权来源，并重构 START_HERE 的单一 Read Order。** 同时应优先修正 workspace 的 Webhook/SSE 矛盾，否则即使完成文档分层，治理真值仍然不一致。

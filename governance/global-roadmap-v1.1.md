@@ -173,7 +173,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 ## 当前位置
 
-**O1（基座就绪）Phase D 全部完成 + 三方评审通过，待合并 master + push + ECS 同步（2026-07-26 更新）。**
+**O1（基座就绪）Phase D 全部合并 master + push + ECS 同步完成；节点 3 评审通过待执行（2026-07-26 更新）。**
 
 ### 已完成（O1 协作底座 + 退役清理 + 治理真值）
 - CC→ZCode 迁移（CC 完全退役 + 密钥清除本机零残留）
@@ -209,11 +209,27 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
     - round5：A PASS + B PASS（C 已在 round3 PASS，round4 未触及 C 审范围）
     - 三方一致通过，评审证据 11 文件归档 `archive/governance-review-phaseD-20260726/`
     - 关键教训：自检漏跑 `ast.parse` 导致 SyntaxError regression；门禁 fail-closed 实战验证（捕获 token/现行角色/exceptions 漏登）
+  - **Phase D 合并 master + push + ECS 同步（2026-07-26）**：
+    - ff-only 合并 review/phaseD-20260726 → master（a6e67e1）
+    - push origin master（5061b96 → a6e67e1）
+    - ECS governance-mirror git pull 同步（5 域一致性 Git + ECS 域闭环）
+  - **第 3 批远程分支清理（2026-07-26）**：
+    - 远程分支 5 → 1（只剩 master）：删 agent/qoder / sync/v3 / review/phaseD / feat/check-self-actuating-ack
+    - feat/check-self-actuating-ack 合并到 master（:CHECK announcement-driven self-actuating ack，Mira 2026-05-11 +53 行 protocols 增强）
+    - 本地分支清理（backup-pre-sync / sync 删除，只剩 master）
+  - **节点 3 评审通过（2026-07-26，三方一致推荐方案 A）**：
+    - 裁定项：unified vs workspace-collaboration 职责分工
+    - 三方全票推荐方案 A（分层保留）：workspace 管"谁干什么"，unified 改 title 为 Agent Operating Standard 管"怎么干活"
+    - 识别 6 处真冲突（规则优先级/owner/红线授权/完成契约/Git/Tool Roles）+ 2 个事实矛盾（Trae 职责 + Qoder Webhook/SSE）
+    - 不改文件名（引用迁移归零），只改文档内 title
+    - 评审证据 4 文件归档 `archive/governance-review-node3-20260726/`
+    - **执行待另起任务 + 独立评审**（节点 3 纪律）
 
 ### O1 待完成（P0 阻断真退出）
-1. **Phase D 合并 review/phaseD-20260726 → master + push**（三方评审已通过，红线：merge + push 需用户授权；当前 review 分支 ahead master 9 commits）
-2. **ECS governance-mirror 同步**（Phase D 的 START_HERE/LOCAL-USAGE/roadmap/scripts 改动需 SSH ECS git pull，否则 ECS dispatch 透出的是旧版）
-3. **5 域一致性真闭环**（ECS/Git/云端/本地/知识库 单一真值，当前 git 域完成 + 本地降级为快照 + ECS 待同步）
+1. **节点 3 方案 A 执行**（unified 重定位 + 删 Tool Roles + 修 2 事实矛盾 + START_HERE 单一 Read Order；另起任务 + 独立评审）
+2. **5 域一致性真闭环**（Git + ECS 已完成，本地降级为快照，云端/知识库 待校准）
+3. **Pi 漂移治理纳入** + **时序版本自动化**（触发条件 = Phase D 完成 ✅ + 节点 3 执行完成）
+4. **`.zcode/AGENTS.md` 路径声明切换**（红线：全局配置，需用户单独审；当前仍指向 `~/.agent-collaboration/standards/`，因快照保留不断链）
 4. **Pi 漂移治理纳入** + **时序版本自动化**（触发条件 = Phase D 合并 master + push）
 5. **`.zcode/AGENTS.md` 路径声明切换**（红线：全局配置，需用户单独审；当前仍指向 `~/.agent-collaboration/standards/`，因快照保留不断链）
 
@@ -262,6 +278,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v1.5 节点3评审通过 | 2026-07-26 | §当前位置更新：Phase D 合并 master+push+ECS 同步完成；第3批远程分支清理（5→1）+ feat 合并；节点3评审三方一致推荐方案 A（分层保留）；待办改为节点3执行 + Pi 治理纳入 |
 | v1.4 Phase D 评审通过 | 2026-07-26 | §当前位置更新：Phase D 三方交叉评审 5 轮通过（A+B+C 一致）；round4 修复 redact-tokens SyntaxError + mirror REPO 推导 + configs 历史标注；待办改为合并 master + push + ECS 同步 |
 | v1.3 Phase D-B 收尾 | 2026-07-26 | §当前位置更新：Phase D-B 完成（scripts 解硬依赖 + 扫描基准切 git 仓库 governance/ 真值 + patterns 迁 ~/.config/）；Phase D 全部完成（A+B）；fail-closed 门禁 4 测试全过；待办改为 push + ECS 同步 + Pi 治理纳入 |
 | v1.2 Phase D-A 收尾 | 2026-07-26 | §当前位置更新：Phase D-A 完成（路径声明切换 + 抢救入库，commits a4e98d8/36a49d3/51f16b5）；缺口 #4 dispatch 透出闭环标记（第 1 批已完成）；增 Phase D-B 待办（scripts 解硬依赖）+ .zcode/AGENTS.md 待用户单独审；manual-overrides 缺口 #7 从 53→54 条更新 |
