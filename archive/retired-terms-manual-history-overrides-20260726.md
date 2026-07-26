@@ -76,10 +76,13 @@
 | specs/pi-drift-governance-spec.md | 108 | Trae IDE | §7 实施形态注记（"原 agent/trae 已随 Trae IDE 退役"）, 历史叙述 |
 | configs/drift-config.json | 25 | Claude Code | retired_clones 显式记录（"Claude Code 2026-07-25 退役, 分支冻结"）, 历史叙述 |
 | configs/drift-config.json | 26 | Trae IDE | retired_clones 显式记录（"Trae IDE 2026-07-26 退役为编队角色"）, 历史叙述 |
+| global-roadmap-v1.1.md | 249 | Claude Code | O1 缺口 #9 描述 legacy 文档退役角色清理任务（meta 指出残留位置）, 历史叙述 |
+| global-roadmap-v1.1.md | 249 | Trae IDE | 同 L249, 缺口 #9 legacy 清理任务描述（meta）, 历史叙述 |
+| global-roadmap-v1.1.md | 278 | Trae IDE | Trae IDE 退役裁定叙述（"已于 2026-07-26 C 选项裁定退役"）, 历史叙述 |
 
 ## 审核人
 
-ZCode（round4 逐条人工判定, 2026-07-26; Phase D-A 追加 1 条, 2026-07-26; Pi 治理纳入 A 层追加 7 条, 2026-07-26）
+ZCode（round4 逐条人工判定, 2026-07-26; Phase D-A 追加 1 条, 2026-07-26; Pi 治理纳入 A 层追加 10 条, 2026-07-26）
 
 ## 复核要求
 

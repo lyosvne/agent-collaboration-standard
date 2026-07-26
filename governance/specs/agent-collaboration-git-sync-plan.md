@@ -510,6 +510,8 @@ git push origin sync/agent-collaboration-import-20260726-v3
 - 触发条件：Phase D（Y 落地）完成后
 - 验收：Pi 30min cron 能检测到 agent-collaboration-standard 仓库的规则版本变化
 
+**前置依赖**：本验收依赖 `pi-drift-guard` Extension 上线（`pi-drift-governance-spec.md §10` C 层）。A 层 `configs/drift-config.json` 已登记本仓库为治理对象，Extension 上线后即可生效。
+
 **避免悬空**：本任务登记到 spec，未来 Pi 升级时强制处理。
 
 ## 七、执行前置
