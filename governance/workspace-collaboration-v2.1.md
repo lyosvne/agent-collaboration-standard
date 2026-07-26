@@ -36,7 +36,7 @@ signoff: "用户 2026-07-23"
 真值位置锚点：
 - **代码唯一硬真值**: `https://github.com/lyosvne/Aetheris-link.git` 的 `origin/master`；各 agent 工作分支 `agent/<name>`
 - 全局协作标准: `https://github.com/lyosvne/agent-collaboration-standard`
-- 本地协作入口: `C:\Users\Admin\.agent-collaboration\`
+- 本地协作入口（git 真值）: `C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\`（governance/templates/registry）；本机 `~/.agent-collaboration\` 自 Phase D 起降级为只读历史快照
 - 运行时真值层: ECS `aetherisonline.xyz` 上的 Aetheris（真值层+记忆，非控制平面）
 - 知识库: `C:\Users\Admin\Documents\Codex\knowledge-audit-2026-07\Knowledge`
 
@@ -155,7 +155,7 @@ P0 底座: ① CC→ZCode 迁移收尾 → ② Pi ECS 部署验证(ZCode)
 
 Pi 部署验证完成前，协调按以下临时机制运行，Pi 上线后自动废止：
 - **指令中继**: 用户在各 agent 会话间转发提示词（现行做法，正式承认为过渡机制）
-- **文件信箱**: `C:\Users\Admin\.agent-collaboration\templates\` 为异步回执/交接通道
+- **文件信箱**: `C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\templates\` 为异步回执/交接通道（Phase D 起改用 git 仓库；旧位置 `~/.agent-collaboration\templates\` 已冻结）
 - **PC 端调度**: ZCode 驾驶舱可先行（MCP 调 Qoder），不等 Pi
 - **漂移应急**: Pi 体检上线前，任何 agent 发现漂移异常应主动报告用户
 

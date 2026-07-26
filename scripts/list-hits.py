@@ -6,8 +6,8 @@ import subprocess
 from pathlib import Path
 from collections import Counter
 
-# 路径策略（Phase D-B，2026-07-26）：扫描 git 仓库 governance/ 真值，环境变量可覆盖
-REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
+# 路径策略（Phase D-B + round2，2026-07-26）：REPO 从脚本位置推导（避免跨 checkout 混读），环境变量可覆盖
+REPO = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[1])))
 STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
 TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
 prefix = str(STANDARDS).replace("\\", "/") + "/"

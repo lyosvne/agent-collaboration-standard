@@ -13,5 +13,5 @@ Project rules should be short and factual.
 
 Do not copy every global rule into each project. Link to:
 
-`C:\Users\Admin\.agent-collaboration\START_HERE.md`
+`C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\START_HERE.md`
 

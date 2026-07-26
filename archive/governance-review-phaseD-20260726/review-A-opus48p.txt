@@ -1,0 +1,26 @@
+[
+  {
+    "file": "configs/tool-entry-map.md",
+    "line": 9,
+    "summary": "路径切换不完整：全编队共享入口仍指向已降级的 .agent-collaboration 历史快照。",
+    "failure_scenario": "Trae SOLO、项目模板或云端任务按 tool-entry-map/project-starter 接入时，仍读取 C:\\Users\\Admin\\.agent-collaboration\\START_HERE.md 及其子路径，而不是 Git 仓库真值；快照与 governance/ 漂移后，编队会执行过期规则。应同步修正 configs/tool-entry-map.md:9,32-33,74、configs/trae-solo-operating-profile.md:17、project-starter/README.md:16 和 project-starter/AGENTS.md.template:45。"
+  },
+  {
+    "file": "scripts/mirror-sync.py",
+    "line": 244,
+    "summary": "Phase D 已反转真值关系，但 --apply 仍会把只读历史快照镜像到 Git 真值并执行删除。",
+    "failure_scenario": "用户在 Phase D 后运行 python scripts/mirror-sync.py --apply，脚本以 ~/.agent-collaboration/standards 为源、governance/ 为目标；历史快照缺少或持有旧版文件时，mirror() 会覆盖新版治理文档并删除 Git 侧独有文件。仅增加警告注释不能阻止该破坏路径；应禁用 --apply、显式退出失败，或经独立评审后反转/废弃同步计划。"
+  },
+  {
+    "file": "scripts/gate-checks.py",
+    "line": 31,
+    "summary": "所谓“Git 仓库 fallback”仍硬编码为单台机器的 ~/Documents/trae_projects 路径，而不是当前 checkout。",
+    "failure_scenario": "在本次独立 clone、CI、ECS 或仓库移动后运行脚本，即使 STANDARDS_SCAN_DIR 指向当前 governance/，exceptions、overrides、evidence 和 Git 命令仍访问 ~/Documents/trae_projects/agent-collaboration-standard；该目录不存在时门禁报错，存在旧副本时则可能扫描当前治理文档却使用另一 checkout 的例外清单，导致结果不可归因。应以 Path(__file__).resolve().parents[1] 推导 REPO，并统一修复 gate-checks.py、rebuild-exceptions.py、complete-exceptions.py、analyze-gate3.py、list-hits.py 和 redact-tokens.py。"
+  },
+  {
+    "file": "scripts/complete-exceptions.py",
+    "line": 50,
+    "summary": "辅助例外脚本仍把无法识别的命中默认归为 HISTORY，且不校验 grep 执行失败。",
+    "failure_scenario": "新增一条无历史语境的现行角色引用后运行 complete-exceptions.py，该引用会被 classify() 标成“其他(默认HISTORY)”；若 grep 因目录或执行错误失败，scan_hits() 还会返回空集合并最终输出成功。操作人员据此判断例外完整会形成 fail-open。应删除默认 HISTORY、对未分类命中返回非零，并仅接受 grep 退出码 0/1。"
+  }
+]

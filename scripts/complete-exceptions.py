@@ -27,17 +27,28 @@ import os
 import subprocess
 from pathlib import Path
 
-# 路径策略（Phase D-B，2026-07-26）:
-#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 git 仓库 governance/）
-#   exceptions/overrides: git 仓库 archive/（已纳入 git 真值）
+# 路径策略（Phase D-B + round2，2026-07-26）:
+#   REPO_ROOT: 仓库根（默认从脚本位置推导，避免跨 checkout 混读；环境变量可覆盖）
+#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 REPO/governance/）
+#   exceptions: REPO/archive/（与 STANDARDS 同源）
 # 本机 ~/.agent-collaboration/ 自 Phase D 起降级为只读历史快照，不再作活跃扫描源
-REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
+REPO = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[1])))
 STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
 EXC_FILE = REPO / "archive" / "retired-terms-exceptions-20260726.md"
 TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
 
 # 分类规则（按优先级）
+class UnclassifiedHit(Exception):
+    """命中未匹配任何已知分类模式，需人工判定（fail-closed，round2 修复）。"""
+    pass
+
+
 def classify(rel_path: str, content: str) -> str:
+    """判定命中类别。未匹配任何模式 → 抛 UnclassifiedHit（fail-closed，round2 修复 A 阻断4）。
+
+    round2 前: 默认归 "其他(默认HISTORY)"，是 fail-open（节点2 评审核心教训）。
+    round2 后: 抛错强制人工判定，与 rebuild-exceptions.py round3+ 修复对齐。
+    """
     c = content.lower()
     if any(k in content for k in ["知识库", "knowledge"]) or "documents" in c or "路径" in content:
         return "知识库名/路径"
@@ -47,13 +58,20 @@ def classify(rel_path: str, content: str) -> str:
         return "工具生态参考"
     if any(k in content for k in ["退役", "淘汰", "retire", "下线", "废弃"]):
         return "历史叙述"
-    return "其他(默认HISTORY)"
+    # fail-closed: 不默认归 HISTORY，强制人工判定（round2 修复 A 阻断4）
+    raise UnclassifiedHit(f"未分类命中（需人工判定）: {rel_path}: {content.strip()[:80]}")
 
 
 def scan_hits() -> dict[str, list[tuple[str, str]]]:
-    """扫 standards/ 所有命中（排除 [RETIRED-），返回 {key: [(rel, tool, content)]}。"""
+    """扫 standards/ 所有命中（排除 [RETIRED-），返回 {key: [(rel, tool, content)]}。
+
+    fail-closed（round2 修复 A 阻断4）: grep 退出码非 0/1 即抛错，避免失败返回空集合放行。
+    """
     pat = "|".join(TERMS)
     r = subprocess.run(["grep", "-rEn", pat, str(STANDARDS)], capture_output=True, text=True)
+    # round2 修复（A 阻断4）: grep rc 非 0/1 即抛错（与 gate-checks.py C-BL-2 修复对齐）
+    if r.returncode not in (0, 1):
+        raise RuntimeError(f"grep 执行失败 rc={r.returncode}: {r.stderr}")
     prefix = str(STANDARDS).replace("\\", "/") + "/"
     hits = {}  # key "rel:line|tool" -> (rel, line, tool, content)
     for line in r.stdout.splitlines():

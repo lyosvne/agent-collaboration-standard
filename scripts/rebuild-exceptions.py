@@ -32,11 +32,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# 路径策略（Phase D-B，2026-07-26）:
-#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 git 仓库 governance/）
-#   exceptions/overrides: git 仓库 archive/（已纳入 git 真值）
+# 路径策略（Phase D-B + round2，2026-07-26）:
+#   REPO_ROOT: 仓库根（默认从脚本位置推导，避免跨 checkout 混读；环境变量可覆盖）
+#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 REPO/governance/）
+#   exceptions/overrides: REPO/archive/（与 STANDARDS 同源）
 # 本机 ~/.agent-collaboration/ 自 Phase D 起降级为只读历史快照，不再作活跃扫描源
-REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
+REPO = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[1])))
 STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
 EXC_FILE = REPO / "archive" / "retired-terms-exceptions-20260726.md"
 OVERRIDES_FILE = REPO / "archive" / "retired-terms-manual-history-overrides-20260726.md"

@@ -1,0 +1,187 @@
+# Phase D 独立交叉评审 B
+
+**评审范围**：`a4e98d8^..16cade4`，共 5 commits、19 个文件、`361 insertions / 70 deletions`。  
+已独立克隆 `review/phaseD-20260726`，阅读评审材料包及 757 行完整 patch，并用 `git log`、`git diff` 复核。材料包 patch 与实际提交差异 **SHA-256 完全一致**。
+
+## 1. 路径切换完整性
+
+### ❌ 硬阻断：仍存在现行路径漂移
+
+`START_HERE.md` 的 Read Order 已全部切换到 `governance/`，这部分正确；但“全编队路径引用切换”尚未完成：
+
+1. `governance/workspace-collaboration-v2.1.md:39`
+   - 仍将 `C:\Users\Admin\.agent-collaboration\` 声明为“本地协作入口”。
+   - 该位置位于“真值位置锚点”，属于现行规范，不是历史叙述。
+
+2. `governance/workspace-collaboration-v2.1.md:158`
+   - 仍将 `C:\Users\Admin\.agent-collaboration\templates\` 声明为异步文件信箱。
+   - 如果该机制已经退役，应明确标记为历史机制；如果仍现行，则与“本机目录降级为只读历史快照”矛盾。
+
+3. `knowledge/INTEGRATION.md:103`
+   - “本知识库遵守全局协作标准”仍直接指向：
+     `C:\Users\Admin\.agent-collaboration\standards\unified-agent-collaboration-standard.md`
+   - 这是明确的现行读取指令。
+
+4. `governance/README.md:3`
+   - 仍把旧目录描述为“本地镜像”，未更新为“冻结的只读历史快照”。
+
+5. `governance/workspace-collaboration-v2.1.md:183`
+   - 仍称旧 `standards` 目录为镜像，和 Phase D 的降级声明不一致。
+
+**具体修法：**
+
+- 将 `workspace-collaboration-v2.1.md:39` 改为 git 仓库入口，并注明旧目录仅为冻结快照。
+- 对 `:158` 作明确裁决：迁移文件信箱，或标记该段已失效且禁止继续写入旧目录。
+- 将 `knowledge/INTEGRATION.md:103` 改为仓库相对路径 `governance/unified-agent-collaboration-standard.md`。
+- 更新 `governance/README.md:3` 和协议 `:183` 的“镜像”措辞。
+- 修复后重新对非历史目录执行路径扫描，并逐条区分“现行指令”和“历史叙述”。
+
+---
+
+## 2. 抢救完整性
+
+### ✅ 通过
+
+- `review-process-lessons.md` 已完整包含 §六.1–§六.5：
+  - 三方独立并行调度
+  - cantus 超时处理
+  - 调度独立性边界
+  - fail-open/fail-closed 教训
+  - 修复后复跑验证
+- `session-handoff-20260726.md` 已从 Phase A 草稿更新为 Phase A+B 完成版。
+- `node2-review-package-20260726.md` 已新增，共 135 行，结构和关键评审信息完整。
+- 抢救内容中的 token 片段已经使用脱敏占位内容处理。
+- **认可不抢救本机 `key-rotation-guide.md` 脏版本的决定**：含 token 残片的版本不应进入 Git；保留仓库中的安全版本符合密钥不入库原则。
+
+### ⚠️ 软观察
+
+`session-handoff-20260726.md:164-165` 仍列出 secret patterns 的旧位置。考虑到该文档是特定 session 的状态记录，可以视为历史事实；建议加一条醒目注释，说明该位置已被 Phase D-B 的新位置取代，避免被后续恢复流程误当作现行操作指引。
+
+---
+
+## 3. scripts 解依赖正确性
+
+### ❌ 硬阻断：仓库根仍是机器固定路径，可能跨 checkout 混读
+
+多个脚本仍用以下固定路径作为 `REPO`：
+
+- `scripts/gate-checks.py:31`
+- `scripts/rebuild-exceptions.py:39`
+- `scripts/complete-exceptions.py:34`
+- `scripts/analyze-gate3.py:9`
+- `scripts/list-hits.py:10`
+- `scripts/redact-tokens.py:25`
+- `scripts/mirror-sync.py:235`
+
+核心问题出现在 `gate-checks.py`：
+
+- `:37` 的 `STANDARDS_SCAN_DIR` 可以指向当前评审 checkout；
+- 但 `:43-45` 的 exceptions、overrides、evidence 仍固定指向 `~/Documents/trae_projects/agent-collaboration-standard`。
+
+因此可能发生：
+
+> 用评审分支 checkout 的 `governance/` 做扫描，却拿另一份 canonical checkout，甚至 master 的 `archive/` exceptions 做集合比对。
+
+这会造成门禁 3/4 **跨提交混读**，出现错误放行或错误阻断。独立 clone 后也不能只靠 `STANDARDS_SCAN_DIR` 完整切换评审对象。
+
+**具体修法：**
+
+1. 默认仓库根改为脚本自身推导：
+   `Path(__file__).resolve().parents[1]`。
+2. 如需覆盖，增加统一的 `REPO_ROOT` 环境变量。
+3. `STANDARDS`、exceptions、overrides、evidence、redaction 扫描目录必须全部从同一个 `REPO_ROOT` 派生。
+4. 启动时校验这些路径属于同一仓库根，并输出当前 commit SHA。
+5. 增加测试：在两个不同 checkout 中运行门禁，确保不会读取另一 checkout 的 archive。
+
+### ❌ 硬阻断：`mirror-sync.py --apply` 仍可反向覆盖 git 真值
+
+`scripts/mirror-sync.py:229-233` 仅添加风险注释，但实际逻辑仍是：
+
+- `:234-235`：旧快照为源、git 仓库为目标；
+- `:244-261`：多个映射继续执行 mirror；
+- mirror 带删除语义；
+- `:278-279` 仍公开提供 `--apply`。
+
+具体失败场景：
+
+> 用户或自动化按旧操作运行 `mirror-sync.py --apply`，脚本将冻结且滞后的旧快照重新覆盖 `governance/`，并可能删除仅存在于 git 真值中的新文件。
+
+注释不能形成执行保护，因此“只加注释不动逻辑”在 Phase D 后仍是实质性破坏入口。
+
+**具体修法：**
+
+- 本轮最安全的最小修复是：检测到 `--apply` 时直接退出非零，明确说明 Phase D 后旧方向已禁用。
+- 保留 dry-run 仅用于审计也应醒目标记为 legacy。
+- 如要反转同步方向，应另立规格和独立评审，不能直接机械交换源、目标。
+
+---
+
+## 4. fail-closed 语义闭环
+
+### ❌ 硬阻断：门禁算法本身改善，但输入真值未形成同一提交闭环
+
+积极部分：
+
+- 扫描基准切到 `governance/` 是正确方向。
+- `STANDARDS` 不存在时会阻断。
+- 门禁 3 不直接信任 exceptions，门禁 4 独立进行集合登记核验，整体设计比早期 tautology 更可信。
+- Python 改动均通过语法编译检查。
+- 757 行材料 patch 与实际 Git diff 完全相同。
+
+但由于第 3 项所述的**混合仓库根**问题，门禁可能把一个 checkout 的治理文档与另一个 checkout 的 exceptions/overrides 比较。因此当前还不能认定门禁 3/4 对“被评审的同一 commit”形成可信闭环。
+
+**具体修法：**
+
+- 先统一 `REPO_ROOT`。
+- 门禁启动时打印并落证据：
+  - repo root
+  - 当前 branch
+  - `HEAD` SHA
+  - governance/archive/patterns 实际路径
+- 拒绝 governance 与 archive 不属于同一仓库根的运行。
+- 在 detached HEAD 或临时 clone 上重新跑完整四门禁。
+
+### ⚠️ 软观察：patterns 双份保留存在漂移风险
+
+旧位置冻结、新位置成为唯一读取源，作为迁移期安排可以接受；但目前“冻结”主要依赖文档声明。
+
+建议：
+
+1. 新位置设为唯一可写源。
+2. 门禁检测旧、新位置同时存在时，只比较摘要，不打印敏感内容。
+3. 若摘要不一致，给出明确警告或阻断。
+4. 后续经用户授权再安全清理旧副本。
+
+---
+
+## 5. 红线遵守
+
+### ✅ 通过
+
+独立 Git 复核结果：
+
+- `.zcode/AGENTS.md` 在该 5-commit 范围内 **没有改动**。
+- `git diff --diff-filter=D` 无结果，**没有删除 tracked 文件**。
+- 远端 `master` 当前为 `5061b96`，不包含 `16cade4`，因此 **没有 push 到 master**。
+- 改动范围未发现 `.env`、CI/CD 配置、数据库 schema 或密钥文件入库。
+- 本次评审未执行 push、rebase、reset、删除或其他写操作。
+
+### ⚠️ 软观察
+
+评审材料称这 5 个 commits “未 push”，但远端 `origin/review/phaseD-20260726` 已包含 `16cade4`。这不违反“不得 push 到 master”的红线，也显然是本次独立评审能够 clone 的前提，但材料包应改为：
+
+> 已 push 到独立 review 分支，未 push 到 master。
+
+---
+
+# 总结判定
+
+## **CONDITIONAL**
+
+存在 3 类必须修复的硬阻断：
+
+1. **路径切换不完整**：现行协议和知识库入口仍指向旧 `.agent-collaboration`。
+2. **脚本 checkout 隔离失效**：`STANDARDS_SCAN_DIR` 可覆盖，但 exceptions/overrides 仍绑定另一固定仓库根。
+3. **旧方向 mirror 仍可写盘**：`mirror-sync.py --apply` 可以用冻结快照覆盖或删除 git 真值内容。
+
+修复上述问题，并在同一 checkout、同一 commit 上重新运行四门禁后，可再次评审转为 PASS。

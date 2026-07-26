@@ -46,7 +46,7 @@ O1 基座就绪的 P0 阻断退出条件之一：**废弃 `~/.agent-collaboratio
    - 注：`key-rotation-guide.md` 本机版含 token 残片反而脏，仓库版更对，故**不抢救本机版**
 
 3. **scripts/gate-checks.py 硬依赖** `~/.agent-collaboration/archive/secret-patterns/`（L33）：
-   - patterns 文件含真实 token 前缀（`4d0bba3678c2407` 等），**被 .gitignore 刻意排除**
+   - patterns 文件含真实 token 前缀（`[REDACTED-FRAGMENT]` 类），**被 .gitignore 刻意排除**
    - 直接废弃本机目录会让 fail-closed 门禁失效
 
 ## 三、5 commits 分解（按执行顺序）
@@ -61,7 +61,7 @@ O1 基座就绪的 P0 阻断退出条件之一：**废弃 `~/.agent-collaboratio
 - `archive/retired-terms-exceptions-20260726.md`：rebuild 重建
 
 **门禁 fail-closed 实战验证**：
-- 门禁2 捕获 6 处真实 token 片段（`bcVs***`/`JaZK***`/`22a5***`）在抢救文件中 → 脱敏为 `[REDACTED-FRAGMENT]`
+- 门禁2 捕获 6 处真实 token 片段（`[REDACTED-FRAGMENT]` ×3 类前缀）在抢救文件中 → 脱敏为 `[REDACTED-FRAGMENT]`
 - 门禁3 捕获 1 处现行角色引用（retrospective L44 `Codex`）→ 加 manual-override（绕过句构造示例，合法 HISTORY）
 - 门禁4 捕获 2 处 exceptions 漏登（roadmap L234 Trae IDE / retrospective L44 Codex）→ rebuild 重建
 

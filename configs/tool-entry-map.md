@@ -6,7 +6,9 @@ This file maps where each coding agent should read global rules from.
 
 All tools should start from:
 
-`C:\Users\Admin\.agent-collaboration\START_HERE.md`
+`C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\START_HERE.md`
+
+> Phase D（2026-07-26）：真值源迁到 git 仓库。本机 `~/.agent-collaboration\` 降级为只读历史快照，不再作活跃入口。
 
 ## ZCode (接替 Claude Code)
 
@@ -29,8 +31,8 @@ Required behavior:
 
 Primary entries:
 
-- `C:\Users\Admin\.agent-collaboration\configs\trae-solo-operating-profile.md`
-- `C:\Users\Admin\.agent-collaboration\configs\trae-solo-pc-alignment.md`
+- `C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\configs\trae-solo-operating-profile.md`
+- `C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\configs\trae-solo-pc-alignment.md`
 - `C:\Users\Admin\AppData\Roaming\TRAE SOLO CN\User\SOLO_AGENT_RULES.md`
 - Imported Claude rules when `AI.rules.importClaudeMd` is enabled.
 
@@ -71,4 +73,4 @@ Required behavior:
 
 - Do not rely on local chat memory.
 - Return a PR, patch, or structured report.
-- Use `C:\Users\Admin\.agent-collaboration\templates\cloud-agent-task-pack.md` before execution.
+- Use `C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\templates\cloud-agent-task-pack.md` before execution.

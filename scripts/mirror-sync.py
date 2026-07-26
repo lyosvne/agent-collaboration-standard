@@ -274,15 +274,25 @@ def build_plan() -> list:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="v3.4 Phase B.2 同步执行器")
+    ap = argparse.ArgumentParser(description="v3.4 Phase B.2 同步执行器（Phase D 后 legacy）")
     ap.add_argument("--apply", action="store_true",
                     help="真正写盘（默认 dry-run, 不改盘）")
     ap.add_argument("--only", metavar="NAME", action="append", default=[],
                     help="只运行名称匹配的映射（可多次, 子串匹配）")
     args = ap.parse_args()
 
-    print(f"模式: {'APPLY(写盘)' if args.apply else 'DRY-RUN(只读)'}")
-    print(f"源根: {SRC_ROOT}")
+    # Phase D-B round2 修复（A/B round1 共识阻断3）:
+    # mirror-sync 原方向是"本机快照 → git 仓库"，但 Phase D 后本机已降级为只读历史快照，
+    # git 仓库升为真值。原方向 --apply 会用滞后快照覆盖 git 真值 + 删除 git 独有文件，是破坏路径。
+    # 本轮禁用 --apply，只允许 dry-run 作审计用。反转同步方向需另立规格 + 独立评审。
+    if args.apply:
+        print("❌ Phase D 后 mirror-sync --apply 已禁用（原方向会覆盖 git 真值）", file=sys.stderr)
+        print("   原方向：~/.agent-collaboration/（只读快照）→ git 仓库（真值），语义已反转", file=sys.stderr)
+        print("   如需反转同步方向，另立规格 + 独立评审；当前 git 已是真值，无需 mirror", file=sys.stderr)
+        return 1
+
+    print(f"模式: DRY-RUN(只读, Phase D 后 --apply 已禁用)")
+    print(f"源根: {SRC_ROOT}（Phase D 后已降级为只读历史快照）")
     print(f"目标根: {DST_ROOT}")
 
     if not SRC_ROOT.is_dir():

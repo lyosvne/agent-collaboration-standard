@@ -14,7 +14,7 @@ If SOLO runs in a Linux sandbox and cannot access `C:\Users\Admin\...`, classify
 
 ## SOLO PC Responsibilities
 
-- Read global rules from `C:\Users\Admin\.agent-collaboration\START_HERE.md`.
+- Read global rules from `C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\START_HERE.md`.
 - Read project rules after entering a repository.
 - Check branch, commit, dirty state, scope, risk, and verification before changes.
 - Implement features, fixes, docs, tests, and reviews when task boundaries are clear.

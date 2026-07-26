@@ -22,7 +22,9 @@ import argparse
 import sys
 from pathlib import Path
 
-REPO = Path.home() / "Documents" / "trae_projects" / "agent-collaboration-standard"
+REPO = Path(__import__("os").environ.get(
+    "REPO_ROOT",
+    str(Path(__file__).resolve().parents[1]))  # scripts/ 父目录 = 仓库根，避免跨 checkout 混读
 SRC = Path.home() / ".agent-collaboration"
 # 路径策略（Phase D-B，2026-07-26）：
 #   REDACT_MAP 从 ~/.config/agent-collaboration/secret-patterns/ 读（环境变量可覆盖）

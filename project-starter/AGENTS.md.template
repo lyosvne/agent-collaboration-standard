@@ -42,7 +42,7 @@
 
 ## Agent Rules
 
-- Local agents should read global rules first: `C:\Users\Admin\.agent-collaboration\START_HERE.md`
+- Local agents should read global rules first: `C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\START_HERE.md`
 - Sandbox agents that cannot read local Windows paths should use this `AGENTS.md` plus the task pack as their rule source.
 - Full standard repository: `https://github.com/lyosvne/agent-collaboration-standard`
 - Shared commands: `:ALL` loads shared state; `:ONE` selects one owner; `:CHECK` runs read-only local-vs-GitHub self-check.

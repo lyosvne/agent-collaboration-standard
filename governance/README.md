@@ -1,7 +1,7 @@
 # Governance（编队治理文档）
 
 > 治理文档的 git 真值目录。依据协议 §9.2（2026-07-23 用户授权入库）。
-> 本目录任何修订 = git commit，历史可溯。本地镜像：`C:\Users\Admin\.agent-collaboration\standards\`
+> 本目录任何修订 = git commit，历史可溯。本地冻结快照（只读，Phase D 起降级）：`C:\Users\Admin\.agent-collaboration\standards\`
 
 ## 文档层级
 

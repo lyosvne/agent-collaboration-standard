@@ -23,16 +23,20 @@ gate-checks.py — v3.4 Phase B Step 4 门禁执行器（fail-closed）
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 
-REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard")) if (os := __import__("os")) else None
-# 路径策略（Phase D-B，2026-07-26）:
-#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 git 仓库 governance/）
+REPO = Path(os.environ.get(
+    "REPO_ROOT",
+    str(Path(__file__).resolve().parents[1])))  # scripts/ 的父目录 = 仓库根
+# 路径策略（Phase D-B + round2，2026-07-26）:
+#   REPO_ROOT: 仓库根（默认从脚本位置推导，避免跨 checkout 混读；环境变量可覆盖）
+#   STANDARDS_SCAN_DIR: 扫描退役词的真值目录（默认 REPO/governance/）
 #   SECRET_PATTERNS_DIR: secret 扫描 patterns（默认 ~/.config/agent-collaboration/secret-patterns/，含 token 不入 git）
-#   exceptions/overrides: git 仓库 archive/（已纳入 git 真值）
+#   exceptions/overrides: REPO/archive/（与 STANDARDS 同源，确保门禁 3/4 不跨 checkout 混读）
 # 本机 ~/.agent-collaboration/ 自 Phase D 起降级为只读历史快照，不再作活跃扫描源
 STANDARDS = Path(os.environ.get("STANDARDS_SCAN_DIR", str(REPO / "governance")))
 SECRET_PATTERNS_DIR = Path(os.environ.get(

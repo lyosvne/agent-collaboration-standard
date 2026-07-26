@@ -100,7 +100,7 @@ source: 来源说明
 ## 关联的全局规范
 
 本知识库遵守全局协作标准:
-- `C:\Users\Admin\.agent-collaboration\standards\unified-agent-collaboration-standard.md`
+- `governance/unified-agent-collaboration-standard.md`（git 仓库真值，相对仓库根）
 - 使用统一的 目标/范围/验证/风险/handoff 语言
 - 项目级规则不覆盖全局红线
 

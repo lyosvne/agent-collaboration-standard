@@ -1,0 +1,8 @@
+[retry] 第 1 次失败(status=timeout), 等待 3s 后重试...
+[warn] 调度记录落盘失败: HTTP Error 403: Forbidden
+=== C RESULT ===
+status: timeout
+attempts: 2
+duration: 405.2
+--- message ---
+开工。先拉全局上下文 + clone 仓库。
