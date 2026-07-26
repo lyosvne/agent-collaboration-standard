@@ -173,11 +173,44 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 ## 当前位置
 
-**O1（基座就绪）收尾阶段，与O2并行推进中。**
+**O1（基座就绪）Phase C 完成，Phase D 待启动（2026-07-26 更新）。**
 
-已完成：CC→ZCode迁移、Pi部署、飞书桥接、Qoder三档SSE消费器、漂移治理、调度上下文。
-O1待完成：Mira/Kimi接入、退役清理（Codex/CC/QoderWork）、ECS治理（swap/时钟/密钥）。
-O2并行推进中：W5.5数据流闭环。
+### 已完成（O1 协作底座 + 退役清理 + 治理真值）
+- CC→ZCode 迁移（CC 完全退役 + 密钥清除本机零残留）
+- Pi ECS 部署（pi-server/pi-feishu-bridge/pi-dispatch-server 均 active）
+- Qoder 三档 SSE 消费器 + qoder-bridge.py 统一桥
+- 漂移治理（设计 + push 授权）
+- 调度上下文（dispatch-server，但治理文档透出不全，见下方缺口）
+- Mira 主干接入（trunk-complete: Togo CLI v5.21 + 40 模型 + 生图 + c360）
+- Kimi 本机调度（ZCode Bash 调 kimi.exe 实测通过）
+- Trae 收口（C 选项: SOLO 独立角色 + Aetheris 分支合并 master）
+- **O1 治理 Phase A-D**:
+  - Phase A 语义修正（11 条 ROLE 替换）
+  - Phase B 安全同步（commit 314b35a）
+  - 节点 2 评审 5 轮迭代三方通过（A round4 + B/C round5）
+  - **Phase C 合并 master（commit b2eb24e，2026-07-26）**
+
+### O1 待完成（P0 阻断真退出）
+1. **Phase D: Y 落地**（废弃 ~/.agent-collaboration 作活跃存储 + 全编队路径引用切换到 git 仓库）
+2. **5 域一致性真闭环**（ECS/Git/云端/本地/知识库 单一真值，当前仅 git 完成）
+3. **Pi 漂移治理纳入** + **时序版本自动化**（触发条件 = Phase D 完成）
+
+### 节点 2 评审新暴露的真缺口（2026-07-26 新增，无历史章节承载）
+4. **dispatch-server 治理文档透出缺失**（P0 传播缺口）:
+   - `_handle_all` 只透出 1/4 治理文档（roadmap），漏了北极星 v1.2 / 架构真值 v1.0 / 编队分工 v1.1
+   - 云端 agent（Qoder/Kimi/Mira）调度时无上下文注入，靠主动 WebFetch 碰运气
+   - 详见 `specs/node2-review-retrospective-20260726.md` §三
+5. **dispatch-server 架构 spec 缺失**（生产组件无文档/无职能归属）
+6. **scripts/ 工具脚本长期维护归属**（5 个 .py 无 spec）
+7. **manual-history-overrides 可持续性**（53 条人工 override + 双解析函数会漂移）
+
+### O1 收口并行项（P1）
+8. 远程分支清理（29 条已合未删）
+9. unified vs workspace-collaboration 去留裁定（节点 3 用户裁决）
+10. ECS 基础设施治理（swap/时钟同步/cloudflared 孤儿进程）
+
+### O2 并行推进中
+- W5.5 数据流闭环（横跨 O1/O2，详见分歧项）
 
 ---
 
@@ -206,6 +239,7 @@ O2并行推进中：W5.5数据流闭环。
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v1.1节点2收尾更新 | 2026-07-26 | §当前位置全面更新：Phase C 合并 master 完成(b2eb24e)；Mira/Kimi/CC 退役标 done；增补节点2评审暴露的4项真缺口(dispatch透出/dispatch spec/scripts归属/manual-overrides可持续性)；指向 node2-review-retrospective §三 |
 | v1.1定稿 | 2026-07-25 | W5.5归属裁定为横跨O1/O2。路线图定稿生效 |
 | v1.1修订 | 2026-07-25 | Qoder客户端19条逐条修订：补客户感知维度、O1/O2并行、KR口径量化、降级路径、事件驱动校准、不可委托清单、北极星=方向/七维度=度量、Wave↔阶段映射、文件名修正 |
 | v1.1 | 2026-07-24 | OKR管理哲学重构：使命→北极星→维度→四阶段O/KR→评估反馈体系 |
