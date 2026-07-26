@@ -100,10 +100,10 @@ def classify(rel: str, content: str, context: str = "", manual_key: str = "") ->
     if context and ("[RETIRED-" in context or "TERMS" in context or "词表" in context
                     or "RETired" in context or "placeholder" in context):
         return "方案示例代码"
-    # 当前行本身含方案代码标记（placeholder/case/print/grep/awk/tr 等）
-    if any(k in content for k in ["placeholder", "case ", "print ", "grep ", "awk ", "tr ",
-                                   "line ~", "[RETIRED-", "TERMS", "RETired"]):
-        return "方案示例代码"
+    # round4 BL-R4-2 修复(C 建议): 删除 content 词桶(case/grep/awk/print/placeholder 等)
+    # 这些宽泛子串可被构造句绕过("in case Codex fails"含"case ")。
+    # 16 条真方案代码已移入 manual-overrides, 由人工确认机制覆盖。
+    # 当行只认上下文(前后行), 不再认当行宽泛词。
     # round4 最严收窄: 其他全 raise, 强制人工判定
     raise UnclassifiedHit(
         f"未分类命中（round4 最严收窄, 需人工判定 ROLE or HISTORY）: {rel} | {content[:80]}"
@@ -173,6 +173,10 @@ def extract_existing_role(text: str) -> list[str]:
             in_role = "ROLE" in s.upper()
             continue
         if in_role and s.startswith("|") and "---" not in s:
+            # round4 C 条件项2: 过滤表头行(避免累积重复表头当数据)
+            parts = [p.strip() for p in s.split("|")]
+            if len(parts) >= 2 and parts[1] == "文件":
+                continue
             role_lines.append(ln)
     return role_lines
 

@@ -20,6 +20,11 @@
 | specs/agent-collaboration-git-sync-plan.md | 75 | Trae IDE | 方案文档讨论"替换工具角色引用"的示例 |
 | specs/agent-collaboration-git-sync-plan.md | 150 | Trae IDE | 方案文档 ROLE 标记说明（含[RETIRED-示例, 是方案讨论）|
 | specs/agent-collaboration-git-sync-plan.md | 158 | Trae IDE | 方案文档 ROLE 标注示例表 |
+| specs/agent-collaboration-git-sync-plan.md | 179 | Claude Code | 方案 bash case 示例（placeholder 映射）|
+| specs/agent-collaboration-git-sync-plan.md | 180 | claude-zhipu | 方案 bash case 示例（placeholder 映射）|
+| specs/agent-collaboration-git-sync-plan.md | 181 | Codex | 方案 bash case 示例（placeholder 映射）|
+| specs/agent-collaboration-git-sync-plan.md | 182 | QoderWork | 方案 bash case 示例（placeholder 映射）|
+| specs/agent-collaboration-git-sync-plan.md | 183 | Trae IDE | 方案 bash case 示例（placeholder 映射）|
 | specs/agent-collaboration-git-sync-plan.md | 163 | Claude Code | 方案修订记录（历史变更叙述）|
 | specs/agent-collaboration-git-sync-plan.md | 195 | claude-zhipu | 方案修订记录（历史变更叙述）|
 | specs/agent-collaboration-git-sync-plan.md | 199 | Claude Code | 方案 bash 脚本示例（REMAINING_ROLE grep）|

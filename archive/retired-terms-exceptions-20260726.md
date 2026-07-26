@@ -14,12 +14,6 @@
 
 | 文件 | 行 | 工具 | 内容预览 | 理由 |
 |---|---|---|---|---|
-| 文件 | 行 | 工具 | 内容预览 | 理由 |
-| 文件 | 行 | 工具 | 内容预览 | 理由 |
-| 文件 | 行 | 工具 | 内容预览 | 理由 |
-| 文件 | 行 | 工具 | 内容预览 | 理由 |
-| 文件 | 行 | 工具 | 内容预览 | 理由 |
-| 文件 | 行 | 工具 | 内容预览 | 理由 |
 | standards/unified-agent-collaboration-standard.md | 60 | Claude Code | "Choose the agent owner: Trae IDE, Claude Code..." | CC 作为编队可选 owner（已退役）|
 | standards/unified-agent-collaboration-standard.md | 60 | Trae IDE | 同上 | Trae IDE 作为编队可选 owner（退役为编队角色）|
 | standards/unified-agent-collaboration-standard.md | 104 | Claude Code | "Claude Code may keep Superpowers..." | CC 单独能力描述（已退役）|
@@ -90,11 +84,11 @@
 | specs/agent-collaboration-git-sync-plan.md | 157 | Trae IDE | \| standards/unified-...md \| 130 \| Trae IDE \| HISTORY \| "Trae IDE 退役过程" 历史叙述 \| ZCode \| | 历史叙述 |
 | specs/agent-collaboration-git-sync-plan.md | 158 | Trae IDE | \| standards/unified-...md \| 24 \| Trae IDE \| ROLE \| "Trae IDE 是平行工作者" 当前角色 \| ZCode \| | 人工确认HISTORY |
 | specs/agent-collaboration-git-sync-plan.md | 163 | Claude Code | v3.3 修订：删除 v3.2 的 `tr -d ' '`（会把 "Claude Code" 变 "ClaudeCode" 导致 case 失效，B.3 真 bug），改用更稳健的 awk 列提取。 | 人工确认HISTORY |
-| specs/agent-collaboration-git-sync-plan.md | 179 | Claude Code | "Claude Code") placeholder="[RETIRED-CC-2026-07-25]" ;; | 方案示例代码 |
-| specs/agent-collaboration-git-sync-plan.md | 180 | claude-zhipu | "claude-zhipu") placeholder="[RETIRED-CC-2026-07-25]" ;; | 方案示例代码 |
-| specs/agent-collaboration-git-sync-plan.md | 181 | Codex | "Codex") placeholder="[RETIRED-CODEX-2026-07-25]" ;; | 方案示例代码 |
-| specs/agent-collaboration-git-sync-plan.md | 182 | QoderWork | "QoderWork") placeholder="[RETIRED-QODERWORK-2026-07-25]" ;; | 方案示例代码 |
-| specs/agent-collaboration-git-sync-plan.md | 183 | Trae IDE | "Trae IDE") placeholder="[RETIRED-TRAE-IDE-编队角色]" ;; | 方案示例代码 |
+| specs/agent-collaboration-git-sync-plan.md | 179 | Claude Code | "Claude Code") placeholder="[RETIRED-CC-2026-07-25]" ;; | 人工确认HISTORY |
+| specs/agent-collaboration-git-sync-plan.md | 180 | claude-zhipu | "claude-zhipu") placeholder="[RETIRED-CC-2026-07-25]" ;; | 人工确认HISTORY |
+| specs/agent-collaboration-git-sync-plan.md | 181 | Codex | "Codex") placeholder="[RETIRED-CODEX-2026-07-25]" ;; | 人工确认HISTORY |
+| specs/agent-collaboration-git-sync-plan.md | 182 | QoderWork | "QoderWork") placeholder="[RETIRED-QODERWORK-2026-07-25]" ;; | 人工确认HISTORY |
+| specs/agent-collaboration-git-sync-plan.md | 183 | Trae IDE | "Trae IDE") placeholder="[RETIRED-TRAE-IDE-编队角色]" ;; | 人工确认HISTORY |
 | specs/agent-collaboration-git-sync-plan.md | 195 | claude-zhipu | v3.3 修订：门禁 4 从"打印数量"改为"硬门禁"（不一致直接 exit 1），并补齐 v3.2 遗漏的 `claude-zhipu`。 | 人工确认HISTORY |
 | specs/agent-collaboration-git-sync-plan.md | 198 | claude-zhipu | # 门禁 3: 现行规范中退役角色引用 = 0（v3.3 补齐 claude-zhipu） | 历史叙述 |
 | specs/agent-collaboration-git-sync-plan.md | 199 | Claude Code | REMAINING_ROLE=$(grep -rn "Claude Code\\|claude-zhipu\\|Codex\\|QoderWork\\|Trae IDE" ~/.agent-collaboration/standards/  | 人工确认HISTORY |

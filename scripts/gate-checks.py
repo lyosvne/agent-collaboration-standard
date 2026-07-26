@@ -244,8 +244,10 @@ def _scan_raw_lines() -> list[tuple[str, str, str, bool, str, str]]:
     out = []
     WINDOW = 40
     LINE_RE_CTX = __import__("re").compile(r"^(.+?)[-:]([0-9]+)[-:](.*)$")
-    # 按 -- 分组解析 grep -B1 -A1 输出
-    blocks = r.stdout.split("--")
+    # round4 BL-R4-1 修复(C 发现的回归): 恢复 per-occurrence 循环
+    # round4 重写时丢失了 round3 的 while 循环, 同行同退役词出现两次时第二处不进扫描结果 → fail-open
+    # 按 -- 整行分组解析 grep -B1 -A1 输出
+    blocks = [b for b in r.stdout.split("\n--\n") if b.strip()]
     for block in blocks:
         block_lines = [l for l in block.splitlines() if l.strip()]
         if not block_lines:
@@ -259,15 +261,19 @@ def _scan_raw_lines() -> list[tuple[str, str, str, bool, str, str]]:
             fpath_norm = fpath.replace("\\", "/").rstrip("-")
             rel = fpath_norm[len(prefix):] if fpath_norm.startswith(prefix) else fpath_norm
             for t in RETIRED_TERMS:
-                idx = content.find(t)
-                if idx == -1:
-                    continue
-                window_start = max(0, idx - WINDOW)
-                window_end = min(len(content), idx + len(t) + WINDOW)
-                window = content[window_start:window_end]
-                is_replaced = "[RETIRED-" in window
-                ctx = " ".join(context_parts)
-                out.append((rel, lineno, t, is_replaced, content, ctx))
+                # per-occurrence: 遍历该行该词的所有出现, 每处独立判窗口
+                start = 0
+                while True:
+                    idx = content.find(t, start)
+                    if idx == -1:
+                        break
+                    window_start = max(0, idx - WINDOW)
+                    window_end = min(len(content), idx + len(t) + WINDOW)
+                    window = content[window_start:window_end]
+                    is_replaced = "[RETIRED-" in window
+                    ctx = " ".join(context_parts)
+                    out.append((rel, lineno, t, is_replaced, content, ctx))
+                    start = idx + len(t)
             context_parts.append(content)
     return out
 
@@ -318,9 +324,6 @@ def gate3_role_refs() -> tuple[bool, str]:
         elif context and ("[RETIRED-" in context or "TERMS" in context or "词表" in context
                           or "RETired" in context or "placeholder" in context):
             history_count += 1  # 上下文(前后行)含方案示例代码标记
-        elif any(k in content for k in ["placeholder", "case ", "print ", "grep ", "awk ", "tr ",
-                                         "line ~", "[RETIRED-", "TERMS", "RETired"]):
-            history_count += 1  # 当前行含方案代码标记
         elif key in manual_overrides:
             history_count += 1  # round4: 人工确认 HISTORY（overrides 清单）
         else:
@@ -359,6 +362,9 @@ def _load_exception_keys() -> set[str]:
         if len(parts) < 5:
             continue
         file, lineno, tool = parts[1], parts[2], parts[3]
+        # round4 C 条件项2: 过滤表头行(避免累积重复表头当数据)
+        if file == "文件" or not file or not lineno or not tool:
+            continue
         if current_section in ("ROLE", "HISTORY"):
             keys.add(f"{file}:{lineno}|{tool}")
     return keys
@@ -421,9 +427,6 @@ def gate4_history_in_exceptions() -> tuple[bool, str]:
             registered_keys.add(key)
         elif context and ("[RETIRED-" in context or "TERMS" in context or "词表" in context
                           or "RETired" in context or "placeholder" in context):
-            registered_keys.add(key)
-        elif any(k in content for k in ["placeholder", "case ", "print ", "grep ", "awk ", "tr ",
-                                         "line ~", "[RETIRED-", "TERMS", "RETired"]):
             registered_keys.add(key)
         elif key in manual_overrides:
             registered_keys.add(key)
