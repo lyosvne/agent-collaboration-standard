@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "version": "1.0",
+  "updated": "2026-07-26",
+  "note": "Pi 漂移治理体检对象清单（pi-drift-governance-spec.md §2）。clone 路径占位符由部署方按 ECS/本机实际填写，不硬编码。",
+  "repos": [
+    {
+      "name": "agent-collaboration-standard",
+      "origin": "https://github.com/AetherisClubs/agent-collaboration-standard",
+      "truth_branch": "master",
+      "agent_branches": ["agent/zcode", "agent/qoder", "agent/kimi", "agent/solo", "agent/mira"],
+      "monitor_level": "full",
+      "note": "本仓库（agent-collaboration-git-sync-plan.md §六验收对象，依赖 pi-drift-guard Extension 上线）"
+    },
+    {
+      "name": "Aetheris",
+      "origin": "<待 ECS 部署方填写>",
+      "truth_branch": "master",
+      "agent_branches": ["agent/zcode", "agent/qoder", "agent/kimi", "agent/solo", "agent/mira"],
+      "monitor_level": "full",
+      "note": "主仓库（架构 v1.0 §五）"
+    }
+  ],
+  "retired_clones": {
+    "agent/claude": "Claude Code 2026-07-25 退役，分支冻结",
+    "agent/trae": "Trae IDE 2026-07-26 退役为编队角色，分支并入 agent/solo"
+  },
+  "schedule_minutes": 30,
+  "notification_channels": ["feishu", "aetheris-truth-layer"]
+}

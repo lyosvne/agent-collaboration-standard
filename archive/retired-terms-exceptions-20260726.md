@@ -17,7 +17,7 @@
 
 ## HISTORY（保留，不替换）
 
-共 138 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
+共 140 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
 
 | 文件 | 行 | 工具 | 内容预览 | 分类 |
 |---|---|---|---|---|
@@ -50,6 +50,8 @@
 | archive/north-star-v1.3-roadmap-annex.md | 49 | QoderWork | - 退役清理完成（Codex/CC/QoderWork退役收尾，知识库归属已定） | 归档文档历史引用 |
 | archive/north-star-v1.3-roadmap-annex.md | 127 | Codex | 待完成（O1剩余）：Mira/Kimi接入、退役清理（Codex/CC/QoderWork）、ECS治理（swap/时钟/密钥）。 | 归档文档历史引用 |
 | archive/north-star-v1.3-roadmap-annex.md | 127 | QoderWork | 待完成（O1剩余）：Mira/Kimi接入、退役清理（Codex/CC/QoderWork）、ECS治理（swap/时钟/密钥）。 | 归档文档历史引用 |
+| configs/drift-config.json | 25 | Claude Code | "agent/claude": "Claude Code 2026-07-25 退役，分支冻结", | 人工确认HISTORY |
+| configs/drift-config.json | 26 | Trae IDE | "agent/trae": "Trae IDE 2026-07-26 退役为编队角色，分支并入 agent/solo" | 人工确认HISTORY |
 | fleet-division-v1.1.md | 11 | Codex | > 基线: 架构真值 v1.0 + 用户三项裁定（Mira 特化 / Codex 淘汰 / Pi push 授权） | 历史叙述 |
 | fleet-division-v1.1.md | 80 | Codex | 以下 7 项职能在 Mira 特化、Codex 淘汰、Trae IDE 退役为编队角色（2026-07-26 C 选项，SOLO 作为 Trae 系唯一独立角色）后**悬空**，按自进化闭环逐环检查得出： | 历史叙述 |
 | fleet-division-v1.1.md | 80 | Trae IDE | 以下 7 项职能在 Mira 特化、Codex 淘汰、Trae IDE 退役为编队角色（2026-07-26 C 选项，SOLO 作为 Trae 系唯一独立角色）后**悬空**，按自进化闭环逐环检查得出： | 历史叙述 |

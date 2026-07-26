@@ -74,10 +74,12 @@
 | specs/pi-drift-governance-spec.md | 30 | Claude Code | §2 已退役分支记录（"Claude Code 2026-07-25 退役, 分支冻结"）, 历史叙述 |
 | specs/pi-drift-governance-spec.md | 31 | Trae IDE | §2 已退役分支记录（"Trae IDE 2026-07-26 退役为编队角色"）, 历史叙述 |
 | specs/pi-drift-governance-spec.md | 108 | Trae IDE | §7 实施形态注记（"原 agent/trae 已随 Trae IDE 退役"）, 历史叙述 |
+| configs/drift-config.json | 25 | Claude Code | retired_clones 显式记录（"Claude Code 2026-07-25 退役, 分支冻结"）, 历史叙述 |
+| configs/drift-config.json | 26 | Trae IDE | retired_clones 显式记录（"Trae IDE 2026-07-26 退役为编队角色"）, 历史叙述 |
 
 ## 审核人
 
-ZCode（round4 逐条人工判定, 2026-07-26; Phase D-A 追加 1 条, 2026-07-26; Pi 治理纳入 A 层追加 5 条, 2026-07-26）
+ZCode（round4 逐条人工判定, 2026-07-26; Phase D-A 追加 1 条, 2026-07-26; Pi 治理纳入 A 层追加 7 条, 2026-07-26）
 
 ## 复核要求
 
