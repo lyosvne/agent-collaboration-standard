@@ -27,7 +27,7 @@
 
 ## HISTORY（保留，不替换）
 
-共 128 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
+共 129 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
 
 | 文件 | 行 | 工具 | 内容预览 | 分类 |
 |---|---|---|---|---|
@@ -156,6 +156,7 @@
 | specs/trae-solo-branch-merge-task.md | 210 | Trae IDE | - 本机 Trae IDE 软件卸载（用户明确保留个人使用） | 人工确认HISTORY |
 | specs/trae-solo-branch-merge-task.md | 211 | Trae IDE | - Trae IDE 的 `~/.trae-cn/` 配置清理（个人使用保留） | 人工确认HISTORY |
 | workspace-collaboration-v2.1.md | 41 | Codex | - 知识库: `C:\Users\Admin\Documents\Codex\knowledge-audit-2026-07\Knowledge` | 人工确认HISTORY |
+| workspace-collaboration-v2.1.md | 68 | Trae IDE | \| Trae IDE（编队角色） \| ⛔ 已退役为编队角色（2026-07-26 C 选项，软件保留个人用，不进 Pi 调度链） \| | 历史叙述 |
 | workspace-collaboration-v2.1.md | 69 | Claude Code | \| Claude Code \| ⛔ 退役中（CC→ZCode 迁移进行） \| | 历史叙述 |
 | workspace-collaboration-v2.1.md | 70 | Codex | \| Codex \| ⛔ 已淘汰（用户确认） \| | 历史叙述 |
 | workspace-collaboration-v2.1.md | 71 | QoderWork | \| QoderWork \| ⛔ 已退役（Qoder 接管） \| | 历史叙述 |

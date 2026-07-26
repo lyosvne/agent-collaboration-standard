@@ -4,28 +4,30 @@ Read this before any coding-agent work.
 
 ## One Rule
 
-Use one shared operating language across ZCode, Trae IDE, Trae SOLO PC, Qoder, Kimi, Mira, GitHub, and cloud agents.
+Use one shared operating language across all fleet agents (current roster: ZCode / Qoder / Kimi / Mira / Trae SOLO / Pi; see `workspace-collaboration-v2.1.md` §2 for the authoritative roster).
 
 GitHub standard source: `https://github.com/lyosvne/agent-collaboration-standard`.
 
-## Read Order
+## Read Order (节点 3 重构为单一分层入口)
 
-1. `governance/unified-agent-collaboration-standard.md`
-2. `registry/skill-registry.md`
-3. `templates/handoff-pack.md`
-4. `configs/tool-entry-map.md`
-5. `governance/cloud-agent-connection-protocol.md` when work involves cloud agents.
-6. Project-specific entry files after entering a project.
+> 阅读顺序按"方向 → 治理 → 操作 → 按需专题"分层。每次开工按此顺序加载上下文。
 
-## Target System (目标体系) — Read Before Acting on Goals
+### 所有任务必读（方向 + 治理 + 操作）
 
-The target system has a single git truth source. Read in gradient order:
+1. **北极星（方向）**: `governance/north-star-v1.2.md` — 终局/第一性原则/红线/不可委托清单
+2. **协作协议（治理）**: `governance/workspace-collaboration-v2.1.md` — 权威/编队注册/任务路由/双环治理（**编队名单与路由的唯一权威**）
+3. **Agent Operating Standard（操作）**: `governance/unified-agent-collaboration-standard.md` — 启动/执行/验证/交接的字段、命令、流程、纪律
 
-1. **北极星 (校准基准)**: `governance/north-star-v1.2.md` — 终局/第一性原则/红线/不可委托清单
-2. **全局路线图 (执行罗盘)**: `governance/global-roadmap-v1.1.md` — 七维度/四阶段O/KR/评估反馈体系
-3. **编队分工 (组织链)**: `governance/fleet-division-v1.1.md` — G/M双环治理模型
-4. **架构真值**: `governance/agent-matrix-architecture-v1.0.md`
-5. **协作协议**: `governance/workspace-collaboration-v2.1.md`
+### 按需读取（专题 + 路由辅助）
+
+4. **全局路线图（执行罗盘）**: `governance/global-roadmap-v1.1.md` — 七维度/四阶段O/KR/当前位置
+5. **编队分工（组织链）**: `governance/fleet-division-v1.1.md` — G/M 双环职能映射（涉及职责边界/owner 争议时）
+6. **架构真值**: `governance/agent-matrix-architecture-v1.0.md` — 涉及架构/接入方式时
+7. `registry/skill-registry.md` + `registry/skill-governance.md` — Skill 能力与治理
+8. `templates/handoff-pack.md` — 需要交接时
+9. `configs/tool-entry-map.md` — 工具入口与能力适配
+10. `governance/cloud-agent-connection-protocol.md` — 涉及云端 agent 时
+11. Project-specific entry files after entering a project.
 
 Truth source: `https://github.com/lyosvne/agent-collaboration-standard` → `governance/` 目录
 Local snapshot (read-only, 2026-07-26 Phase D 起降级为历史快照): `C:\Users\Admin\.agent-collaboration\standards\`
@@ -92,16 +94,13 @@ For changes, include rollback target, rollback method, and rollback verification
 
 For handoff, minimum required fields are Goal, Source of truth, Verification, and Next action.
 
-## Tool Routing
+## Tool Routing（节点 3 去名单化）
 
-- Trae IDE: local integration lead and final closeout.
-- ZCode: terminal orchestrator (接替 Claude Code), deep implementation, TDD, subagents, code review.
-- Qoder: cloud execution node (REST API + SSE,可被调度).
-- Kimi: cloud CLI worker (Pi subprocess 调度).
-- Mira: cloud specialized (生图 + 评审).
-- Trae SOLO PC: full autonomous executor.
-- GitHub: only hard code sync point.
-- Cloud agents: isolated workers through issue, branch, PR, or handoff pack.
+> 编队角色名单与任务路由的**唯一权威**是 `workspace-collaboration-v2.1.md` §2-§3。本节不复制名单（避免编队变化时多源漂移）。
+
+- **GitHub**: only hard code sync point.
+- **Cloud agents**: isolated workers through issue, branch, PR, or handoff pack.
+- 当前编队成员、职责、路由：见 workspace §2-§3 + `fleet-division-v1.1.md`
 
 ## Local Machine Notes
 

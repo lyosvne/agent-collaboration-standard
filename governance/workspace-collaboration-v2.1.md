@@ -59,13 +59,13 @@ signoff: "用户 2026-07-23"
 | 智能体 | 角色 | 边界 |
 |--------|------|------|
 | **Kimi** | 前端实现主力 | `agent/kimi` 分支；Pi subprocess 调度 |
-| **Trae 本机** | 平行实现 + 本地集成 + **产品测试/QA/E2E**（吸收原 Trae SOLO 职能） | 与 ZCode 互不调度，git 为同步层 |
+| **Trae SOLO** | 平行实现 + 本地集成 + **端到端测试/QA/E2E**（独立角色，Aetheris `agent/solo` 分支实际产出） | 与 ZCode 互不调度，git 为同步层 |
 | **Mira** | 生图（编队独有）+ 代码评审 + 架构评审 + Extension 评审 | 云端特化，Pi 调度；无本地能力 |
 
 ### 孤岛/退役
 | 智能体 | 状态 |
 |--------|------|
-| Trae SOLO（云端） | 孤岛独立使用（网络白名单锁死） |
+| Trae IDE（编队角色） | ⛔ 已退役为编队角色（2026-07-26 C 选项，软件保留个人用，不进 Pi 调度链） |
 | Claude Code | ⛔ 退役中（CC→ZCode 迁移进行） |
 | Codex | ⛔ 已淘汰（用户确认） |
 | QoderWork | ⛔ 已退役（Qoder 接管） |
@@ -121,7 +121,7 @@ signoff: "用户 2026-07-23"
 - 各自独立 clone + 独立分支，绝不共享工作目录
 - 漂移治理：Pi cron 体检（只读）→ 分级报告 → 代劳 push（授权内）/提醒 pull（不代劳）
 - 交互分层：飞书 = 对话窗口（指令/通知/移动审批）；Aetheris 网页 = 工作台（任务板/状态/知识）
-- Qoder↔Pi 回传：**Webhook 主通道**（Pi 注册 endpoint 订阅 session.status_idled 等生命周期事件，HMAC-SHA256 签名，at-least-once 投递）+ **SSE 补充**（token 级流式输出，用于进度展示）+ **轮询兜底**（webhook 失败降级）
+- Qoder↔Pi 回传：**SSE 主通道**（stream-events，token 级流式输出，qoder-bridge.py 已实证）+ **轮询兜底**（get_events list 拉取，SSE 断流时降级）。**无 Webhook**（Qoder Cloud Agents API 当前不支持 webhook，以本机实现为准，2026-07-26 用户裁定；若未来 Qoder 支持 webhook 再议）
 - **执行纪律（终局已定）**：①不偏离既定架构——执行中如发现需要改变架构方向（新增模块、改变设计、扩大范围），必须停下来向用户确认，不得自行决定；②不被技术分支带偏——遇到问题先回到终极目标问"这对目标有用吗"，无用则立即收手转向，不在技术细节里深挖。
 
 ---
