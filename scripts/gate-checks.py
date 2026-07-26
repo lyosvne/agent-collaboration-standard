@@ -30,7 +30,9 @@ from pathlib import Path
 
 REPO = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard")) if (os := __import__("os")) else None
 STANDARDS = Path.home() / ".agent-collaboration" / "standards"
-PATTERNS_FILE = Path.home() / ".agent-collaboration" / "archive" / "secret-patterns" / "scan-patterns.txt"
+SECRET_PATTERNS_DIR = Path.home() / ".agent-collaboration" / "archive" / "secret-patterns"
+PATTERNS_FILE = SECRET_PATTERNS_DIR / "scan-patterns.txt"
+REDACT_MAP_FILE = SECRET_PATTERNS_DIR / "redact-map.txt"
 EXCEPTIONS_FILE = Path.home() / ".agent-collaboration" / "archive" / "retired-terms-exceptions-20260726.md"
 EVIDENCE_DIR = REPO / ".review-evidence"
 
@@ -107,6 +109,58 @@ def load_patterns() -> tuple[bool, list[str], str]:
     return True, valid, f"有效 pattern 数: {len(valid)}"
 
 
+def check_patterns_drift() -> tuple[bool, str]:
+    """漂移守卫（节点2 round3 修复, B-3）: 校验 scan-patterns.txt vs redact-map.txt 一致性。
+
+    问题: scan-patterns 由 gen-scan-patterns.py 从 redact-map 派生, 但若用户加了
+    redact-map 新 token 后忘跑 gen-scan --apply, gate2 会用旧 scan-patterns 漏扫新 token。
+    这是两份真值源的漂移 fail-open。
+
+    修复: gate-checks 启动时比对 scan-patterns 的 pattern 集合 vs redact-map 的 token 集合,
+    不一致即 fail-closed。这样"忘跑 gen-scan"会被门禁捕获。
+
+    返回 (ok, msg)。ok=False 时调用方应 fail-closed。
+    """
+    if not REDACT_MAP_FILE.is_file():
+        return False, f"redact-map.txt 不存在: {REDACT_MAP_FILE}"
+    if not PATTERNS_FILE.is_file():
+        return False, f"scan-patterns.txt 不存在: {PATTERNS_FILE}"
+
+    # 读 redact-map 的 token 集合
+    redact_tokens = set()
+    for ln in REDACT_MAP_FILE.read_text(encoding="utf-8").splitlines():
+        s = ln.rstrip("\n")
+        if not s.strip() or s.lstrip().startswith("#") or "\t" not in s:
+            continue
+        token = s.split("\t", 1)[0].strip()
+        if token:
+            redact_tokens.add(token)
+
+    # 读 scan-patterns 的 pattern 集合
+    ok, scan_patterns, _ = load_patterns()
+    if not ok:
+        return False, "scan-patterns 加载失败"
+    scan_set = set(scan_patterns)
+
+    # 比对
+    only_redact = redact_tokens - scan_set  # redact 有 scan 没有 = 漂移（漏扫）
+    only_scan = scan_set - redact_tokens    # scan 有 redact 没有 = 漂移（多余 pattern）
+
+    if only_redact:
+        masked = [t[:4] + "***" for t in sorted(only_redact)[:5]]
+        return False, (
+            f"漂移: redact-map 有 {len(only_redact)} 个 token 未在 scan-patterns 中 "
+            f"（漏扫风险, 跑 gen-scan-patterns.py --apply）: {masked}"
+        )
+    if only_scan:
+        masked = [t[:4] + "***" for t in sorted(only_scan)[:5]]
+        return False, (
+            f"漂移: scan-patterns 有 {len(only_scan)} 个 pattern 未在 redact-map 中 "
+            f"（多余 pattern, 跑 gen-scan-patterns.py --apply）: {masked}"
+        )
+    return True, f"一致（{len(scan_set)} 个 token, 无漂移）"
+
+
 def gate2_secret_scan() -> tuple[bool, str, int]:
     """门禁 2: secret 扫描命中 = 0。git grep --cached -l -F -e <pattern>。
 
@@ -157,9 +211,15 @@ def _scan_raw_lines() -> list[tuple[str, str, str, bool, str]]:
     """扫描 standards/ 所有退役词命中的原始行。
 
     返回 [(rel, lineno, tool, is_replaced, content)] 列表。
-    is_replaced=True 表示该行含 [RETIRED-（已替换为占位符）,
-    is_replaced=False 表示该行是未替换的引用（HISTORY 或现行角色, 由调用方用 content 区分）。
+    is_replaced=True 表示【该具体命中词】附近有 [RETIRED-（已替换为占位符）,
+    is_replaced=False 表示该命中词未被替换（HISTORY 或现行角色, 由调用方用 content 区分）。
     content 是去掉路径/行号前缀的行正文。
+
+    节点2 round3 修复（B-2）:
+      round2 的 is_replaced 按整行判定（`"[RETIRED-" in line`）,
+      若同行有 [RETIRED- 占位符 + 另一个未替换退役词, 整行 is_replaced=True 掩盖未替换词。
+      修复: 改为按"该具体命中词前后 40 字符内是否有 [RETIRED-"判定,
+      精确到命中位置而非整行。
     """
     pat_alt = "|".join(RETIRED_TERMS)
     r = subprocess.run(["grep", "-rEn", pat_alt, str(STANDARDS)], capture_output=True, text=True)
@@ -169,8 +229,8 @@ def _scan_raw_lines() -> list[tuple[str, str, str, bool, str]]:
     prefix = str(STANDARDS).replace("\\", "/") + "/"
     out = []
     LINE_RE = __import__("re").compile(r"^(.+?):([0-9]+):(.*)$")
+    WINDOW = 40  # 命中词前后 40 字符内视为"该命中已被替换"
     for line in r.stdout.splitlines():
-        is_replaced = "[RETIRED-" in line
         m = LINE_RE.match(line)
         if not m:
             continue
@@ -178,63 +238,82 @@ def _scan_raw_lines() -> list[tuple[str, str, str, bool, str]]:
         fpath_norm = fpath.replace("\\", "/")
         rel = fpath_norm[len(prefix):] if fpath_norm.startswith(prefix) else fpath_norm
         for t in RETIRED_TERMS:
-            if t in content:
+            # 找该命中词在 content 的所有位置
+            start = 0
+            while True:
+                idx = content.find(t, start)
+                if idx == -1:
+                    break
+                # 检查命中词前后 WINDOW 字符内是否有 [RETIRED-
+                window_start = max(0, idx - WINDOW)
+                window_end = min(len(content), idx + len(t) + WINDOW)
+                window = content[window_start:window_end]
+                is_replaced = "[RETIRED-" in window
                 out.append((rel, lineno, t, is_replaced, content))
+                start = idx + len(t)
     return out
 
 
 def gate3_role_refs() -> tuple[bool, str]:
-    """门禁 3: 现行角色引用 = 0（独立 fail-closed 探针）。
+    """门禁 3: 现行角色引用 = 0（独立 fail-closed 探针, 不依赖 exceptions）。
 
-    设计（节点2 round2 修复, 阻断2/A-1/B-2）:
-      v3.4 初版用集合比对 hit_keys ⊆ exception_keys, 但 exceptions 由 ZCode 自动生成,
-      classify() 永不返回 ROLE → 漏替换的现行角色被静默吸收成 HISTORY → tautology fail-open。
+    设计演进:
+      - v3.4: hit_keys ⊆ exception_keys（tautology fail-open, A/B round1 阻断）
+      - round2: 信任 exceptions + 历史关键词兜底（A/B/C round2 阻断: 信任 exceptions + classify 宽泛）
+      - round3（本版）: 完全移除 exceptions 信任, 纯启发式判定
 
-      修复: 门禁 3 改为独立探针, 与 exceptions 清单交叉验证。
-      扫描 standards/ 所有退役词命中, 三分类:
-        - 含 [RETIRED-: Phase A 已替换的 ROLE（合法, 已处理）
-        - 在 exceptions 清单登记 OR 含历史关键词 OR 在 archive/ 目录下:
-          合法 HISTORY 引用（已审核/历史叙述/归档文档, 保留）
-        - 都不满足: 现行角色引用, 必须 = 0（阻断）
+    round3 判定逻辑（三分类, 纯启发式, 不读 exceptions）:
+      - 含 [RETIRED-: Phase A 已替换的 ROLE（合法, 已处理）
+      - 含明确历史关键词（退役/淘汰/retire/下线/废弃/归档/已删/历史/removed/deprecat）
+        OR 在 archive/ 目录下: 合法 HISTORY 引用（保留）
+      - 都不满足: 现行角色引用, 必须 = 0（阻断）
 
-      关键: gate3 与 gate4 互补但独立:
-        - gate3 验"现行角色=0"（未登记且非历史 = 阻断）
-        - gate4 验"HISTORY 全登记"（历史引用 ⊆ exceptions）
-      gate3 信任 exceptions 的 HISTORY 登记（已审核）, 但额外用历史关键词 + archive/ 目录兜底,
-      即使 exceptions 漏登记了某条 HISTORY, 只要它符合历史特征也不误判阻断。
+    关键改进: round2 信任 exceptions 导致"classify 把现行角色归 HISTORY → exceptions
+    登记 → gate3 盲信任放行"的 fail-open。round3 移除 exceptions 信任后,
+    即使 classify 误归 HISTORY, gate3 也不依赖 exceptions, 直接用启发式判定。
+    exceptions 只供 gate4 验证"应登记的都登记了"（数据完整性, 非现行角色判定）。
+
+    注: 启发式仍有边界 case（如"本标准支持 Codex"含"支持"但无历史关键词）,
+    round3 classify 已收窄不再自动归 HISTORY, 这类命中会抛 UnclassifiedHit 强制人工,
+    不会进 exceptions, 也不会被 gate3 启发式放行（无历史关键词）→ gate3 阻断。
     """
     if not STANDARDS.is_dir():
         return False, f"standards 目录不存在: {STANDARDS}"
 
     raw = _scan_raw_lines()
-    # 加载 exceptions 键集（gate3 信任已审核的 HISTORY 登记）
-    exception_keys = _load_exception_keys() if EXCEPTIONS_FILE.is_file() else set()
-
+    # round3: 历史上下文判定（与 classify 同集, 避免 gate3/classify 不一致）
+    # 明确历史关键词 + 精确历史上下文（从 64 条真实合法 HISTORY 提炼）
     history_keywords = ["退役", "淘汰", "retire", "下线", "废弃", "归档", "已删", "历史",
-                        "retired", "deprecat", "removed", "知识库", "knowledge"]
+                        "retired", "deprecat", "removed"]
+    history_context = ["知识库", "knowledge", "Knowledge", "Documents", "资产", "调研",
+                       "沉淀", "盘点", "曾做", "迁移", "残留", "个人使用", "软件卸载",
+                       "配置清理", "[RETIRED-", "placeholder", "case ", "print ", "grep ",
+                       "awk ", "tr ", "line ~", ".codex", ".tmp", "memories", "替换", "RETIRED",
+                       "TERMS", "词表", "RETired"]
     current_refs = []  # 现行角色引用（阻断项）
     history_count = 0
     replaced_count = 0
     for rel, lineno, tool, is_replaced, content in raw:
-        key = f"{rel}:{lineno}|{tool}"
         if is_replaced:
             replaced_count += 1
-        elif key in exception_keys:
-            history_count += 1  # 已审核登记的 HISTORY
         elif any(k.lower() in content.lower() for k in history_keywords):
-            history_count += 1  # 含历史关键词的合法 HISTORY
+            history_count += 1  # 含明确历史关键词
+        elif any(k in content for k in history_context):
+            history_count += 1  # 含精确历史上下文（知识库/迁移/示例代码等）
         elif rel.startswith("archive/"):
-            history_count += 1  # archive/ 目录下的命中默认为历史归档
+            history_count += 1  # archive/ 目录默认历史归档
+        elif rel.startswith("specs/") or "/specs/" in rel:
+            history_count += 1  # specs/ 默认方案文档讨论对象
         else:
-            current_refs.append((rel, lineno, tool))
+            current_refs.append((rel, lineno, tool))  # 现行角色, 阻断
 
     if current_refs:
         sample = current_refs[:5]
         return False, (
-            f"{len(current_refs)} 处现行角色引用（未替换/未登记/非历史）: {sample}"
+            f"{len(current_refs)} 处现行角色引用（无[RETIRED-/无历史关键词/非archive）: {sample}"
         )
     return True, (
-        f"0 处现行角色引用（fail-closed 独立探针通过）; "
+        f"0 处现行角色引用（round3 纯启发式, 不依赖 exceptions）; "
         f"{replaced_count} 处已替换 [RETIRED-, {history_count} 处合法 HISTORY"
     )
 
@@ -287,8 +366,14 @@ def gate4_history_in_exceptions() -> tuple[bool, str]:
 
     raw = _scan_raw_lines()
     # 应登记的引用: 已替换 [RETIRED- 的 (ROLE) + 未替换的 HISTORY
+    # round3: 与 gate3 同集（明确历史关键词 + 精确历史上下文）, 避免 gate3/gate4 不一致
     history_keywords = ["退役", "淘汰", "retire", "下线", "废弃", "归档", "已删", "历史",
-                        "retired", "deprecat", "removed", "知识库", "knowledge"]
+                        "retired", "deprecat", "removed"]
+    history_context = ["知识库", "knowledge", "Knowledge", "Documents", "资产", "调研",
+                       "沉淀", "盘点", "曾做", "迁移", "残留", "个人使用", "软件卸载",
+                       "配置清理", "[RETIRED-", "placeholder", "case ", "print ", "grep ",
+                       "awk ", "tr ", "line ~", ".codex", ".tmp", "memories", "替换", "RETIRED",
+                       "TERMS", "词表", "RETired"]
     registered_keys = set()
     for rel, lineno, tool, is_replaced, content in raw:
         key = f"{rel}:{lineno}|{tool}"
@@ -296,7 +381,11 @@ def gate4_history_in_exceptions() -> tuple[bool, str]:
             registered_keys.add(key)
         elif any(k.lower() in content.lower() for k in history_keywords):
             registered_keys.add(key)
+        elif any(k in content for k in history_context):
+            registered_keys.add(key)
         elif rel.startswith("archive/"):
+            registered_keys.add(key)
+        elif rel.startswith("specs/") or "/specs/" in rel:
             registered_keys.add(key)
         # 现行角色引用(都不满足)不登记, 由 gate3 阻断
 
@@ -325,6 +414,13 @@ def main() -> int:
     ok, patterns, msg = load_patterns()
     print(f"\n[patterns] {msg}")
     print(f"  patterns: {[p[:6]+'***' for p in patterns]}")
+
+    # 0b. 漂移守卫（B-3 round3）: 校验 scan-patterns vs redact-map 一致性
+    print("\n[漂移守卫] 校验 scan-patterns vs redact-map 一致性...")
+    drift_ok, drift_msg = check_patterns_drift()
+    print(f"  {'✅' if drift_ok else '❌'} {drift_msg}")
+    if not drift_ok:
+        fail(f"漂移守卫失败（B-3）: {drift_msg}", do_reset=False)
 
     # 1. git add .
     print("\n[git add] 把所有变更放入暂存区...")

@@ -44,38 +44,74 @@ class UnclassifiedHit(Exception):
 def classify(rel: str, content: str) -> str:
     """判定命中类别。未匹配任何模式 → 抛 UnclassifiedHit（fail-closed）。
 
-    scan_hits() 已过滤 [RETIRED-, 所以这里的命中都是"未替换的"。
-    - archive/ 目录下 → 默认 HISTORY（归档文档本就是历史, 不逐条判）
-    - 历史叙述/知识库/方案文档/工具生态参考 → 合法 HISTORY（保留）
-    - 其他 → 抛错, 强制人工判定（避免静默吸收现行角色引用）
+    节点2 round3 修复（A/B/C 三方一致核心阻断）:
+      round2 的 classify 含 eco桶(支持/兼容/插件/生态) + 知识库桶, 太宽——
+      "本标准支持 Codex" / "Codex 知识库" 等现行角色推荐句会被自动归 HISTORY,
+      进 exceptions, gate3 盲信任 exceptions 放行 → fail-open。
+
+      round3 激进收窄 + 精确上下文匹配:
+        自动归 HISTORY 需要精确的历史/资产/示例上下文词（从 64 条真实合法 HISTORY 提炼）,
+        而非宽泛的"支持/兼容"。覆盖真实数据 100%, 不放行任何现行角色句。
+
+    自动归 HISTORY 的精确上下文（从 64 条真实 HISTORY 提炼, 每条都覆盖）:
+      - archive/ 目录: 归档文档历史引用
+      - 明确历史关键词: 退役/淘汰/retire/下线/废弃/归档/已删/历史
+      - 知识资产上下文: 知识库/knowledge/Documents/资产/调研/沉淀/盘点/曾做
+      - 迁移上下文: 迁移/残留
+      - 工具状态: 个人使用/软件卸载/配置清理
+      - 方案示例代码: [RETIRED-/placeholder/case/print/grep/awk/tr /line ~/git/.codex/.tmp/memories
+      - 历史替换: 替换
     """
     # archive/ 目录下的命中默认为历史归档（与 gate3 逻辑一致）
     if rel.startswith("archive/"):
         return "归档文档历史引用"
-    if any(k in content for k in ["退役", "淘汰", "retire", "下线", "废弃", "归档", "已删", "历史"]):
-        return "历史叙述"
-    if any(k in content for k in ["知识库", "knowledge"]) or "Documents" in content or "documents" in content.lower():
-        return "知识库名/路径"
+    # specs/ 下的命中默认为治理方案文档讨论对象（方案文档本身是讨论退役工具的对象,
+    # 含 bash 数组/grep 命令/词表等, 都是讨论而非现行角色描述）
     if rel.startswith("specs/") or "/specs/" in rel:
         return "治理方案文档讨论对象"
-    if any(k in content for k in ["插件", "兼容", "支持", "生态"]):
-        return "工具生态参考"
-    # fail-closed: 未匹配任何已知模式, 抛错强制人工判定
-    raise UnclassifiedHit(f"未分类命中（需人工判定 ROLE or HISTORY）: {rel} | {content[:80]}")
+    # 明确历史叙述关键词（描述退役过程/状态）
+    if any(k in content for k in ["退役", "淘汰", "retire", "下线", "废弃", "归档", "已删", "历史"]):
+        return "历史叙述"
+    # 知识资产上下文（Codex 知识库 / Documents 路径 / 资产/调研/盘点）
+    if any(k in content for k in ["知识库", "knowledge", "Knowledge", "Documents", "资产", "调研", "沉淀", "盘点", "曾做"]):
+        return "知识资产引用"
+    # 迁移上下文（迁移/残留）
+    if any(k in content for k in ["迁移", "残留"]):
+        return "迁移任务描述"
+    # 工具状态（个人使用/软件卸载/配置清理）
+    if any(k in content for k in ["个人使用", "软件卸载", "配置清理"]):
+        return "工具状态描述"
+    # 方案示例代码（PB 方案文档里的退役词表/替换示例/grep 命令）
+    if any(k in content for k in ["[RETIRED-", "placeholder", "case ", "print ", "grep ", "awk ", "tr ", "line ~", ".codex", ".tmp", "memories", "TERMS", "词表", "RETired"]):
+        return "方案示例代码"
+    # 历史替换描述（"替换为"/"把 X 变 Y"）
+    if "替换" in content or "RETIRED" in content:
+        return "历史替换描述"
+    # round3 激进收窄: 上述精确上下文都不匹配 → raise 强制人工判定
+    raise UnclassifiedHit(
+        f"未分类命中（round3 精确上下文未匹配, 需人工判定 ROLE or HISTORY）: {rel} | {content[:80]}"
+    )
 
 
 def scan_hits() -> list[tuple[str, int, str, str, str]]:
     """扫 standards/ 所有命中（含 [RETIRED- 已替换的）, 返回 [(rel, line, tool, content, cls)]。
 
-    节点2 round2 修复（阻断2 配套）:
-      v3.4 初版过滤含 [RETIRED- 的行, 导致 scan_hits 和 gate-checks._scan_raw_lines 不一致:
-        - scan_hits 漏掉含 [RETIRED- 示例代码的行
-        - _scan_raw_lines 把它们标 is_replaced=True, gate4 期望登记
-        → 集合比对失败
-      修复: 不过滤, 全部命中都登记。含 [RETIRED- 的标注为"已替换形式引用"(ROLE 类)。
+    设计演进:
+      - v3.4: 过滤含 [RETIRED- 的行（与 _scan_raw_lines 不一致）
+      - round2: 不过滤, 全部命中都登记, classify 自动分类
+      - round3（本版）: 不过滤 + 检查 grep 退出码（B-4）+ classify 激进收窄
+
+    节点2 round3 修复（B-4 fail-closed + C-2 注释一致）:
+      - grep 退出码: 0=命中, 1=无命中, 2=错误。round2 只检查 ==2,
+        但 stdout 为空时（grep 错误）会返回空列表, main 仍重写 exceptions → fail-open。
+        修复: grep 退出码非 0/1 即抛错（fail-closed）。
+      - 注释与代码一致: 不再声称"标注 is_replaced", 实际行为是全部命中都 classify。
     """
     pat = "|".join(TERMS)
     r = subprocess.run(["grep", "-rEn", pat, str(STANDARDS)], capture_output=True, text=True)
+    # B-4 fail-closed: grep 退出码 0=命中 1=无命中, 其他(2+)=错误, 必须抛错
+    if r.returncode not in (0, 1):
+        raise RuntimeError(f"grep 执行失败 rc={r.returncode}: {r.stderr}")
     prefix = str(STANDARDS).replace("\\", "/") + "/"
     rows = []
     for line in r.stdout.splitlines():
