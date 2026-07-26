@@ -37,21 +37,35 @@ SCAN_DIRS = [
 
 
 def load_redactions() -> list[tuple[str, str]]:
-    """从外部 redact-map.txt 读脱敏映射。按 token 长度降序排（长串先替）。"""
+    """从外部 redact-map.txt 读脱敏映射。按 token 长度降序排（长串先替）。
+
+    fail-closed（节点2 round2 修复, 阻断5/B-5）:
+      v3.4 初版格式错误行只 ⚠️ 跳过, 不阻断 → 映射文件损坏时静默放过。
+      修复: 格式错误行 sys.exit(1), 强制修复映射文件再重跑。
+    """
     if not REDACT_MAP.is_file():
         sys.exit(f"❌ 脱敏映射文件不存在: {REDACT_MAP}")
     pairs = []
+    bad_lines = []
     for ln in REDACT_MAP.read_text(encoding="utf-8").splitlines():
         s = ln.rstrip("\n")
         if not s.strip() or s.lstrip().startswith("#"):
             continue
         if "\t" not in s:
-            print(f"⚠️ 跳过格式错误行（无 TAB）: {s[:20]}...", file=sys.stderr)
+            bad_lines.append(s)
             continue
         token, replacement = s.split("\t", 1)
         token = token.strip()
         if token:
             pairs.append((token, replacement.strip()))
+    if bad_lines:
+        # fail-closed: 格式错误即失败, 不静默跳过
+        sys.exit(
+            f"❌ redact-map.txt 含 {len(bad_lines)} 行格式错误（无 TAB 分隔）, 中止: "
+            f"{[b[:20] for b in bad_lines[:3]]}。修复映射文件后重跑。"
+        )
+    if not pairs:
+        sys.exit("❌ redact-map.txt 无有效映射行（全注释/空）, 中止")
     # 长串在前
     pairs.sort(key=lambda x: len(x[0]), reverse=True)
     return pairs
@@ -71,10 +85,16 @@ def main() -> int:
 
     total_hits = 0
     file_changes: dict[str, list] = {}
+    # fail-closed（节点2 round2 修复, 阻断5/B-5）:
+    # v3.4 初版目录不存在/读失败都 continue 吞掉, 末尾 return 0 = fail-open。
+    # 修复: 累计错误数, 末尾 return 1 if errors。
+    missing_dirs = []
+    read_errors = []
 
     for scan_dir in SCAN_DIRS:
         if not scan_dir.is_dir():
-            print(f"⚠️ 跳过不存在的目录: {scan_dir}")
+            # fail-closed: 配置的扫描目录必须存在, 缺失即错误
+            missing_dirs.append(str(scan_dir))
             continue
         for p in scan_dir.rglob("*"):
             if not p.is_file():
@@ -86,7 +106,9 @@ def main() -> int:
                 continue
             try:
                 text = p.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError):
+            except (OSError, UnicodeDecodeError) as e:
+                # fail-closed: 读失败即错误, 不静默跳过
+                read_errors.append(f"{p}: {type(e).__name__}: {e}")
                 continue
 
             hits_in_file = []
@@ -114,6 +136,18 @@ def main() -> int:
 
     print("\n" + "=" * 60)
     print(f"汇总: {total_hits} 处 token, 涉及 {len(file_changes)} 个文件")
+    # fail-closed（阻断5/B-5）: 报告所有错误, 有错则 return 1
+    if missing_dirs:
+        print(f"❌ {len(missing_dirs)} 个配置的扫描目录不存在:", file=sys.stderr)
+        for d in missing_dirs:
+            print(f"   - {d}", file=sys.stderr)
+    if read_errors:
+        print(f"❌ {len(read_errors)} 个文件读取失败:", file=sys.stderr)
+        for e in read_errors[:5]:
+            print(f"   - {e}", file=sys.stderr)
+    if missing_dirs or read_errors:
+        print("❌ fail-closed: 存在缺失目录/读失败, 脱敏闭环不可证明, 退出码 1", file=sys.stderr)
+        return 1
     if args.apply:
         print("✅ 已写盘, 请 grep 复核零残留")
     else:

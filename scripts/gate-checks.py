@@ -110,14 +110,19 @@ def load_patterns() -> tuple[bool, list[str], str]:
 def gate2_secret_scan() -> tuple[bool, str, int]:
     """门禁 2: secret 扫描命中 = 0。git grep --cached -l -F -e <pattern>。
 
-    扫描范围: 整个暂存区, 但排除 scripts/ 目录。
-    理由: scripts/ 下的同步脚本本身是工具代码, 其中包含 patterns 字符串字面量
-    （如本脚本的扫描逻辑、mirror-sync/redact-tokens 的映射读取）是工具逻辑,
-    真实 token 值在 ~/.agent-collaboration/archive/secret-patterns/（外部文件, 不入 git）。
-    若不排除 scripts/, 脚本会扫到自己 → 自扫描陷阱（v3.0 评审 A 警告过）。
+    扫描范围: 整个暂存区（含 scripts/）, 不做任何排除。
 
-    注: 若担心 scripts/ 里混入真实 token, 可单独人工审 scripts/*.py,
-    但门禁 2 自动扫描必须避开工具自身的 patterns 字面量。
+    设计（节点2 round2 修复, 阻断1/B-1）:
+      v3.4 初版排除 scripts/ 是为了规避"自扫描陷阱"——脚本里含 patterns 字面量。
+      但 Explore 已核实 scripts/ 零 token 字面量（只有 secret-patterns 路径名串）,
+      且 patterns 真值从外部 ~/.agent-collaboration/archive/secret-patterns/ 读,
+      scripts/ 里硬编码的只是工具逻辑, 不是 token。
+      排除 scripts/ 是多余防御, 且"待人工审"无强制机制 = fail-open。
+      修复: 移除排除, 扫描覆盖整个暂存区, 任何真实 token 命中即阻断。
+
+    自扫描陷阱的处理: patterns 从外部文件读, 脚本不含 token 字面量,
+    所以 scripts/ 不会命中自己的 patterns（patterns 是值, 不是字面量）。
+    若未来某脚本意外硬编码 token, 本门禁会捕获 = fail-closed。
     """
     ok, patterns, msg = load_patterns()
     if not ok:
@@ -128,20 +133,13 @@ def gate2_secret_scan() -> tuple[bool, str, int]:
     hit_details = []
     for pat in patterns:
         # git grep 退出码: 0=命中, 1=无命中, >1=扫描失败（必须阻断）
-        # 排除 scripts/（:.^scripts/ 路径限定符语法, 但兼容性差, 改用 grep -v 后置过滤更稳）
         r = git(["grep", "--cached", "-l", "-F", "-e", pat], check=False)
         rc = r.returncode
         if rc == 0:
-            all_files = r.stdout.splitlines()
-            # 后置过滤: 排除 scripts/ 下的工具脚本
-            files = [f for f in all_files if not f.startswith("scripts/")]
-            excluded = [f for f in all_files if f.startswith("scripts/")]
+            # 命中即阻断, 不做任何目录排除（fail-closed）
+            files = r.stdout.splitlines()
             hits_total += len(files)
-            if files:
-                hit_details.append(f"pattern={pat[:4]}*** in: {files}")
-            # 被排除的（scripts/）单独记录, 供人工审
-            if excluded and not files:
-                hit_details.append(f"(已排除 scripts/ 工具脚本 {len(excluded)} 个, 需人工审)")
+            hit_details.append(f"pattern={pat[:4]}*** in: {files}")
         elif rc == 1:
             pass  # 正常无命中
         else:
@@ -152,57 +150,99 @@ def gate2_secret_scan() -> tuple[bool, str, int]:
         return False, f"扫描本身失败 {scan_errors} 次（非零命中, 是异常）: {hit_details}", hits_total
     if hits_total > 0:
         return False, f"命中 {hits_total} 处: {hit_details}", hits_total
-    return True, f"0 命中 (扫了 {len(patterns)} 个 pattern, scripts/ 已排除待人工审)", hits_total
+    return True, f"0 命中 (扫了 {len(patterns)} 个 pattern, 覆盖整个暂存区含 scripts/)", hits_total
 
 
-def gate3_role_refs() -> tuple[bool, str]:
-    """门禁 3: standards/ 所有退役词命中 ⊆ exceptions 清单（ROLE+HISTORY 全集）。
+def _scan_raw_lines() -> list[tuple[str, str, str, bool, str]]:
+    """扫描 standards/ 所有退役词命中的原始行。
 
-    逻辑（v2 重建, 替代粗糙的 grep 关键词过滤）:
-      1. 扫 standards/ 所有命中（排除已 [RETIRED- 替换的）
-      2. 解析 exceptions 文件的 ROLE+HISTORY 全部键
-      3. 集合比对: 命中键必须全部在 exceptions 里
-      4. 未登记的命中 → 阻断（说明有未经审核的引用）
-
-    这同时满足 v3.4 门禁 3（现行角色=0）和门禁 4（历史引用命中清单）的语义:
-      - 真正的现行角色引用已在 Phase A 替换为 [RETIRED-, 不出现在扫描结果里
-      - 剩余的所有命中必须在 exceptions 清单中登记为 HISTORY
-      - 未登记 = 未审核 = 阻断
+    返回 [(rel, lineno, tool, is_replaced, content)] 列表。
+    is_replaced=True 表示该行含 [RETIRED-（已替换为占位符）,
+    is_replaced=False 表示该行是未替换的引用（HISTORY 或现行角色, 由调用方用 content 区分）。
+    content 是去掉路径/行号前缀的行正文。
     """
-    if not STANDARDS.is_dir():
-        return False, f"standards 目录不存在: {STANDARDS}"
-    if not EXCEPTIONS_FILE.is_file():
-        return False, f"例外清单不存在: {EXCEPTIONS_FILE}"
-
-    # 1. 扫描所有命中键
     pat_alt = "|".join(RETIRED_TERMS)
     r = subprocess.run(["grep", "-rEn", pat_alt, str(STANDARDS)], capture_output=True, text=True)
     if r.returncode == 2:
-        return False, f"grep 错误: {r.stderr}"
+        raise RuntimeError(f"grep 错误: {r.stderr}")
 
     prefix = str(STANDARDS).replace("\\", "/") + "/"
-    hit_keys = set()
-    total_lines = 0
-    # Windows 路径含 C: 盘符冒号, 不能用简单 split(":"), 用正则提取
-    # 格式: <path>:<lineno>:<content>, 其中 path 含一个盘符冒号
+    out = []
     LINE_RE = __import__("re").compile(r"^(.+?):([0-9]+):(.*)$")
     for line in r.stdout.splitlines():
-        if "[RETIRED-" in line:
-            continue
+        is_replaced = "[RETIRED-" in line
         m = LINE_RE.match(line)
         if not m:
             continue
         fpath, lineno, content = m.group(1), m.group(2), m.group(3)
-        total_lines += 1
         fpath_norm = fpath.replace("\\", "/")
         rel = fpath_norm[len(prefix):] if fpath_norm.startswith(prefix) else fpath_norm
         for t in RETIRED_TERMS:
             if t in content:
-                hit_keys.add(f"{rel}:{lineno}|{t}")
+                out.append((rel, lineno, t, is_replaced, content))
+    return out
 
-    # 2. 解析 exceptions 文件全部键（ROLE + HISTORY）
+
+def gate3_role_refs() -> tuple[bool, str]:
+    """门禁 3: 现行角色引用 = 0（独立 fail-closed 探针）。
+
+    设计（节点2 round2 修复, 阻断2/A-1/B-2）:
+      v3.4 初版用集合比对 hit_keys ⊆ exception_keys, 但 exceptions 由 ZCode 自动生成,
+      classify() 永不返回 ROLE → 漏替换的现行角色被静默吸收成 HISTORY → tautology fail-open。
+
+      修复: 门禁 3 改为独立探针, 与 exceptions 清单交叉验证。
+      扫描 standards/ 所有退役词命中, 三分类:
+        - 含 [RETIRED-: Phase A 已替换的 ROLE（合法, 已处理）
+        - 在 exceptions 清单登记 OR 含历史关键词 OR 在 archive/ 目录下:
+          合法 HISTORY 引用（已审核/历史叙述/归档文档, 保留）
+        - 都不满足: 现行角色引用, 必须 = 0（阻断）
+
+      关键: gate3 与 gate4 互补但独立:
+        - gate3 验"现行角色=0"（未登记且非历史 = 阻断）
+        - gate4 验"HISTORY 全登记"（历史引用 ⊆ exceptions）
+      gate3 信任 exceptions 的 HISTORY 登记（已审核）, 但额外用历史关键词 + archive/ 目录兜底,
+      即使 exceptions 漏登记了某条 HISTORY, 只要它符合历史特征也不误判阻断。
+    """
+    if not STANDARDS.is_dir():
+        return False, f"standards 目录不存在: {STANDARDS}"
+
+    raw = _scan_raw_lines()
+    # 加载 exceptions 键集（gate3 信任已审核的 HISTORY 登记）
+    exception_keys = _load_exception_keys() if EXCEPTIONS_FILE.is_file() else set()
+
+    history_keywords = ["退役", "淘汰", "retire", "下线", "废弃", "归档", "已删", "历史",
+                        "retired", "deprecat", "removed", "知识库", "knowledge"]
+    current_refs = []  # 现行角色引用（阻断项）
+    history_count = 0
+    replaced_count = 0
+    for rel, lineno, tool, is_replaced, content in raw:
+        key = f"{rel}:{lineno}|{tool}"
+        if is_replaced:
+            replaced_count += 1
+        elif key in exception_keys:
+            history_count += 1  # 已审核登记的 HISTORY
+        elif any(k.lower() in content.lower() for k in history_keywords):
+            history_count += 1  # 含历史关键词的合法 HISTORY
+        elif rel.startswith("archive/"):
+            history_count += 1  # archive/ 目录下的命中默认为历史归档
+        else:
+            current_refs.append((rel, lineno, tool))
+
+    if current_refs:
+        sample = current_refs[:5]
+        return False, (
+            f"{len(current_refs)} 处现行角色引用（未替换/未登记/非历史）: {sample}"
+        )
+    return True, (
+        f"0 处现行角色引用（fail-closed 独立探针通过）; "
+        f"{replaced_count} 处已替换 [RETIRED-, {history_count} 处合法 HISTORY"
+    )
+
+
+def _load_exception_keys() -> set[str]:
+    """解析 exceptions 文件全部键（ROLE + HISTORY 段）。"""
     text = EXCEPTIONS_FILE.read_text(encoding="utf-8")
-    exception_keys = set()
+    keys = set()
     current_section = None
     for ln in text.splitlines():
         s = ln.strip()
@@ -222,38 +262,57 @@ def gate3_role_refs() -> tuple[bool, str]:
             continue
         file, lineno, tool = parts[1], parts[2], parts[3]
         if current_section in ("ROLE", "HISTORY"):
-            exception_keys.add(f"{file}:{lineno}|{tool}")
-
-    # 3. 集合比对
-    missing = hit_keys - exception_keys
-    if missing:
-        sample = sorted(missing)[:5]
-        return False, (
-            f"{len(missing)} 处命中未登记在 exceptions 清单（未审核）: {sample}"
-        )
-    extra = exception_keys - hit_keys
-    msg = (
-        f"标准库扫描 {len(hit_keys)} 条 (file,line,tool) 命中, 全部登记在 exceptions "
-        f"(ROLE 已替换 [RETIRED-, HISTORY {len(hit_keys)} 条已审核)"
-    )
-    if extra:
-        msg += f"; 警告: exceptions 多出 {len(extra)} 条已登记但扫描不到（行号漂移?）, 不阻断"
-    return True, msg
+            keys.add(f"{file}:{lineno}|{tool}")
+    return keys
 
 
 def gate4_history_in_exceptions() -> tuple[bool, str]:
-    """门禁 4: 与门禁 3 合并（集合比对已覆盖）。
+    """门禁 4: HISTORY 命中 ⊆ exceptions 清单（集合比对, 与 gate3 独立）。
 
-    v3.4 原门禁 4「历史引用 100% 命中例外清单」与门禁 3「现行角色引用 = 0」
-    在集合比对语义下是同一个检查的不同视角:
-      - 门禁 3 视角: 现行角色 = 0（[RETIRED- 替换后, 剩余命中全为 HISTORY）
-      - 门禁 4 视角: HISTORY 命中清单 100% 命中 exceptions
-    本函数复用 gate3 逻辑, 只做证据归档分类。
+    设计（节点2 round2 修复, 阻断2）:
+      v3.4 初版 gate4 直接 return gate3(), 是 tautology。
+      修复: gate4 独立做"HISTORY 引用全登记"检查, 与 gate3 的"现行角色=0"互补。
+      gate4 视角: 所有已替换为 [RETIRED- 的位置（即原 HISTORY 引用）,
+                   必须在 exceptions 清单中登记。
+      未登记 = 未审核 = 阻断。
+
+    注: 本门禁依赖 exceptions 清单的完整性。exceptions 由 rebuild-exceptions.py 生成,
+    rebuild-exceptions.py 的 classify() 在 round2 修复后会对未分类命中抛错（fail-closed）,
+    避免自动分类掩盖漏标。
     """
-    ok3, msg3 = gate3_role_refs()
-    if not ok3:
-        return False, f"门禁 4 复用门禁 3 结果: {msg3}"
-    return True, f"门禁 4 通过（与门禁 3 同一集合比对）: {msg3}"
+    if not STANDARDS.is_dir():
+        return False, f"standards 目录不存在: {STANDARDS}"
+    if not EXCEPTIONS_FILE.is_file():
+        return False, f"例外清单不存在: {EXCEPTIONS_FILE}"
+
+    raw = _scan_raw_lines()
+    # 应登记的引用: 已替换 [RETIRED- 的 (ROLE) + 未替换的 HISTORY
+    history_keywords = ["退役", "淘汰", "retire", "下线", "废弃", "归档", "已删", "历史",
+                        "retired", "deprecat", "removed", "知识库", "knowledge"]
+    registered_keys = set()
+    for rel, lineno, tool, is_replaced, content in raw:
+        key = f"{rel}:{lineno}|{tool}"
+        if is_replaced:
+            registered_keys.add(key)
+        elif any(k.lower() in content.lower() for k in history_keywords):
+            registered_keys.add(key)
+        elif rel.startswith("archive/"):
+            registered_keys.add(key)
+        # 现行角色引用(都不满足)不登记, 由 gate3 阻断
+
+    exception_keys = _load_exception_keys()
+
+    # 集合比对: 应登记的引用(已替换 ROLE + HISTORY) ⊆ exceptions
+    missing = registered_keys - exception_keys
+    if missing:
+        sample = sorted(missing)[:5]
+        return False, (
+            f"{len(missing)} 处 ROLE/HISTORY 引用未登记在 exceptions 清单: {sample}"
+        )
+    return True, (
+        f"{len(registered_keys)} 处 ROLE/HISTORY 引用全部登记在 exceptions "
+        f"(清单总 {len(exception_keys)} 条)"
+    )
 
 
 def main() -> int:

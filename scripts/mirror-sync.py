@@ -296,15 +296,20 @@ def main() -> int:
         kind = item[0]
         if kind == "mirror":
             _, name, src, dst, exc = item
+            # fail-closed（节点2 round2 修复, 阻断3/B-3）:
+            # v3.4 初版源缺失只 ⚠️ 跳过, 循环正常 return 0 = fail-open。
+            # 修复: 源缺失即失败, 避免静默漏同步已批准的映射。
             if not src.is_dir():
-                print(f"\n⚠️ 源不存在, 跳过: {name} ({src})", file=sys.stderr)
-                continue
+                print(f"\n❌ 源目录不存在, 中止: {name} ({src})", file=sys.stderr)
+                print("   fail-closed: 每个批准的映射的源必须存在。", file=sys.stderr)
+                return 1
             r = mirror(name, src, dst, exc, apply=args.apply)
         elif kind == "add-only":
             _, name, src, dst = item
             if not src.is_dir():
-                print(f"\n⚠️ 源不存在, 跳过: {name} ({src})", file=sys.stderr)
-                continue
+                print(f"\n❌ 源目录不存在, 中止: {name} ({src})", file=sys.stderr)
+                print("   fail-closed: 每个批准的映射的源必须存在。", file=sys.stderr)
+                return 1
             r = add_only(name, src, dst, apply=args.apply)
         elif kind == "add-only-file":
             _, name, src, dst = item
