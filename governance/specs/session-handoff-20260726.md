@@ -161,8 +161,8 @@ scope: 记录当前 session 的完整可恢复状态，便于上下文 compact �
 - `.review-evidence/node2-checks-20260726-152040.md`（4 门禁实测证据）
 
 ### 外置 secret 配置（不入 git）
-- `~/.agent-collaboration/archive/secret-patterns/scan-patterns.txt`（扫描 patterns）
-- `~/.agent-collaboration/archive/secret-patterns/redact-map.txt`（脱敏映射）
+- `~/.agent-collaboration/archive/secret-patterns/scan-patterns.txt`（扫描 patterns）— **Phase D-B 后已迁至 `~/.config/agent-collaboration/secret-patterns/`，旧位置冻结**
+- `~/.agent-collaboration/archive/secret-patterns/redact-map.txt`（脱敏映射）— **同上，已迁至新位置**
 
 ## 七、当前 Session 状态
 

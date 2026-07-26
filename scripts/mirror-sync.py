@@ -230,9 +230,13 @@ def print_report(report: SyncReport) -> None:
 #   Phase D 前: SRC_ROOT(~/.agent-collaboration/) 是活跃真值, DST_ROOT(git仓库) 是镜像目标
 #   Phase D 后: SRC_ROOT 降级为只读历史快照, DST_ROOT(git仓库 governance/) 升为真值
 #   当前 "本机→git" 的 mirror 方向可能需反转，或本脚本整体废弃（真值已在 git，无需 mirror）
-#   本轮不动逻辑，留长期卫生阶段评审，避免引入新 fail-open
-SRC_ROOT = Path(os.path.expanduser("~/.agent-collaboration"))
-DST_ROOT = Path(os.path.expanduser("~/Documents/trae_projects/agent-collaboration-standard"))
+#   本轮不动 mirror 逻辑（留长期卫生阶段评审），但 DST_ROOT 改为 REPO 推导（round4 修复 A+B 共识）
+SRC_ROOT = Path(os.environ.get(
+    "LEGACY_SNAPSHOT_ROOT",
+    os.path.expanduser("~/.agent-collaboration")))
+DST_ROOT = Path(os.environ.get(
+    "REPO_ROOT",
+    str(Path(__file__).resolve().parents[1])))  # scripts/ 父目录 = 仓库根，避免跨 checkout 混读
 
 
 def build_plan() -> list:
@@ -276,7 +280,7 @@ def build_plan() -> list:
 def main() -> int:
     ap = argparse.ArgumentParser(description="v3.4 Phase B.2 同步执行器（Phase D 后 legacy）")
     ap.add_argument("--apply", action="store_true",
-                    help="真正写盘（默认 dry-run, 不改盘）")
+                    help="（Phase D 后已禁用，传入会 exit 1；原方向会覆盖 git 真值）")
     ap.add_argument("--only", metavar="NAME", action="append", default=[],
                     help="只运行名称匹配的映射（可多次, 子串匹配）")
     args = ap.parse_args()
@@ -348,9 +352,9 @@ def main() -> int:
         print("❌ 有错误, 退出码 1（已 apply 的改动需手动回滚）")
         return 1
     if not args.apply:
-        print("（dry-run, 未写盘。如确认请加 --apply 重跑）")
+        print("（dry-run, 未写盘。Phase D 后 --apply 已禁用，本脚本仅作 legacy 审计用）")
     else:
-        print("✅ apply 完成, 请跑 git status / git diff 复核")
+        print("✅ apply 完成, 请跑 git status / git diff 复核")  # 不可达（--apply 已在入口禁用）
     return 0
 
 

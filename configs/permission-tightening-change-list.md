@@ -1,5 +1,11 @@
 # Permission Tightening Change List
 
+> ⚠️ **历史文档（2026-05-10）**：本文档记录 Claude Code 权限收紧的执行过程。
+> CC 已于 2026-07-25 完全退役，本配置不再活跃使用。
+> Phase D（2026-07-26）后，文中 `~/.agent-collaboration/` 路径已降级为只读历史快照，
+> **不再作备份/写入目标**。本文档仅作历史记录，禁止按此执行。
+> 现行权限基线见 `.zcode/AGENTS.md` + 项目级 AGENTS.md。
+
 Do not execute without explicit user approval.
 
 ## Backup First

@@ -1,0 +1,38 @@
+[warn] 调度记录落盘失败: HTTP Error 403: Forbidden
+=== C ROUND3 RESULT ===
+status: done
+attempts: 1
+duration: 60.0
+--- message ---
+[TRUTH-VERSION] agent-collaboration-standard @ e2a65b1（review/phaseD-20260726）
+north-star: v1.2 / roadmap: v1.1 / fleet-division: v1.1
+
+## 阻断1 路径漂移修复 — 独立复核结论
+
+独立 clone + grep 复核完成（未依赖 ZCode 解释）。
+
+### 修复点逐项核对
+
+| 位置 | 结论 |
+|---|---|
+| configs/tool-entry-map.md L9/32-34/76 | ✅ 已切 `Documents\trae_projects\agent-collaboration-standard\`，L11 附降级声明 |
+| configs/trae-solo-operating-profile.md L17 | ✅ 已切 git 仓库路径 |
+| project-starter/README.md L16 | ✅ 已切 git 仓库路径 |
+| project-starter/AGENTS.md.template L45 | ✅ 已切 git 仓库路径 + GitHub URL 兜底 |
+| governance/workspace-collaboration-v2.1.md L39 | ✅ 主声明已切 git 真值路径，旧路径仅作"降级为只读快照"说明 |
+| governance/workspace-collaboration-v2.1.md L158 | ✅ 文件信箱已切 git 仓库 templates/，旧位置标注"已冻结" |
+| knowledge/INTEGRATION.md L103 | ✅ 已改为 `governance/...`（相对仓库根） |
+| knowledge/wiki/rules/skill-registry.md L4/L10 | ✅ 已切 git 仓库 registry/ 路径，L11 旧路径为降级声明 |
+| governance/README.md L4 | ✅ 主声明为"git 真值目录"，旧路径仅标注冻结快照 |
+
+### 残留 `.agent-collaboration` 引用分类（grep 全量）
+
+- **降级/冻结声明**（合法）：START_HERE.md L31、LOCAL-USAGE.md、global-roadmap-v1.1.md L196-209、fleet-division-v1.1.md L163、wiki/rules/*
+- **历史叙述/同步方案文档**（合法）：governance/specs/*（sync-plan、session-handoff、retrospective 等本身就是记录迁移过程的文档）、templates/*（历次回执与交接包，历史件）、governance/archive/*
+- **边界项（非阻断，供 ZCode 留意）**：`configs/proposed-permission-baseline.md` L72、`configs/permission-tightening-change-list.md` L9/L41、`audits/security-permission-audit-2026-05-10.md` L61 仍引用旧路径下的 backups/safe-baseline。内容关联已退役的 Claude Code 权限基线，属历史记录性质，不构成现行规范路径声明；建议后续第 5 批卫生阶段一并标注或归档。
+
+### 总结
+
+**PASS（全切）**——round1 A+B 指出的 13 处硬编码全部已切 git 仓库路径，残留引用均为合法的历史叙述或降级声明，无现行规范文档仍指旧路径。
+
+风险提示：3 个边界文件（configs/audits 旧权限基线）建议归档，不阻断 Phase D。

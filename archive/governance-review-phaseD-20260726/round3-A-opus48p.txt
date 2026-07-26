@@ -1,0 +1,148 @@
+# Phase D Round 3 定点复核
+
+已独立同步并检出 `review/phaseD-20260726`，复核 commit `1c124df` 的单提交差异。未修改工作树，未执行 push、rebase、reset 或删除操作。
+
+## 阻断 1：路径漂移补扫
+
+### ⚠️ 部分修复
+
+**Round 1 指定位置均已切换：**
+
+- `configs/tool-entry-map.md:9,34-35,76`
+- `configs/trae-solo-operating-profile.md:17`
+- `project-starter/README.md:16`
+- `project-starter/AGENTS.md.template:45`
+- `governance/workspace-collaboration-v2.1.md:39,158`
+- `knowledge/INTEGRATION.md:103`
+- `governance/README.md:4`
+- 补扫位置 `knowledge/wiki/rules/skill-registry.md:4,10-11`
+- 同类位置 `knowledge/wiki/rules/collaboration-standard.md:4,10-11` 也已切换
+
+上述位置已明确以 Git 仓库为真值，并将旧目录表述为只读或冻结快照。
+
+**但仍有疑似现行路径漂移：**
+
+- `configs/permission-tightening-change-list.md:9`：仍要求在旧目录创建备份。
+- `configs/permission-tightening-change-list.md:41`：仍把安全基线指向旧目录。
+- `configs/permission-tightening-change-list.md:70`：仍要求保留旧目录的写入权限。
+- `configs/proposed-permission-baseline.md:72`：回滚备份仍写入已降级为只读快照的旧目录。
+
+这些文件不在 `archive/`、`governance/specs/` 中，也不是明确标注为历史叙述；其操作性措辞与“旧目录只读”冲突。
+
+**建议修法：**将仍有效的备份和安全基线路径迁至 Git 仓库之外的专用可写目录；若内容已经失效，应明确标注为历史方案，避免被当作现行操作指引。
+
+---
+
+## 阻断 2：REPO 推导
+
+### ❌ 未修复完整，并引入新阻断
+
+以下五个脚本已正确从脚本位置推导仓库根，并支持 `REPO_ROOT`：
+
+- `scripts/gate-checks.py:26,32-49`
+- `scripts/rebuild-exceptions.py:28,40-43`
+- `scripts/complete-exceptions.py:26,35-37`
+- `scripts/analyze-gate3.py:3,9-10`
+- `scripts/list-hits.py:3,10-11`
+
+其中：
+
+- `gate-checks.py` 已正常添加 `import os`。
+- `STANDARDS`、`EXCEPTIONS`、`OVERRIDES`、`EVIDENCE` 默认均由同一 `REPO` 派生。
+
+但存在两个阻断问题。
+
+### 2.1 `redact-tokens.py` 无法解析
+
+`scripts/redact-tokens.py:25-27` 的 `Path(...)` 缺少右括号：
+
+```python
+REPO = Path(__import__("os").environ.get(
+    "REPO_ROOT",
+    str(Path(__file__).resolve().parents[1]))
+```
+
+实际语法检查结果：
+
+> `SyntaxError: '(' was never closed`
+
+因此“6 个 scripts 全切换”并未成立：该脚本现在完全不可执行，属于本提交引入的新阻断。
+
+**修法：**
+
+```python
+import os
+
+REPO = Path(
+    os.environ.get(
+        "REPO_ROOT",
+        str(Path(__file__).resolve().parents[1]),
+    )
+)
+```
+
+### 2.2 `mirror-sync.py` 仍硬编码固定 checkout
+
+- `scripts/mirror-sync.py:235` 仍为  
+  `~/Documents/trae_projects/agent-collaboration-standard`
+- 没有从 `Path(__file__).resolve().parents[1]` 推导，也不支持 `REPO_ROOT`。
+
+这会使 dry-run 在独立 clone 中审计另一个固定 checkout，仍存在跨 checkout 混读问题。
+
+**修法：**将目标仓库根改为脚本位置推导，并允许 `REPO_ROOT` 覆盖；之后由 `DST_ROOT` 派生所有 Git 目标路径。
+
+---
+
+## 阻断 3：禁用 `mirror-sync --apply`
+
+### ✅ 已修复
+
+证据：
+
+- `scripts/mirror-sync.py:288-292` 在构建同步计划及文件操作前检测 `args.apply`。
+- 实测 `--apply` 返回 **exit code 1**。
+- 错误信息明确说明：
+  - Phase D 后 `--apply` 已禁用；
+  - 原方向会由只读快照覆盖 Git 真值；
+  - 反向同步需要另立规格并独立评审。
+- `scripts/mirror-sync.py:294-321` 保留 dry-run 审计路径，且向下传递的 `apply` 为 `False`，不会写盘。
+
+本机因不存在旧快照目录，dry-run 在源目录检查处 fail-closed 返回 1；这是环境前置条件失败，不是写盘风险。
+
+**非阻断小问题：**`scripts/mirror-sync.py:350-353` 仍保留“加 `--apply` 重跑”和“apply 完成”文案，现已成为不可达或误导性文本，建议同步清理。
+
+---
+
+## 阻断 4：`complete-exceptions` fail-closed
+
+### ✅ 已修复
+
+证据：
+
+- `scripts/complete-exceptions.py:41-43`：`UnclassifiedHit` 已定义。
+- `scripts/complete-exceptions.py:46`：`classify()` 位于异常类定义之后，Python 名称解析顺序正确。
+- `scripts/complete-exceptions.py:61-62`：未匹配分类时明确抛出 `UnclassifiedHit`，不再默认归入 HISTORY。
+- `scripts/complete-exceptions.py:71-74`：正确接受 grep 返回码 `0/1`，其他返回码抛出 `RuntimeError`。
+
+**非阻断小问题：**文件头部 `scripts/complete-exceptions.py:19` 仍写着“其他 → 默认 HISTORY”，与当前 fail-closed 行为不一致，应更新注释，避免后续维护误判。
+
+---
+
+## 软观察
+
+- `governance/specs/session-handoff-20260726.md:164-165` 仍记录 secret patterns 的旧位置，建议补充“已被新位置取代”的历史标注。
+- 旧 patterns 位置虽冻结但保留，仍有双份漂移风险；当前门禁已有一致性检查，但长期卫生阶段仍应处理。
+- `scripts/list-hits.py:32` 仍保留 `return "其他(默认HISTORY)"`。它不在本轮阻断 4 指定脚本中，但与 fail-closed 治理方向不一致，建议后续统一。
+
+# 总结
+
+**FAIL**
+
+原因：
+
+1. 阻断 1 的指定位置已修复，但仍有现行配置文档把旧只读目录作为写入/备份位置。
+2. 阻断 2 未完成：
+   - `redact-tokens.py` 引入确定的 `SyntaxError`，脚本无法运行；
+   - `mirror-sync.py` 仍硬编码固定 checkout。
+3. 阻断 3 已修复。
+4. 阻断 4 已修复。

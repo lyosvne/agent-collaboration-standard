@@ -29,7 +29,7 @@ def classify(rel, content):
         return "工具生态参考"
     if any(k in content for k in ["退役", "淘汰", "retire", "下线", "废弃"]):
         return "历史叙述"
-    return "其他(默认HISTORY)"
+    return "其他(需人工判定)"  # round4: 不再默认 HISTORY，与 complete-exceptions fail-closed 对齐
 
 rows = []
 for line in r.stdout.splitlines():

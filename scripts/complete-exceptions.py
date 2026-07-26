@@ -16,7 +16,7 @@ complete-exceptions.py — 补全例外清单的 HISTORY 部分
   - 在 specs/ 下 → 治理方案文档讨论对象
   - 含 '插件' / '兼容' / '支持' → 工具生态参考
   - 含 '退役' / '淘汰' / 'retire' → 历史叙述
-  - 其他 → 默认 HISTORY（需人工复核）
+  - 其他 → 抛 UnclassifiedHit（fail-closed，round2 修复，强制人工判定）
 
 输出: 更新后的 exceptions 文件（逐条 HISTORY）
 """

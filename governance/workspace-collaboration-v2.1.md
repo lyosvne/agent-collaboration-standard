@@ -180,4 +180,4 @@ Pi 部署验证完成前，协调按以下临时机制运行，Pi 上线后自�
 - 生效日期: 2026-07-23
 - 关联文档: `agent-matrix-architecture-v1.0.md`、`fleet-division-v1.1-proposal.md`、`north-star-v1.0.md`（已定稿）、三份实施规格
 - 修订机制: 任何智能体可提议修订，生效需用户裁定
-- §9.2 执行记录: **已完成**（2026-07-23，用户授权）——治理文档已入 `github.com/lyosvne/agent-collaboration-standard` 的 `governance/` 目录，commit `c604f08`（master + agent/qoder）；自此治理文档修订以该仓库 git commit 为准，本地 `.agent-collaboration\standards\` 为镜像
+- §9.2 执行记录: **已完成**（2026-07-23，用户授权）——治理文档已入 `github.com/lyosvne/agent-collaboration-standard` 的 `governance/` 目录，commit `c604f08`（master + agent/qoder）；自此治理文档修订以该仓库 git commit 为准。本地 `.agent-collaboration\standards\` 在 2026-07-23 时点为镜像，**Phase D（2026-07-26）后降级为只读历史快照**

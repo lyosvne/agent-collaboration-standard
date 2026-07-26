@@ -1,0 +1,157 @@
+# Phase D Round 3 定点复核
+
+**复核对象**：`1c124df5b7a25bf6a0443e91ff07b17e0e29a3cd`  
+**方式**：独立克隆仓库，detach 到目标提交，检查单 commit diff，并执行静态编译和定点运行验证。
+
+## 阻断 1：路径漂移补扫
+
+### ⚠️ 部分修复
+
+列出的主要位置已经切换：
+
+- `configs/tool-entry-map.md:9,32-33,76`
+- `configs/trae-solo-operating-profile.md:17`
+- `project-starter/README.md:16`
+- `project-starter/AGENTS.md.template:45`
+- `governance/workspace-collaboration-v2.1.md:39,158`
+- `knowledge/INTEGRATION.md:103`
+- `governance/README.md:4`
+- `knowledge/wiki/rules/skill-registry.md:4,10`
+- `knowledge/wiki/rules/collaboration-standard.md:4,10`
+
+这些位置均已指向 git 仓库，旧目录也被明确标注为只读历史快照。
+
+但补扫仍发现**现行配置文档中的可执行旧路径**：
+
+- `configs/proposed-permission-baseline.md:72`：仍要求把备份写入旧快照目录。
+- `configs/permission-tightening-change-list.md:9`：仍把旧目录作为备份目标。
+- `configs/permission-tightening-change-list.md:41`：仍指向旧目录中的 active baseline。
+- `configs/permission-tightening-change-list.md:70`：仍要求保留 `.agent-collaboration` 写入路径。
+
+这些不是 `archive/`、`specs/` 或单纯历史叙述。既然旧目录已定义为**只读历史快照**，继续将其作为备份或配置写入目标会造成现行规范冲突。
+
+**建议修法**：将活动备份和 baseline 路径迁至 git 仓库之外的明确可写运行目录；若内容仅为历史执行记录，应显式标注“历史记录，禁止按此执行”。
+
+---
+
+## 阻断 2：REPO 推导
+
+### ❌ 未完全修复，并引入运行阻断
+
+以下 5 个脚本已正确改为从脚本位置推导仓库根，并支持 `REPO_ROOT`：
+
+- `scripts/gate-checks.py:32-34`
+- `scripts/rebuild-exceptions.py:40`
+- `scripts/complete-exceptions.py:35`
+- `scripts/analyze-gate3.py:9`
+- `scripts/list-hits.py:10`
+
+其中：
+
+- `gate-checks.py:26` 已正常添加 `import os`。
+- `gate-checks.py:41,47-49` 的 `STANDARDS`、exceptions、overrides、evidence 均从同一 `REPO` 派生。
+- `rebuild-exceptions.py:41-43` 与 `complete-exceptions.py:36-37` 也保持同源。
+
+但存在两个阻断问题。
+
+### 2.1 `redact-tokens.py` 出现 SyntaxError
+
+`scripts/redact-tokens.py:25-27`：
+
+```python
+REPO = Path(__import__("os").environ.get(
+    "REPO_ROOT",
+    str(Path(__file__).resolve().parents[1]))
+```
+
+外层 `Path(` 没有闭合。实际编译结果：
+
+> `SyntaxError: '(' was never closed`
+
+因此声称完成切换的 6 个脚本中，`redact-tokens.py` 已完全不可运行。这是本提交直接引入的新阻断。
+
+**建议修法**：
+
+```python
+import os
+
+REPO = Path(
+    os.environ.get(
+        "REPO_ROOT",
+        str(Path(__file__).resolve().parents[1]),
+    )
+)
+```
+
+修复后应至少执行：
+
+```bash
+python -m py_compile scripts/redact-tokens.py
+```
+
+### 2.2 `mirror-sync.py` 仍使用固定 checkout 路径
+
+- `scripts/mirror-sync.py:234`：源目录仍固定为 `~/.agent-collaboration`。
+- `scripts/mirror-sync.py:235`：目标仓库仍固定为 `~/Documents/trae_projects/agent-collaboration-standard`。
+
+因此在其他 clone/checkout 中执行 dry-run 时，审计的仍可能是另一份固定 checkout，而不是当前被评审仓库。虽然 `--apply` 已禁用，破坏性写入风险被消除，但 **dry-run 的跨 checkout 混读问题仍存在**。
+
+**建议修法**：让 `DST_ROOT` 使用与其他脚本一致的 `REPO_ROOT`/`__file__` 推导；旧快照源可单独提供环境变量，例如 `LEGACY_SNAPSHOT_ROOT`。
+
+---
+
+## 阻断 3：禁用 `mirror-sync --apply`
+
+### ✅ 已修复
+
+证据：
+
+- `scripts/mirror-sync.py:288-292` 在参数解析后立即检测 `args.apply`，输出错误并 `return 1`。
+- 实际执行 `python scripts/mirror-sync.py --apply` 返回 **exit code 1**。
+- 错误信息明确说明：
+  - 原方向是只读快照到 git 真值；
+  - 该方向会覆盖 git 真值；
+  - 如需反转方向必须另立规格和独立评审。
+- dry-run 代码路径仍保留，且所有同步函数接收到的 `apply` 固定为 `False`。
+
+本机独立环境没有 `~/.agent-collaboration`，所以 dry-run 按 fail-closed 设计返回 1；这不代表写盘路径重新开放。
+
+**软观察**：
+
+- `scripts/mirror-sync.py:278-279` 的 `--apply` help 仍写着“真正写盘”。
+- `scripts/mirror-sync.py:350-353` 仍提示“加 `--apply` 重跑”并保留不可达的 apply 成功分支。
+
+建议清除这些遗留提示，避免使用者误以为 `--apply` 仍受支持。
+
+---
+
+## 阻断 4：`complete-exceptions` fail-closed
+
+### ✅ 已修复
+
+证据：
+
+- `scripts/complete-exceptions.py:41-43`：`UnclassifiedHit` 定义在 `classify()` 之前。
+- `scripts/complete-exceptions.py:46-62`：没有默认 HISTORY 返回；未命中规则时明确抛出 `UnclassifiedHit`。
+- `scripts/complete-exceptions.py:71-74`：仅接受 grep 返回码 `0` 和 `1`，其他返回码抛出 `RuntimeError`。
+- 使用不存在的 `STANDARDS_SCAN_DIR` 定点验证时，grep 返回 `rc=2`，脚本以 exit code 1 失败，没有将扫描失败当成空结果放行。
+
+---
+
+## Round 1 软观察
+
+- `governance/specs/session-handoff-20260726.md:164-165` 仍列出 secret patterns 的旧位置，未补充“已由新位置取代”的说明。
+- 旧位置冻结但仍保留双份数据，长期仍有漂移风险。
+- `governance/workspace-collaboration-v2.1.md:183` 仍称旧目录为“镜像”，与当前“冻结只读历史快照”定义存在措辞漂移；该行属于历史执行记录，建议补充时态说明。
+
+# 总结
+
+## **FAIL**
+
+原因：
+
+1. `scripts/redact-tokens.py:25-27` 被本提交改成无法解析的 Python，构成新的明确运行阻断。
+2. `mirror-sync.py:235` 仍固定指向另一 checkout，Round 1 指出的 REPO 推导问题没有在该脚本完成。
+3. 路径补扫仍遗漏数处现行配置中的旧目录写入目标。
+
+阻断 3 和阻断 4 已通过；修复上述问题后需要再做一次定点复核。
