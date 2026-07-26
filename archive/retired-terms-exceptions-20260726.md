@@ -17,7 +17,7 @@
 
 ## HISTORY（保留，不替换）
 
-共 134 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
+共 138 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
 
 | 文件 | 行 | 工具 | 内容预览 | 分类 |
 |---|---|---|---|---|
@@ -130,7 +130,11 @@
 | specs/o1-governance-plan.md | 155 | Codex | - 清理 `~/Documents/Codex/` 残留（迁移源头，已备份到 git 仓库） | 人工确认HISTORY |
 | specs/o1-governance-plan.md | 170 | Claude Code | - **更新 CC 退役相关引用**（unified-agent-collaboration-standard.md 仍引用 Claude Code） | 历史叙述 |
 | specs/o1-governance-plan.md | 208 | Codex | \| **第 3 批** \| B1 退役工具残留 + C1 Codex 收尾 \| 释放空间 + 知识归一 \| 低 \| | 历史叙述 |
-| specs/pi-drift-governance-spec.md | 103 | Trae IDE | - Trae SOLO：统一监控 agent/solo 分支（节点 3 修订：原 agent/trae 已随 Trae IDE 退役） | 历史叙述 |
+| specs/pi-drift-governance-spec.md | 16 | Claude Code | > 真值层对照 `fleet-division-v1.1.md`（2026-07-26 重对齐：Claude Code / Trae IDE 已退役，Mira 角色已裁定）。 | 人工确认HISTORY |
+| specs/pi-drift-governance-spec.md | 16 | Trae IDE | > 真值层对照 `fleet-division-v1.1.md`（2026-07-26 重对齐：Claude Code / Trae IDE 已退役，Mira 角色已裁定）。 | 人工确认HISTORY |
+| specs/pi-drift-governance-spec.md | 30 | Claude Code | - `agent/claude`：Claude Code 2026-07-25 退役，分支冻结 | 人工确认HISTORY |
+| specs/pi-drift-governance-spec.md | 31 | Trae IDE | - `agent/trae`：Trae IDE 2026-07-26 退役为编队角色，分支并入 `agent/solo` | 人工确认HISTORY |
+| specs/pi-drift-governance-spec.md | 108 | Trae IDE | - Trae SOLO：统一监控 agent/solo 分支（节点 3 修订：原 agent/trae 已随 Trae IDE 退役） | 人工确认HISTORY |
 | specs/review-process-lessons.md | 60 | Claude Code | B 找到的 `tr -d ' '` 把 "Claude Code" 变 "ClaudeCode"，导致后续 case 永远不命中。 | 人工确认HISTORY |
 | specs/session-handoff-20260726.md | 28 | Trae IDE | - Trae IDE 退役为编队角色（软件保留个人用） | 历史叙述 |
 | specs/survey-zcode.md | 4 | Codex | > 范围: 本地协作资产 + GitHub代码 + ECS代码 + Codex知识库 | 人工确认HISTORY |

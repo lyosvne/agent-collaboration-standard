@@ -1,7 +1,7 @@
 # 设计规格：Pi 漂移治理（cron 体检 + 代劳 push + 集成窗口）
 
 > 签发: Qoder（出规格）| Review: ZCode（对等互检）| 裁定: 用户 | 日期: 2026-07-23
-> 状态: **用户已签发「Pi 代劳 push 常设授权」（2026-07-23），§4.1 解锁，待 ZCode review 后可实施**
+> 状态: review 已过（2026-07-26 节点3 + Phase D 期间）；常设授权已编入 `workspace-collaboration-v2.1.md §4`；本 spec A 层（文档/配置真值）对齐 2026-07-26；B/C 层（dispatch-server `/truth/versions` 端点 + ECS `pi-drift-guard` Extension 实施）待后续任务（详见 §10）
 > 依据: 架构真值 v1.0 §五 + 本机资产审计实证（8 副本分叉/主仓库落后 200 commits）
 
 ---
@@ -13,17 +13,22 @@
 
 ## 2. 治理对象清单
 
-| Clone | 分支 | 状态基线（2026-07-22 审计） |
-|-------|------|---------------------------|
-| Aetheris-link（主，ZCode 接管中） | master | 落后 200（ZCode 同步中） |
-| Aetheris-clones/claude → ZCode 接管 | agent/claude | 与 origin 同步 |
-| Aetheris-clones/kimi | agent/kimi | 活跃，已合并 master 真值 |
-| Aetheris-clones/qoder | agent/qoder | 3 untracked 待处理 |
-| Aetheris-clones/trae | agent/trae | 5 modified 待处理 |
-| Aetheris-clones/solo | agent/solo | 31 untracked（归档候选） |
-| agent/mira（GitHub 分支） | agent/mira | 活跃（Mira 角色待用户澄清） |
+> 真值层对照 `fleet-division-v1.1.md`（2026-07-26 重对齐：Claude Code / Trae IDE 已退役，Mira 角色已裁定）。
+> 配置以文件维护（`governance/configs/drift-config.json`），编队变更时更新，不硬编码本地路径。
 
-清单以配置文件维护（`drift-config.json`），编队变更时更新，不硬编码。
+| Clone | 分支 | 状态基线（2026-07-26 重对齐） |
+|-------|------|---------------------------|
+| agent-collaboration-standard（本仓库）| master | ✅ 真值层（git-sync-plan §六验收对象，依赖 §10 C 层 Extension 上线后纳入体检）|
+| Aetheris（主仓库） | master | 真值层（架构 v1.0） |
+| Aetheris-clones/kimi | agent/kimi | 活跃（Kimi = 前端实现主力）|
+| Aetheris-clones/qoder | agent/qoder | 活跃（Qoder = 主架构 + 云端执行）|
+| Aetheris-clones/solo | agent/solo | 活跃（Trae SOLO = 平行实现/QA，2026-07-26 C 选项后接管原 agent/trae 内容）|
+| Aetheris-clones/zcode | agent/zcode | 活跃（ZCode = 主控驾驶舱）|
+| agent/mira（GitHub 分支） | agent/mira | 活跃（Mira = 云端生图 + 评审，2026-07-23 用户裁定）|
+
+**已退役**（drift-config.json `retired_clones` 显式记录，避免漂移报告误报）：
+- `agent/claude`：Claude Code 2026-07-25 退役，分支冻结
+- `agent/trae`：Trae IDE 2026-07-26 退役为编队角色，分支并入 `agent/solo`
 
 ## 3. 第一层：漂移体检 cron
 
@@ -97,7 +102,7 @@ Pi（ECS）能做的：
 
 ## 7. 实现形态
 
-- Pi Extension `pi-drift-guard`（TypeScript）：cron 调度 + git 只读探测 + 分级报告 + 代劳 push（授权后启用）
+- Pi Extension `pi-drift-guard`（TypeScript）：cron 调度 + git 只读探测 + 分级报告 + 代劳 push（授权后启用）。**当前 spec-only，无代码（详见 §10）**
 - 与 pi-feishu 的接口：`DriftReport → 漂移报告卡/告警卡`；集成提案 → 审批卡
 - 与 Aetheris 的接口：体检记录/代劳 push 审计写真值层
 - Trae SOLO：统一监控 agent/solo 分支（节点 3 修订：原 agent/trae 已随 Trae IDE 退役）
@@ -108,10 +113,28 @@ Pi（ECS）能做的：
 2. 只读保证：体检运行前后，各 clone 工作区与 HEAD 无任何变化（mtime + rev-parse 校验）
 3. 代劳 push 边界：构造 master 分支/dirty 工作区/非 ff 场景 → 全部拒绝执行并记录原因
 4. 告警链路：CRITICAL 场景 5 分钟内飞书收到告警卡
-5. ZCode review 通过 + 用户授权签发后，方可启用 §4.1
+5. review 与授权：ZCode review 已过 + 用户常设授权已签发（2026-07-23）并编入 `workspace-collaboration-v2.1.md §4`；§4.1 实际启用仍依赖 §10 C 层 `pi-drift-guard` Extension 上线
 
 ## 9. 分工
 
 - 本规格：Qoder 出（本文档）
 - Review：ZCode（对等互检，重点审 §4.1 边界与 §3.3 只读保证）
 - 实施：待用户裁定（建议随 Pi ECS 部署验证后作为 Pi 第一个实战任务，v1.0 §八已建议）
+
+## 10. 实施状态（2026-07-26 实证，A 层对齐时固化）
+
+| 层 | 内容 | 状态 |
+|----|------|------|
+| A 文档/配置 | spec 真值对齐 + `drift-config.json` 创建 | ✅ 2026-07-26 完成 |
+| B 协议层 | dispatch-server `/truth/versions` 端点（时序版本自动化）| ⏳ 待 ECS 实施，概念定义见 `archive/governance-review-node1-20260726/governance-plan-review-package.md §5.3` |
+| C ECS 工程 | `pi-drift-guard` Extension 代码 + systemd 托管 + spawn exports 修复 | ⏳ 待用户授权（systemd / `.service` 红线）+ ZCode 实施 |
+
+**deployment 实证**（来源 `templates/zcode-claude-replacement-report.md`，非真值层）：
+- Pi daemon 进程存活（部署验证时 PASS：daemon / 崩溃恢复 / IPC / Aetheris 连通）
+- Pi 标 experimental，**未 systemd 托管**（建议加 `.service` + `Restart=always`，待用户授权）
+- Extensions 实际 `registerTool` 未 verified（需建 extensions 目录 + 写 test extension）
+- spawn exports 问题未修（Pi 能管理 instance 记录但不能启动真实 agent 子进程）
+
+**验收依赖**（`agent-collaboration-git-sync-plan.md §六`）：
+- "Pi 30min cron 能检测到 agent-collaboration-standard 仓库的规则版本变化" 依赖 C 层 `pi-drift-guard` Extension 上线
+- A 层 `drift-config.json` 已登记本仓库为治理对象，Extension 上线后即可生效

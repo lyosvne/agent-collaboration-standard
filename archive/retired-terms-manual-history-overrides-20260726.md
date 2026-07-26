@@ -69,10 +69,15 @@
 | specs/trae-solo-branch-merge-task.md | 211 | Trae IDE | 同 L54（工具状态）|
 | workspace-collaboration-v2.1.md | 41 | Codex | 知识库路径引用（历史资产）|
 | specs/node2-review-retrospective-20260726.md | 44 | Codex | 门禁绕过句构造示例（"in case Codex fails" 含 case）, 讨论启发式不可能零 fail-open 的反例, 非编队角色描述 |
+| specs/pi-drift-governance-spec.md | 16 | Claude Code | §2 真值层对照声明（"Claude Code / Trae IDE 已退役"）, 历史叙述 |
+| specs/pi-drift-governance-spec.md | 16 | Trae IDE | 同 L16, 真值层对照声明（历史叙述）|
+| specs/pi-drift-governance-spec.md | 30 | Claude Code | §2 已退役分支记录（"Claude Code 2026-07-25 退役, 分支冻结"）, 历史叙述 |
+| specs/pi-drift-governance-spec.md | 31 | Trae IDE | §2 已退役分支记录（"Trae IDE 2026-07-26 退役为编队角色"）, 历史叙述 |
+| specs/pi-drift-governance-spec.md | 108 | Trae IDE | §7 实施形态注记（"原 agent/trae 已随 Trae IDE 退役"）, 历史叙述 |
 
 ## 审核人
 
-ZCode（round4 逐条人工判定, 2026-07-26; Phase D-A 追加 1 条, 2026-07-26）
+ZCode（round4 逐条人工判定, 2026-07-26; Phase D-A 追加 1 条, 2026-07-26; Pi 治理纳入 A 层追加 5 条, 2026-07-26）
 
 ## 复核要求
 
