@@ -33,63 +33,80 @@ from pathlib import Path
 
 STANDARDS = Path(r"C:\Users\Admin\.agent-collaboration\standards")
 EXC_FILE = Path(r"C:\Users\Admin\.agent-collaboration\archive\retired-terms-exceptions-20260726.md")
+OVERRIDES_FILE = Path(r"C:\Users\Admin\.agent-collaboration\archive\retired-terms-manual-history-overrides-20260726.md")
 TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
 LINE_RE = re.compile(r"^(.+?):([0-9]+):(.*)$")
+
+
+def load_manual_overrides() -> set[str]:
+    """round4 新增: 读人工确认 HISTORY 覆盖清单。返回 {file:line|tool} 集合。
+
+    最严收窄后, 部分合法 HISTORY（知识资产/迁移/兼容性/方案代码）会被 classify raise。
+    本文件是 ZCode 逐条人工判定为 HISTORY 的覆盖, classify 命中此清单直接归 HISTORY。
+    """
+    if not OVERRIDES_FILE.is_file():
+        return set()
+    keys = set()
+    for ln in OVERRIDES_FILE.read_text(encoding="utf-8").splitlines():
+        s = ln.strip()
+        if not s.startswith("|") or "---" in s:
+            continue
+        parts = [p.strip() for p in s.split("|")]
+        if len(parts) < 5:
+            continue
+        file, lineno, tool = parts[1], parts[2], parts[3]
+        if file and lineno and tool and file != "文件":
+            keys.add(f"{file}:{lineno}|{tool}")
+    return keys
+
+
+# round4: 模块级加载人工覆盖（classify 用）
+MANUAL_OVERRIDES = load_manual_overrides()
 
 
 class UnclassifiedHit(Exception):
     """命中未匹配任何已知分类模式, 需人工判定（fail-closed, 不默认归 HISTORY）。"""
 
 
-def classify(rel: str, content: str) -> str:
+def classify(rel: str, content: str, context: str = "", manual_key: str = "") -> str:
     """判定命中类别。未匹配任何模式 → 抛 UnclassifiedHit（fail-closed）。
 
-    节点2 round3 修复（A/B/C 三方一致核心阻断）:
-      round2 的 classify 含 eco桶(支持/兼容/插件/生态) + 知识库桶, 太宽——
-      "本标准支持 Codex" / "Codex 知识库" 等现行角色推荐句会被自动归 HISTORY,
-      进 exceptions, gate3 盲信任 exceptions 放行 → fail-open。
+    节点2 round4 修复（A/B 三方共识, 最严收窄）:
+      round3 的 classify 仍含 specs/ 白名单 + 宽泛上下文词, B/A 标为新 fail-open。
+      round4 最严收窄: 只保留 archive/ + 明确历史关键词 + 上下文含[RETIRED-/TERMS。
+      其他全部 raise, 强制人工判定。
 
-      round3 激进收窄 + 精确上下文匹配:
-        自动归 HISTORY 需要精确的历史/资产/示例上下文词（从 64 条真实合法 HISTORY 提炼）,
-        而非宽泛的"支持/兼容"。覆盖真实数据 100%, 不放行任何现行角色句。
+    人工覆盖机制（manual_key 参数）:
+      最严收窄后, 合法 HISTORY（知识资产/迁移/兼容性/方案代码）会被 raise。
+      ZCode 逐条人工判定后写入 manual-history-overrides 文件。
+      classify 收到 manual_key 时, 若在 overrides 集合中, 归"人工确认HISTORY"。
 
-    自动归 HISTORY 的精确上下文（从 64 条真实 HISTORY 提炼, 每条都覆盖）:
-      - archive/ 目录: 归档文档历史引用
-      - 明确历史关键词: 退役/淘汰/retire/下线/废弃/归档/已删/历史
-      - 知识资产上下文: 知识库/knowledge/Documents/资产/调研/沉淀/盘点/曾做
-      - 迁移上下文: 迁移/残留
-      - 工具状态: 个人使用/软件卸载/配置清理
-      - 方案示例代码: [RETIRED-/placeholder/case/print/grep/awk/tr /line ~/git/.codex/.tmp/memories
-      - 历史替换: 替换
+    参数:
+      rel: 相对路径
+      content: 当前命中行内容
+      context: 前后行上下文
+      manual_key: "file:line|tool" 键, 用于查 overrides
     """
-    # archive/ 目录下的命中默认为历史归档（与 gate3 逻辑一致）
+    # 人工覆盖优先（round4）: 命中 overrides 直接归 HISTORY
+    if manual_key and manual_key in MANUAL_OVERRIDES:
+        return "人工确认HISTORY"
+    # archive/ 目录下的命中默认为历史归档
     if rel.startswith("archive/"):
         return "归档文档历史引用"
-    # specs/ 下的命中默认为治理方案文档讨论对象（方案文档本身是讨论退役工具的对象,
-    # 含 bash 数组/grep 命令/词表等, 都是讨论而非现行角色描述）
-    if rel.startswith("specs/") or "/specs/" in rel:
-        return "治理方案文档讨论对象"
-    # 明确历史叙述关键词（描述退役过程/状态）
+    # 明确历史叙述关键词
     if any(k in content for k in ["退役", "淘汰", "retire", "下线", "废弃", "归档", "已删", "历史"]):
         return "历史叙述"
-    # 知识资产上下文（Codex 知识库 / Documents 路径 / 资产/调研/盘点）
-    if any(k in content for k in ["知识库", "knowledge", "Knowledge", "Documents", "资产", "调研", "沉淀", "盘点", "曾做"]):
-        return "知识资产引用"
-    # 迁移上下文（迁移/残留）
-    if any(k in content for k in ["迁移", "残留"]):
-        return "迁移任务描述"
-    # 工具状态（个人使用/软件卸载/配置清理）
-    if any(k in content for k in ["个人使用", "软件卸载", "配置清理"]):
-        return "工具状态描述"
-    # 方案示例代码（PB 方案文档里的退役词表/替换示例/grep 命令）
-    if any(k in content for k in ["[RETIRED-", "placeholder", "case ", "print ", "grep ", "awk ", "tr ", "line ~", ".codex", ".tmp", "memories", "TERMS", "词表", "RETired"]):
+    # 上下文（前后行）含 [RETIRED- 或词表定义 → 方案示例代码
+    if context and ("[RETIRED-" in context or "TERMS" in context or "词表" in context
+                    or "RETired" in context or "placeholder" in context):
         return "方案示例代码"
-    # 历史替换描述（"替换为"/"把 X 变 Y"）
-    if "替换" in content or "RETIRED" in content:
-        return "历史替换描述"
-    # round3 激进收窄: 上述精确上下文都不匹配 → raise 强制人工判定
+    # 当前行本身含方案代码标记（placeholder/case/print/grep/awk/tr 等）
+    if any(k in content for k in ["placeholder", "case ", "print ", "grep ", "awk ", "tr ",
+                                   "line ~", "[RETIRED-", "TERMS", "RETired"]):
+        return "方案示例代码"
+    # round4 最严收窄: 其他全 raise, 强制人工判定
     raise UnclassifiedHit(
-        f"未分类命中（round3 精确上下文未匹配, 需人工判定 ROLE or HISTORY）: {rel} | {content[:80]}"
+        f"未分类命中（round4 最严收窄, 需人工判定 ROLE or HISTORY）: {rel} | {content[:80]}"
     )
 
 
@@ -108,22 +125,39 @@ def scan_hits() -> list[tuple[str, int, str, str, str]]:
       - 注释与代码一致: 不再声称"标注 is_replaced", 实际行为是全部命中都 classify。
     """
     pat = "|".join(TERMS)
-    r = subprocess.run(["grep", "-rEn", pat, str(STANDARDS)], capture_output=True, text=True)
+    # round4: grep -B1 -A1 拿前后行上下文（捕获"上文 RETired_TERMS_LIST=("）
+    r = subprocess.run(["grep", "-rEn", "-B1", "-A1", pat, str(STANDARDS)],
+                       capture_output=True, text=True)
     # B-4 fail-closed: grep 退出码 0=命中 1=无命中, 其他(2+)=错误, 必须抛错
     if r.returncode not in (0, 1):
         raise RuntimeError(f"grep 执行失败 rc={r.returncode}: {r.stderr}")
     prefix = str(STANDARDS).replace("\\", "/") + "/"
     rows = []
-    for line in r.stdout.splitlines():
-        m = LINE_RE.match(line)
-        if not m:
+    # 解析 grep -B1 -A1 输出: 命中行 + 前后行, 用 -- 分组分隔
+    # 格式: <path>-<lineno>-<content>(命中) 前后是 <path>:<lineno>:<content>(上下文)
+    # 简化: 按 -- 分组, 每组找含 TERMS 的命中行 + 收集上下文
+    blocks = r.stdout.split("--")
+    LINE_RE_CTX = __import__("re").compile(r"^(.+?)[-:]([0-9]+)[-:](.*)$")
+    for block in blocks:
+        block_lines = [l for l in block.splitlines() if l.strip()]
+        if not block_lines:
             continue
-        fpath, lineno, content = m.group(1), m.group(2), m.group(3)
-        fpath_norm = fpath.replace("\\", "/")
-        rel = fpath_norm[len(prefix):] if fpath_norm.startswith(prefix) else fpath_norm
-        for t in TERMS:
-            if t in content:
-                rows.append((rel, int(lineno), t, content.strip(), classify(rel, content)))
+        # 收集上下文(所有行) + 找命中行
+        context_parts = []
+        for line in block_lines:
+            m = LINE_RE_CTX.match(line)
+            if not m:
+                continue
+            fpath, lineno, content = m.group(1), m.group(2), m.group(3)
+            # 去掉 grep 的 - 前缀(上下文行用 -, 命中行用 :)
+            fpath_norm = fpath.replace("\\", "/").rstrip("-")
+            rel = fpath_norm[len(prefix):] if fpath_norm.startswith(prefix) else fpath_norm
+            for t in TERMS:
+                if t in content:
+                    ctx = " ".join(context_parts)
+                    manual_key = f"{rel}:{lineno}|{t}"
+                    rows.append((rel, int(lineno), t, content.strip(), classify(rel, content, ctx, manual_key)))
+            context_parts.append(content)
     rows.sort(key=lambda x: (x[0], x[1], x[2]))
     return rows
 

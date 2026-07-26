@@ -34,6 +34,7 @@ SECRET_PATTERNS_DIR = Path.home() / ".agent-collaboration" / "archive" / "secret
 PATTERNS_FILE = SECRET_PATTERNS_DIR / "scan-patterns.txt"
 REDACT_MAP_FILE = SECRET_PATTERNS_DIR / "redact-map.txt"
 EXCEPTIONS_FILE = Path.home() / ".agent-collaboration" / "archive" / "retired-terms-exceptions-20260726.md"
+OVERRIDES_FILE = Path.home() / ".agent-collaboration" / "archive" / "retired-terms-manual-history-overrides-20260726.md"
 EVIDENCE_DIR = REPO / ".review-evidence"
 
 RETIRED_TERMS = ["Claude Code", "claude-zhipu", "Codex", "QoderWork", "Trae IDE"]
@@ -128,13 +129,24 @@ def check_patterns_drift() -> tuple[bool, str]:
 
     # 读 redact-map 的 token 集合
     redact_tokens = set()
+    bad_lines = []
     for ln in REDACT_MAP_FILE.read_text(encoding="utf-8").splitlines():
         s = ln.rstrip("\n")
-        if not s.strip() or s.lstrip().startswith("#") or "\t" not in s:
+        if not s.strip() or s.lstrip().startswith("#"):
+            continue
+        if "\t" not in s:
+            bad_lines.append(s[:20])
             continue
         token = s.split("\t", 1)[0].strip()
         if token:
             redact_tokens.add(token)
+
+    # round4 修复（B#4）: redact-map 缺 TAB 的错误行必须 fail-closed, 不静默跳过
+    if bad_lines:
+        return False, (
+            f"redact-map.txt 含 {len(bad_lines)} 行格式错误（无 TAB）: {bad_lines[:3]}。"
+            f"修复映射文件后重跑（缺 TAB 行会导致 token 漏扫）"
+        )
 
     # 读 scan-patterns 的 pattern 集合
     ok, scan_patterns, _ = load_patterns()
@@ -207,50 +219,56 @@ def gate2_secret_scan() -> tuple[bool, str, int]:
     return True, f"0 命中 (扫了 {len(patterns)} 个 pattern, 覆盖整个暂存区含 scripts/)", hits_total
 
 
-def _scan_raw_lines() -> list[tuple[str, str, str, bool, str]]:
-    """扫描 standards/ 所有退役词命中的原始行。
+def _scan_raw_lines() -> list[tuple[str, str, str, bool, str, str]]:
+    """扫描 standards/ 所有退役词命中的原始行（带上下文）。
 
-    返回 [(rel, lineno, tool, is_replaced, content)] 列表。
-    is_replaced=True 表示【该具体命中词】附近有 [RETIRED-（已替换为占位符）,
-    is_replaced=False 表示该命中词未被替换（HISTORY 或现行角色, 由调用方用 content 区分）。
-    content 是去掉路径/行号前缀的行正文。
+    返回 [(rel, lineno, tool, is_replaced, content, context)] 列表。
+    - is_replaced: 该具体命中词前后 40 字符内是否有 [RETIRED-
+    - content: 当前命中行正文
+    - context: 前后各 1 行的上下文（round4 新增, 捕获"上文 RETired_TERMS_LIST=("）
 
-    节点2 round3 修复（B-2）:
-      round2 的 is_replaced 按整行判定（`"[RETIRED-" in line`）,
-      若同行有 [RETIRED- 占位符 + 另一个未替换退役词, 整行 is_replaced=True 掩盖未替换词。
-      修复: 改为按"该具体命中词前后 40 字符内是否有 [RETIRED-"判定,
-      精确到命中位置而非整行。
+    节点2 round4 修复（A/B 共识 specs/ 白名单 fail-open）:
+      round3 用 specs/ 整目录白名单放行, B/A 标为新 fail-open。
+      round4 删 specs/ 白名单, 改用"前后行上下文"判定方案示例代码
+      (bash 数组元素的上文是 RETired_TERMS_LIST=()。
     """
     pat_alt = "|".join(RETIRED_TERMS)
-    r = subprocess.run(["grep", "-rEn", pat_alt, str(STANDARDS)], capture_output=True, text=True)
-    if r.returncode == 2:
-        raise RuntimeError(f"grep 错误: {r.stderr}")
+    # round4: grep -B1 -A1 拿上下文
+    r = subprocess.run(["grep", "-rEn", "-B1", "-A1", pat_alt, str(STANDARDS)],
+                       capture_output=True, text=True)
+    # C-BL-2/A-4 修复: grep 退出码 非0/1 即抛错（之前只检查 ==2, 漏 rc=3 等）
+    if r.returncode not in (0, 1):
+        raise RuntimeError(f"grep 执行失败 rc={r.returncode}: {r.stderr}")
 
     prefix = str(STANDARDS).replace("\\", "/") + "/"
     out = []
-    LINE_RE = __import__("re").compile(r"^(.+?):([0-9]+):(.*)$")
-    WINDOW = 40  # 命中词前后 40 字符内视为"该命中已被替换"
-    for line in r.stdout.splitlines():
-        m = LINE_RE.match(line)
-        if not m:
+    WINDOW = 40
+    LINE_RE_CTX = __import__("re").compile(r"^(.+?)[-:]([0-9]+)[-:](.*)$")
+    # 按 -- 分组解析 grep -B1 -A1 输出
+    blocks = r.stdout.split("--")
+    for block in blocks:
+        block_lines = [l for l in block.splitlines() if l.strip()]
+        if not block_lines:
             continue
-        fpath, lineno, content = m.group(1), m.group(2), m.group(3)
-        fpath_norm = fpath.replace("\\", "/")
-        rel = fpath_norm[len(prefix):] if fpath_norm.startswith(prefix) else fpath_norm
-        for t in RETIRED_TERMS:
-            # 找该命中词在 content 的所有位置
-            start = 0
-            while True:
-                idx = content.find(t, start)
+        context_parts = []
+        for line in block_lines:
+            m = LINE_RE_CTX.match(line)
+            if not m:
+                continue
+            fpath, lineno, content = m.group(1), m.group(2), m.group(3)
+            fpath_norm = fpath.replace("\\", "/").rstrip("-")
+            rel = fpath_norm[len(prefix):] if fpath_norm.startswith(prefix) else fpath_norm
+            for t in RETIRED_TERMS:
+                idx = content.find(t)
                 if idx == -1:
-                    break
-                # 检查命中词前后 WINDOW 字符内是否有 [RETIRED-
+                    continue
                 window_start = max(0, idx - WINDOW)
                 window_end = min(len(content), idx + len(t) + WINDOW)
                 window = content[window_start:window_end]
                 is_replaced = "[RETIRED-" in window
-                out.append((rel, lineno, t, is_replaced, content))
-                start = idx + len(t)
+                ctx = " ".join(context_parts)
+                out.append((rel, lineno, t, is_replaced, content, ctx))
+            context_parts.append(content)
     return out
 
 
@@ -281,29 +299,30 @@ def gate3_role_refs() -> tuple[bool, str]:
         return False, f"standards 目录不存在: {STANDARDS}"
 
     raw = _scan_raw_lines()
-    # round3: 历史上下文判定（与 classify 同集, 避免 gate3/classify 不一致）
-    # 明确历史关键词 + 精确历史上下文（从 64 条真实合法 HISTORY 提炼）
+    # round4 最严收窄: 只认 archive/ + 明确历史关键词 + 上下文标记 + 人工确认 overrides
     history_keywords = ["退役", "淘汰", "retire", "下线", "废弃", "归档", "已删", "历史",
                         "retired", "deprecat", "removed"]
-    history_context = ["知识库", "knowledge", "Knowledge", "Documents", "资产", "调研",
-                       "沉淀", "盘点", "曾做", "迁移", "残留", "个人使用", "软件卸载",
-                       "配置清理", "[RETIRED-", "placeholder", "case ", "print ", "grep ",
-                       "awk ", "tr ", "line ~", ".codex", ".tmp", "memories", "替换", "RETIRED",
-                       "TERMS", "词表", "RETired"]
+    # round4: 信任人工确认 overrides（ZCode 逐条人工判定, 非自动分类, 不存在 tautology）
+    manual_overrides = _load_manual_overrides() if OVERRIDES_FILE.is_file() else set()
     current_refs = []  # 现行角色引用（阻断项）
     history_count = 0
     replaced_count = 0
-    for rel, lineno, tool, is_replaced, content in raw:
+    for rel, lineno, tool, is_replaced, content, context in raw:
+        key = f"{rel}:{lineno}|{tool}"
         if is_replaced:
             replaced_count += 1
         elif any(k.lower() in content.lower() for k in history_keywords):
             history_count += 1  # 含明确历史关键词
-        elif any(k in content for k in history_context):
-            history_count += 1  # 含精确历史上下文（知识库/迁移/示例代码等）
         elif rel.startswith("archive/"):
             history_count += 1  # archive/ 目录默认历史归档
-        elif rel.startswith("specs/") or "/specs/" in rel:
-            history_count += 1  # specs/ 默认方案文档讨论对象
+        elif context and ("[RETIRED-" in context or "TERMS" in context or "词表" in context
+                          or "RETired" in context or "placeholder" in context):
+            history_count += 1  # 上下文(前后行)含方案示例代码标记
+        elif any(k in content for k in ["placeholder", "case ", "print ", "grep ", "awk ", "tr ",
+                                         "line ~", "[RETIRED-", "TERMS", "RETired"]):
+            history_count += 1  # 当前行含方案代码标记
+        elif key in manual_overrides:
+            history_count += 1  # round4: 人工确认 HISTORY（overrides 清单）
         else:
             current_refs.append((rel, lineno, tool))  # 现行角色, 阻断
 
@@ -345,6 +364,28 @@ def _load_exception_keys() -> set[str]:
     return keys
 
 
+def _load_manual_overrides() -> set[str]:
+    """round4 新增: 读人工确认 HISTORY 覆盖清单。返回 {file:line|tool} 集合。
+
+    最严收窄后, 合法 HISTORY（知识资产/迁移/兼容性/方案代码）会被 raise。
+    本文件是 ZCode 逐条人工判定为 HISTORY 的覆盖, gate3/gate4 信任它（人工确认, 非 tautology）。
+    """
+    if not OVERRIDES_FILE.is_file():
+        return set()
+    keys = set()
+    for ln in OVERRIDES_FILE.read_text(encoding="utf-8").splitlines():
+        s = ln.strip()
+        if not s.startswith("|") or "---" in s:
+            continue
+        parts = [p.strip() for p in s.split("|")]
+        if len(parts) < 5:
+            continue
+        file, lineno, tool = parts[1], parts[2], parts[3]
+        if file and lineno and tool and file != "文件":
+            keys.add(f"{file}:{lineno}|{tool}")
+    return keys
+
+
 def gate4_history_in_exceptions() -> tuple[bool, str]:
     """门禁 4: HISTORY 命中 ⊆ exceptions 清单（集合比对, 与 gate3 独立）。
 
@@ -365,27 +406,26 @@ def gate4_history_in_exceptions() -> tuple[bool, str]:
         return False, f"例外清单不存在: {EXCEPTIONS_FILE}"
 
     raw = _scan_raw_lines()
-    # 应登记的引用: 已替换 [RETIRED- 的 (ROLE) + 未替换的 HISTORY
-    # round3: 与 gate3 同集（明确历史关键词 + 精确历史上下文）, 避免 gate3/gate4 不一致
+    # round4 最严收窄（与 gate3 同集）: archive/ + 历史关键词 + 上下文标记 + 人工 overrides
     history_keywords = ["退役", "淘汰", "retire", "下线", "废弃", "归档", "已删", "历史",
                         "retired", "deprecat", "removed"]
-    history_context = ["知识库", "knowledge", "Knowledge", "Documents", "资产", "调研",
-                       "沉淀", "盘点", "曾做", "迁移", "残留", "个人使用", "软件卸载",
-                       "配置清理", "[RETIRED-", "placeholder", "case ", "print ", "grep ",
-                       "awk ", "tr ", "line ~", ".codex", ".tmp", "memories", "替换", "RETIRED",
-                       "TERMS", "词表", "RETired"]
+    manual_overrides = _load_manual_overrides() if OVERRIDES_FILE.is_file() else set()
     registered_keys = set()
-    for rel, lineno, tool, is_replaced, content in raw:
+    for rel, lineno, tool, is_replaced, content, context in raw:
         key = f"{rel}:{lineno}|{tool}"
         if is_replaced:
             registered_keys.add(key)
         elif any(k.lower() in content.lower() for k in history_keywords):
             registered_keys.add(key)
-        elif any(k in content for k in history_context):
-            registered_keys.add(key)
         elif rel.startswith("archive/"):
             registered_keys.add(key)
-        elif rel.startswith("specs/") or "/specs/" in rel:
+        elif context and ("[RETIRED-" in context or "TERMS" in context or "词表" in context
+                          or "RETired" in context or "placeholder" in context):
+            registered_keys.add(key)
+        elif any(k in content for k in ["placeholder", "case ", "print ", "grep ", "awk ", "tr ",
+                                         "line ~", "[RETIRED-", "TERMS", "RETired"]):
+            registered_keys.add(key)
+        elif key in manual_overrides:
             registered_keys.add(key)
         # 现行角色引用(都不满足)不登记, 由 gate3 阻断
 
