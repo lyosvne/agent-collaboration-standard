@@ -136,7 +136,7 @@ def scan_hits() -> list[tuple[str, int, str, str, str]]:
     # 解析 grep -B1 -A1 输出: 命中行 + 前后行, 用 -- 分组分隔
     # 格式: <path>-<lineno>-<content>(命中) 前后是 <path>:<lineno>:<content>(上下文)
     # 简化: 按 -- 分组, 每组找含 TERMS 的命中行 + 收集上下文
-    blocks = r.stdout.split("--")
+    blocks = [b for b in r.stdout.split("\n--\n") if b.strip()]
     LINE_RE_CTX = __import__("re").compile(r"^(.+?)[-:]([0-9]+)[-:](.*)$")
     for block in blocks:
         block_lines = [l for l in block.splitlines() if l.strip()]
