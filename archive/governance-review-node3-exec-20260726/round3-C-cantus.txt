@@ -1,0 +1,66 @@
+[warn] 调度记录落盘失败: HTTP Error 403: Forbidden
+=== C ROUND3 ===
+status: done
+duration: 175.5
+--- message ---
+diff 已读。现在独立复扫全仓，验证是否有遗漏。复核完成。独立 clone 于 `/data/acs-round3`，HEAD 确认为 `f62aeae`（8 文件，+28/-32），已读完整 diff 并对全仓做了独立复扫（不依赖 commit message 自述）。
+
+---
+
+## Round 3 定点复核结果
+
+### 阻断1: Qoder Webhook 未传播 — ✅ 已修复
+
+逐处核对（diff + 现文件双验证）：
+
+| 位置 | 现状 |
+|---|---|
+| architecture-v1.0 L26 | ✅ `SSE 接收队列(Qoder 回传) + 轮询兜底（2026-07-26 用户裁定：无 Webhook）` |
+| architecture-v1.0 L58 | ✅ `REST API + SSE...无 Webhook，2026-07-26 用户裁定` |
+| architecture-v1.0 L114（§4.1） | ✅ `SSE 回传 Pi...轮询兜底` |
+| architecture-v1.0 L237（§九任务4） | ✅ `SSE 接收队列 + 轮询兜底` |
+| qoder-sse-consumer-design | ✅ 整篇重写 v3：标题/修订记录（v1 对→v2 错→v3 回归）/契约表删 webhook 两行/依赖节改 `Webhook（Qoder API 不支持）`，且明确 v2 的 `POST /webhook_endpoints` 是未实证错误声明 |
+| pi-drift-governance-spec L74 | ✅ `Qoder SSE/轮询，无 Webhook` |
+| governance/README L12 | ✅ 状态标注改为 `Qoder 通道 2026-07-26 用户裁定为 SSE+轮询，无 Webhook` |
+
+全仓 webhook 复扫（排除 Mira webhook 与 archive/ 评审证据）：governance/ 现行文档剩余命中全部是"无 Webhook"的否定性声明或 workspace §6 的正确表述，**零残留正向 webhook 声明**。
+
+一处非阻断注记：`templates/zcode-claude-replacement-report.md` L280-413 保留 "Webhook 完整存在" 的历史往来回执（v2 错误结论的原始记录）。这是历史交接日志、非现行规范，round1 A 未列入阻断范围，判定不阻断——但它是全仓唯一仍以肯定语气声称 webhook 存在的文件，建议后续在文件头加一行"v3 裁定推翻本文 webhook 结论"的免责标注，防止未来 agent 误读。
+
+### 阻断2: Trae SOLO 名称未统一 — ✅ 已修复（附 2 处同类残留）
+
+round1 所列 3 处全部改到位：
+- workspace §3 L82：`平行实现/本地集成/动态测试 QA | Trae SOLO | G3` ✅
+- fleet-division L54：`Trae SOLO ... v1.0（节点 3 统一名称）` ✅
+- fleet-division L101 ASCII 图：`Trae SOLO 平行实现 / 本地集成 / 产品测试QA(G3)` ✅
+
+独立复扫发现 **2 处 round1 未列入的裸 "Trae" 现行角色引用**（同类残留，非本轮阻断范围）：
+- `workspace-collaboration-v2.1.md:81`：`| 前端实现 | Kimi | Trae 备选 |` → 应为 `Trae SOLO 备选`
+- `fleet-division-v1.1.md:111`：`③执行 | ✅ | ...平行(Trae)...` → 应为 `平行(Trae SOLO)`
+
+判定为**软观察**而非新阻断：round3 是对 round1 三阻断的定点复核，且这 2 处语义无歧义（C 选项后 Trae 系仅存 SOLO）。建议下一次治理 commit 顺手修掉，避免第三轮扫描再报。
+
+### 阻断3: exceptions 失效 ROLE 条目 — ✅ 已修复
+
+- `archive/retired-terms-exceptions-20260726.md` ROLE 表已清空（仅剩表头，0 条数据行）✅
+- 删除的正是 round1 所指 10 条：9 条 unified（L60/104/122/127/135×2/184×2 + Trae IDE）+ 1 条 fleet-division L87 Codex ✅
+- 交叉验证：`grep` unified 现行文档零退役角色命中（exit 1）；fleet-division G4 行确认已是 `[RETIRED-CODEX-2026-07-25]` 占位符；fleet-division 其余 Codex 引用（L88 G5 "原承接者"等）均已在 HISTORY 段登记，分类正确 ✅
+
+环境注记：本沙箱跑 `scripts/gate-checks.py` 在 patterns 加载步骤 fail-closed 退出（`~/.config/agent-collaboration/secret-patterns/` 不存在——这是 Phase D-B 设计的本机配置，云端沙箱无此文件属预期），**非仓库缺陷**。ROLE=0 已由上述人工核验替代确认。
+
+### 软观察: unified Completion Protocol 权威声明 — ✅ 已加，清晰
+
+`unified-agent-collaboration-standard.md:84`：声明 workspace §5 为完成契约权威（治理层），本节仅提供操作步骤+扩展字段、不复制最低门槛。权威归属、分层边界、不重复原则三要素齐全，与节点 3 方案 A 的"workspace 管治理 / unified 管操作"分层完全一致 ✅
+
+---
+
+## 总结: **PASS**
+
+- 3 阻断 + 1 软观察全部真消除，diff 与仓库现状一致，无虚报修复。
+- 2 项非阻断遗留（不影响判定）：
+  1. workspace L81 + fleet-division L111 两处裸 "Trae"（建议下次治理顺手改 Trae SOLO）
+  2. templates/zcode-claude-replacement-report.md 历史回执含被推翻的 "webhook 存在" 结论，建议加免责头注
+
+**改了什么**：无（只读评审，独立 clone 于 /data/acs-round3）。
+**验证了什么**：f62aeae 完整 diff + 全仓 webhook/Trae/退役词独立 grep 复扫 + exceptions 文件全文 + 门禁脚本尝试运行（环境性 fail-closed，人工替代核验）。
+**风险**：两项遗留均为低风险表述残留，不构成治理真值矛盾。

@@ -1,0 +1,110 @@
+# Round 3 定点复核结果
+
+**复核基线**
+
+- 独立 clone：已完成
+- `origin/master` / `HEAD`：`f62aeaed5ababc1e3571ad6e76a9b491fa8b9971`
+- `git show f62aeae --stat`：确认涉及 **8 个文件**
+- 完整 diff：已逐项检查
+- 工作区：干净
+- 未修改、删除或推送任何内容
+
+## 1. Qoder Webhook 传播
+
+### ✅ 已修复
+
+证据：
+
+- `governance/agent-matrix-architecture-v1.0.md`
+  - L26：改为 **SSE 接收队列 + 轮询兜底**
+  - L58：改为 **REST API + SSE，无 Webhook**
+  - L114：改为 **SSE 回传，轮询兜底**
+  - L237 附近实施项：改为 **SSE 接收队列 + 轮询兜底**
+- `governance/specs/qoder-sse-consumer-design.md`
+  - L1：标题已明确“SSE 主 + 轮询兜底，无 Webhook”
+  - L17–24：架构仅包含 REST、SSE、轮询
+  - L35–38：明确不存在 Webhook 注册端点
+  - L112：明确不依赖 Webhook
+- `governance/specs/pi-drift-governance-spec.md:74`
+  - 已改为“Qoder SSE/轮询，无 Webhook”
+- `governance/README.md:12`
+  - 已标注 Qoder 通道为“SSE+轮询，无 Webhook”
+- 当前治理真值中的其余 Webhook 命中均为 **Mira 自身能力**，例如：
+  - `agent-matrix-architecture-v1.0.md:60`
+  - `agent-matrix-architecture-v1.0.md:130`
+  - `agent-matrix-architecture-v1.0.md:228`
+
+仓库中的历史回执、模板仍记录过往 Webhook 争议，但属于历史论证材料，不是当前 Qoder 通道规范，未判为现行遗漏。
+
+## 2. Trae SOLO 名称统一
+
+### ❌ 未完全修复
+
+指定的三处确实已修复：
+
+- `governance/workspace-collaboration-v2.1.md:82`：`Trae SOLO`
+- `governance/fleet-division-v1.1.md:54`：`Trae SOLO`
+- `governance/fleet-division-v1.1.md:101`：`Trae SOLO`
+
+但现行治理文档仍存在未统一的活跃角色表述：
+
+- `governance/agent-matrix-architecture-v1.0.md:34`
+  - 当前：`Trae(平行工作者)`
+  - 应改：`Trae SOLO(平行工作者)`
+- `governance/agent-matrix-architecture-v1.0.md:52`
+  - 当前：`Trae(本机)`
+  - 应改：`Trae SOLO`
+- `governance/agent-matrix-architecture-v1.0.md:117–121`
+  - 当前章节及正文继续以 `Trae` 表示活跃平行工作者
+  - 应统一为 `Trae SOLO`
+- `governance/fleet-division-v1.1.md:111`
+  - 当前：`平行(Trae)`
+  - 应改：`平行(Trae SOLO)`
+- `governance/workspace-collaboration-v2.1.md:81`
+  - 当前：`Trae 备选`
+  - 应改：`Trae SOLO 备选`
+
+此外，以下现行内容也仍使用模糊的 `Trae`，建议同批收口：
+
+- `governance/north-star-v1.2.md:32`
+- `governance/specs/kimi-integration-status.md:70`
+- `governance/specs/pi-drift-governance-spec.md:61`
+- `governance/specs/pi-drift-governance-spec.md:103`
+
+其中 `pi-drift-governance-spec.md:103` 仍写 `agent/trae`，而当前角色定义使用 `agent/solo`，不只是名称问题，还可能导致监控错误分支。
+
+**修法：**对现行角色语境统一使用 `Trae SOLO`；仅在明确描述已退役产品、历史分支或历史事件时保留 `Trae IDE`、`Trae`、`agent/trae`。
+
+## 3. exceptions 失效 ROLE 条目
+
+### ✅ 已修复
+
+证据：
+
+- `archive/retired-terms-exceptions-20260726.md:13–18`
+  - `## ROLE` 下只剩表头，没有数据行。
+- 原有 unified 的 9 条 ROLE 记录已删除。
+- 原有 fleet-division 的 1 条 Codex ROLE 记录已删除。
+- 检查指定文件条目，无残留失效 ROLE 记录。
+
+因此当前结果为 **ROLE=0**。
+
+## 4. Completion Protocol 权威声明
+
+### ✅ 已修复
+
+证据：
+
+- `governance/unified-agent-collaboration-standard.md:84`
+
+声明明确规定：
+
+- `workspace-collaboration-v2.1.md` §5 是完成契约最低字段的治理权威；
+- unified 章节只提供操作步骤和扩展字段；
+- 不复制 §5 最低门槛。
+
+权威来源、适用范围和两份文档之间的关系均表达清楚。
+
+# 最终结论：**CONDITIONAL**
+
+Webhook、exceptions 和完成契约声明均已修复；但 **Trae SOLO 名称仍未在现行治理文档中完整统一**，且存在 `agent/trae` 与 `agent/solo` 的活跃分支口径冲突。完成上述定点替换并复扫后，可转为 **PASS**。

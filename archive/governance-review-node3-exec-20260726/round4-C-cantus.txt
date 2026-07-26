@@ -1,0 +1,66 @@
+[warn] 调度记录落盘失败: HTTP Error 403: Forbidden
+=== C ROUND4 ===
+status: done
+duration: 201.6
+--- message ---
+上下文已拿。独立 clone 完成，HEAD = 64d3814。开始复核。复核完成。以下是 round4 定点复核报告（节点 3 / 评审 C 位）。
+
+---
+
+## Round4 定点复核报告：阻断2（Trae SOLO 命名统一）
+
+**独立性声明**：独立 `git clone` 至 `/data/acs-round4`，HEAD = `64d3814`，全部 grep 独立执行。
+
+### 核对点 1：A round3 指出的 8+ 处是否全改 → ✅ 全部已改
+
+| A round3 位置 | 64d3814 后状态 |
+|---|---|
+| architecture L34（ASCII 图） | ✅ `Trae SOLO(平行工作者)` |
+| architecture L52（角色表） | ✅ `**Trae SOLO(本机)**` |
+| architecture L117-121（4.2 节） | ✅ 标题+正文 4 处均 `Trae SOLO` |
+| architecture L169-171（同步节） | ✅ 重写为 `Trae SOLO ↔ Pi 同步`，标注原设计过时 |
+| architecture L240（MCP 汇报） | ✅ `Trae SOLO MCP 主动汇报` |
+| fleet-division L111 | ✅ `平行(Trae SOLO)` |
+| workspace L81 | ✅ `Trae SOLO 备选` |
+| north-star L32 | ✅ `ZCode/Qoder/Kimi/Trae SOLO/Mira` |
+| kimi-integration L70 | ✅ `平行(Trae SOLO)` |
+| pi-drift-governance L61 | ✅ `Trae SOLO` |
+
+### 核对点 3（关键）：pi-drift-governance L103 分支名 → ✅ 真改了
+
+实际内容：`- Trae SOLO：统一监控 agent/solo 分支（节点 3 修订：原 agent/trae 已随 Trae IDE 退役）`
+监控目标已从 `agent/trae` 切到 `agent/solo`，且保留修订轨迹。这是本轮最高价值修复——原分支名会导致 Pi 漂移治理监控空分支，属运行时正确性问题而非纯命名问题。
+
+### 核对点 4：保留的合法引用 → ✅ 合理
+
+- roadmap L186/223：节点 3 评审历史叙述，合法
+- trae-solo-branch-merge-task：任务文档本身就是讲 `agent/trae`→`agent/solo` 归并，必须保留原名
+- workspace L68 / architecture L67/250 / tool-entry-map L45-49：Trae IDE 退役标注，均已登记例外清单 `archive/retired-terms-exceptions-20260726.md`
+
+### 核对点 2：全仓 grep 剩余活跃引用 → governance/ 真值层为零，root 遗留文档有既存债务（非本轮遗漏）
+
+全仓 396 处 / 91 文件，逐层排除后：
+
+- **governance/（门禁扫描基准 + 真值层）**：剩余 Trae 引用全部属四类合法（Trae SOLO / 退役标注 / 历史叙述 / 路径名 `trae_projects`）。`unified-agent-collaboration-standard.md` 已零 Trae 引用。**活跃 ROLE = 0，与 ZCode 声明的门禁结果独立交叉验证一致。**
+- **archive/ + knowledge/ + templates/**：历史归档与评审证据，合法。
+- **⚠️ root 层遗留（既存债务，不在阻断2范围）**：`TOOL_ROLE_MATRIX.md`（Trae IDE 仍写作 "project owner, architecture controller"，无退役标注）、`GLOBAL_AGENT_GUIDE.md` L5、`protocols/communication-command-protocol.md` L218/254-255（next owner 推荐名单仍含 Trae IDE / Claude Code）、`BOOTSTRAP_ONE_LINE.md` L3（仍含 Claude Code）、`docs/multi-agent-collaboration-operating-system.md` L26。
+
+**这些不判为本轮遗漏的理由**（三点，缺一不 PASS）：
+1. 均不在 A round3 阻断2清单内，也不在 governance/ 门禁扫描基准内——属 pre-fleet 时代 legacy 操作文档的既存债务，同时混含已退役的 Claude Code，是同一批待清理问题；
+2. START_HERE 已完成节点 3 去名单化：编队名单与路由**唯一权威**是 workspace §2-§3，这些文档的名单表述已被权威条款架空，不构成路由歧义；
+3. 其权威处置（删除 vs 加退役标注 vs 进例外清单）涉及 `删 Tool Roles` 待办（roadmap 已登记），应走独立任务而非在命名统一 commit 里顺手扩围。
+
+### 附注
+
+- 本沙箱跑 `scripts/gate-checks.py` 在 patterns 校验步 fail-closed 退出（`~/.config/agent-collaboration/secret-patterns/` 不存在，属环境配置缺失非仓库缺陷），fail-closed 行为符合 Phase D-B 设计预期。ROLE=0 结论由上述独立 grep 交叉验证替代。
+
+---
+
+## 判定
+
+**阻断2：✅ 已修复**
+A round3 全部 10 个位置确认改齐，关键的 pi-drift L103 分支名真改（监控目标正确性修复），保留引用合法且已登记例外。
+
+**总结：PASS**
+
+**非阻断建议（记录，不阻断）**：root 层 5 个 legacy 文档（TOOL_ROLE_MATRIX / GLOBAL_AGENT_GUIDE / protocols / BOOTSTRAP / docs）的 Trae IDE + Claude Code 活跃角色表述，建议并入"删 Tool Roles"待办或第 5 批长期卫生阶段统一处理——它们与 START_HERE 去名单化原则存在多源漂移风险，且不在例外清单登记范围内。

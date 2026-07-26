@@ -1,0 +1,35 @@
+## Round 4 定点复核结论
+
+**复核方式**：全新独立 clone，拉取 `origin/master`，确认 HEAD 为 `64d3814`；检查 commit stat、完整 diff，并执行全仓 `Trae` / `agent/trae` / `agent/solo` 棐索。仓库未做任何修改。
+
+### 核对结果
+
+1. **Round 3 指出的活跃引用：全部修复**
+   - `agent-matrix-architecture-v1.0.md`：L34、L52、L117–121、L169–171、L240 均已统一为 **Trae SOLO**。
+   - `fleet-division-v1.1.md` L111：已改为 **Trae SOLO**。
+   - `workspace-collaboration-v2.1.md` L81：已改为 **Trae SOLO 备选**。
+   - `north-star-v1.2.md` L32：已改为 **Trae SOLO**。
+   - `kimi-integration-status.md` L70：已改为 **Trae SOLO**。
+   - `pi-drift-governance-spec.md` L61、L103：均已修复。
+
+2. **全仓 `Trae` 检索：未发现遗漏的活跃角色引用**
+   - 现行治理文档中的角色名称已统一为 **Trae SOLO**。
+   - 其余裸 `Trae` 命中属于归档评审、历史调研、外部工具生态原名、旧分支记录或明确的退役叙述，不构成现行角色命名遗漏。
+
+3. **关键监控分支：已正确修复**
+   - `pi-drift-governance-spec.md:103` 已从 `agent/trae` 改为 **`agent/solo`**。
+   - `agent-matrix-architecture-v1.0.md:170–171` 同样明确监控及提交到 **`agent/solo`**。
+   - 残留的 `agent/trae` 均用于描述退役历史分支或分支归并过程，不是当前监控目标。
+
+4. **保留引用合理**
+   - `global-roadmap-v1.1.md:223` 是节点 3 评审中“Trae 职责”这一事实矛盾的历史叙述。
+   - `trae-solo-branch-merge-task.md` 是已完成的历史分支归并任务，必须同时记录 `agent/trae` 来源和 `agent/solo` 目标。
+   - 两类引用均不应机械替换。
+
+## 阻断 2 判定
+
+**✅ 已修复**
+
+## 最终结论
+
+# **PASS**

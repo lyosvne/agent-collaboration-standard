@@ -1,0 +1,34 @@
+## Round4 定点复核结果
+
+**复核基线：** 独立 clone，`master` HEAD 为 `64d3814`；工作区干净，与 `origin/master` 一致。提交统计确认 **9 个文件，294 insertions / 17 deletions**。
+
+### 核对结论
+
+1. **Round3 A 指出的遗漏位置：全部修复**
+   - `agent-matrix-architecture-v1.0.md`：L34、L52、L117–121、L169–171、L240 均已统一为 **Trae SOLO**。
+   - `fleet-division-v1.1.md` L111：已改为 **平行(Trae SOLO)**。
+   - `workspace-collaboration-v2.1.md` L81：已改为 **Trae SOLO 备选**。
+   - `north-star-v1.2.md` L32：已改为 **Trae SOLO**。
+   - `kimi-integration-status.md` L70：已改为 **平行(Trae SOLO)**。
+   - `pi-drift-governance-spec.md` L61、L103：均已统一为 **Trae SOLO**。
+
+2. **全仓 Trae 扫描**
+   - 排除 **Trae IDE 退役说明、Trae SOLO、历史分支/历史调研、路径及归档材料**后，未发现仍将裸 `Trae` 当作当前活跃编队角色的引用。
+   - 未发现 Round3 阻断2同类遗漏。
+
+3. **关键监控分支**
+   - `pi-drift-governance-spec.md:103` 已明确改为：
+     > Trae SOLO：统一监控 `agent/solo` 分支
+   - `agent-matrix-architecture-v1.0.md:170–171` 同步要求 Pi 监控及 Trae SOLO 提交到 `agent/solo`。
+   - **`agent/trae → agent/solo` 修复真实生效。**
+
+4. **合法保留引用**
+   - `global-roadmap-v1.1.md:223` 的“Trae 职责”是在记录既往评审发现，属于历史叙述，保留合理。
+   - `trae-solo-branch-merge-task.md` 中的 Trae IDE、`agent/trae` 均用于描述退役及历史分支归并过程，且文档已标记任务完成，保留合理。
+   - `pi-drift-governance-spec.md:22` 的 `agent/trae` 是 2026-07-22 审计状态基线，不是当前监控配置，不构成遗漏。
+
+## 判定
+
+**阻断2：✅ 已修复**
+
+# **PASS**

@@ -173,7 +173,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 ## 当前位置
 
-**O1（基座就绪）Phase D 全部合并 master + push + ECS 同步完成；节点 3 评审通过待执行（2026-07-26 更新）。**
+**O1（基座就绪）Phase D + 节点 3 方案 A 执行全部完成；待 Pi 治理纳入 + .zcode/AGENTS.md 切换（2026-07-26 更新）。**
 
 ### 已完成（O1 协作底座 + 退役清理 + 治理真值）
 - CC→ZCode 迁移（CC 完全退役 + 密钥清除本机零残留）
@@ -224,13 +224,18 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
     - 不改文件名（引用迁移归零），只改文档内 title
     - 评审证据 4 文件归档 `archive/governance-review-node3-20260726/`
     - **执行待另起任务 + 独立评审**（节点 3 纪律）
+  - **节点 3 方案 A 执行完成（2026-07-26，4 轮评审通过）**：
+    - round1 执行：unified 重定位（title 改 Agent Operating Standard，文件名保留）+ 删 Tool Roles + 修 2 事实矛盾 + START_HERE 单一 Read Order + Tool Routing 去名单化（9c5797c）
+    - round1 评审：A CONDITIONAL（3 阻断：Qoder Webhook 未传播 + Trae SOLO 名称未统一 + exceptions 失效 ROLE 条目）+ C PASS + B 空输出
+    - round2 修复：Qoder Webhook 全面传播（architecture 4 处 + qoder-sse-consumer-design v3 重写 + pi-drift-governance + README）+ Trae SOLO 3 处统一 + exceptions ROLE 清零 + Completion Protocol 权威声明（f62aeae）
+    - round3 评审：A CONDITIONAL（Trae SOLO 仍有 8+ 处遗漏）+ C PASS
+    - round3 修复：全仓统一 Trae SOLO（architecture 6 处 + fleet-division/workspace/north-star/kimi-integration/pi-drift-governance，pi-drift L103 agent/trae→agent/solo 分支名修复关键）（64d3814）
+    - round4 评审：**A/B/C 三方全 PASS**（7 评审证据归档 `archive/governance-review-node3-exec-20260726/`）
 
 ### O1 待完成（P0 阻断真退出）
-1. **节点 3 方案 A 执行**（unified 重定位 + 删 Tool Roles + 修 2 事实矛盾 + START_HERE 单一 Read Order；另起任务 + 独立评审）
-2. **5 域一致性真闭环**（Git + ECS 已完成，本地降级为快照，云端/知识库 待校准）
-3. **Pi 漂移治理纳入** + **时序版本自动化**（触发条件 = Phase D 完成 ✅ + 节点 3 执行完成）
-4. **`.zcode/AGENTS.md` 路径声明切换**（红线：全局配置，需用户单独审；当前仍指向 `~/.agent-collaboration/standards/`，因快照保留不断链）
-4. **Pi 漂移治理纳入** + **时序版本自动化**（触发条件 = Phase D 合并 master + push）
+1. **5 域一致性真闭环**（Git + ECS 已完成，本地降级为快照，云端/知识库 待校准）
+2. **Pi 漂移治理纳入** + **时序版本自动化**（触发条件 = Phase D 完成 ✅ + 节点 3 执行完成 ✅，**现已满足，可启动**）
+3. **`.zcode/AGENTS.md` 路径声明切换**（红线：全局配置，需用户单独审；当前仍指向 `~/.agent-collaboration/standards/`，因快照保留不断链）
 5. **`.zcode/AGENTS.md` 路径声明切换**（红线：全局配置，需用户单独审；当前仍指向 `~/.agent-collaboration/standards/`，因快照保留不断链）
 
 ### 节点 2 评审新暴露的真缺口（2026-07-26 新增，无历史章节承载）
@@ -240,13 +245,14 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
    - ECS 部署 + governance-mirror 同步 + 端到端验证（cantus 复述红线 5 条 + 北极星 + 路线图）
    - 详见 `specs/node2-review-retrospective-20260726.md` §三
 6. **dispatch-server 架构 spec 缺失**（生产组件无文档/无职能归属）
-7. **scripts/ 工具脚本长期维护归属**（5 个 .py 无 spec；Phase D-B 会触及，建议合并处理）
-8. **manual-history-overrides 可持续性**（53→54 条人工 override + 双解析函数会漂移；Phase D-A 又新增 1 条，证明可持续性问题真实存在）
+7. **scripts/ 工具脚本长期维护归属**（5 个 .py 无 spec；Phase D-B 已触及，建议合并处理）
+8. **manual-history-overrides 可持续性**（人工 override + 双解析函数会漂移；每次文档增行要 rebuild-exceptions）
+9. **root 层 legacy 文档退役角色清理**（C round4 指出非阻断）：TOOL_ROLE_MATRIX.md / GLOBAL_AGENT_GUIDE.md L5 / protocols/communication-command-protocol.md L218/254-255 / BOOTSTRAP_ONE_LINE.md L3 / docs/multi-agent-collaboration-operating-system.md L26 仍含 Trae IDE / Claude Code 活跃角色表述，建议并入"删 Tool Roles"待办或第 5 批长期卫生阶段
 
 ### O1 收口并行项（P1）
-8. 远程分支清理（29 条已合未删）
-9. unified vs workspace-collaboration 去留裁定（节点 3 用户裁决）
-10. ECS 基础设施治理（swap/时钟同步/cloudflared 孤儿进程）
+10. ~~远程分支清理（29 条已合未删）~~ ✅ 已完成（2026-07-26 第 3 批，5→1 只剩 master）
+11. ~~unified vs workspace-collaboration 去留裁定（节点 3 用户裁决）~~ ✅ 已完成（2026-07-26 节点 3 方案 A 执行，4 轮评审通过）
+12. ECS 基础设施治理（swap/时钟同步/cloudflared 孤儿进程）
 
 ### O2 并行推进中
 - W5.5 数据流闭环（横跨 O1/O2，详见分歧项）
@@ -278,6 +284,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v1.6 节点3执行完成 | 2026-07-26 | §当前位置更新：节点3方案A执行4轮评审通过（A/B/C 全PASS）；Qoder Webhook 全面传播+Trae SOLO 全仓统一+exceptions ROLE清零；O1收口项 #10/#11 标完成；增 #9 root层legacy文档清理待办；Pi治理纳入触发条件已满足 |
 | v1.5 节点3评审通过 | 2026-07-26 | §当前位置更新：Phase D 合并 master+push+ECS 同步完成；第3批远程分支清理（5→1）+ feat 合并；节点3评审三方一致推荐方案 A（分层保留）；待办改为节点3执行 + Pi 治理纳入 |
 | v1.4 Phase D 评审通过 | 2026-07-26 | §当前位置更新：Phase D 三方交叉评审 5 轮通过（A+B+C 一致）；round4 修复 redact-tokens SyntaxError + mirror REPO 推导 + configs 历史标注；待办改为合并 master + push + ECS 同步 |
 | v1.3 Phase D-B 收尾 | 2026-07-26 | §当前位置更新：Phase D-B 完成（scripts 解硬依赖 + 扫描基准切 git 仓库 governance/ 真值 + patterns 迁 ~/.config/）；Phase D 全部完成（A+B）；fail-closed 门禁 4 测试全过；待办改为 push + ECS 同步 + Pi 治理纳入 |

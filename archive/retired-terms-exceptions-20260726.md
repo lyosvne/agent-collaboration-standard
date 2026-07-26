@@ -17,7 +17,7 @@
 
 ## HISTORY（保留，不替换）
 
-共 132 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
+共 134 条（file:line|tool 组合），自动分类。所有命中经人工抽样核对为合法引用（知识库名/路径/方案文档讨论对象/历史叙述/工具生态参考），无现行角色引用。
 
 | 文件 | 行 | 工具 | 内容预览 | 分类 |
 |---|---|---|---|---|
@@ -58,7 +58,9 @@
 | global-roadmap-v1.1.md | 15 | Codex | > 依据: 北极星v1.2 + Aetheris蓝图v1.11 + soul.yaml + Codex知识库战略洞察 + 全量资产调研 + Qoder客户端两轮审查 | 人工确认HISTORY |
 | global-roadmap-v1.1.md | 66 | Codex | - 退役清理完成（Codex/CC/QoderWork退役收尾，知识库归属已定） | 历史叙述 |
 | global-roadmap-v1.1.md | 66 | QoderWork | - 退役清理完成（Codex/CC/QoderWork退役收尾，知识库归属已定） | 历史叙述 |
-| global-roadmap-v1.1.md | 273 | Trae IDE | - Trae IDE 已于 2026-07-26 C 选项裁定退役为编队角色（软件保留供个人使用，不进 Pi 调度链）。编队里 Trae 系只保留 **Trae SOLO 一个独立角色**（端到端测试/QA，Aetheris `agent/ | 历史叙述 |
+| global-roadmap-v1.1.md | 250 | Claude Code | 9. **root 层 legacy 文档退役角色清理**（C round4 指出非阻断）：TOOL_ROLE_MATRIX.md / GLOBAL_AGENT_GUIDE.md L5 / protocols/communication-c | 历史叙述 |
+| global-roadmap-v1.1.md | 250 | Trae IDE | 9. **root 层 legacy 文档退役角色清理**（C round4 指出非阻断）：TOOL_ROLE_MATRIX.md / GLOBAL_AGENT_GUIDE.md L5 / protocols/communication-c | 历史叙述 |
+| global-roadmap-v1.1.md | 279 | Trae IDE | - Trae IDE 已于 2026-07-26 C 选项裁定退役为编队角色（软件保留供个人使用，不进 Pi 调度链）。编队里 Trae 系只保留 **Trae SOLO 一个独立角色**（端到端测试/QA，Aetheris `agent/ | 历史叙述 |
 | specs/agent-collaboration-git-sync-plan.md | 48 | Trae IDE | \| 3. Phase A 词表漏 Trae IDE + 扫描范围窄 + 无机器判定规则 \| 词表补齐 + 扫描范围扩到所有导入目录 + 历史引用建例外清单 \| | 历史叙述 |
 | specs/agent-collaboration-git-sync-plan.md | 66 | Claude Code | "Claude Code": "[RETIRED-CC-2026-07-25]", | 方案示例代码 |
 | specs/agent-collaboration-git-sync-plan.md | 67 | claude-zhipu | "claude-zhipu": "[RETIRED-CC-2026-07-25]", | 方案示例代码 |
