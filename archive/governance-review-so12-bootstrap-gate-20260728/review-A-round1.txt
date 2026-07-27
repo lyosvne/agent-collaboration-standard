@@ -1,0 +1,70 @@
+# 评审方 A (opus4.8p) SO-12 round1
+session_id: 222764348435
+duration: 66460ms
+
+---
+
+# SO-12 Round1 评审 — 评审方 A（opus4.8p，架构级）
+
+**verdict: CONDITIONAL**
+
+不 PASS 的原因：机制方向对（M1/M2 复用到 bootstrap 层是正解），但**动手识别的威胁模型有洞**，且**本轮评审自身的引导悖论没解**。不 BLOCKER 的原因：核心 fail-closed 语义成立，漏判是边界收窄问题，可增量修。
+
+---
+
+## 必修项（CONDITIONAL 通过条件）
+
+**M1【威胁模型收敛】动手识别不能只靠命令文本正则**
+- 现状：`aetherisonline.xyz` / `apply-*.py` / `mira -p` 是**特征匹配**，不是**能力匹配**。任何 `ssh other-host`、`scp`、`rsync`、通过 `bash -c "$(curl ...)"`、`eval`、变量拼接（`H=aether...xyz; ssh $H`）都能绕。
+- 要求：明确在 AGENTS.md 或 spec 里写死**威胁模型边界**——"本 gate 只防**诚实健忘**（compact 后忘了调用方式/生效路径），不防**主动规避**"。这是设计边界，不是 bug，但**必须显式声明**，否则后续会有人把它当安全边界用，出事。
+- 加一条补丁：把 `ssh\s+\S+` 无条件纳入动手类（不区分 host），代价是误伤 `ssh git@github.com`，但可以 allowlist 白名单（github.com / gitlab / 内网 git host）。
+
+**M2【引导悖论必须有明文出口】**
+- 现状：SO-12 round1 评审本身要调 `mira -p ... opus4.8p`（就是本轮），此时 bootstrap-gate 尚未生效（hook 要重启 ZCode 才装载），标记文件不存在。逻辑上：
+  - 若 hook 已装载 → deny 本轮评审 → 死锁
+  - 若 hook 未装载 → 本轮通过，但意味着**部署当天所有评审都能绕过一次**
+- 要求：在 bootstrap-gate 里加**首次部署豁免**——检测到 `.zcode/hooks/bootstrap-inject-sessionstart.py` 的 mtime 晚于最后一个 bootstrap 标记，说明 hook 是新装的，允许一次性 grace（写一次 `bootstrap_grace.marker`，用完即焚，且必须留痕到 git-tracked 文件）。或更硬核：部署 SO-12 的那次 commit 里**强制要求手动 `python bootstrap-inject-sessionstart.py --manual-seed`** 生成初始标记，把引导责任显式化。选一个，别留隐式路径。
+
+**M3【标记的"新鲜度"和"完整性"分离】**
+- 现状：`is_marker_valid` 检查 session_id 或 8h 时间窗，但**没检查真值三件套本身有没有变**。场景：bootstrap 后 6h，有人改了 `reviewer-tiers.yaml`，session 里的 additionalContext 已经过期，标记仍有效 → 拿旧真值动手。
+- 要求：标记里存三件套的 `sha256`，`is_marker_valid` 增加一步——当前三件套 hash 与标记里的 hash 不一致 → 视为失效，强制重 bootstrap。这才是 fail-closed 的完整语义。
+
+**M4【AGENTS.md 补丁必须含"为什么"，不只是"怎么做"】**
+- SO-11-v2-2 的教训是"跳链根因是记忆模型用错"，AGENTS.md 里的 bootstrap 准则如果只写"compact 后先读三件套"，下次还会跳。要写清楚**这一段是给未来 fresh session 的自己看的**：为什么 compact summary 不够、为什么 git log 不够、为什么 system prompt 只加载 AGENTS.md 不够。把根因写进去，而不是把 SOP 写进去。
+
+---
+
+## 本质问题回答（Q1–Q5）
+
+**Q1【本质问题】**
+根本问题不是"compact 续接后真值丢失"，更准确的表述是：**agent 的"事实层"和"叙事层"没有分离**。compact summary 是叙事层的有损压缩，永远丢事实；system prompt 只加载 AGENTS.md（叙事层入口），事实层（真值三件套）需要主动拉。当前方案（SessionStart 注入 + 动手前 deny）是**在错误层修补**——正确的最本质路径是改 harness：让 compact summary 里强制保留一段 `<facts_pointers>`（三件套的路径 + hash），恢复 session 时 harness 自动 reload。但这条路 <tl-view><tl-origin>林于炜</tl-origin><tl-mask>[ph_real_name_1_ph]</tl-mask></tl-view> 改不了 ZCode harness，所以在 hook 层做 SessionStart 注入是**当前技术约束下的最本质路径**，成立。替代方案里"全程不靠 compact"不现实（会话必然超长），"显式 @文件引用"依赖人的自律（就是这次翻车的原因），都不如 hook 强制。
+
+**Q2【设计缺陷】**
+是**设计边界**，不是 bug——但**边界没有显式声明**这件事是 bug。见 M1。正则匹配对付"诚实健忘的自己"够用（我不会故意用 emacs 绕过自己写的 gate），但威胁模型必须在文档里写死："本 gate 假设执行者是善意的、只是记忆缺失。恶意规避不在防御范围。"否则半年后有人（或另一个 agent）在这基础上做"安全审计"，会误以为它是安全边界，出更大事。
+
+**Q3【循环风险】**
+真问题。当前 SO-12 round1 评审调 mira → 若 bootstrap-gate 已生效 → deny → 无法完成评审 → 无法 merge SO-12 → 死锁。若未生效（hook 需重启）→ 本轮免检，但**部署那一刻**所有并发 session 都能绕过一次，这个"部署窗口豁免"必须显式化，不能留成隐式路径。见 M2，两条出路选一：
+- **软路径**：hook 里加 grace 检测（新装 hook 给一次机会，用完即焚）
+- **硬路径**：部署 commit 强制手动 seed，把引导责任交给人
+
+我倾向硬路径——软路径会让"grace"变成后续偷懒的口子。
+
+**Q4【覆盖范围】**
+`compact|resume|clear|startup` 覆盖对。**startup 必须含**，理由：ZCode 冷启（关机重开）也是 fresh session，system prompt 只加载 AGENTS.md，真值三件套一样没进上下文。不加 startup 会出现"重启一次电脑就绕过一次"的洞。确认当前 matcher 正确。但要注意 matcher 的**语义**——`clear` 是用户主动清空，用户可能是**故意想清空重来**（例如调试 hook 本身），此时强注入是否会打断调试？建议在 hook 里加一个 `--skip-bootstrap` 的 opt-out env var（如 `ZCODE_BOOTSTRAP_SKIP=1`），留一个显式逃生舱，避免"想调试自己"时被自己锁死。
+
+**Q5【架构契合】**
+M1/M2 思路（显式传入 + fail-closed）复用到 session bootstrap 层——**合理，而且是这个项目最重要的架构收敛**。它证明了 SO-11-v2-2 挖出来的不是一个评审调度的局部原则，而是一个跨层的**元原则**：**任何跨 session 边界的状态传递，都必须显式化 + fail-closed**。评审调度是"跨 agent 边界"，bootstrap 是"跨 session 边界"，同构。这个"把评审调度原则复用到 session 启动"的抽象，值得在 AGENTS.md 里单独立一节，命名类似 "跨边界状态传递原则"，未来遇到跨机器、跨仓库、跨用户的场景可以直接套。
+
+**不用 harness / system prompt 层的原因**：harness 改不了；system prompt 层能塞的东西有上下文成本，且没有 fail-closed 机制（塞进去了 agent 也可能不看）。hook 层的 additionalContext + deny 组合，是**唯一能同时保证"看见"和"必须用"的层**。方向正确。
+
+---
+
+## 结论
+
+**CONDITIONAL PASS**。方向正确，SO-11-v2-2 的思路复用得漂亮。必修 M1–M4 后可 merge：
+- M1：威胁模型明文边界 + ssh 无条件纳入（加 git host 白名单）
+- M2：引导悖论选硬路径（部署 commit 强制手动 seed）
+- M3：标记里存三件套 hash，检测漂移
+- M4：AGENTS.md 写"为什么"不只是"怎么做"
+
+跳链 3 次的教训不能只修机制，要把**根因（记忆模型）** 写进文档，否则 SO-13 还会跳第四次。

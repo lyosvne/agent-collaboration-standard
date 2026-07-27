@@ -1,0 +1,125 @@
+# 评审方 B (gpt5.6sol) SO-12 round1
+session_id: 222472563219
+duration: 71126ms
+
+---
+
+# SO-12 评审报告（评审方 B / gpt5.6sol / round1）
+
+**verdict**: **CONDITIONAL**
+
+理由：核心机制（SessionStart 注真值 + PreToolUse 查标记 + fail-closed）方向正确，但存在 3 处必修漏洞（真值层清单不全、正则漏 `>file`、hook 执行顺序错位），以及 SessionStart 自身无单测的自举盲区。修完可 PASS。
+
+---
+
+## D1【单测覆盖度】—— **FAIL**
+
+9 case 覆盖了主干路径，但边界与旁路缺失明显：
+
+| 缺失分类 | 具体 case | 风险 |
+|---|---|---|
+| **动手识别旁路** | ssh 到非 aetherisonline.xyz 的 host、`cat payload \| ssh host`、`scp file host:`、emacs/gedit/code -w 编辑真值文件 | 绕过 deny |
+| **标记半损坏** | 标记存在但 `truth_files_seen=[]`、三件套只读到 2/3、SHA 字段缺失 | 标记"有效"但 bootstrap 实际未完成 |
+| **时间边界** | epoch 恰好 = now-8h（边界包含性）、epoch > now（时钟回拨/未来时间）、epoch = 0、epoch 为字符串 | 时间窗兜底逻辑分支未验 |
+| **session_id 边界** | 两者都是 "unknown" 时是否误判匹配、marker_sid 为空串 | 当前 `current_sid != "unknown" and marker_sid == current_sid` 只挡了一半 |
+| **并发** | 两个 session 同时写标记（覆盖竞争） | 罕见但存在 |
+
+**必修**：至少补 ssh/scp/管道、truth_files_seen 空、8h 边界、时钟回拨、双 unknown 这 5 类。
+
+---
+
+## D2【识别逻辑漏洞】—— **FAIL**
+
+**漏洞 1（必修）**：`truth_patterns` 只列 `reviewer-tiers.yaml / governance-review-process.md / .zcode/config.json`,但真值层实际至少还包括：
+- `review-sessions-index.yaml`（review 调度真相）
+- `pre-commit-review-gate-log.yaml`（gate 判定审计）
+- `AGENTS.md`（准则本身）
+- `.agents/rules/*.md`（子规则）
+
+若 SO-11-v2-2 之后新增的真值文件未同步进 patterns，会出现"改真值不拦"的静默漏防。**建议改为白名单目录 + 显式扩展点**（例如从 `.agents/rules/truth-files.yaml` 读取清单，让真值层自描述）。
+
+**漏洞 2（必修）**：正则 `>\s` 要求 `>` 后有空格，以下写法全漏：
+```bash
+echo x >reviewer-tiers.yaml            # 无空格
+python -c "open('reviewer-tiers.yaml','w').write(...)"  # Python 写
+: > reviewer-tiers.yaml                # 截断（有空格但语义特殊）
+cp /tmp/x reviewer-tiers.yaml          # cp 覆盖
+mv /tmp/x reviewer-tiers.yaml          # mv 覆盖
+install -m 644 x reviewer-tiers.yaml
+truncate -s 0 reviewer-tiers.yaml
+```
+修法：把重定向正则改成 `>+\s*` 且**并列检测 `cp/mv/install/truncate/python -c.*open.*w` 等写入动作**，或者反向——只要目标文件是真值层且命令非只读工具（cat/less/head/tail/grep/wc/stat/ls/git diff/git log），就拦。
+
+**漏洞 3（建议）**：mira 评审识别复用 chain-gate 关键字。**耦合风险确实存在**——若 chain-gate 的 YAML 关键字表损坏，bootstrap-gate 的 mira 分支要么全放（漏拦评审）要么全拦（误伤日常 mira 调用）。建议 bootstrap-gate 自带一份最小关键字子集（`review|评审|审查|check|verdict`）作为 fallback，不完全依赖 chain-gate。
+
+---
+
+## D3【规则冲突】—— **FAIL（顺序错位）**
+
+**核心问题**：bootstrap-gate 放在 PreToolUse 第 4 位是**错的**。
+
+- Claude Code / zcode 的 hook 链一旦某个 hook 返回 deny/exit≠0，**后续 hook 不会执行**（这是链式短路语义）。
+- 意味着：如果前 3 个 hook（chain-gate 等）因为它们自己的 YAML/state 损坏而 deny，bootstrap-gate 根本没机会跑，**但 chain-gate 的"损坏"本身可能就是 compact 续接遗漏 bootstrap 导致的**——鸡生蛋。
+- 反之，如果前 3 个 hook 放行了一个动手命令但 bootstrap 未做，bootstrap-gate 才在最后兜底，**中间那 3 个 hook 的"放行"决策其实建立在无 bootstrap 前提上，本身不可信**。
+
+**必修**：bootstrap-gate 必须放 **PreToolUse 第 1 位**。语义上它是所有下游 hook 的前置条件——"没 bootstrap 一切免谈"。前 3 个 hook 应当能假定 bootstrap 已完成才做判定。
+
+顺带：若前置 hook 顺序调整困难，至少要求 bootstrap-gate 在自己的输出里显式声明"我先跑"，并在文档里锁定顺序契约。
+
+---
+
+## D4【数据一致性】—— **FAIL（路径歧义）**
+
+**必修**：标记路径必须明确。当前描述里出现两个位置：
+- 任务描述："`~/.zcode/hooks/.bootstrap-done.json`"（home 级）
+- hook 实际位置："project 级 `.zcode/hooks/`"
+
+两个语义完全不同：
+| 位置 | 含义 | 风险 |
+|---|---|---|
+| home 级 | 跨 project 共享标记 | A 项目 bootstrap 完，B 项目也被认为 OK → **严重误放** |
+| project 级 | 每个 project 独立 | 正确，但要注意 project 内多 session 覆盖 |
+
+**建议**：标记路径应为 **project 级 + session_id 后缀**（例如 `.zcode/hooks/.bootstrap-done.<session_id>.json`），彻底消除跨 session 复用歧义；is_marker_valid 里的 `time_window` 兜底同时收紧到"仅当 session_id 文件不存在时才走时间窗"。
+
+跨 session 复用的另一风险：compact 续接的新 session 若继承了旧 marker 且 session_id 不同，会掉进 time_window 分支——这**恰好是本次 SO-12 要防的场景**。当前 8h 窗口太宽，实际 compact 可能发生在 30min 内的密集会话中，建议窗口缩到 **1h** 或干脆**禁用 time_window 兜底**，让 session_id 不匹配就 deny，强制重跑 SessionStart。
+
+---
+
+## D5【配置健壮性】—— **CONDITIONAL**
+
+- **fail-closed 方向对**：SessionStart 失败 → 无标记 → bootstrap-gate 拦，✅。
+- **但 SessionStart 无单测**是硬伤（必修）：整个机制的"真值注入"环节零覆盖，等于把 gate 建在无验证的地基上。至少需要 3 个 case：三件套齐全、缺 1 个、全缺 → 分别验证注入内容 + 标记写入行为。
+- **additionalContext 体积成本**：5-10KB 每 session 注入一次，token 成本可接受（相比 compact 事故的重跑成本），但**建议做 diff 注入**——只注入自上次标记以来变化的真值段落，减少稳定态开销；同时把三件套的 SHA 记进标记，SessionStart 时若 SHA 未变可跳过 additionalContext 只更新标记。
+
+---
+
+## D6【与现有 hook 共存】—— **CONDITIONAL**
+
+- **hook 数量**：6 个（4 PreToolUse + 1 PostToolUse + 1 SessionStart），量级本身可接受，但**每次动手类 Bash 触发 4 个 PreToolUse 串行**，延迟叠加需实测。建议加一条性能预算：**PreToolUse 链总耗时 P95 < 200ms**，超过就拆并行或引入短路缓存。
+- **IO 成本**：bootstrap-gate 每次读标记文件 → 一次 stat + 一次 read（<1KB），冷缓存 <5ms，热缓存 <1ms，**可接受**。但如果标记路径歧义（见 D4）需要多路径 fallback 查找，IO 会翻倍，修完 D4 就没问题。
+- **建议**：给 bootstrap-gate 加一个进程内 in-memory 缓存（同一 session 首次读后缓存 60s），避免同一 session 内高频动手命令重复读文件。
+
+---
+
+## 必修项（合入前必须解决）
+
+1. **[D2]** truth_patterns 补齐：至少加 `review-sessions-index.yaml`、`pre-commit-review-gate-log.yaml`、`AGENTS.md`、`.agents/rules/*.md`；长期方案改成从真值层自描述文件读取。
+2. **[D2]** 重定向/写入正则修复：`>file`（无空格）、`cp/mv/install/truncate/python -c open w` 全部覆盖，或改为"目标是真值层 + 命令非只读白名单"的反向判定。
+3. **[D3]** bootstrap-gate 移到 **PreToolUse 第 1 位**，锁定顺序契约。
+4. **[D4]** 标记路径明确为 **project 级 + session_id 后缀**；time_window 兜底收紧到 1h 或禁用；标记内加三件套 SHA。
+5. **[D5]** SessionStart hook 补单测：三件套齐全 / 缺 1 / 全缺，共 3 case，验证 additionalContext 与标记写入。
+6. **[D1]** 单测补 5 类边界：ssh/scp/管道、truth_files_seen 空、8h 边界、时钟回拨（epoch > now）、双 unknown session_id。
+
+## 建议项（下一轮或后续优化）
+
+1. **[D2]** bootstrap-gate 自带一份最小 review 关键字子集，解除对 chain-gate 关键字表的强依赖。
+2. **[D5]** additionalContext 做 diff 注入 + SHA 短路，稳定态零成本。
+3. **[D6]** PreToolUse 链加性能预算（P95 < 200ms）与进程内缓存（60s TTL）。
+4. **[D4]** 标记文件加原子写（write to `.tmp` + rename），防止并发 session 半写状态。
+5. **通用**：把 truth_patterns、review 关键字、编辑器/传输命令黑名单三张清单**外置为 YAML**，避免规则变化时改代码。
+
+---
+
+**评审方 B / gpt5.6sol / round1 完**
+关键判定：**顺序错位（D3）+ 路径歧义（D4）+ 正则漏洞（D2）是三个不可放行的硬伤**，其余为覆盖度补齐与性能优化。修完必修 1-6 项后可转 PASS。

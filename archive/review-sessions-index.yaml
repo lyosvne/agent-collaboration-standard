@@ -58,16 +58,25 @@ projects:
   # ===== 当前项目 =====
   - project: so11-v2-2-session-continuity
     review_dir: archive/governance-review-so11-v2-2-session-20260725/
-    status: REVIEWING  # round2 修复后待评审
-    notes: SO-11-v2-2 自评审（eat own dogfood）。round1 fresh，round2 用 -r 续接 round1（实测成功，session_id 一致）。round2 三方 PASS。
-    # expired_rounds: []  # M5：若 round1 session 过期，在此列 [1]，round2 可 fresh（本轮未触发）
+    status: ARCHIVED  # round2 三方 PASS（2026-07-25），已归档
+    notes: SO-11-v2-2 自评审（eat own dogfood）。round1 fresh，round2 -r 续接成功。PASS commit d694bc9。
     reviewer_sessions:
       A:  # opus4.8p 会话链
-        round1: "235302197011"  # 2026-07-25 round1 fresh
-        round2: "235302197011"  # 2026-07-25 round2 -r 续接 round1（session_id 一致，实测可用）
+        round1: "235302197011"
+        round2: "235302197011"  # -r 续接 round1，session_id 一致
       B:  # gpt5.6sol 会话链
-        round1: "222347143699"  # 2026-07-25 round1 fresh
-        round2: "222347143699"  # 2026-07-25 round2 -r 续接 round1（session_id 一致，实测可用）
+        round1: "222347143699"
+        round2: "222347143699"  # -r 续接 round1，session_id 一致
+
+  - project: so12-bootstrap-gate
+    review_dir: archive/governance-review-so12-bootstrap-gate-20260728/
+    status: REVIEWING  # round1 三方 CONDITIONAL，修后走 round2
+    notes: SO-12 compact 续接 bootstrap 强制机制。治 SO-11-v2-2 实施时跳链 3 次的根因。
+    reviewer_sessions:
+      A:  # opus4.8p 会话链
+        round1: "222764348435"  # 2026-07-28 round1 fresh
+      B:  # gpt5.6sol 会话链
+        round1: "222472563219"  # 2026-07-28 round1 fresh
 
   # ===== 未来项目（按此模板登记）=====
   # 模板：

@@ -1,0 +1,52 @@
+📤 发送到 Qoder [qoder-cantus/cmodel]: 你是评审方 C（cantus，编队主架构师视角，与 Aetheris 蓝图对齐）。这是 SO-12 评审项目 round1。
+
+注：qoder-bridge 无...
+
+⏱ 耗时: 86.3s  状态: done
+🆔 会话: sess_00kl4r71q5a0wlsaqn4w
+
+💬 回复:
+已读调度上下文（架构真值 v1.0 / 北极星 v1.2 / 路线图 v1.1，含 Pi 治理 B 层 /truth/versions 端点）。以下为评审方 C（cantus）round1 独立判断。
+
+---
+
+## verdict: **CONDITIONAL**
+
+设计方向正确、原则复用成立、验证充分，但存在一个 fail-closed 语义漏洞（8h 时间窗口兜底）和自举规则未成文两处必修。
+
+---
+
+## 本质问题回答
+
+**Q1【架构契合度】**
+不重叠，是两层不同职责：Aetheris 是"真值存什么"（编队级存储+审计），bootstrap 是"真值何时被强制加载"（单 agent 运行时的边缘执行机制）。这与 qoder-bridge 的 FLEET_HEADER 注入是同构模式——真值内容集中、加载执行分布。长期归属：**执行机制（hook）留 ZCode，真值内容与版本锚逐步接 Aetheris**——B 层已有 `/dispatch/truth/versions`，bootstrap 读的三件套版本应能与该端点比对，形成"读了、且读的是最新版"的闭环。bootstrap 不应也不必迁入 Aetheris——Aetheris 不是控制平面，强制加载属于各 agent 运行时纪律。
+
+**Q2【编队一致性】**
+问题是编队级的（compact/上下文有损是所有长 session agent 的通病），但机制必然是 per-runtime 的：hook 是 ZCode 的原生能力，Kimi/Trae/Pi 各有自己的注入点。事实上编队已有两套同构实现：Qoder 靠 prompt 内嵌 + WebFetch dispatch/all（SO-11-v2-2 M5），ZCode 现在补上 hook 版。正确做法不是把 .zcode hooks 推给别人，而是把**原则**（session 边界必须重载真值 + 动手前 fail-closed 校验）提炼进 governance/ 作编队规范，各 agent 按自己的运行时能力实现。现阶段只登记原则、不强推实现，符合"不偏离既定架构、不自行扩大范围"铁律。
+
+**Q3【循环闭合】**
+自举的正解是**满足闸门，不是绕过闸门**——这是 Phase D fail-closed 门禁实战已验证的先例（捕获漏登时的处理方式）。具体：本 session 调 mira 前，显式重跑 bootstrap 注入（或重启 session 触发 startup matcher），让标记合法产生；禁止手写标记文件伪造通过。元治理模式蓝图里已有：G6 质量门管"孩子长新器官"，闸门自身的变更同样走 G6 流水线（规格→实现→Mira 评审→用户批准）——本次 SO-12 评审本身就是这个模式的实例，闸门评审闸门不需要特权通道，需要的是"闸门变更生效前，旧闸门仍有效"的原子切换纪律。
+
+**Q4【真值层边界】**
+标记文件不进 git 是对的——commit 粒度是"产物+决策"，session 级运行时状态入 git 是噪音且违反共享粒度原则。但"已读真值三件套"作为事实**应进 Aetheris 审计轨迹**，不是 git：审计轨迹本来就是 Aetheris 的四类存储之一（matter/task/decision/knowledge+审计），这正是它的职责所在。git 只留 hook 代码 + AGENTS.md 准则。另外标记里应记录三件套的 commit sha/content hash——否则只能证明"读过"，不能证明"读的不是旧版"，与 START_HERE 的 [TRUTH-VERSION] 版本声明约定对齐。
+
+**Q5【与 SO-11-v2-2 的关系】**
+原则复用完全合理，且是这套治理体系成熟的标志：M1/M2（显式传入 + fail-closed）从"评审调度的一次性对策"泛化为"session 边界的通用纪律"，说明原则抽对了层次。不该发明新机制——新机制意味着新的漂移面。最该先修的是 **8h 时间窗口兜底**：session_id 优先、时间窗口兜底的语义意味着"一个未 bootstrap 的新 session，在别的 session bootstrap 后 8h 内可以通过闸门"——这恰恰是 compact 跳链场景的复现路径，兜底把 fail-closed 悄悄变成了 fail-open。
+
+---
+
+## 必修项
+
+1. **收紧 8h 时间窗口兜底**：要么删除，要么降级为"显式记录的降级通过"（gate 放行时向审计写明 degraded-pass + 原因），不允许静默兜底通过。fail-closed 是 SO-12 的立身之本，不能自己漏。
+2. **自举规则成文**：在 AGENTS.md 准则中写明——闸门自身被评审/变更时，通过方式是重跑 bootstrap 或重启 session，禁止手写/伪造标记文件；标记只能由 SessionStart hook 产生。
+3. **标记内容加真值版本锚**：.bootstrap-done.json 记录三件套的 hash/commit sha，bootstrap-gate 校验时可选比对 `/dispatch/truth/versions`，防"读过但读的是旧版"。
+
+## 建议项
+
+1. 把"session 边界必须重载真值 + 动手前 fail-closed"原则提炼一条进 governance/（编队规范层），标注各 agent 实现方式（ZCode=hook，Qoder=prompt 内嵌+WebFetch），供 Kimi/Trae/Pi 接入时对号实现。
+2. bootstrap 事件（session_id + 三件套版本 + 时间）异步写入 Aetheris 审计轨迹，作为"已读真值"的编队级审计证据。
+3. 后续将 chain-gate/session-gate/review-gate/bootstrap-gate 四闸门画一张统一的拦截矩阵（拦什么动作、查什么条件、fail 行为），防闸门本身成为下一个漂移面。
+
+## 与 Aetheris 蓝图对齐度
+
+**高度对齐**——bootstrap 是"真值在 git 与 Aetheris、不依赖任何单一 agent 记忆"这条北极星终局形态在 session 边界上的强制执行，唯 8h 兜底与 fail-closed 精神相悖，修掉即闭合。
