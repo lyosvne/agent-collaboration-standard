@@ -160,7 +160,7 @@
   trigger_class: [4]  # 改 hook 脚本（治理基础设施）+ 真值层 YAML + spec + lint
   review_dir: archive/governance-review-so11-v2-2-session-20260725/
   pass_round: round2
-  commit_sha: pending  # 本 commit 后回填
+  commit_sha: d694bc9
   date: 2026-07-25
   reviewer: [A, B, C]
   notes: |
