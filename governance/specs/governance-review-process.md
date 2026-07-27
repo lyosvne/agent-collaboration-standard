@@ -84,6 +84,32 @@ supersedes: []
 - 威胁模型：防忘记（用默认档 / 凭 --help 换档），不防恶意（改 prompt 措辞绕关键字识别）—— 与 review-gate 同边界
 - **改档位流程**：改 `reviewer-tiers.yaml` + 本节表格 + `mira-integration-status.md` 三处同步，跑 `scripts/check-reviewer-tiers-drift.py` 校验
 
+### 2.2 会话归类与续接（2026-07-25 加，被所有协作矩阵遵循）
+
+**用户需求原话**："将本项目所有的评审的 Mira 调用全部归类为一个项目，后续在同一个会话中调用 Mira CLI 让会话有上下文，这个要求加入调度准则被所有协作矩阵加载和遵循。"
+
+**实测验证（2026-07-25）**：mira `-r <session_id>` 跨进程续接可用——
+- 新进程 `mira -p "代号？" -r <round1_session_id>` 能精确回忆 round1 设的上下文
+- 同档续接可用（opus4.8p round1 → opus4.8p round2）
+- session 至少几小时内不过期（长时效待观察，独立任务）
+
+**准则（被所有协作矩阵遵循）**：
+1. **归类**：本项目所有评审的 Mira 调用按评审对象归类（如 meta-review-gate / so11-chain-gate 各一个项目），登记在 `archive/review-sessions-index.yaml`。新评审项目启动时追加 entry。
+2. **续接**：同一评审项目内 Mira A/B 调用，roundN 必须用 `-r <roundN-1 的 session_id>` 续接前一轮上下文。session_id 从 `review-sessions-index.yaml` 的 `reviewer_sessions.{A,B}.round<N-1>` 字段读。
+3. **记录**：每轮 mira 调用完成后（mira json 输出的 `session_id` 字段），立即回填到 `review-sessions-index.yaml` 对应 `reviewer_sessions.{A,B}.round<N>` 字段。
+4. **归档**：评审项目 PASS 后，`review-sessions-index.yaml` 该 entry 的 status 改 `ARCHIVED`，session 不再续接（新项目开新 session）。
+5. **C 例外**：qoder-bridge（评审方 C）无 `-r` 续接机制（每次 new session），保持 fresh。已在准则声明。
+6. **历史项目**：2026-07-25 机制建立前的评审项目（meta-review-gate/so8/so11/so11-v2-1 等）session_id 未记录，status 标 ARCHIVED，不补录。
+
+**机制化（session-gate hook）**：
+- ZCode 应用层 PreToolUse hook（`~/.zcode/hooks/session-gate-precommit.py`）在 mira 评审调度时，查 `review-sessions-index.yaml`：
+  - 当前项目有上一轮 session_id 且本次命令未用 `-r` → **deny** + 提示正确 session_id
+  - 用了 `-r` 但 id 不匹配 → deny + 提示正确 id
+  - 首轮（无 roundN-1）或项目 ARCHIVED → 放行
+- 当前评审项目识别：环境变量 `CURRENT_REVIEW_PROJECT`（ZCode 调评审前 export）优先，兜底扫 `archive/governance-review-*` 最近改动目录
+
+**为何重要**：之前每轮 mira 调用都是无上下文 fresh，导致评审方（尤其 B 结构化挑漏）重复指出已修问题，成本高。续接后 A/B 有项目内记忆，专注增量。
+
 ## 三、评审节点（4 个强制节点）
 
 ### 节点 1：治理计划本身（启动前）

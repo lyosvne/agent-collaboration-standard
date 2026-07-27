@@ -15,6 +15,11 @@
               "type": "command",
               "command": "python \"${ZCODE_PROJECT_DIR}/.zcode/hooks/chain-gate-precommit.py\"",
               "timeout": 5
+            },
+            {
+              "type": "command",
+              "command": "python \"${ZCODE_PROJECT_DIR}/.zcode/hooks/session-gate-precommit.py\"",
+              "timeout": 5
             }
           ]
         }

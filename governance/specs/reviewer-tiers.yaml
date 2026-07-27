@@ -58,3 +58,16 @@ review_dispatch_extra_keywords:
 # （防 spec §二漏更新——A/B 档位必须在此平台清单内）
 platform_tier_sources:
   mira: governance/specs/mira-integration-status.md
+
+# 会话归类与续接（SO-11-v2-2，2026-07-25，用户需求机制化）
+# spec §二.2.2 准则：同一评审项目 roundN 续接 roundN-1
+# 实测 mira -r <session_id> 跨进程续接可用（2026-07-25 验证）
+session_continuity:
+  enabled: true
+  strategy: round_n_resumes_round_n_minus_1   # roundN 用 -r 续接 roundN-1 的 session
+  platforms_with_continuity: [mira]            # C (qoder) 无续接，每轮 fresh
+  resume_arg: "-r"                             # mira -p ... -r <session_id>
+  session_id_field: "session_id"               # mira json 输出里取 session_id 的字段
+  record_index: "archive/review-sessions-index.yaml"  # 评审会话归类索引（所有项目）
+  current_project_env: "CURRENT_REVIEW_PROJECT"  # ZCode 调评审前 export 当前项目名
+  archived_status: "ARCHIVED"                  # 项目归档后不再续接

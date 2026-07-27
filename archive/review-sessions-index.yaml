@@ -1,0 +1,57 @@
+# 评审会话归类索引（SO-11-v2-2，2026-07-25）
+#
+# 本文件是所有评审项目的 Mira 会话归类总表。
+# 用户需求：把本项目所有评审的 Mira 调用归类为一个项目（按评审对象），
+# 同一项目 roundN 续接 roundN-1（mira -r <session_id>）。
+#
+# 机制：
+# - 新评审项目启动时，ZCode 在本文件追加一条 entry
+# - 调 mira 评审时，session-gate hook 读本文件查上一轮 session_id，强制 -r 续接
+# - 每轮调用完成后，ZCode 把返回的 session_id 回填到对应 round 字段
+# - 项目 PASS 后 status 改 ARCHIVED（不再续接）
+#
+# Mira -r 续接实测（2026-07-25 验证）：
+# - 跨进程可用（新进程 -r <id> 能回忆 round1 上下文）
+# - 同档续接可用（opus4.8p round1 → opus4.8p round2）
+# - session 至少几小时内不过期（长时效待观察）
+#
+# C (cantus via qoder-bridge) 无续接机制（每次 new session），不记 session
+
+projects:
+  # ===== 历史项目（2026-07-25 之前，session_id 丢失，仅归类标记）=====
+  - project: meta-review-gate
+    review_dir: archive/governance-review-meta-review-gate-20260725/
+    status: ARCHIVED  # round3 PASS，已归档
+    notes: 历史项目，A/B session_id 未记录（机制建立前）。已 push（commit 0645929/7f55e29）
+
+  - project: so8-override-backfill
+    review_dir: archive/governance-review-so8-override-backfill-20260725/
+    status: ARCHIVED  # round2 PASS
+    notes: 历史项目，session_id 未记录。已 push（commit d4f3008/f3a2f6d）
+
+  - project: so11-chain-gate
+    review_dir: archive/governance-review-so11-chain-gate-20260725/
+    status: ARCHIVED  # round2 PASS
+    notes: 历史项目，session_id 未记录。已 push（commit 81cd6df/54de92b）
+
+  - project: so11-v2-1-yaml-single-source
+    review_dir: archive/governance-review-so11-v2-1-yaml-20260725/
+    status: ARCHIVED  # round2 PASS
+    notes: 历史项目，session_id 未记录。已 push（commit af4e5a1/77600ca）
+
+  # 更早的历史项目（node1/node3/phaseD/pi-*，均已归档，不一一列举）
+  # 完整列表见 archive/governance-review-*/ 目录
+
+  # ===== 当前/未来项目（按此模板登记）=====
+  # 模板：
+  # - project: <对象名>
+  #   review_dir: archive/governance-review-<对象>-<date>/
+  #   status: REVIEWING  # REVIEWING / PASS / ARCHIVED
+  #   reviewer_sessions:
+  #     A:  # opus4.8p 会话链
+  #       round1: "<session_id>"  # mira -p 返回的 session_id
+  #       round2: "<session_id>"  # round2 调时用 -r <round1 session_id> 续接
+  #     B:  # gpt5.6sol 会话链
+  #       round1: "<session_id>"
+  #       round2: "<session_id>"
+  #     # C 不记（qoder-bridge 无续接）

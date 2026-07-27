@@ -145,3 +145,26 @@
     29/29 chain-gate + 6/6 drift-gate 单测 PASS。lint exit 0。
     详见 review-round1-ABC.md。
     29/29 单测 PASS（含 V1 YAML 缺字段 + L1 lint 一致性）。
+
+# SO-11-v2-2 Mira 会话归类 + session 续接（2026-07-25，用户需求机制化）
+- gate_id: so11-v2-2-session-continuity
+  files:
+    - .zcode/hooks/session-gate-precommit.py
+    - .zcode/hooks/test-session-gate.py
+    - archive/review-sessions-index.yaml
+    - governance/specs/reviewer-tiers.yaml
+    - governance/specs/governance-review-process.md
+    - .zcode/config.json
+  verdict: REVIEWING  # 待下 session 走完整三方评审（本 session 上下文 72% 不冒 compact 风险）
+  trigger_class: [4]
+  review_dir: archive/governance-review-so11-v2-2-session-20260725/
+  pass_round: in_review
+  commit_sha: pending
+  date: 2026-07-25
+  reviewer: [pending]  # 下 session 走 A/B/C
+  notes: |
+    Mira 评审会话归类 + session 续接。用户需求机制化。
+    实测 mira -r 跨进程续接可用（2026-07-25 验证）。
+    session-gate hook + review-sessions-index.yaml + spec §二.2.2 + reviewer-tiers.yaml session_continuity。
+    8/8 session-gate + 29/29 chain-gate + 6/6 drift-gate 单测 PASS。lint exit 0。
+    代码层完成，待下 fresh session 走三方评审（可用 mira -r eat own dogfood）。
