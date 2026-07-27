@@ -173,13 +173,17 @@ def update_track(current_state):
     branches = track["branches"]
     escalations = []
 
-    # 更新已追踪的分支（fail-open 修复: 区分 RESOLVED vs DISAPPEARED）
+    # 更新已追踪的分支（fail-open 修复: 区分 RESOLVED vs DISAPPEARED + round2 去重防刷屏）
     for name in list(branches.keys()):
         state = current_state.get(name)
         # 分支本次不在 report 里（被 drift-config.json 移除）→ DISAPPEARED
         if state is None:
+            # round2 去重: 已通知过 DISAPPEARED 且仍 resolved → 不重发（防 30min 刷屏）
+            if branches[name].get("disappeared_notified"):
+                continue
             branches[name]["resolved"] = True
             branches[name]["resolved_at"] = now
+            branches[name]["disappeared_notified"] = True
             escalations.append({
                 "branch": name,
                 "level": "DISAPPEARED",
@@ -190,8 +194,12 @@ def update_track(current_state):
             continue
         # 分支在 report 但标记为配置漂移（exists=False）→ DISAPPEARED（不误判 RESOLVED）
         if not state.get("exists", True):
+            # round2 去重: 已通知过 DISAPPEARED → 不重发
+            if branches[name].get("disappeared_notified"):
+                continue
             branches[name]["resolved"] = True
             branches[name]["resolved_at"] = now
+            branches[name]["disappeared_notified"] = True
             escalations.append({
                 "branch": name,
                 "level": "DISAPPEARED",
@@ -202,6 +210,8 @@ def update_track(current_state):
             continue
         # 分支存在且 conflicts 非空 → 原 count+1 逻辑
         if state["conflicts"]:
+            # round2: 分支复活（之前 disappeared_notified=True, 现在 exists=True 有冲突）→ 重置通知标记
+            branches[name]["disappeared_notified"] = False
             branches[name]["count"] += 1
             branches[name]["last_seen"] = now
             old_level = branches[name]["level"]
@@ -221,6 +231,7 @@ def update_track(current_state):
             # 分支存在且 conflicts=[] → 真解决了
             branches[name]["resolved"] = True
             branches[name]["resolved_at"] = now
+            branches[name]["disappeared_notified"] = False  # round2: 重置, 允许未来再漂移时告警
             escalations.append({
                 "branch": name,
                 "level": "RESOLVED",
