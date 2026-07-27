@@ -188,7 +188,7 @@
   trigger_class: [4]  # 新增 hook 脚本（治理基础设施）+ AGENTS.md 治理规则
   review_dir: archive/governance-review-so12-bootstrap-gate-20260728/
   pass_round: round2
-  commit_sha: pending  # 本 commit 后回填
+  commit_sha: f66b2be
   date: 2026-07-28
   reviewer: [A, B, C]
   notes: |
