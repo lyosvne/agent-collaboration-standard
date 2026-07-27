@@ -97,3 +97,24 @@
     原子写 + 结构性上限声明。30/30 单测 PASS（含 C1 钉死：历史补录+新 override→仍 deny）。
     详见 review-round2-PASS.md。
 
+
+# SO-11 跳链检测 hook（2026-07-25，meta-review-gate round1 opus4.8p→opus4.6 事故的直接解药）
+- gate_id: so11-chain-gate
+  files:
+    - .zcode/hooks/chain-gate-precommit.py
+    - .zcode/hooks/test-chain-gate.py
+    - .zcode/config.json
+  verdict: PASS
+  trigger_class: [4]  # 新增 hook 脚本（治理基础设施）
+  review_dir: archive/governance-review-so11-chain-gate-20260725/
+  pass_round: round2
+  commit_sha: pending  # commit 后回填
+  date: 2026-07-25
+  reviewer: [A, B, C]
+  notes: |
+    SO-11 跳链检测 hook。把 spec §二.2.1 "调度前档位校验"从自觉变机器强制。
+    round1 三方 CONDITIONAL（共识：真值层双源漂移是根问题）。
+    round2 修复：C1 双源比对 fail-closed + C2 回归测试（回放 round1 事故）+
+    deny [chain-gate] prefix + B-N8/N9 等号/大小写。
+    25/25 单测 PASS。v2 backlog：YAML 单源/--reviewer 参数/服务端化/实测缓存/HTTP 缺口审计。
+    详见 review-round2-PASS.md。

@@ -57,7 +57,7 @@ supersedes: []
 | **评审方 C** | Qoder cantus（Cantus 顶层档）| 编队主架构师视角、与 Aetheris 蓝图对齐、与现有架构契合 | Qoder Cloud Agent 调度（ECS `qoder-bridge.py --tier cantus`） |
 | **最终裁决** | 用户（林于炜）| 战略层、满意度、不可委托清单 | 飞书/直接对话 |
 
-### 2.1 调度前校验（防协作链路跳链，2026-07-25 round3 加）
+### 2.1 调度前校验（防协作链路跳链，2026-07-25 round3 加 / SO-11 机制化）
 
 **教训来源**：`review-process-lessons.md` §8.6——meta-review-gate round1 误把 opus4.8p 换成 opus4.6，未验证就跳链，round1 A 票作废。
 
@@ -66,6 +66,14 @@ supersedes: []
 2. **实测可达性**：真值层档位名用一条最小命令实测（A/B：`mira -p "OK" --model <档位> --output-format json` 看 `is_error: false`；C：`ssh ecs 'qoder-bridge.py --tier cantus "OK"'` 看 done 状态）。**禁止凭 CLI `--help` 列表判断可达性**（mira --help 列表滞后，实测优先于文档）。
 3. **环境与真值层冲突时上报**：若实测发现档位不可用，**停下问用户**"真值层过期还是别名变了"，禁止未验证就换档自行"对齐现实"。
 4. **材料内联**：评审材料必须**内联**随任务下发（写进 prompt 文本），不依赖评审方主动 fetch 外部 URL（mira 沙箱看不到 Windows 本地文件，是 SO-1 评审材料投递无确认回执问题的根因）。
+
+**SO-11 机制化（2026-07-25，本节约束不再纯靠自觉）**：
+- ZCode 应用层 PreToolUse hook（`~/.zcode/hooks/chain-gate-precommit.py`）在 `mira -p` + 评审关键字 / `qoder-bridge --tier cantus` 调度评审时，自动校验 `--model` / `--tier` 与本节表格一致
+- 不一致 → **Hard deny** + 提示真值层期望档位
+- 评审方识别靠 prompt 里的"评审方 A/B/C"显式标注（不能用档位名隐式识别，防循环）
+- 真值层（本节表格 + mira-integration-status.md）解析失败 → fail-closed deny
+- 紧急场景（真值层过期）写 `~/.zcode/hooks/.chain-gate-override.json`（30 分钟窗口），但需先问用户
+- 威胁模型：防忘记（用默认档 / 凭 --help 换档），不防恶意（改 prompt 措辞绕关键字识别）—— 与 review-gate 同边界
 
 ## 三、评审节点（4 个强制节点）
 
