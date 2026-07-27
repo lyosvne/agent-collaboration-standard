@@ -88,7 +88,7 @@
   trigger_class: [4]  # 改 hook 脚本（治理基础设施）
   review_dir: archive/governance-review-so8-override-backfill-20260725/
   pass_round: round2
-  commit_sha: pending  # commit 后回填
+  commit_sha: d4f3008
   date: 2026-07-25
   reviewer: [A, B, C]
   notes: |
