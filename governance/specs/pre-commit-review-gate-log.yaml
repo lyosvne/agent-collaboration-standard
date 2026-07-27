@@ -159,7 +159,7 @@
   trigger_class: [4]
   review_dir: archive/governance-review-so11-v2-2-session-20260725/
   pass_round: in_review
-  commit_sha: pending
+  commit_sha: 317d213
   date: 2026-07-25
   reviewer: [pending]  # 下 session 走 A/B/C
   notes: |
