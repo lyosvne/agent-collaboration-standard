@@ -1,0 +1,62 @@
+# 评审方 A (opus4.8p) round2 - 续接 round1 session 235302197011
+session_id: 235302197011 (续接成功，与 round1 一致)
+duration: 43229ms
+
+---
+
+# SO-11-v2-2 Round2 复核 —— 评审方 A（架构级深度审查）
+
+**session 续接确认**：我记得 round1 我给的 CONDITIONAL + 3 必修（M1 项目识别 fail-closed / M2 round 显式参数 / M3 威胁模型分层 + 识别失败改 deny-with-context），以及建议项 B1（回填自动化）/ B2（--fresh 逃生口，round1 我把它当权衡建议，round2 你们用 M5 expired_rounds 通道以更结构化的方式实现了，比我原建议更好）。续接生效。
+
+---
+
+**verdict**: **PASS**
+
+三方共识的 5 必修在 round2 全部到位，且 M5 的实现方式（expired_rounds 显式状态机）比我 round1 建议的 `--fresh` 临时逃生口更优——把"续接失败"从异常路径提升为一等状态，符合第一性原理。
+
+---
+
+## M1-M5 逐项确认
+
+| 项 | 结论 | 一句话理由 |
+|---|---|---|
+| **M1** | PASS | 兜底 mtime 扫描已删，未设 `CURRENT_REVIEW_PROJECT` → deny + 明确提示，S9 覆盖；符合"不确定即拒绝"原则 |
+| **M2** | PASS | regex 抓取降级为交叉校验 warn（不 deny）是正确的架构选择——控制平面走环境变量、数据平面文本扫描仅告警不阻断，S10/S11 覆盖了双关键路径 |
+| **M3** | PASS | 节点缺失 deny / enabled:false 放行的语义区分清晰（前者=配置损坏，后者=显式紧急制动），lint 7 必填字段校验封死"配置删除即绕过"路径，drift-gate 实测联动验证有说服力 |
+| **M4** | PASS | 执法点仅 ZCode 的声明消除了对 Kimi/Trae/Pi 的过度承诺，Pi 接管的迁移债务显式登记——避免了后续"以为全平台生效"的认知漂移（这正是 §8.6 教训的同类风险） |
+| **M5** | PASS | expired_rounds 通道把"session 过期"从隐性失败变为一等状态，放行 fresh + 强制 prompt 内嵌上轮结论是正确的降级路径，封死了"过期卡死"死路 |
+
+---
+
+## C 调用固化确认
+
+**PASS**。ssh 完整命令包含 `set -a && source .env && set +a` 是正确的（避免 PAT 泄露到进程列表），QODER_PAT 永不进 repo 的红线声明位置合适，调度元数据内联注入约定与 M1/M2 的 fail-closed 语义闭环。
+
+---
+
+## 新发现问题（round2 复核补充，非阻塞）
+
+### N1【建议·非阻塞】expired_rounds 的写入责任未明确
+M5 定义了消费侧（find_prev_session_id 读 expired_rounds → 放行 fresh），但**谁在什么条件下把 roundN 标记为 expired 未写入 spec**。当前隐含依赖人工判断，容易重演 §8.4 漏执行——建议在 spec §二.2.2 第 7 条补一句判定规则（如"mira -r 返回 session not found / expired 错误 → ZCode 必须立即回填 expired_rounds"），或后续加 PostToolUse hook 自动检测 mira stderr 关键字。
+
+### N2【建议·非阻塞】M2 交叉校验 warn 的可观测性
+warn 走 stderr 在 ZCode 交互界面容易被淹没。建议 warn 同时追加到 `.zcode/logs/session-gate-warnings.log`（追加式），周会/回顾时可扫，便于发现"命令文本 round 与环境变量 round 长期不一致"的隐性认知漂移。
+
+### N3【建议·非阻塞】迁移债务的验收门未定义
+M4 登记了"Pi 接管后需移植到 Pi Extension"的债务，但未定义"何时必须还"的触发条件（Pi 接管 X% 流量？某个 sprint？）。建议在架构真值 §4.4 或 debt-ledger 里加触发条件，避免债务变永久 TODO。
+
+以上三项均**不阻塞 PASS**，可 round3 或后续独立工单跟进。
+
+---
+
+## 覆盖范围声明
+
+**已复核**：M1-M5 全部 5 项修复的机制正确性、C 调用固化的红线合规、session_continuity 节点的配置完整性语义、14/14 单测的场景覆盖度（S9-S15 逐项对齐必修项）、drift-gate 联动实测的说服力、round1 我提的 B1/B2 建议在 round2 的落位情况。
+
+**未逐字复核**（信任 14/14 + 29/29 + 6/6 单测通过）：hook 源码行级实现、YAML lint 规则细节、ssh 命令的实际连通性、qoder-bridge.py 内部返回格式。
+
+**遗留可迭代项**：N1/N2/N3 三项建议（写入责任、warn 可观测性、迁移债务触发条件），round2 可 PASS 归档，后续独立工单跟进。
+
+---
+
+**结论**：SO-11-v2-2 从架构级视角 **PASS**，可进入 §8.4 三方评审签字归档流程。M5 的 expired_rounds 状态机设计值得在后续同类"跨进程状态续接"机制中复用——它把一个"临时补丁"（round1 我建议的 --fresh）升维成了"结构化状态转移"，是这轮修复里最本质的架构进步。

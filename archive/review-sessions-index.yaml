@@ -1,8 +1,12 @@
-# 评审会话归类索引（SO-11-v2-2，2026-07-25）
+# 评审会话归类索引（SO-11-v2-2，2026-07-25 round1 加 / round2 M1-M5 修复）
 #
 # 本文件是所有评审项目的 Mira 会话归类总表。
 # 用户需求：把本项目所有评审的 Mira 调用归类为一个项目（按评审对象），
 # 同一项目 roundN 续接 roundN-1（mira -r <session_id>）。
+#
+# 双重定位（round2 M4，C round1 指出）：
+# - 归档审计：评审证据归档（哪轮用了哪个会话），归 git 合理
+# - 运行时状态：hook 据此 deny，本质是 task 运行时状态（终局归 Aetheris，登记为迁移债务）
 #
 # 机制：
 # - 新评审项目启动时，ZCode 在本文件追加一条 entry
@@ -13,9 +17,18 @@
 # Mira -r 续接实测（2026-07-25 验证）：
 # - 跨进程可用（新进程 -r <id> 能回忆 round1 上下文）
 # - 同档续接可用（opus4.8p round1 → opus4.8p round2）
-# - session 至少几小时内不过期（长时效待观察）
+# - session 至少几小时内不过期（M5 提供过期降级通道）
 #
 # C (cantus via qoder-bridge) 无续接机制（每次 new session），不记 session
+#
+# 字段说明（round2 M1-M5）：
+#   project           : 项目名（与 CURRENT_REVIEW_PROJECT 环境变量精确匹配）
+#   review_dir        : 评审目录（archive/governance-review-<对象>-<date>/）
+#   status            : REVIEWING / PASS / ARCHIVED
+#   expired_rounds    : M5 过期轮次列表（如 [1]），hook 见 roundN-1 在此则放行 fresh
+#                       （session 过期后 -r 必败，登记此字段后可 fresh，prompt 须内嵌上轮结论）
+#   reviewer_sessions : A/B 各自的 round → session_id 链（C 不记）
+#   notes             : 备注
 
 projects:
   # ===== 历史项目（2026-07-25 之前，session_id 丢失，仅归类标记）=====
@@ -45,15 +58,31 @@ projects:
   # ===== 当前项目 =====
   - project: so11-v2-2-session-continuity
     review_dir: archive/governance-review-so11-v2-2-session-20260725/
-    status: REVIEWING  # round1 进行中
-    notes: SO-11-v2-2 自评审（eat own dogfood）。round1 fresh，round2+ 续接。
+    status: REVIEWING  # round2 修复后待评审
+    notes: SO-11-v2-2 自评审（eat own dogfood）。round1 fresh，round2 用 -r 续接 round1（实测成功，session_id 一致）。round2 三方 PASS。
+    # expired_rounds: []  # M5：若 round1 session 过期，在此列 [1]，round2 可 fresh（本轮未触发）
     reviewer_sessions:
       A:  # opus4.8p 会话链
         round1: "235302197011"  # 2026-07-25 round1 fresh
+        round2: "235302197011"  # 2026-07-25 round2 -r 续接 round1（session_id 一致，实测可用）
       B:  # gpt5.6sol 会话链
         round1: "222347143699"  # 2026-07-25 round1 fresh
+        round2: "222347143699"  # 2026-07-25 round2 -r 续接 round1（session_id 一致，实测可用）
 
   # ===== 未来项目（按此模板登记）=====
+  # 模板：
+  # - project: <对象名>
+  #   review_dir: archive/governance-review-<对象>-<date>/
+  #   status: REVIEWING  # REVIEWING / PASS / ARCHIVED
+  #   expired_rounds: []  # M5：过期的轮次（如 [1, 2]），不填则所有轮次都要求续接
+  #   reviewer_sessions:
+  #     A:
+  #       round1: "<session_id>"  # mira -p 返回的 session_id
+  #       round2: "<session_id>"  # round2 调时用 -r <round1 session_id> 续接
+  #     B:
+  #       round1: "<session_id>"
+  #       round2: "<session_id>"
+  #     # C 不记（qoder-bridge 无续接）
   # 模板：
   # - project: <对象名>
   #   review_dir: archive/governance-review-<对象>-<date>/

@@ -115,6 +115,37 @@ def main():
             if not isinstance(d, dict) or not d.get("invocation_pattern"):
                 errors.append(f"YAML dispatchers.{disp_name} 缺 invocation_pattern")
 
+    # 4. 校验 session_continuity 必填字段（SO-11-v2-2 round2: M3 hook 数据驱动依赖）
+    #    session-gate-precommit.py 从此节点读配置，缺失/损坏 → 必须 lint 报错（防配置删除即绕过机制）
+    sc = yaml_data.get("session_continuity", {})
+    if not isinstance(sc, dict) or not sc:
+        errors.append("YAML 缺 session_continuity 节点（SO-11-v2-2 hook 依赖，配置删除即绕过机制）")
+    else:
+        # round2 必填字段（current_round_env 是 round2 新增，老 commit 可能没有）
+        required_fields = [
+            "enabled", "strategy", "platforms_with_continuity",
+            "resume_arg", "record_index",
+            "current_project_env", "archived_status",
+        ]
+        for fld in required_fields:
+            if fld not in sc:
+                errors.append(f"YAML session_continuity.{fld} 缺失（hook 数据驱动依赖）")
+        # current_round_env 是 round2 新增（M2），单独检查并提示
+        if "current_round_env" not in sc:
+            errors.append(
+                "YAML session_continuity.current_round_env 缺失"
+                "（M2：hook 从此读 round 号，缺失会回退到 regex 扫命令文本——已知 BLOCKER）"
+            )
+        # expired_rounds_field 是 round2 新增（M5），单独检查
+        if "expired_rounds_field" not in sc:
+            errors.append(
+                "YAML session_continuity.expired_rounds_field 缺失"
+                "（M5：hook 据此识别过期轮次放行 fresh）"
+            )
+        # enabled 必须是 bool
+        if "enabled" in sc and not isinstance(sc["enabled"], bool):
+            errors.append(f"YAML session_continuity.enabled 必须是 bool，当前: {type(sc['enabled']).__name__}")
+
     print()
     if errors:
         print(f"❌ DRIFT 检测到 {len(errors)} 处不一致:")

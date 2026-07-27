@@ -1,0 +1,120 @@
+# 评审方 B (gpt5.6sol) round2 - 续接 round1 session 222347143699
+session_id: 222347143699 (续接成功，与 round1 一致)
+duration: 55676ms
+
+---
+
+# SO-11-v2-2 评审 Round2 复核 — 评审方 B（gpt5.6sol，结构化）
+
+**session 续接确认**：记得 round1 给的 CONDITIONAL + 9 必修（3 BLOCKER：BUG-1 首个 round、CONFLICT-1 无 round 标识、BUG-3 project=None 策略）+ 建议项若干（mtime 扫描废弃、pathlib、hook 合并、fail-open/closed 明示）。本轮基于此回归。
+
+**verdict**: **PASS**（1 个新发现的中等漏洞需 round3 或建议项跟进，不阻断）
+
+---
+
+## D1【单测覆盖度】— **PASS（含 1 项遗留）**
+
+14 case 对 round1 的 C1-C9 覆盖情况：
+
+| Round1 缺失 case | Round2 覆盖 | 结论 |
+|---|---|---|
+| C1 跨轮次混写（round1+round2） | S11 明确覆盖 | ✅ |
+| C2 `-r` 后无值 | 未见明确 case | ⚠️ 遗留 |
+| C3 `-r ""` 显式空串 | 未见 | ⚠️ 遗留 |
+| C4 yaml 损坏 | S12（缺失）覆盖，但**损坏≠缺失** | ⚠️ 部分 |
+| C5 session_id 含特殊字符 | 未见 | 建议项 |
+| C6 环境变量未 export | S9/S10 覆盖 | ✅ |
+| C7 大小写混写 | 未列，但 regex IGNORECASE | ✅ |
+| C8 `-r` 出现两次 | 未见 | 建议项 |
+| C9 命令跨行 | 未见 | 建议项 |
+
+**新增覆盖优点**：S13（enabled:false 紧急制动）、S14/S15（expired_rounds 机制）体现了配置健壮性和运维逃生舱设计，超出 round1 预期。
+
+**遗留问题**：C2/C3（`-r` 无值/空值）未测。当前 regex `\S+` 会不匹配 → 返回 None → 走"未续接"分支 deny，行为**恰好正确但仍是隐式契约**。建议补 2 个 case 显式验证。
+
+---
+
+## D2【识别逻辑】— **PASS**
+
+**BUG-1（原 BLOCKER）**：identify_current_round 抓首个 round 的语义漏洞。
+- Round2 改法：**直接删 regex，改读环境变量** → 从根源上消除歧义。这是比 round1 建议的"findall()[-1]"或"[CURRENT_ROUND=N] tag"更彻底的方案。✅ **彻底消除**。
+- S11 case 明确验证了"env=2 + prompt 含 round1 字样 → 仍查 round1 sid"，防回归到位。
+
+**BUG-3（原 BLOCKER）**：find_current_project 返回 None 的策略未定义。
+- Round2 改法：删兜底扫描，None → deny。fail-closed，符合安全边界。✅ **彻底消除**。
+- 顺带解决了 round1 建议项 1（废弃 mtime 扫描）。
+
+**BUG-2（原建议项）**：extract_resume_id 对 `-r` 无值静默 None。**未处理**，代码片段未见变化。仍是隐式契约。降为建议项 1。
+
+**BUG-4（原建议项）**：mtime 扫描不稳定。**已删除**，问题消失。✅
+
+---
+
+## D3【规则冲突】— **PASS**
+
+**CONFLICT-1（原 BLOCKER）**：spec §二.2.2 vs S8 无 round 标识放行。
+- Round2 采用 round1 提的"方案 B（严格+）"：无 CURRENT_REVIEW_ROUND → deny。配合环境变量方案，ZCode 想绕过必须显式不设变量，deny 会明示。✅ **闭环**。
+
+**CONFLICT-2（原必修 8）**：chain-gate vs session-gate 顺序。
+- Round2：config.json 顺序已明确 review-gate → chain-gate → session-gate，spec 未文档化。
+- 判定：config.json 的顺序即事实契约，spec 未文档化不阻断合入，但建议在 §二.2.2 补一句"hook 执行顺序见 .zcode/config.json"，避免后来者困惑。降为建议项 2。
+
+**新发现小问题**：M2 的"交叉校验 warn"（env vs prompt 里 round 字样不一致时 warn 但不 deny）——这个警告谁看？stderr 是否会被 ZCode 吞掉？如果只是写 stderr 且无人看，等于**摆设**。建议 warn 时同时写 `review-sessions-index.yaml.warnings[]` 供事后追溯。降为建议项 3。
+
+---
+
+## D4【数据一致性】— **CONDITIONAL（1 项遗留）**
+
+- 路径处理（Windows 混合分隔符）：Round2 代码片段未见 pathlib 迁移。未做，仍是建议项。
+- Linux CI 单测：Round2 明确降为建议项，接受"hook 只在 Windows ZCode 跑"的边界。合理。
+
+**新发现问题（中等）**：`expired_rounds` 是 `review-sessions-index.yaml` 的字段还是 `reviewer-tiers.yaml` 的字段？从代码 `p.get(expired_field, [])` 看是从 project 节点读，应该在 index yaml 里。但**谁负责回填 expired_rounds**？
+- 若人工维护 → 容易漏；
+- 若 hook 自动写 → 未见相关逻辑；
+- 若 drift-gate 检查 → 未见。
+
+**风险**：expired_rounds 机制看似给运维逃生舱，但填充路径不明会让机制静默失效。建议在 spec §二.2.2 或 hook 文档里明示 expired_rounds 的**填充责任人和场景**（例：session 过期 30 天自动加入 / 人工介入时手动加）。降为**建议项 4**（不阻断，但强烈建议 round3 前明确）。
+
+---
+
+## D5【配置健壮性】— **PASS**
+
+- M3 fail-closed 到位：session_continuity 缺失 / 损坏 / enabled 非 bool → deny（S12 验证）。✅
+- enabled:false 紧急制动：保留但明示为"运维逃生舱"（S13）。合理。
+- lint 校验扩展：required_fields 8 项 + current_round_env + expired_rounds_field 全覆盖。✅
+- lint 与 hook 双重校验：drift-gate lint 早期发现 yaml 问题，session-gate 运行时兜底。防御纵深到位。
+
+**小建议**：lint 里的 `required_fields` 列表和 hook 里读的 `config.get(...)` key 应从**单一 schema 源**派生，避免两处 drift。当前是手工同步 → 建议项 5。
+
+---
+
+## D6【hook 共存】— **CONDITIONAL**
+
+- 顺序：config.json 已明示，PASS。
+- 性能：4 hook 每次 Bash 调用冷启动 Python × 4，round1 提的 450-600ms 开销问题**未处理**，round2 未提及。降为建议项 6。评审密集场景（roundN 复核 + 多方并行）体感仍在。
+- drift-gate 联动：round1 BLOCKER 候选已查证不成立（drift-gate 不做 schema 白名单，只跑 lint），且 M3 已把 session_continuity 校验加入 lint。✅
+
+---
+
+## 必修项（阻断 PASS）
+
+**无**。3 个 BLOCKER + 5 个必修全部处理，未做的 6/8（Linux CI、chain-gate 文档化）已合理降级为建议项。
+
+## 建议项（不阻断，建议 round3 或后续跟进）
+
+1. **补 case C2/C3**：`-r` 无值 / `-r ""` 显式验证，避免隐式契约。
+2. **spec §二.2.2 补一句 hook 执行顺序**，指向 `.zcode/config.json`。
+3. **M2 交叉校验 warn 落盘**：写入 `review-sessions-index.yaml.warnings[]` 或独立日志文件，避免 stderr 被吞。
+4. **明示 expired_rounds 填充责任人和触发场景**（人工 or hook 自动 or drift-gate）。这是 M5 逃生舱能否真正起作用的关键。
+5. **lint required_fields 与 hook config keys 抽出单一 schema 源**（可用 dataclass 或 pydantic），避免两处 drift。
+6. **hook 冷启动性能优化**（合并 dispatcher 或 socket 长驻），评审密集场景体感优化。
+7. **补 case C4 明示"yaml 损坏≠缺失"**（非法 YAML 语法、非 dict 根节点），验证 M3 fail-closed 覆盖损坏场景。
+8. **补 case C5/C8/C9**：session_id 特殊字符、`-r` 多次、命令跨行。低优。
+
+---
+
+## 总结
+
+Round2 修复质量高：3 个 BLOCKER 都用了**比 round1 建议更彻底的方案**（环境变量硬性依赖 vs regex 修补），M3/M5 引入的 fail-closed + 紧急制动 + expired_rounds 逃生舱体现了**运维视角**，超出评审预期。14 case 覆盖到位，lint + hook 双重防御纵深合理。
+
+**判 PASS**。建议项 1-4 建议 round3 前处理（尤其 4，关系到 M5 逃生舱是否真能用），5-8 可延后。

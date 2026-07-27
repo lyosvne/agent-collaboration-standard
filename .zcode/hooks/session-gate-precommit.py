@@ -6,12 +6,30 @@ Session Gate -- PreToolUse Hook (SO-11-v2-2 会话续接)
 
 用户需求："本项目所有评审的 Mira 调用归类为一个项目，同一会话续接有上下文。"
 
-机制：
-  拦 Bash 命令，识别 mira 评审调度（复用 chain-gate 的 YAML 真值层读取），
-  查 archive/review-sessions-index.yaml 当前项目的 roundN-1 session_id：
-  - 有 session_id 且本次没用 -r → deny + 提示正确 id
-  - 用了 -r 但 id 不匹配 → deny + 提示正确 id
-  - 首轮（无 roundN-1）/ 项目 ARCHIVED → 放行
+机制（round2 修复后，A/B/C 三方共识 M1-M5）：
+  拦 Bash 命令，识别 mira 评审调度（mira -p + 评审方关键字）。
+  命中"评审方"字样后进入严格模式，要求调度元数据齐备：
+
+  M1（项目识别 fail-closed）:
+    CURRENT_REVIEW_PROJECT 环境变量未设 → deny（删兜底扫描，最坏失败是续接错误会话）
+
+  M2（round 显式参数）:
+    CURRENT_REVIEW_ROUND 环境变量未设 → deny（regex 抓首个 round 被 prompt 描述历史绕过）
+    命令文本里的 round 号仅作交叉校验 warn，不作判据
+
+  M3（配置缺失 fail-closed + 威胁模型分层）:
+    session_continuity 节点缺失/损坏/enabled 非 bool → deny（配置删除即绕过机制）
+    session_continuity.enabled: false 显式禁用 → 放行（保留紧急制动）
+    命令完全无"评审方"字样 → 非评审调用，放行（真边界）
+
+  M5（session 过期降级通道）:
+    roundN-1 在 index 的 expired_rounds 列表 → 放行 fresh
+    但 stderr 提示"prompt 必须内嵌上轮结论摘要"（补偿上下文）
+
+  通过 M1/M2 后，查 archive/review-sessions-index.yaml 当前项目 reviewer 的 roundN-1 session_id：
+  - 有 sid 且本次没用 -r → deny + 提示正确 id
+  - 用了 -r 但 id 不匹配 → deny
+  - 首轮/归档/无记录/过期 → 放行
 
 实测 mira -r 跨进程续接可用（2026-07-25）。
 """
@@ -86,59 +104,79 @@ def extract_resume_id(command, config):
     return m.group(1).strip().strip("'\"") if m else None
 
 
-def identify_current_round(command):
-    """从命令文本粗略识别当前是 round 几（prompt 里通常含 roundN 字样）"""
+def identify_current_round_from_env(config):
+    """M2: 从环境变量读当前 round（真值源）。
+    返回 (round_int_or_None, reason_str)。
+    - 环境变量已设且合法 → (int, "ok")
+    - 环境变量未设 → (None, "env_missing")  ← 调用方应 deny
+    - 环境变量设了但不是数字 → (None, "env_invalid")
+    """
+    env_key = config.get("current_round_env", "CURRENT_REVIEW_ROUND") if config else "CURRENT_REVIEW_ROUND"
+    val = os.environ.get(env_key)
+    if not val:
+        return None, "env_missing"
+    # 支持 "round2" / "2" 两种写法
+    m = re.search(r'(\d+)', val)
+    if not m:
+        return None, f"env_invalid({val})"
+    return int(m.group(1)), "ok"
+
+
+def scan_round_in_command(command):
+    """M2 交叉校验: 从命令文本抓 round 号（仅作 warn，不作判据）。
+    返回首个匹配的 round int 或 None。控制平面（环境变量）才是真值。"""
     m = re.search(r'\bround[_\s]*(\d+)\b', command, re.IGNORECASE)
-    if m:
-        return int(m.group(1))
-    return None
+    return int(m.group(1)) if m else None
 
 
 def find_current_project(config):
-    """识别当前评审项目名。优先环境变量，兜底扫最近改动的 archive 目录"""
+    """M1: 从环境变量读当前评审项目（唯一来源，不兜底扫描）。
+    返回 (project_str_or_None, reason_str)。
+    - 环境变量已设 → (str, "ok")
+    - 未设 → (None, "env_missing")  ← 调用方应 deny
+    """
     env_key = config.get("current_project_env", "CURRENT_REVIEW_PROJECT") if config else "CURRENT_REVIEW_PROJECT"
     project = os.environ.get(env_key)
     if project:
-        return project
-    # 兜底：扫 archive/governance-review-* 找最近改动的
-    archive_dir = os.path.join(REPO_ROOT, "archive")
-    if not os.path.isdir(archive_dir):
-        return None
-    candidates = []
-    for d in os.listdir(archive_dir):
-        full = os.path.join(archive_dir, d)
-        if d.startswith("governance-review-") and os.path.isdir(full):
-            try:
-                mtime = os.path.getmtime(full)
-                candidates.append((mtime, d.replace("governance-review-", "")))
-            except OSError:
-                pass
-    if not candidates:
-        return None
-    candidates.sort(reverse=True)  # 最近改动优先
-    return candidates[0][1]
+        return project, "ok"
+    return None, "env_missing"
 
 
 def find_prev_session_id(project, reviewer, current_round, config):
-    """从 review-sessions-index.yaml 查当前项目 reviewer 的 roundN-1 session_id"""
+    """从 review-sessions-index.yaml 查当前项目 reviewer 的 roundN-1 session_id。
+    返回 (sid_or_None, reason_str)：
+    - (sid, "ok")               : 有 roundN-1 sid，需校验 -r
+    - (None, "expired")         : roundN-1 在 expired_rounds 里，放行 fresh（M5）
+    - (None, "archived")        : 项目已归档，放行
+    - (None, "no_prev_sid")     : roundN-1 无记录（真首轮或记录缺失），放行
+    - (None, "index_不可读")    : index 损坏
+    - (None, "project_not_in_index"): 项目未登记
+    """
     if not project or current_round is None or current_round <= 1:
-        return None, None  # 首轮，无需续接
+        return None, "first_round"  # 首轮，无需续接
     prev_round = current_round - 1
     index_path = os.path.join(REPO_ROOT, config.get("record_index", "archive/review-sessions-index.yaml"))
     data, _ = load_yaml(index_path)
     if not data:
-        return None, "index 不可读"
+        return None, "index_不可读"
     projects = data.get("projects", []) or []
     for p in projects:
         if p.get("project") == project:
             status = p.get("status", "")
             if status == config.get("archived_status", "ARCHIVED"):
-                return None, "archived"  # 归档项目不强制续接
+                return None, "archived"  # 归档项目放行
+            # M5: 检查 roundN-1 是否在 expired_rounds 里（项目级字段，所有 reviewer 共享）
+            expired_field = config.get("expired_rounds_field", "expired_rounds")
+            expired_rounds = p.get(expired_field, []) or []
+            if isinstance(expired_rounds, list) and prev_round in expired_rounds:
+                return None, "expired"  # 上轮已过期，放行 fresh（M5）
             sessions = p.get("reviewer_sessions", {}) or {}
             reviewer_chain = sessions.get(reviewer, {}) or {}
             sid = reviewer_chain.get(f"round{prev_round}")
+            if sid is None:
+                return None, "no_prev_sid"
             return sid, "ok"
-    return None, "project 不在 index"
+    return None, "project_not_in_index"
 
 
 def build_deny_reason(detail):
@@ -171,26 +209,83 @@ def main():
         return  # 真值层失败由 chain-gate 处理（本 hook 不重复 fail-closed）
 
     sc_config = config_data.get("session_continuity", {})
-    if not sc_config or not sc_config.get("enabled"):
-        return  # 未启用
+    # M3: session_continuity 节点缺失/损坏 → deny（配置删除即绕过机制）
+    # 但 enabled: false 显式禁用 → 放行（保留紧急制动能力，C 修正版）
+    if not isinstance(sc_config, dict) or not sc_config:
+        print(json.dumps({
+            "decision": "block",
+            "reason": build_deny_reason(
+                "reviewer-tiers.yaml 的 session_continuity 节点缺失或损坏（非 dict/空）。\n"
+                "这是配置异常，不是显式禁用——防配置删除即绕过机制（M3，round2 三方共识）。\n"
+                "若要紧急禁用，请显式设 `session_continuity.enabled: false`。"
+            ),
+        }, ensure_ascii=False))
+        sys.exit(2)
+    # enabled 字段必须是 bool（lint 也校验，但 hook 兜底）
+    enabled = sc_config.get("enabled")
+    if not isinstance(enabled, bool):
+        print(json.dumps({
+            "decision": "block",
+            "reason": build_deny_reason(
+                f"session_continuity.enabled 必须是 bool，当前: {type(enabled).__name__}={enabled!r}（M3）。\n"
+                "若要禁用，请设 `enabled: false`（bool）。"
+            ),
+        }, ensure_ascii=False))
+        sys.exit(2)
+    if not enabled:
+        return  # 显式禁用，放行（紧急制动）
 
     # 只拦 mira 评审调度
     if not is_mira_review_dispatch(command, config_data):
         return
 
-    # 识别评审方（A/B）
+    # 识别评审方（A/B/C）
     reviewers_in_cmd = identify_reviewer(command, config_data)
     if not reviewers_in_cmd:
-        return  # 识别不出评审方，由 chain-gate 处理
+        return  # 命令完全无"评审方"字样 → 非评审调用，放行（M3 真边界）
 
-    # 识别当前 round
-    current_round = identify_current_round(command)
-    if current_round is None:
-        return  # 命令里没标 round，无法判定（放行，靠 ZCode 自觉标 round）
-
-    # 查上一轮 session_id
-    project = find_current_project(sc_config)
+    # ===== M1/M2: 严格模式（命中"评审方"字样后，项目/round 元数据必须齐备）=====
     problems = []
+
+    # M1: CURRENT_REVIEW_PROJECT 必填
+    project, proj_reason = find_current_project(sc_config)
+    if proj_reason == "env_missing":
+        problems.append(
+            f"未设环境变量 CURRENT_REVIEW_PROJECT（M1，round2 三方共识：删兜底扫描，最坏失败是续接错误会话）。\n"
+            f"调评审前请内联注入：`CURRENT_REVIEW_PROJECT=<项目名> mira -p ...`"
+        )
+
+    # M2: CURRENT_REVIEW_ROUND 必填
+    current_round, round_reason = identify_current_round_from_env(sc_config)
+    if round_reason == "env_missing":
+        problems.append(
+            f"未设环境变量 CURRENT_REVIEW_ROUND（M2，round2 三方共识：regex 抓首个 round 被 prompt 描述历史绕过）。\n"
+            f"调评审前请内联注入：`CURRENT_REVIEW_ROUND=<N> mira -p ...`（如 round2 则设 2）"
+        )
+    elif round_reason.startswith("env_invalid"):
+        problems.append(
+            f"CURRENT_REVIEW_ROUND 值非法（{round_reason}），必须是数字或 roundN 格式（M2）。"
+        )
+
+    # M2 交叉校验：环境变量与命令文本里的 round 不一致 → warn（写入 stderr，不 deny）
+    # （prompt 可能描述历史 round，不一致不一定是错，只提示）
+    if current_round is not None:
+        cmd_round = scan_round_in_command(command)
+        if cmd_round is not None and cmd_round != current_round:
+            sys.stderr.write(
+                f"[session-gate] M2 交叉校验 warn: CURRENT_REVIEW_ROUND={current_round} "
+                f"但命令文本含 round{cmd_round}（可能是描述历史，请确认环境变量正确）\n"
+            )
+
+    # 项目/round 不齐 → 直接 deny（M1/M2 fail-closed），不进入 session 查询
+    if problems:
+        print(json.dumps({
+            "decision": "block",
+            "reason": build_deny_reason("\n".join(f"- {p}" for p in problems)),
+        }, ensure_ascii=False))
+        sys.exit(2)
+
+    # ===== session 续接校验（项目/round 都齐备后）=====
     for r in reviewers_in_cmd:
         # 只对 mira 平台且在 platforms_with_continuity 内的评审方校验
         reviewer_info = config_data.get("reviewers", {}).get(r, {})
@@ -199,19 +294,33 @@ def main():
         platform = reviewer_info.get("platform", "")
         continuity_platforms = sc_config.get("platforms_with_continuity", [])
         if not any(p in platform for p in continuity_platforms):
-            continue  # C (qoder) 不校验
+            continue  # C (qoder) 不校验续接
+
         prev_sid, reason = find_prev_session_id(project, r, current_round, sc_config)
-        if reason == "archived":
-            continue  # 归档项目放行
-        if prev_sid is None:
-            continue  # 无 roundN-1 记录（可能是真首轮或记录缺失），放行
-        # 有 prev_sid，校验本次命令是否用了正确的 -r
+        if reason in ("archived", "first_round", "no_prev_sid", "project_not_in_index"):
+            continue  # 归档/首轮/无记录/未登记 → 放行
+        if reason == "expired":
+            # M5: 上轮 session 过期，放行 fresh，但提示 prompt 必须内嵌上轮结论
+            sys.stderr.write(
+                f"[session-gate] M5: 评审方 {r} round{current_round-1} session 已过期"
+                f"（在 expired_rounds 里），本次放行 fresh。"
+                f"**评审 prompt 必须内嵌 round{current_round-1} 结论摘要**"
+                f"（补偿上下文，对齐北极星终局第 4 条）。\n"
+            )
+            continue
+        if reason == "index_不可读":
+            problems.append(
+                f"评审方 {r}: review-sessions-index.yaml 不可读（M5 降级失败），需修复 index 或登记 expired_rounds"
+            )
+            continue
+        # reason == "ok"，有 prev_sid，校验 -r
         used_sid = extract_resume_id(command, sc_config)
         if not used_sid:
             problems.append(
                 f"评审方 {r} round{current_round} 未用 -r 续接。"
                 f"应加 `-{sc_config.get('resume_arg', 'r').lstrip('-')} {prev_sid}` "
-                f"（round{current_round-1} 的 session_id）"
+                f"（round{current_round-1} 的 session_id）。"
+                f"若该 session 已过期，在 index 的 expired_rounds 加 {current_round-1} 后可 fresh。"
             )
         elif used_sid != prev_sid:
             problems.append(

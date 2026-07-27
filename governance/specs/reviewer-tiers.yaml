@@ -69,5 +69,7 @@ session_continuity:
   resume_arg: "-r"                             # mira -p ... -r <session_id>
   session_id_field: "session_id"               # mira json 输出里取 session_id 的字段
   record_index: "archive/review-sessions-index.yaml"  # 评审会话归类索引（所有项目）
-  current_project_env: "CURRENT_REVIEW_PROJECT"  # ZCode 调评审前 export 当前项目名
+  current_project_env: "CURRENT_REVIEW_PROJECT"  # ZCode 调评审前 export 当前项目名（M1：缺失 → deny）
+  current_round_env: "CURRENT_REVIEW_ROUND"    # round2+ 加这个，hook 从此读 round 号（M2：缺失 → deny，不靠 regex 扫命令）
   archived_status: "ARCHIVED"                  # 项目归档后不再续接
+  expired_rounds_field: "expired_rounds"       # M5：过期轮次列表（如 [1, 2]），hook 见 roundN-1 在此则放行 fresh
