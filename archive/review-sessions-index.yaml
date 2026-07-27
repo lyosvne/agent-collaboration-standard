@@ -70,13 +70,15 @@ projects:
 
   - project: so12-bootstrap-gate
     review_dir: archive/governance-review-so12-bootstrap-gate-20260728/
-    status: REVIEWING  # round1 三方 CONDITIONAL，修后走 round2
-    notes: SO-12 compact 续接 bootstrap 强制机制。治 SO-11-v2-2 实施时跳链 3 次的根因。
+    status: ARCHIVED  # round2 三方 PASS（2026-07-28）
+    notes: SO-12 compact 续接 bootstrap 强制机制。治 SO-11-v2-2 实施时跳链 3 次的根因。round2 -r 续接成功。
     reviewer_sessions:
       A:  # opus4.8p 会话链
         round1: "222764348435"  # 2026-07-28 round1 fresh
+        round2: "222764348435"  # 2026-07-28 round2 -r 续接 round1（session_id 一致）
       B:  # gpt5.6sol 会话链
         round1: "222472563219"  # 2026-07-28 round1 fresh
+        round2: "222472563219"  # 2026-07-28 round2 -r 续接 round1（session_id 一致）
 
   # ===== 未来项目（按此模板登记）=====
   # 模板：

@@ -175,3 +175,34 @@
     详见 review-round2-PASS.md。
     v2-3 backlog：expired_rounds per-reviewer 化 / 内嵌摘要完整性锚 / 迁移债务任务板登记 /
     填充责任人明确 / hook warn 可观测性 / 门禁证据归档制度化 / 单一 schema 源 / 性能优化。
+
+# SO-12 compact 续接 bootstrap 强制机制（2026-07-28，治 SO-11-v2-2 实施时跳链根因 / round2 三方 PASS）
+- gate_id: so12-bootstrap-gate
+  files:
+    - .zcode/hooks/bootstrap-inject-sessionstart.py
+    - .zcode/hooks/bootstrap-gate-precommit.py
+    - .zcode/hooks/_bootstrap_common.py
+    - .zcode/hooks/test-bootstrap-gate.py
+    - .zcode/config.json
+  verdict: PASS
+  trigger_class: [4]  # 新增 hook 脚本（治理基础设施）+ AGENTS.md 治理规则
+  review_dir: archive/governance-review-so12-bootstrap-gate-20260728/
+  pass_round: round2
+  commit_sha: pending  # 本 commit 后回填
+  date: 2026-07-28
+  reviewer: [A, B, C]
+  notes: |
+    compact 续接 bootstrap 强制机制。治 SO-11-v2-2 实施时跳链 3 次根因
+    （compact summary 有损 + 新 session 不主动 reload 真值 + 事实层/叙事层未分离）。
+    核心洞察：SO-11-v2-2 M1/M2 思路（显式传入 + fail-closed）是跨边界状态传递的元原则，
+    从评审调度（跨 agent 边界）扩到 session bootstrap（跨 session 边界）。
+    round1 三方 CONDITIONAL（5 必修：M1 删 8h 时间窗 / M2 标记加 truth hash /
+    M3 bootstrap-gate 移第 1 位 / M4 自举规则成文 / M5 动手正则 + 威胁模型声明）。
+    round2 eat own dogfood：A/B 用 mira -r 续接 round1（session_id 一致，评审方回忆 round1 必修）。
+    C 实证抽查 master 发现 SO-12 未合入（合入要求，本 commit 处理）。
+    15/15 bootstrap-gate + 14/14 session-gate + 29/29 chain-gate + 6/6 drift-gate + lint exit 0。
+    _bootstrap_common.py 共享模块独立验证通过。
+    详见 review-round2-PASS.md。
+    v2-13/SO-13 backlog：Aetheris 审计轨迹 / 编队原则提炼进 governance / 四闸门拦截矩阵 /
+    truth_patterns 扩展 / SessionStart hook 单测 / hook 性能预算 / 共享模块 fail-closed /
+    config.json 顺序 lint / AGENTS.md 纳入 truth hash 集 / env 入口覆盖确认。

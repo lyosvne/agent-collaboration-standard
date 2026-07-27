@@ -1,0 +1,41 @@
+# 评审方 B (gpt5.6sol) SO-12 round2 - 续接 round1 session 222472563219
+session_id: 222472563219 (续接成功，与 round1 一致)
+duration: 40651ms
+
+---
+
+# SO-12 评审报告（评审方 B / gpt5.6sol / round2 复核）
+
+**verdict**: **PASS（附 2 独立任务待办）**
+
+理由：round1 三个 BLOCKER/硬伤（D2 正则、D3 顺序、D4 路径+时间窗）已全部实修并通过 15/15 单测；剩余 3 项（truth_patterns 扩展、SessionStart 单测、hook 性能预算）已明确降为独立任务，不阻塞本次合入。核心机制自洽——**session_id 严格匹配 + truth_hash 漂移检测**共同消除了 compact 续接的两类真值失联（session 切换 / 真值被改），fail-closed 语义完整。
+
+---
+
+## D1-D6 逐项复核
+
+- **D1【单测覆盖度】PASS（附建议）**：B10-B15 新增覆盖了 round1 提的 `>file`/cp/python open/truth_drift/只读放行；B3/B9 修正对应删时间窗。仍缺 3 类：`truth_files_seen=[]`、双 unknown session_id、并发写标记——不阻塞（都是低概率旁路，建议下一轮补）。
+- **D2【识别逻辑】PASS**：M5 正则清单已消除 round1 全部已列举漏洞（`>+\s*\S` 覆盖无空格 + cp/mv/install/truncate/sed -i/tee + `python -c ... open(...,'w'/'a')` + emacs/gedit/code -w）。truth_patterns 扩展降为独立任务**可接受**——当前 3 文件清单是本次 SO-12 事故域的最小闭包，扩展是长期治理动作，不阻塞合入。
+- **D3【规则冲突】PASS**：M3 已把 bootstrap-gate 移到 PreToolUse 第 1 位，且 AGENTS.md 锁定顺序契约。hook 链短路语义正确——bootstrap-gate 先跑，未 bootstrap 直接 deny，后续 3 个 gate 建立在"bootstrap 已完成"前提上判定，鸡生蛋问题消除。
+- **D4【数据一致性】PASS**：M1 删时间窗口 + M2 truth_hash 校验组合拳直接消灭 round1 两个隐患——session_id 严格匹配堵住"跨 session 复用标记"，truth_hash 漂移检测堵住"标记有效但真值已变"。比 round1 建议的"project 级 + session_id 后缀路径"更彻底（连路径歧义都不用讨论了，因为 hash 不匹配就 deny 重跑）。
+- **D5【配置健壮性】CONDITIONAL（不阻塞）**：SessionStart hook 无单测确实是残留盲区，但降级理由合理——SessionStart 事件需重启 session 实测，属于 e2e 范畴，不适合放进本次 unit test 批次。**接受降为独立任务**，但要求：独立任务必须在下个 sprint 关闭，且在此期间任何 SessionStart hook 代码改动必须触发人工重启验证。
+- **D6【hook 共存】CONDITIONAL（不阻塞）**：6 hook 性能未实测但可接受延后。前提是**独立任务需给出 P95 延迟基线**——PreToolUse 链 4 个 hook 串行，单个 hook 若冷启动 50ms+，链总耗时 200ms+ 会明显影响 Bash 响应体感。降级前建议至少做一次粗测（`time` 包一下动手命令）确认无退化。
+
+---
+
+## 必修项
+
+**（无）** ——round1 三 BLOCKER 全部消解，本次可合入。
+
+## 建议项
+
+1. **[D1]** 下一轮补 3 case：`truth_files_seen=[]`（标记半损坏）、双 unknown session_id（避免误匹配）、并发写标记（原子写 `.tmp + rename`）。
+2. **[D2 独立任务]** truth_patterns 改为白名单目录 + `.agents/rules/truth-files.yaml` 自描述清单，避免每加一个真值文件都要改代码。
+3. **[D5 独立任务]** SessionStart hook 单测方案：3 case（三件套齐全 / 缺 1 / 全缺），验证 additionalContext 内容 + 标记写入 + truth_hashes 字段完整性；建议本 sprint 内关闭。
+4. **[D6 独立任务]** 加性能预算——PreToolUse 链 P95 < 200ms，超过引入并行或缓存；给 bootstrap-gate 加进程内 60s TTL 缓存避免同 session 高频动手重复读标记 + 重复 hash 计算（**hash 计算是新增开销，比 round1 只读标记更重，建议尽早测**）。
+5. **[新增关注点]** M2 的 `compute_truth_hash()` 每次 PreToolUse 都要读三件套算 sha256，5-10KB 文件 × 3 单次约 <5ms，可接受；但若三件套变大或数量扩展（见建议 2），需同步引入 mtime 短路（mtime 未变跳过 hash 计算）。
+
+---
+
+**评审方 B / gpt5.6sol / round2 完**
+关键判定：**3 BLOCKER 全消，机制自洽，可 PASS**。剩余 3 独立任务方向清晰，不阻塞。唯一需盯的新增开销点是 M2 的 hash 计算频率——独立任务 D6 落地时一并测。

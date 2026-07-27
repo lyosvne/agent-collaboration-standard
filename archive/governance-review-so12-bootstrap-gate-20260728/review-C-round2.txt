@@ -1,0 +1,45 @@
+📤 发送到 Qoder [qoder-cantus/cmodel]: 这是 SO-12 评审项目 round2 复核。你是评审方 C（cantus，编队主架构师视角）。
+
+注：qoder-bridge 无 -r，prompt 内嵌...
+
+⏱ 耗时: 133.1s  状态: done
+🆔 会话: sess_00kl7fqq7ebcwcj1pbcv
+
+💬 回复:
+沙箱 /data、/mnt 为空，先尝试从 GitHub 真值仓库拉取修复后代码做实证复核。已读调度上下文，并实证抽查了 `agent-collaboration-standard` origin/master（根目录 / scripts/ / .zcode/ / .zcode/hooks/）。先声明证据边界：**master 上未见 `_bootstrap_common.py`、`bootstrap-gate-pretooluse.py`、bootstrap inject 等 SO-12 文件**（.zcode/hooks/ 只有 chain/session/review/tiers-drift 四件），本复核基于 prompt 陈述 + 测试计数 + 真值仓库现状交叉判断。
+
+---
+
+## verdict: **PASS**（附 1 项合入要求 + 3 项登记确认）
+
+## C-M1/M2/M3 逐项
+
+| 项 | 判定 | 理由 |
+|---|---|---|
+| **C-M1**（删 8h 兜底） | **PASS** | 删除 `BOOTSTRAP_TTL_SECONDS`、`is_marker_valid` 收敛为纯 session_id 校验，env 缺失 → deny，是我 round1 要求的正解：不留任何把 fail-closed 变 fail-open 的时间通道。 |
+| **C-M2**（自举规则成文，round2 编号 M4） | **PASS** | "重跑 bootstrap / 重启 session 是唯一通过方式 + 标记只能由 SessionStart hook 产生 + 禁止伪造 + 无部署窗口豁免"四要素齐，正是"满足闸门不是绕过"的成文化。 |
+| **C-M3**（真值版本锚，round2 编号 M2） | **PASS** | 三件套 sha256[:16] 进标记、gate 重算比对、不一致 → deny(truth_drift)，闭合了"读过但读的是旧版"漏洞。64bit 截断在本威胁模型（防漂移，非防对抗碰撞；伪造已由 M4+hook 唯一产源治理）下足够。 |
+
+## Q2：内容 sha256 vs commit sha
+
+**认可用户决策，内容 sha256 是更强的锚，符合我 round1 主张。** 我 round1 原文是 "commit sha/content hash" 并列，两者中内容 hash 严格更优：commit sha 检测不到 dirty working tree 的未提交改动，且依赖 git 环境；内容 hash 在任何消费端（ECS 镜像、云端 WebFetch 场景）都可独立重算。不是二选一的补充：**Aetheris 审计事件里可同时附 commit sha（如可得）作为人类可读追溯锚**——content hash 判真伪，commit sha 供定位，互补。
+
+## Q3/Q4/Q5：三项独立任务登记确认
+
+**均未见登记证据。** 我逐项核对了 dispatch/all 聚合（路线图 v1.10 当前位置、O1 待办、节点缺口清单 #5-#12）：
+
+- Q3 Aetheris 审计轨迹（bootstrap 事件异步写入）— **未登记**
+- Q4 governance/ 编队原则提炼（session 边界重载真值 + fail-closed）— **未登记**
+- Q5 四闸门统一拦截矩阵 — **未登记**（AGENTS.md 锁了 bootstrap-gate 第 1 位契约，但那是顺序契约，不是拦截矩阵）
+
+这三项是我 round1 的建议项而非必修，不阻断 verdict，但**请在本轮收尾时登记进路线图待办或 Aetheris task**，否则 round1→round2 的评审记忆会在此断链——这恰是编队反复付过学费的漂移模式。
+
+## 新发现问题
+
+1. **（合入要求）SO-12 修复未在 origin/master**。实证：master 的 `.zcode/hooks/` 无任何 bootstrap 文件。按红线"git 真值不可绕过"，M1-M5 修复目前只是本机状态；bootstrap-gate 自身若不入硬真值，闸门代码本身就是最大的漂移源。评审通过后请走审批合入 master 并同步 ECS mirror。
+2. **（观察）env 缺失全 deny 的入口覆盖**：需确认 ZCode 所有启动路径（含非交互/被调度场景）都会触发 SessionStart hook 注入 session_id，否则 fail-closed 退化为"永久锁死"，会诱发人为绕过——这是纪律被架构逼出违规的经典路径。
+3. **（观察）AGENTS.md 不在三件套 hash 集内**：自举规则和闸门顺序契约本身写在 AGENTS.md，它的漂移当前检测不到。建议纳入 truth hash 集，或在威胁模型边界段显式记录该取舍。
+
+## 与 Aetheris 蓝图对齐度
+
+修复后闸门族从"时间信任"收敛为"session + 内容锚定的 fail-closed"，与蓝图"真值不可绕过、自动化可审计可制动"的对齐度明显提升；剩余缺口集中在沉淀环——bootstrap 事件尚未流入 Aetheris 审计轨迹（Q3 任务落地即闭合）。

@@ -1,0 +1,68 @@
+# 评审方 A (opus4.8p) SO-12 round2 - 续接 round1 session 222764348435
+session_id: 222764348435 (续接成功，与 round1 一致)
+duration: 41655ms
+
+---
+
+# SO-12 Round2 复核 — 评审方 A（opus4.8p，续接 round1）
+
+**verdict: PASS**
+
+Round1 我给的 4 必修（M1 威胁模型 / M2 引导悖论 / M3 标记新鲜度+完整性 / M4 写为什么）在 round2 全部落地，且实现比我 round1 建议的更收敛（尤其 M2 选"重启 session"而非"手动 seed"，比我倾向的硬路径更简洁可审计——认这个升级）。三方共识 M1–M5 无遗漏。
+
+---
+
+## Round1 我的 4 必修逐项确认
+
+**A-M1（威胁模型收敛）→ PASS**
+M5 把"防诚实健忘不防主动规避"写进 AGENTS.md "威胁模型边界"段，漏判场景（变量拼接/eval/bash -c curl）显式声明为设计边界。边界清晰，未来不会被误当安全边界用。
+
+**A-M2（引导悖论）→ PASS**
+M4 自举规则成文，"闸门自身评审时通过方式是重跑 bootstrap 或重启 session，禁止伪造标记 + 标记只能由 SessionStart hook 产生"。硬路径够硬——比我 round1 倾向的"手动 seed"更好：seed 是引入新入口，重启是复用已有入口，攻击面更小，可审计性更强（重启 = SessionStart hook 触发，全链路走既定路径）。
+
+**A-M3（标记新鲜度 + 完整性）→ PASS**
+M1（删 8h 时间窗）+ M2（truth hash 校验）组合完整。删时间窗消除了"新鲜度靠时钟"的软约束，truth hash 覆盖了"三件套漂移"的完整性缺口。session_id 缺失直接 deny + 提示重启，fail-closed 语义完整。`_bootstrap_common.py` 模块独立化也对——inject 和 gate 用同一份 hash 算法，避免双实现漂移。
+
+**A-M4（AGENTS.md 写为什么）→ PASS**
+"为什么需要这个准则"段写了根因（事实层 vs 叙事层未分离，agent 用叙事层记忆代替事实层查询）。这是防 SO-13 再跳链的关键——SOP 会被遗忘，根因写进去下次 fresh session 至少能自己推出 SOP。加上 Q5 元原则（跨边界状态传递）成文，这一节已经是治理工程级别的文档，不是临时补丁说明。
+
+---
+
+## 三方共识 M1–M5 确认
+
+| 项 | 结论 | 一句话 |
+|---|---|---|
+| M1 删 8h 窗口 | **PASS** | 纯 session_id 校验 + 无 env 直接 deny，B3/B9 测试覆盖 |
+| M2 truth hash | **PASS** | 共享模块 + inject 写入 + gate 校验，B10/B11 覆盖 drift 和一致场景 |
+| M3 bootstrap-gate 移第 1 位 | **PASS** | 顺序契约写进 AGENTS.md 是关键——不写死顺序，下次改 config.json 会退化 |
+| M4 引导悖论硬路径 | **PASS** | 见 A-M2 |
+| M5 动手识别 + 威胁模型 | **PASS** | 正则补 `>+\s*\S` / cp/mv/tee/sed -i / python open(w) / 编辑器，B12–B15 覆盖典型漏判 |
+
+---
+
+## 新发现问题
+
+Round2 复核过程中的两个观察，**不构成 blocker**，标注为下一轮或 SO-13 的关注项：
+
+1. **共享模块 `_bootstrap_common.py` 的失败模式**：如果这个模块自身损坏（import 失败），inject 和 gate 都会崩。建议加一条 fail-closed 契约——`_bootstrap_common.py` import 失败时，gate 应视为**未 bootstrap** 直接 deny，而不是抛异常让 hook 崩掉被 ZCode 忽略。这是"共享模块的 fail-closed"，round1 没提是因为 round1 没这个模块。可以下一轮加。
+
+2. **hook 顺序契约的执行验证**：AGENTS.md 写死了顺序，但没有 CI/pre-commit 校验 `config.json` 里的实际顺序与 AGENTS.md 声明一致。跳链教训里第 2 条（改到 home 级 hook）就是"文档说一套代码做一套"的类型。建议加一个极简的 lint——读 config.json 的 PreToolUse 顺序，比对 AGENTS.md 里的锚定段，不一致则 lint fail。这个是治理工程的"文档-真值一致性"元问题，可以在 SO-13 单开。
+
+以上两条都是**增量优化**，不影响 SO-12 通过。
+
+---
+
+## 覆盖范围声明
+
+本次 PASS 覆盖：
+- Round1 我的 4 必修（M1–M4）全部落地
+- 三方共识 M1–M5 全部落地
+- 验证覆盖充分：bootstrap-gate 15/15 + 下游 hook 不破坏（14+29+6）+ lint exit 0 + 共享模块独立验证
+
+**不覆盖**（明确排除，非 blocker）：
+- 主动规避型威胁（变量拼接 / eval / bash -c curl / ssh 到非 aether host）——这是 M5 显式声明的设计边界
+- 共享模块 `_bootstrap_common.py` 自身损坏时的 fail-closed 行为——新发现问题 #1，留待增量
+- config.json 顺序与 AGENTS.md 声明的一致性 lint——新发现问题 #2，留待 SO-13
+- ZCode harness 层的 compact summary 结构改造——非本项目可控范围，round1 已论证
+
+**通过。SO-12 可以 merge**。跳链根因（记忆模型/事实层 vs 叙事层）已成文，元原则（跨边界状态传递）已抽象，机制（SessionStart 注入 + PreToolUse fail-closed）自洽。这是 SO-11-v2-2 M1/M2 思路的正确延展。

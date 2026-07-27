@@ -2,10 +2,27 @@
   "hooks": {
     "enabled": true,
     "events": {
+      "SessionStart": [
+        {
+          "matcher": "compact|resume|clear|startup",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "python \"${ZCODE_PROJECT_DIR}/.zcode/hooks/bootstrap-inject-sessionstart.py\"",
+              "timeout": 10
+            }
+          ]
+        }
+      ],
       "PreToolUse": [
         {
           "matcher": "Bash",
           "hooks": [
+            {
+              "type": "command",
+              "command": "python \"${ZCODE_PROJECT_DIR}/.zcode/hooks/bootstrap-gate-precommit.py\"",
+              "timeout": 5
+            },
             {
               "type": "command",
               "command": "python \"${ZCODE_PROJECT_DIR}/.zcode/hooks/review-gate-precommit.py\"",
