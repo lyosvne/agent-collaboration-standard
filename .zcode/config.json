@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "enabled": true,
+    "events": {
+      "PreToolUse": [
+        {
+          "matcher": "Bash",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "python \"${ZCODE_PROJECT_DIR}/.zcode/hooks/review-gate-precommit.py\"",
+              "timeout": 5
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -237,15 +237,16 @@ ZCode 自我开脱"B 层是小改动"是错的。加端点是真设计决策：
 
 ### 8.4 防复发措施（强制触发条件）
 
-**今后以下动作必须 pre-commit 三方评审**（节点纪律强化）：
-1. 改 `/opt/pi-orchestrator/extensions/dispatch-server.py`（治理契约对外接口）
-2. 改任何 ECS systemd 服务文件 / `.service` unit
-3. 改 dispatch-server 端点（加/改/删路由）
-4. 改 drift-cron.sh / drift-check.sh / conflict-tracker.py（漂移治理核心脚本）
-5. 改 dispatch-server 鉴权逻辑（AUTH_KEY/IP allowlist/Caddy auth）—— round3 `/dispatch/drift` 加 AUTH_KEY 就走了完整 pre-commit Plan Mode 流程（先 plan → 用户审 → 应用 → 验证 → 评审），是 §8.4 的首个正面案例
-6. 改 drift-cron.sh / drift-check.sh（2026-07-27 C 层补：drift-check.sh 去硬编码读 drift-config.json，是第 4 类首次触发）—— **教训**：派 Explore agent 探明 Aetheris 分支时报告"agent/mira 不存在"，据此让用户决策"修配置去 mira"，但 drift-check.sh 实测应用后发现 mira 真实存在（head=c51a93a7）。**根因**：探明与实际部署之间有时间窗，且 `git branch -r` 依赖本地 fetch 时机。**改进**：凡涉及"远端有什么"的事实，应**先跑实际命令（drift-check.sh / git ls-remote）**再让用户决策，不要基于二手探明报告让用户做配置裁定
+> **2026-07-27 迁移 / 2026-07-25 单源化修订**：强制触发清单的**唯一事实源**是 `governance/specs/governance-review-process.md` §四.步骤0。本节**不再保留清单内容**（避免双源漂移），只留历史成因反思 + 指针。
+>
+> 查强制清单（6 类 ECS 改动必须 pre-commit 评审）→ `governance-review-process.md` §四.步骤0
+> 查闸门状态记录 → `governance/specs/pre-commit-review-gate-log.yaml`
 
-**强制机制**：ZCode 在 Plan Mode 出方案时，若命中以上任一，必须在 plan 里显式标"⚠️ pre-commit 三方评审强制触发"，否则用户应拒绝批准。
+**历史成因**（教训反思，不作为清单）：
+- 2026-07-27 Pi 治理纳入 B/C 层 3 次跳过 pre-commit 评审（bac6e95 / fail-open round2 / round3），事后补审。当时 §8.4 只写在 lessons 反思层，无强制触发机制，靠 ZCode 自觉每次都跳。
+- 用户原话："现在的问题不在自审自修，都是你修，但是你总是忘了审。" 真根因是评审环节**没有强制触发机制**。
+- 2026-07-25 修复方案（meta-review-gate）：强制清单迁到 spec 流程层（§四.步骤0）+ PreToolUse hook（`review-gate-precommit.py`）Hard deny + 闸门日志表（YAML，files 精确等值）。详见 `archive/governance-review-meta-review-gate-20260725/`。
+- 第 6 类远端事实探明教训（mira 案例）：派 Explore agent 探明 Aetheris 分支时报告"agent/mira 不存在"，但 drift-check.sh 实测应用后发现 mira 真实存在（head=c51a93a7）。**改进**：凡涉及"远端有什么"的事实，应**先跑实际命令（drift-check.sh / git ls-remote）**再让用户决策，不要基于二手探明报告让用户做配置裁定。详见 `governance-review-process.md` §四.步骤0 强制清单第 6 项。
 
 ### 8.5 教训
 

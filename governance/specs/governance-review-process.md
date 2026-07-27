@@ -81,6 +81,39 @@ supersedes: []
 
 ## 四、评审流程（每个节点统一执行）
 
+### 步骤 0：pre-commit 评审前置闸门（强制触发）
+
+**强制触发条件**（任一命中必须先走三方评审，PASS 后才能改 ECS/写 patch 脚本/scp 部署）：
+
+| # | 触发类 | 描述 |
+|---|--------|------|
+| 1 | dispatch-server.py | 改 `/opt/pi-orchestrator/extensions/dispatch-server.py`（治理契约对外接口） |
+| 2 | systemd unit | 改任何 ECS systemd 服务文件 / `.service` unit |
+| 3 | 端点路由 | 改 dispatch-server 端点（加/改/删路由） |
+| 4 | 漂移核心脚本 | 改 drift-cron.sh / drift-check.sh / conflict-tracker.py（漂移治理核心脚本） |
+| 5 | 鉴权逻辑 | 改 dispatch-server 鉴权（AUTH_KEY / IP allowlist / Caddy auth） |
+| 6 | drift-check.sh | 改 drift-check.sh（含远端事实探明的场景，详见 lessons §8.4 第 6 项 mira 教训） |
+
+**闸门流程**：
+1. 命中任一 → Plan Mode 出方案（必须显式标 `⚠️ pre-commit 三方评审强制触发`）
+2. 用户批准 plan
+3. 新建 `archive/governance-review-<对象>-<date>/` 评审目录
+4. 走步骤 1-5 三方评审，直到三方一致 PASS
+5. **PASS 后**才允许写 patch 脚本（`apply-<对象>-<date>.py`）+ scp 到 ECS + 重启服务
+6. 在 `governance/specs/pre-commit-review-gate-log.md` 追加一行（对象 / commit SHA / 触发类 / 评审目录 / PASS 轮次 / 状态=PASS）
+
+**强制机制**：
+- ZCode 在 Plan Mode 出方案时，若命中以上任一，必须在 plan 里显式标"⚠️ pre-commit 三方评审强制触发"，否则用户应拒绝批准
+- ZCode 应用层 PreToolUse hook（`~/.zcode/hooks/review-gate-precommit.py`）会在 `scp/ssh` 到 ECS 且匹配 `apply-*.py` 或 `/opt/pi-orchestrator` 写路径时，**Hard deny**——查闸门日志表无对应 PASS 条目即阻断
+- 紧急 hotfix 可写 `.review-gate-override.json`（30 分钟窗口）绕过，但闸门表会留"override 跳闸"记录（不推荐）
+
+**反面案例**（写入 `review-process-lessons.md` §8）：2026-07-27 Pi 治理纳入 B/C 层三次跳过此闸门，事后补审，根因是当时无强制触发机制（本步骤 0 + hook 是修复方案）。
+
+**循环闭合声明**（2026-07-25 meta-review-gate round2 加，C 裁定）：
+- **本机制自身的变更属强制评审对象**。改 `review-gate-precommit.py` / `pre-commit-review-gate-log.yaml` schema / 本 §四.步骤0 强制清单 / `.zcode/config.json` hook 挂载点 → 命中本步骤 0，必须走三方评审。这把"修评审流程的方案走评审"从循环依赖闭合为自指但良性的结构。
+- **覆盖缺口声明**：本闸门**只覆盖 ZCode 路径**（PreToolUse 拦 ZCode 的 Bash 调用）。Kimi / Trae SOLO 等其他 agent 直接碰 ECS 不受本闸门控制。可接受——过去 3 次跳审全是 ZCode，先修出血点；其他 agent 的治理靠 ECS 侧 drift-check 兜底（漂移发现）+ 编队分工纪律。
+- **威胁模型边界**：hook 是"防忘记"不是"防恶意"。agent 主动改写命令文本（rsync/sftp/管道/IP 拆分）可绕过——这是设计边界不是 bug。防恶意需 ECS 服务端闸门（部署入口校验 PASS token），是 v2 演进方向（SO-3）。
+
 ### 步骤 1：准备评审材料包
 ZCode 为每个交付准备：
 1. **交付物本身**（文档/diff/代码）
@@ -112,6 +145,8 @@ ZCode 汇总三方意见，输出：
 - 三方评审原文
 - 汇总报告
 - 用户裁决（如有）
+
+**ECS 改动额外要求**：若本次评审命中 §四.步骤 0 强制清单（改 ECS 脚本/端点/鉴权），PASS 后必须在 `governance/specs/pre-commit-review-gate-log.md` 追加一行（对象 / commit SHA / 触发类 / 评审目录 / PASS 轮次 / 状态=PASS），否则下次部署会被 PreToolUse hook 阻断。
 
 ## 五、项目上下文摘要（所有评审方必读）
 

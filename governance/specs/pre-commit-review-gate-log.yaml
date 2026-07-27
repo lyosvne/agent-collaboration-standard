@@ -1,0 +1,75 @@
+# Pre-commit 评审闸门日志（唯一事实源）
+#
+# 字段约定：
+#   gate_id      : 闸门对象唯一标识（patch 脚本命名 apply-<gate_id>.py 必须与此精确等值匹配）
+#   files        : patch 文件名精确列表（hook 提取 apply-*.py 的 <gate_id> 后查 gate_id 字段）
+#   verdict      : PASS / 事后补审 / override / REVIEWING
+#   trigger_class: governance-review-process.md §四.步骤0 强制清单编号（1-6，可多选）
+#   review_dir   : archive/governance-review-<对象>-<date>/
+#   pass_round   : 走到第几轮才三方一致 PASS（round1/round2/round3）
+#   commit_sha   : 对应 fix(pi-governance): commit 短 SHA
+#   date         : patch 应用日期（YYYY-MM-DD）
+#   reviewer     : 评审方组合（A/B/C）
+#   expires      : 可选，PASS 有效期截止（ISO 日期），不填则永久
+#   override_reason: 仅 verdict=override 时必填，紧急 hotfix 原因
+#
+# Hook 读取：~/.zcode/hooks/review-gate-precommit.py 在 scp/ssh 到 ECS 且匹配
+#   apply-*.py 或 /opt/pi-orchestrator 写路径时，读本表判定是否已有 PASS 条目；无则 deny。
+#
+# 维护方：ZCode（每次 ECS patch PASS 后追加；每次"事后补审/override"也必须留痕）。
+#
+# 历史回填（2026-07-27 三条，发生在闸门机制建立之前，是 §8.4 漏执行根因分析的输入案例）：
+
+- gate_id: pi-b-layer
+  files:
+    - apply-b-layer-20260727.py
+    - apply-b-layer-fix-20260727.py
+    - apply-b-layer-auth-20260727.py
+  verdict: 事后补审
+  trigger_class: [1, 3]
+  review_dir: archive/governance-review-pi-b-layer-20260727/
+  pass_round: round3
+  commit_sha: bac6e95
+  date: 2026-07-27
+  reviewer: [A, B, C]
+
+- gate_id: pi-c-layer-drift-check
+  files: [apply-c-layer-drift-check-20260727.py]
+  verdict: 事后补审
+  trigger_class: [6]
+  review_dir: archive/governance-review-pi-c-layer-20260727/
+  pass_round: round2
+  commit_sha: 6bd4804
+  date: 2026-07-27
+  reviewer: [A, B, C]
+
+- gate_id: pi-failopen
+  files: [apply-c-layer-failopen-fix-20260727.py]
+  verdict: 事后补审
+  trigger_class: [4]
+  review_dir: archive/governance-review-pi-failopen-20260727/
+  pass_round: round3
+  commit_sha: 4535842
+  date: 2026-07-27
+  reviewer: [A, B, C]
+
+# 本闸门机制自身（meta-review-gate）—— 2026-07-25 round2 修复后登记 PASS
+# 按 spec §四.步骤0 声明"本机制自身的变更属强制评审对象"，循环闭合
+- gate_id: meta-review-gate
+  files:
+    - .zcode/hooks/review-gate-precommit.py
+    - .zcode/hooks/test-review-gate.py
+    - .zcode/config.json
+  verdict: PASS
+  trigger_class: [1, 4]  # 改 governance-review-process.md（治理契约）+ hook 脚本（治理基础设施）
+  review_dir: archive/governance-review-meta-review-gate-20260725/
+  pass_round: round2
+  commit_sha: pending  # commit 后回填
+  date: 2026-07-25
+  reviewer: [A, B, C]
+  notes: |
+    本闸门机制首次落地，自身走 §四.步骤0。
+    round1：A 弃权（材料不可达）/ B CONDITIONAL（4 硬阻断）/ C CONDITIONAL（3 放行条件）。
+    round2 修复：Q3 files 精确等值（消灭子串误匹配）+ Q4 单源化（lessons 删 6 项）+
+    config 收窄 project 级 + Q1 补 rsync/IP + override 留痕 + 循环闭合声明。
+    三方共识收敛，C 裁定无需二轮全量评审。
