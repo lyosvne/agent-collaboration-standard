@@ -63,13 +63,13 @@
   verdict: PASS
   trigger_class: [1, 4]  # 改 governance-review-process.md（治理契约）+ hook 脚本（治理基础设施）
   review_dir: archive/governance-review-meta-review-gate-20260725/
-  pass_round: round2
-  commit_sha: 1c2b195
+  pass_round: round3
+  commit_sha: pending  # round3 commit 后回填
   date: 2026-07-25
   reviewer: [A, B, C]
   notes: |
     本闸门机制首次落地，自身走 §四.步骤0。
-    round1：A 弃权（材料不可达）/ B CONDITIONAL（4 硬阻断）/ C CONDITIONAL（3 放行条件）。
-    round2 修复：Q3 files 精确等值（消灭子串误匹配）+ Q4 单源化（lessons 删 6 项）+
-    config 收窄 project 级 + Q1 补 rsync/IP + override 留痕 + 循环闭合声明。
-    三方共识收敛，C 裁定无需二轮全量评审。
+    round1：A 误用 opus4.6 跳链（结论作废）/ B CONDITIONAL（4 硬阻断）/ C CONDITIONAL（3 放行条件）。
+    round2：修 B/C 共识（files 精确等值 / lessons 单源 / config project 级 / rsync+IP / override 留痕 / 循环闭合）。
+    round3：跳链纠正（用真实 opus4.8p 重调 A→PASS 撤销 round1 BLOCKER）+ fail-closed 单测钉死（C 自动降级条款）+ 路径归一化（B-Q3）+ 指针冻结（B-Q4）+ 跳链教训（lessons §8.6）+ spec §二.2.1 调度前校验。
+    三方一致 PASS。详见 review-round3-PASS.md。

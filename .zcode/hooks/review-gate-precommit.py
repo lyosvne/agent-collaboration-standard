@@ -29,8 +29,9 @@ OVERRIDE_FILE = os.path.join(SCRIPT_DIR, ".review-gate-override.json")
 
 # repo root 推断：hook 位于 <repo>/.zcode/hooks/，向上两级是 repo root
 # 环境变量优先（测试用），否则用脚本位置推断（团队 clone 零配置）
+# B-config round3：变量未定义且脚本路径推断失败时，下游 fail-closed（check_gate 返回 None）
 _DEFAULT_REPO = os.path.dirname(os.path.dirname(SCRIPT_DIR))
-REPO_ROOT = os.environ.get("AGENT_COLLABORATION_REPO", _DEFAULT_REPO)
+REPO_ROOT = os.environ.get("AGENT_COLLABORATION_REPO") or _DEFAULT_REPO
 GATE_LOG = os.path.join(REPO_ROOT, "governance", "specs", "pre-commit-review-gate-log.yaml")
 
 # ECS 主机标识：域名 + IP 直连（B-Q1 补充：domain/IP 混用是真实日常）
@@ -91,10 +92,11 @@ def extract_patch_filename(command):
 
     返回文件名（如 'apply-b-layer-20260727.py'）或 None。
     hook 用文件名查闸门表的 files 字段（精确等值），不再提取 gate_id 猜命名。
+    B-Q3 round3：强制小写归一化（Windows 大小写不敏感场景兼容）。
     """
     m = re.search(r"\b(apply-[a-z0-9-]+\.py)\b", command, re.IGNORECASE)
     if m:
-        return m.group(1)
+        return m.group(1).lower()
     return None
 
 
@@ -168,6 +170,8 @@ def check_gate_by_filename(filename):
 
     open_ids = []
     matches = []
+    # B-Q3 round3：files 字段统一小写归一化（与 extract_patch_filename 对齐）
+    target = (filename or "").lower()
     for e in entries:
         if not isinstance(e, dict):
             continue
@@ -176,12 +180,14 @@ def check_gate_by_filename(filename):
         efiles = e.get("files", []) or []
         if not isinstance(efiles, list):
             efiles = [efiles]
+        # 归一化为小写字符串列表
+        efiles_norm = [str(f).strip().lower() for f in efiles if str(f).strip()]
 
         if everdict.upper() != "PASS":
             open_ids.append(f"{eid}({everdict})")
 
-        # 文件名精确等值匹配（消灭子串推断）
-        if filename in efiles:
+        # 文件名精确等值匹配（消灭子串推断），归一化小写比较（B-Q3 round3）
+        if target and target in efiles_norm:
             matches.append((eid, everdict))
 
     if not matches:

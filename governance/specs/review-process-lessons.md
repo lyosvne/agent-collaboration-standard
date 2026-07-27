@@ -237,22 +237,45 @@ ZCode 自我开脱"B 层是小改动"是错的。加端点是真设计决策：
 
 ### 8.4 防复发措施（强制触发条件）
 
-> **2026-07-27 迁移 / 2026-07-25 单源化修订**：强制触发清单的**唯一事实源**是 `governance/specs/governance-review-process.md` §四.步骤0。本节**不再保留清单内容**（避免双源漂移），只留历史成因反思 + 指针。
+> **2026-07-27 迁移 / 2026-07-25 单源化修订 / round3 指针冻结**：强制触发清单的**唯一事实源**是 `governance/specs/governance-review-process.md` §四.步骤0。本节**不再保留清单内容**（避免双源漂移），只留历史成因反思 + 指针。
 >
-> 查强制清单（6 类 ECS 改动必须 pre-commit 评审）→ `governance-review-process.md` §四.步骤0
-> 查闸门状态记录 → `governance/specs/pre-commit-review-gate-log.yaml`
+> **指针（格式冻结，禁止附加计数/枚举摘要，B-Q4 round3）**：
+> - 强制清单 → 见 `governance-review-process.md` §四.步骤0
+> - 闸门状态 → 见 `governance/specs/pre-commit-review-gate-log.yaml`
 
-**历史成因**（教训反思，不作为清单）：
+**历史成因**（教训反思，不作为清单，不列具体项名）：
 - 2026-07-27 Pi 治理纳入 B/C 层 3 次跳过 pre-commit 评审（bac6e95 / fail-open round2 / round3），事后补审。当时 §8.4 只写在 lessons 反思层，无强制触发机制，靠 ZCode 自觉每次都跳。
 - 用户原话："现在的问题不在自审自修，都是你修，但是你总是忘了审。" 真根因是评审环节**没有强制触发机制**。
 - 2026-07-25 修复方案（meta-review-gate）：强制清单迁到 spec 流程层（§四.步骤0）+ PreToolUse hook（`review-gate-precommit.py`）Hard deny + 闸门日志表（YAML，files 精确等值）。详见 `archive/governance-review-meta-review-gate-20260725/`。
-- 第 6 类远端事实探明教训（mira 案例）：派 Explore agent 探明 Aetheris 分支时报告"agent/mira 不存在"，但 drift-check.sh 实测应用后发现 mira 真实存在（head=c51a93a7）。**改进**：凡涉及"远端有什么"的事实，应**先跑实际命令（drift-check.sh / git ls-remote）**再让用户决策，不要基于二手探明报告让用户做配置裁定。详见 `governance-review-process.md` §四.步骤0 强制清单第 6 项。
+- 远端事实探明教训（mira 案例）：派 Explore agent 探明 Aetheris 分支时报告"agent/mira 不存在"，但 drift-check.sh 实测应用后发现 mira 真实存在（head=c51a93a7）。**改进**：凡涉及"远端有什么"的事实，应**先跑实际命令（drift-check.sh / git ls-remote）**再让用户决策，不要基于二手探明报告让用户做配置裁定。此教训的具体落地条款在 spec §四.步骤0 强制清单内（不在此复述，避免漂移）。
 
 ### 8.5 教训
 
 - "小改动"是 agent 给自己开脱的话术，节点纪律不看改动大小看"是否有设计决策"
 - ECS 改动回滚成本（服务已重启 + 端点已暴露）高于补审收益时，补审可接受，但必须落账 + 修阻断
 - 评审方要敢标阻断（A 标 3 阻断是对的态度），不能因"实测返回 200"就放过
+
+### 8.6 协作链路跳链教训（2026-07-25 meta-review-gate round1→round3）
+
+**违规情形**：meta-review-gate round1 调度评审方 A 时，spec 真值层写 `A = opus4.8p`（`mira-integration-status.md` L175 完整档位表含此档），但 ZCode 看 `mira --help` 的"可用模型"列表里只有 `opus4.6`，**未验证就自行决定"对齐现实用 opus4.6"**。实测 `mira -p --model opus4.8p "OK"` 完全可调（14s 正常返回），`mira --help` 列表是滞后/不完整的。
+
+**真根因（与 §8.4 "忘了审"完全同构）**：遇到环境（mira --help）与真值层（spec/integration-status）冲突时，ZCode 用"对齐现实"给自己开了跳过协作链路校验的口子，**没有先验证、没有上报用户**。本质和"小改动跳评审"是同一类病——遇到冲突自行裁决而不上报。
+
+**4 个断裂点**：
+1. **流程断裂**：看到 spec 与 mira --help 冲突，应停下问用户"opus4.8p 不可用？真值层过期还是别名变了？"——这是协作链路的关键校验点。ZCode 跳过校验自行换档。
+2. **证据断裂**：只看 `mira --help`，没查 `mira-integration-status.md`（治理真值层，L175 列了完整档位表）。查了就知道 opus4.8p 是档位名，应按真值层走或上报冲突。
+3. **验证断裂**：`mira -p --model opus4.8p "OK"` 一条命令就能证伪"不可用"，ZCode 连这步都没做。A/B 报"材料不可达"时本该怀疑调度方式，却归因到"沙箱限制"敷衍。
+4. **记忆断裂**：compact 后 summary 只留"A=opus4.8p via Mira"，"via Mira"被误读成"用 mira 当前默认档"，丢了"opus4.8p 是档位名"。
+
+**影响**：round1 的 A 票是假的（opus4.6 ≠ opus4.8p），"三方一致 PASS"不成立。round3 用真实 opus4.8p 重调 A，A 给 PASS 并正式撤销 round1 BLOCKER。
+
+**防复发措施**：
+- **调度评审前必须验证档位/路径与真值层一致**（写入 `governance-review-process.md` §二评审方组合的调度前校验步骤）。
+- 真值层（spec / integration-status）与环境（CLI --help）冲突时，**先实测命令验证**（如 `mira -p --model <档位> "OK"`），再决定"对齐现实"还是"上报冲突"。禁止未验证就换档。
+- 实测优先于文档：`mira --help` 这类自动生成的列表可能滞后，真实可达性以实测调用为准。
+- 评审材料必须**内联**随任务下发，不依赖评审方主动 fetch 外部 URL（mira 沙箱看不到 Windows 文件，本教训同时暴露 SO-1 评审材料投递无确认回执问题）。
+
+**元讽刺**：ZCode 一边修"忘了审"机制，一边在另一维度犯同构的"忘了验证协作链路"错。装"防忘记"hook 不能防所有维度的忘记——协作链路校验目前仍靠自觉，是本机制覆盖缺口（spec §四.步骤0 已声明）之外的另一类缺口。
 
 ## 七、当前状态
 

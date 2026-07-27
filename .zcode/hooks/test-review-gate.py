@@ -224,6 +224,54 @@ def main():
     # ===== round2：override =====
     case_override(tmp_repo)
 
+    # ===== round3：C 自动降级条款（fail-closed 必须有单测钉死）=====
+
+    # Case F1: YAML 文件不存在 → deny（fail-closed）
+    case(
+        "F1【C降级条款】: YAML 不存在 → deny（fail-closed）",
+        'scp apply-b-layer-20260727.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        expected_exit=2,
+        repo_root=tempfile.mkdtemp(prefix="empty-repo-"),  # 空 repo 无 YAML
+    )
+
+    # Case F2: YAML 语法坏 → deny
+    tmp_bad_yaml = tempfile.mkdtemp(prefix="bad-yaml-repo-")
+    os.makedirs(os.path.join(tmp_bad_yaml, "governance", "specs"), exist_ok=True)
+    with open(os.path.join(tmp_bad_yaml, "governance", "specs", "pre-commit-review-gate-log.yaml"), "w") as f:
+        f.write("this is: [invalid: yaml: content\n  - broken\n   bad indent\n")  # 故意坏
+    case(
+        "F2【C降级条款】: YAML 语法坏 → deny（fail-closed）",
+        'scp apply-b-layer-20260727.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        expected_exit=2,
+        repo_root=tmp_bad_yaml,
+    )
+
+    # Case F3: 条目无 files 字段 → deny（不误放）
+    tmp_no_files = make_temp_repo("""\
+- gate_id: foo
+  verdict: PASS
+""")
+    case(
+        "F3【C降级条款】: 条目无 files 字段 → deny（不因 verdict=PASS 误放）",
+        'scp apply-foo-20260727.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        expected_exit=2,
+        repo_root=tmp_no_files,
+    )
+
+    # Case F4: 大小写归一化（B-Q3）—— Apply-B-LAYER 大写应仍匹配小写条目
+    case(
+        "F4【B-Q3归一化】: 命令里 Apply-B-LAYER.py 大写仍匹配小写 files 条目 → 放行",
+        'scp Apply-B-LAYER-20260727.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        expected_exit=0,
+        repo_root=tmp_repo,
+    )
+
+    # 清理临时 bad yaml repo
+    try:
+        shutil.rmtree(tmp_bad_yaml)
+    except Exception:
+        pass
+
     # ===== 非 Bash 工具 =====
     case_non_bash()
 
