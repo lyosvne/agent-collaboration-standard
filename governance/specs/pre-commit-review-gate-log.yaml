@@ -108,7 +108,7 @@
   trigger_class: [4]  # 新增 hook 脚本（治理基础设施）
   review_dir: archive/governance-review-so11-chain-gate-20260725/
   pass_round: round2
-  commit_sha: pending  # commit 后回填
+  commit_sha: 81cd6df
   date: 2026-07-25
   reviewer: [A, B, C]
   notes: |
