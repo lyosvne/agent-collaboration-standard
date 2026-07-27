@@ -18,6 +18,18 @@
             }
           ]
         }
+      ],
+      "PostToolUse": [
+        {
+          "matcher": "Write|Edit",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "python \"${ZCODE_PROJECT_DIR}/.zcode/hooks/tiers-drift-gate-postuse.py\"",
+              "timeout": 20
+            }
+          ]
+        }
       ]
     }
   }

@@ -79,20 +79,35 @@ def main():
     print("=" * 70)
     print()
 
-    # ===== 真值层解析 =====
+    # ===== 真值层解析（v2-1: 从 YAML 读）=====
     import importlib.util
     spec_mod = importlib.util.spec_from_file_location("cg", HOOK)
     m = importlib.util.module_from_spec(spec_mod)
     spec_mod.loader.exec_module(m)
 
-    tiers, err = m.load_reviewer_tiers_from_spec()
-    _record(tiers == {"A": "opus4.8p", "B": "gpt5.6sol", "C": "cantus"},
-            "真值层 spec §二 解析",
-            f"tiers={tiers} err={err}")
+    data, err = m.load_truth_layer()
+    reviewers = data["reviewers"] if data else {}
+    expected_tiers = {"A": "opus4.8p", "B": "gpt5.6sol", "C": "cantus"}
+    actual_tiers = {r: info.get("tier") for r, info in reviewers.items() if isinstance(info, dict)}
+    _record(actual_tiers == expected_tiers,
+            "真值层 YAML 解析（v2-1 单源）",
+            f"tiers={actual_tiers} err={err}")
+
+    # v2-1: 验证关键字从 YAML 动态读（非硬编码）
+    keywords = data["review_keywords"] if data else []
+    _record("评审方 A" in keywords and "评审方 B" in keywords and "review-package" in keywords,
+            "YAML 数据驱动：dispatch_keyword + extra keywords 都读出",
+            f"keywords={keywords}")
+
+    # v2-1: 验证 qoder pattern 从 YAML 读
+    qoder_patterns = data["qoder_patterns"] if data else []
+    _record(len(qoder_patterns) >= 1 and "cantus" in qoder_patterns[0],
+            "YAML 数据驱动：qoder dispatch_command_pattern 读出",
+            f"patterns={qoder_patterns}")
 
     known, err2 = m.load_mira_known_tiers()
     _record("opus4.8p" in known and "gpt5.6sol" in known and len(known) >= 15,
-            "真值层 mira 档位表解析",
+            "真值层 mira 档位表解析（旁路健康检查）",
             f"{len(known)} 档 err={err2}")
 
     # ===== 识别逻辑 =====
@@ -181,12 +196,12 @@ def main():
         expected_contains=["无法识别具体评审方"],
     )
 
-    # ===== 真值层解析失败 fail-closed =====
+    # ===== 真值层解析失败 fail-closed（v2-1: YAML 不存在）=====
     case(
-        "D11【fail-closed】: 空 repo（spec 不存在）+ 评审调度 → deny",
+        "D11【fail-closed】: 空 repo（YAML 不存在）+ 评审调度 → deny",
         'mira -p "你是评审方 A..." --model opus4.8p',
         expected_exit=2,
-        expected_contains=["真值层解析失败"],
+        expected_contains=["真值层 YAML 解析失败"],
         repo_root=tempfile.mkdtemp(prefix="empty-chain-"),
     )
 
@@ -213,22 +228,24 @@ def main():
     # ===== round2：C1 双源比对 + C2 回归测试 + B-N8/N9 =====
 
     # Case C1【C round1 C1】: 双源不一致 → fail-closed deny
-    # 构造临时 repo：spec §二 写 opus4.8p，但 mira-integration-status 没有 opus4.8p
+    # v2-1: 构造临时 repo：reviewer-tiers.yaml 写 opus4.8p，但 mira-integration-status 没有 opus4.8p
     tmp_repo_c1 = tempfile.mkdtemp(prefix="chain-c1-")
     specs_dir_c1 = os.path.join(tmp_repo_c1, "governance", "specs")
     os.makedirs(specs_dir_c1, exist_ok=True)
-    with open(os.path.join(specs_dir_c1, "governance-review-process.md"), "w", encoding="utf-8") as f:
-        f.write("## 二、评审方组合（三方交叉）\n\n"
-                "| **评审方 A** | Mira opus4.8p（Claude Opus 4.8 Pro）| 架构 | `mira -p` + opus4.8p 档 |\n"
-                "| **评审方 B** | Mira gpt5.6sol（GPT 5.6 Sol）| 结构化 | `mira -p` + gpt5.6sol 档 |\n"
-                "| **评审方 C** | Qoder cantus | 主架构 | qoder-bridge --tier cantus |\n\n"
-                "## 三、评审节点\n")
-    # mira-integration-status 故意只列旧档（无 opus4.8p）→ 双源漂移
+    with open(os.path.join(specs_dir_c1, "reviewer-tiers.yaml"), "w", encoding="utf-8") as f:
+        f.write(
+            "reviewers:\n"
+            "  A:\n    tier: opus4.8p\n    platform: mira\n    dispatch_keyword: 评审方 A\n"
+            "  B:\n    tier: gpt5.6sol\n    platform: mira\n    dispatch_keyword: 评审方 B\n"
+            "  C:\n    tier: cantus\n    platform: qoder\n    dispatch_keyword: 评审方 C\n"
+            "    dispatch_command_pattern: 'qoder-bridge(?:\\\\.py)?\\\\s+--tier\\\\s+cantus\\\\b'\n"
+        )
+    # mira-integration-status 故意只列旧档（无 opus4.8p）→ YAML 与平台表双源漂移
     with open(os.path.join(specs_dir_c1, "mira-integration-status.md"), "w", encoding="utf-8") as f:
         f.write("| **Cloud-O (Claude)** | opus4.6 / opus4.5 | t=Think |\n"
                 "| **GPT** | gpt5.5 / gpt5.4 | sol/luna |\n")
     case(
-        "C1【C round1 C1】: 双源不一致（spec 有 opus4.8p，mira 表无）→ deny",
+        "C1【C round1 C1】: 双源不一致（YAML 有 opus4.8p，mira 表无）→ deny",
         'mira -p "评审方 A..." --model opus4.8p',
         expected_exit=2,
         expected_contains=["双源不一致", "opus4.8p"],
@@ -275,6 +292,36 @@ def main():
     _record(ec == 2 and "[chain-gate]" in out,
             "Prefix【A】: deny 消息含 [chain-gate] 前缀",
             f"exit={ec} 含prefix={'[chain-gate]' in out}")
+
+    # ===== v2-1: YAML 单源相关 case =====
+
+    # Case V1: 真值层 YAML 缺 reviewers 字段 → fail-closed deny
+    tmp_repo_v1 = tempfile.mkdtemp(prefix="chain-v1-")
+    specs_v1 = os.path.join(tmp_repo_v1, "governance", "specs")
+    os.makedirs(specs_v1, exist_ok=True)
+    with open(os.path.join(specs_v1, "reviewer-tiers.yaml"), "w") as f:
+        f.write("# 空 YAML\nfoo: bar\n")  # 缺 reviewers 字段
+    case(
+        "V1【v2-1】: YAML 缺 reviewers 字段 → fail-closed deny",
+        'mira -p "评审方 A..." --model opus4.8p',
+        expected_exit=2,
+        expected_contains=["缺 reviewers 字段"],
+        repo_root=tmp_repo_v1,
+    )
+    try:
+        shutil.rmtree(tmp_repo_v1)
+    except Exception:
+        pass
+
+    # Case L1: lint 脚本检测漂移（spec §二 与 YAML 不一致 → exit 1）
+    LINT = os.path.join(REPO_ROOT, "scripts", "check-reviewer-tiers-drift.py")
+    if os.path.exists(LINT):
+        proc = subprocess.run(["python", LINT], capture_output=True, timeout=15)
+        _record(proc.returncode == 0,
+                "L1【v2-1 lint】: 真实 repo 一致 → exit 0",
+                f"exit={proc.returncode}")
+    else:
+        _record(False, "L1【v2-1 lint】: 脚本不存在", LINT)
 
     print("=" * 70)
     print(f"总结: {PASS_COUNT} PASS / {FAIL_COUNT} FAIL")

@@ -118,3 +118,30 @@
     deny [chain-gate] prefix + B-N8/N9 等号/大小写。
     25/25 单测 PASS。v2 backlog：YAML 单源/--reviewer 参数/服务端化/实测缓存/HTTP 缺口审计。
     详见 review-round2-PASS.md。
+
+# SO-11-v2-1 真值层 YAML 单源（2026-07-25，A/B/C 三方共识根问题）
+- gate_id: so11-v2-1-yaml-single-source
+  files:
+    - .zcode/hooks/chain-gate-precommit.py
+    - .zcode/hooks/test-chain-gate.py
+    - .zcode/hooks/tiers-drift-gate-postuse.py
+    - .zcode/hooks/test-tiers-drift-gate.py
+    - governance/specs/reviewer-tiers.yaml
+    - governance/specs/governance-review-process.md
+    - scripts/check-reviewer-tiers-drift.py
+    - .zcode/config.json
+  verdict: PASS
+  trigger_class: [4]  # 改 hook 脚本（治理基础设施）+ 新增 YAML/lint
+  review_dir: archive/governance-review-so11-v2-1-yaml-20260725/
+  pass_round: round2
+  commit_sha: pending  # commit 后回填
+  date: 2026-07-25
+  reviewer: [A, B, C]
+  notes: |
+    SO-11-v2-1 真值层 YAML 单源。
+    round1 三方 CONDITIONAL（共识：lint 强制化 + spec §二纯指针 + dispatchers 重构）。
+    round2 修复：drift-gate PostToolUse hook（lint 自动跑）+ spec §二纯指针化（删数值复述）+
+    dispatchers 节点（Mira + Qoder pattern 全数据化，chain-gate 零硬编码）。
+    29/29 chain-gate + 6/6 drift-gate 单测 PASS。lint exit 0。
+    详见 review-round1-ABC.md。
+    29/29 单测 PASS（含 V1 YAML 缺字段 + L1 lint 一致性）。

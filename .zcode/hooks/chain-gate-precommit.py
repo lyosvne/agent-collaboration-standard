@@ -29,72 +29,22 @@ OVERRIDE_FILE = os.path.join(SCRIPT_DIR, ".chain-gate-override.json")
 # 3. fallback 到默认 repo 路径（hook 在 ~/.zcode/hooks/ 全局副本时，SCRIPT_DIR 推断会指向 ~）
 _DEFAULT_REPO_FROM_SCRIPT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 _FALLBACK_REPO = r"C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard"
-# 检查 SCRIPT_DIR 推断的 repo 是否真有 spec 文件，无则用 fallback
-_test_spec = os.path.join(_DEFAULT_REPO_FROM_SCRIPT, "governance", "specs", "governance-review-process.md")
+# v2-1: 检查 SCRIPT_DIR 推断的 repo 是否真有 reviewer-tiers.yaml（机器源），无则用 fallback
+_test_yaml = os.path.join(_DEFAULT_REPO_FROM_SCRIPT, "governance", "specs", "reviewer-tiers.yaml")
 REPO_ROOT = os.environ.get("AGENT_COLLABORATION_REPO") or (
-    _DEFAULT_REPO_FROM_SCRIPT if os.path.exists(_test_spec) else _FALLBACK_REPO
+    _DEFAULT_REPO_FROM_SCRIPT if os.path.exists(_test_yaml) else _FALLBACK_REPO
 )
-SPEC_REVIEW_PROCESS = os.path.join(REPO_ROOT, "governance", "specs", "governance-review-process.md")
+# v2-1: 真值层从 YAML 单源读（取代 spec markdown 解析）
+REVIEWER_TIERS_YAML = os.path.join(REPO_ROOT, "governance", "specs", "reviewer-tiers.yaml")
 SPEC_MIRA_STATUS = os.path.join(REPO_ROOT, "governance", "specs", "mira-integration-status.md")
 
-# ===== 评审调度识别 =====
+# mira -p / mira --print 调度（v2-1 round2: 仍保留模块级正则，但实际值从 YAML dispatchers 读）
+# 这些是 fallback 默认值，YAML dispatchers 节点优先
+_DEFAULT_MIRA_INVOCATION = r"\bmira\s+(-p|--print)\b"
+_DEFAULT_MIRA_MODEL = r"--model(?:=|\s+)(\S+)"
+_DEFAULT_QODER_TIER = r"--tier(?:=|\s+)(\S+)"
 
-# mira -p / mira --print 调度
-MIRA_DISPATCH_PATTERN = re.compile(r"\bmira\s+(-p|--print)\b", re.IGNORECASE)
-
-# 评审关键字（命令含任一即判为评审调度，与 mira -p 同现）
-REVIEW_KEYWORDS = [
-    "评审方 A", "评审方 B", "评审方 C",
-    "review-package", "评审材料", "评审任务",
-    "opus4.8p", "gpt5.6sol", "cantus",  # 档位名出现也算评审信号
-    "review-round", "评审汇总",
-]
-
-# qoder-bridge --tier cantus（C 评审调度）
-QODER_CANTUS_PATTERN = re.compile(
-    r"qoder-bridge(?:\.py)?\s+--tier\s+cantus\b", re.IGNORECASE
-)
-
-# 提取 --model 参数值（支持 --model X 和 --model=X 两种形式）
-MIRA_MODEL_PATTERN = re.compile(r"--model(?:=|\s+)(\S+)", re.IGNORECASE)
-
-# 提取 qoder-bridge --tier 值（支持 --tier X 和 --tier=X 两种形式，B-N8）
-QODER_TIER_PATTERN = re.compile(r"--tier(?:=|\s+)(\S+)", re.IGNORECASE)
-
-
-def is_mira_review_dispatch(command):
-    """判命令是否为 mira 评审调度（mira -p + 含评审关键字）"""
-    if not MIRA_DISPATCH_PATTERN.search(command):
-        return False
-    return any(kw.lower() in command.lower() for kw in REVIEW_KEYWORDS)
-
-
-def is_qoder_review_dispatch(command):
-    """判命令是否为 qoder C 评审调度（qoder-bridge --tier cantus）"""
-    return bool(QODER_CANTUS_PATTERN.search(command))
-
-
-def extract_mira_model(command):
-    """提取 --model 值，无则返回 None"""
-    m = MIRA_MODEL_PATTERN.search(command)
-    return m.group(1).strip().strip("'\"") if m else None
-
-
-def extract_qoder_tier(command):
-    """提取 --tier 值，无则返回 None"""
-    m = QODER_TIER_PATTERN.search(command)
-    return m.group(1).strip().strip("'\"") if m else None
-
-
-# ===== 真值层读取（解析 spec markdown）=====
-
-# spec §二表格行格式：| **评审方 A** | Mira opus4.8p（...）| ... | `mira -p` + opus4.8p 档 |
-# 解析：评审方 + 档位
-SPEC_REVIEWER_ROW_PATTERN = re.compile(
-    r"\*\*评审方\s+([ABC])\*\*\s*\|\s*([^|]+)\|[^|]+\|[^|]+", re.IGNORECASE
-)
-
-# mira-integration-status 档位表行：| **Cloud-O (Claude)** | opus4.8 / opus4.8t / ... |
+# mira-integration-status 档位表行（旁路健康检查用，不数据化，属 hook 协议）
 MIRA_TIERS_ROW_PATTERN = re.compile(
     r"\|\s*\*\*Cloud-O\s*\(Claude\)\s*\*\*\s*\|\s*([^|]+)\|", re.IGNORECASE
 )
@@ -103,49 +53,85 @@ GPT_TIERS_ROW_PATTERN = re.compile(
 )
 
 
-def load_reviewer_tiers_from_spec():
-    """从 governance-review-process.md §二表格解析评审方档位。
+# ===== 真值层读取（v2-1: YAML 单源）=====
 
-    返回: (tiers: dict, error: str)
-      tiers = {"A": "opus4.8p", "B": "gpt5.6sol", "C": "cantus"}
+# 模块级缓存（hook 每次调用重启进程，缓存是为单次调用内多次访问）
+_CACHED_YAML = None
+_CACHED_YAML_ERR = None
+
+
+def load_truth_layer():
+    """v2-1: 从 reviewer-tiers.yaml 读真值层（取代 spec markdown 解析）。
+
+    返回: (data: dict, error: str)
+      data = {
+        "reviewers": {"A": {"tier":..., "platform":..., "dispatch_keyword":...}, ...},
+        "review_keywords": [...],  # 所有 dispatch_keyword + extra
+        "qoder_patterns": [...],   # C 的 dispatch_command_pattern
+      }
     """
-    if not os.path.exists(SPEC_REVIEW_PROCESS):
-        return None, f"spec 不存在: {SPEC_REVIEW_PROCESS}"
+    global _CACHED_YAML, _CACHED_YAML_ERR
+    if _CACHED_YAML is not None or _CACHED_YAML_ERR is not None:
+        return _CACHED_YAML, _CACHED_YAML_ERR
+
+    if not os.path.exists(REVIEWER_TIERS_YAML):
+        _CACHED_YAML_ERR = f"真值层 YAML 不存在: {REVIEWER_TIERS_YAML}"
+        return None, _CACHED_YAML_ERR
     try:
-        with open(SPEC_REVIEW_PROCESS, "r", encoding="utf-8") as f:
+        with open(REVIEWER_TIERS_YAML, "r", encoding="utf-8") as f:
             content = f.read()
     except Exception as e:
-        return None, f"读 spec 失败: {e}"
+        _CACHED_YAML_ERR = f"读真值层 YAML 失败: {e}"
+        return None, _CACHED_YAML_ERR
 
-    # 截取 §二 评审方组合 到 §三之间
-    m = re.search(r"## 二、评审方组合.*?(?=## 三、)", content, re.DOTALL)
-    if not m:
-        return None, "找不到 §二 评审方组合"
-    section = m.group(0)
+    try:
+        import yaml
+        raw = yaml.safe_load(content)
+    except ImportError:
+        _CACHED_YAML_ERR = "pyyaml 未安装"
+        return None, _CACHED_YAML_ERR
+    except Exception as e:
+        _CACHED_YAML_ERR = f"YAML 解析失败: {e}"
+        return None, _CACHED_YAML_ERR
 
-    tiers = {}
-    for row in SPEC_REVIEWER_ROW_PATTERN.finditer(section):
-        reviewer = row.group(1).upper()
-        # 第二列格式 "Mira opus4.8p（Claude Opus 4.8 Pro）" 或 "Qoder cantus（...）"
-        col2 = row.group(2).strip()
-        # 提取档位名（第一个 token，去 "Mira "/"Qoder " 前缀）
-        # 例：Mira opus4.8p（... → opus4.8p
-        #     Qoder cantus（... → cantus
-        tier_match = re.search(r"(?:Mira|Qoder)\s+([a-zA-Z0-9.]+)", col2, re.IGNORECASE)
-        if tier_match:
-            tiers[reviewer] = tier_match.group(1)
+    if not isinstance(raw, dict) or "reviewers" not in raw:
+        _CACHED_YAML_ERR = "YAML 缺 reviewers 字段"
+        return None, _CACHED_YAML_ERR
 
-    if not all(k in tiers for k in ("A", "B", "C")):
-        return None, f"解析不全，缺: {set('ABC') - set(tiers.keys())}，得到: {tiers}"
+    reviewers = raw["reviewers"]
+    # 收集所有 dispatch_keyword（评审方标识）+ extra keywords（评审信号）
+    review_keywords = []
+    for r_id, info in reviewers.items():
+        if not isinstance(info, dict):
+            continue
+        kw = info.get("dispatch_keyword")
+        if kw:
+            review_keywords.append(kw)
+    # C 的 qoder pattern 现在在 dispatchers.qoder_cantus（v2-1 round2 schema 重构）
+    qoder_patterns = []
+    dispatchers = raw.get("dispatchers", {}) or {}
+    qoder_cantus = dispatchers.get("qoder_cantus", {})
+    if isinstance(qoder_cantus, dict):
+        inv_pat = qoder_cantus.get("invocation_pattern")
+        if inv_pat:
+            qoder_patterns.append(inv_pat)
+    # 额外关键字（评审信号但非评审方标识，不参与 reviewer 识别）
+    for extra in raw.get("review_dispatch_extra_keywords", []) or []:
+        review_keywords.append(extra)
 
-    return tiers, "ok"
+    _CACHED_YAML = {
+        "reviewers": reviewers,
+        "review_keywords": review_keywords,
+        "qoder_patterns": qoder_patterns,
+        "dispatchers": raw.get("dispatchers", {}) or {},
+    }
+    return _CACHED_YAML, "ok"
 
 
 def load_mira_known_tiers():
-    """从 mira-integration-status.md 解析 A/B 档位的可达列表（防 spec §二 漏更新）。
+    """从 mira-integration-status.md 解析 A/B 档位的可达列表（旁路健康检查）。
 
-    返回: (tiers_set: set, error: str)
-      tiers_set 含所有 Cloud-O 和 GPT 档位名
+    v2-1: 仍读 markdown（平台能力清单，更新频率低，hook 仅作"档位是否存在"检查）
     """
     if not os.path.exists(SPEC_MIRA_STATUS):
         return None, f"mira-integration-status 不存在: {SPEC_MIRA_STATUS}"
@@ -156,110 +142,142 @@ def load_mira_known_tiers():
         return None, f"读 mira-integration-status 失败: {e}"
 
     all_tiers = set()
-    # Cloud-O 行（opus 系列）
     for m in MIRA_TIERS_ROW_PATTERN.finditer(content):
         for t in re.split(r"[/,]", m.group(1)):
             t = t.strip().strip("*` ")
             if re.match(r"^opus[\d.]+[a-z]?$", t, re.IGNORECASE):
                 all_tiers.add(t.lower())
-    # GPT 行（gpt 系列）
     for m in GPT_TIERS_ROW_PATTERN.finditer(content):
         for t in re.split(r"[/,]", m.group(1)):
             t = t.strip().strip("*` ")
             if re.match(r"^gpt[\d.]+[a-z]*$", t, re.IGNORECASE):
                 all_tiers.add(t.lower())
-
     return all_tiers, "ok"
+
+
+# ===== 评审调度识别（v2-1: 从 YAML 动态读关键字）=====
+
+
+def _get_dispatcher_pattern(platform_key, field, default):
+    """从 YAML dispatchers 读 pattern，失败用默认值"""
+    data, _ = load_truth_layer()
+    if data is None:
+        return default
+    pat = data.get("dispatchers", {}).get(platform_key, {}).get(field)
+    return pat if pat else default
+
+
+def is_mira_review_dispatch(command):
+    """判命令是否为 mira 评审调度（mira -p + 含评审关键字）"""
+    # invocation_pattern 从 YAML dispatchers.mira 读（v2-1 round2）
+    pat = _get_dispatcher_pattern("mira", "invocation_pattern", _DEFAULT_MIRA_INVOCATION)
+    if not re.search(pat, command, re.IGNORECASE):
+        return False
+    data, err = load_truth_layer()
+    if data is None:
+        return False
+    keywords = data["review_keywords"]
+    return any(kw.lower() in command.lower() for kw in keywords)
+
+
+def is_qoder_review_dispatch(command):
+    """判命令是否为 qoder C 评审调度（从 YAML 读 dispatch_command_pattern）"""
+    data, err = load_truth_layer()
+    if data is None:
+        return False
+    for pat in data["qoder_patterns"]:
+        if re.search(pat, command, re.IGNORECASE):
+            return True
+    return False
+
+
+def extract_mira_model(command):
+    pat = _get_dispatcher_pattern("mira", "model_arg_pattern", _DEFAULT_MIRA_MODEL)
+    m = re.search(pat, command, re.IGNORECASE)
+    return m.group(1).strip().strip("'\"") if m else None
+
+
+def extract_qoder_tier(command):
+    pat = _get_dispatcher_pattern("qoder_cantus", "tier_arg_pattern", _DEFAULT_QODER_TIER)
+    m = re.search(pat, command, re.IGNORECASE)
+    return m.group(1).strip().strip("'\"") if m else None
 
 
 # ===== 校验 =====
 
-def check_truth_layer_consistency(reviewer_tiers, known_tiers):
-    """C round1 C1：双源一致性校验。
+def check_truth_layer_consistency(reviewers, known_tiers):
+    """C round1 C1：YAML 的 A/B 档位必须在 mira-integration-status 档位表里。
 
-    spec §二 解析出的 A/B 档位必须在 mira-integration-status 档位表里。
+    v2-1: 真值层从 YAML 读，但仍用 mira markdown 做旁路健康检查。
     不一致 → fail-closed（编队被多源漂移坑过 3 次，治理工具自己必须自检）。
-
-    返回: (consistent: bool, reason: str)
     """
-    if not reviewer_tiers:
-        return False, "spec §二 真值层为空"
+    if not reviewers:
+        return False, "YAML reviewers 为空"
     if not known_tiers:
         return False, "mira-integration-status 档位表为空或不可读"
 
     inconsistent = []
-    for reviewer, tier in reviewer_tiers.items():
-        if reviewer in ("A", "B"):  # C 走 qoder，不在 mira 表
+    for r_id, info in reviewers.items():
+        if not isinstance(info, dict):
+            continue
+        if info.get("platform") == "mira":  # 只校验 mira 平台档位（A/B）
+            tier = info.get("tier", "")
             if tier.lower() not in known_tiers:
-                inconsistent.append(f"{reviewer}={tier}（spec §二 有但 mira-integration-status 无）")
+                inconsistent.append(f"{r_id}={tier}（YAML 有但 mira-integration-status 无）")
     if inconsistent:
         return False, (
             f"真值层双源不一致: {'; '.join(inconsistent)}。"
-            f"先对齐 spec §二 与 mira-integration-status.md 再调度（编队历史病灶：多源漂移）。"
+            f"先对齐 reviewer-tiers.yaml 与 mira-integration-status.md 再调度（编队历史病灶：多源漂移）。"
         )
     return True, "ok"
 
 
-def check_mira_alignment(command, reviewer_tiers, known_tiers):
-    """校验 mira 评审调度的 --model 是否与真值层一致。
-
-    返回: (ok: bool, reason: str)
-    """
-    # 判定评审方：只用"评审方 A/B"明确标识（不用档位名，防循环识别）
+def check_mira_alignment(command, reviewers):
+    """校验 mira 评审调度的 --model 是否与 YAML 真值层一致。"""
     cmd_lower = command.lower()
     reviewers_in_cmd = set()
-    if "评审方 a" in cmd_lower:
-        reviewers_in_cmd.add("A")
-    if "评审方 b" in cmd_lower:
-        reviewers_in_cmd.add("B")
-    # mira 不调 C（C 走 qoder）
+    for r_id, info in reviewers.items():
+        if not isinstance(info, dict):
+            continue
+        if info.get("platform") != "mira":
+            continue
+        kw = info.get("dispatch_keyword", "")
+        if kw and kw.lower() in cmd_lower:
+            reviewers_in_cmd.add(r_id)
 
     if not reviewers_in_cmd:
-        # 是评审调度但识别不出具体评审方（可能是新措辞）→ fail-closed
         return False, (
-            "命令含评审信号但无法识别具体评审方（'评审方 A'/'评审方 B' 关键字均未命中）。"
+            "命令含评审信号但无法识别具体评审方（dispatch_keyword 均未命中）。"
             "必须在 prompt 里显式标注评审方（如'你是评审方 A'），不能只写档位名。"
         )
 
-    # 必须显式 --model
     model = extract_mira_model(command)
     if not model:
-        expected = " 或 ".join(reviewer_tiers[r] for r in sorted(reviewers_in_cmd))
+        expected = " 或 ".join(reviewers[r]["tier"] for r in sorted(reviewers_in_cmd))
         return False, (
             f"评审调度（{sorted(reviewers_in_cmd)}）必须显式 --model，"
             f"不能用默认档（防 mira --help 列表滞后导致跳链）。"
-            f"期望 --model {expected}（spec §二真值层）。"
+            f"期望 --model {expected}（reviewer-tiers.yaml 真值层）。"
         )
 
-    # --model 必须在期望集合
-    expected_models = {reviewer_tiers[r].lower() for r in reviewers_in_cmd}
+    expected_models = {reviewers[r]["tier"].lower() for r in reviewers_in_cmd if "tier" in reviewers[r]}
     if model.lower() not in expected_models:
         expected_str = " 或 ".join(sorted(expected_models))
         return False, (
             f"--model {model} 不在评审方 {sorted(reviewers_in_cmd)} 的真值层档位（{expected_str}）。"
-            f"若真值层过期，请改 spec §二 + mira-integration-status.md，不要自行换档。"
-            f"紧急场景写 override 文件：{OVERRIDE_FILE}"
+            f"若真值层过期，请改 reviewer-tiers.yaml（+ spec §二 + mira-integration-status.md，跑 lint），"
+            f"不要自行换档。紧急场景写 override 文件：{OVERRIDE_FILE}"
         )
-
-    # 也要在 mira-integration-status 已知档位表（防 spec §二 漏更新）
-    if known_tiers and model.lower() not in known_tiers:
-        return False, (
-            f"--model {model} 在 spec §二 但不在 mira-integration-status 档位表（{len(known_tiers)} 档）。"
-            f"可能档位已下架或 spec 漏更新，请实测 `mira -p OK --model {model}` 确认可达。"
-        )
-
     return True, "ok"
 
 
-def check_qoder_alignment(command, reviewer_tiers):
-    """校验 qoder C 调度的 --tier 是否为 cantus。
-
-    返回: (ok: bool, reason: str)
-    """
+def check_qoder_alignment(command, reviewers):
+    """校验 qoder C 调度的 --tier 是否为 YAML 真值层的 cantus。"""
     tier = extract_qoder_tier(command)
-    expected = reviewer_tiers.get("C", "cantus").lower()
+    c_info = reviewers.get("C", {})
+    expected = c_info.get("tier", "cantus").lower() if isinstance(c_info, dict) else "cantus"
     if not tier:
-        return False, "qoder-bridge 评审调度必须显式 --tier cantus"
+        return False, f"qoder-bridge 评审调度必须显式 --tier {expected}"
     if tier.lower() != expected:
         return False, (
             f"--tier {tier} 不是评审方 C 真值层档位（应为 {expected}）。"
@@ -274,7 +292,7 @@ def build_deny_reason(detail):
         f"{detail}\n\n"
         f"**为何阻断**: 2026-07-25 meta-review-gate round1 事故——agent 凭 mira --help 滞后列表"
         f"把 opus4.8p 换成 opus4.6，未验证就跳链（lessons §8.6）。\n\n"
-        f"**真值层**: governance/specs/governance-review-process.md §二 + mira-integration-status.md\n"
+        f"**真值层**: governance/specs/reviewer-tiers.yaml（机器源）+ mira-integration-status.md（旁路健康检查）\n"
         f"**spec §二.2.1**: 调度前必须档位真值层一致 + 实测可达 + 冲突上报用户\n\n"
         f"**紧急 override**（真值层过期场景，需问用户后用）:\n"
         f"  写 `{OVERRIDE_FILE}` 内容 `{{\"until\": <unix_ts_30min后>}}`"
@@ -309,26 +327,26 @@ def main():
     if get_override():
         return
 
+    # v2-1: 先读 YAML 真值层（失败 fail-closed）
+    data, err = load_truth_layer()
+    if data is None:
+        print(json.dumps({
+            "decision": "block",
+            "reason": build_deny_reason(f"**[chain-gate] 真值层 YAML 解析失败**: {err}\n\n请检查 reviewer-tiers.yaml。"),
+        }, ensure_ascii=False))
+        sys.exit(2)
+
     is_mira = is_mira_review_dispatch(command)
     is_qoder = is_qoder_review_dispatch(command)
 
     if not (is_mira or is_qoder):
         return  # 非评审调度，放行
 
-    # 读真值层
-    reviewer_tiers, err = load_reviewer_tiers_from_spec()
-    if reviewer_tiers is None:
-        # fail-closed
-        print(json.dumps({
-            "decision": "block",
-            "reason": build_deny_reason(f"**[chain-gate] 真值层解析失败**: {err}\n\n请检查 spec §二表格格式。"),
-        }, ensure_ascii=False))
-        sys.exit(2)
+    reviewers = data["reviewers"]
+    known_tiers, _ = load_mira_known_tiers()
 
-    known_tiers, known_err = load_mira_known_tiers()
-
-    # C round1 C1：双源一致性校验（spec §二 的 A/B 档位必须在 mira 档位表）
-    consistent, consistency_reason = check_truth_layer_consistency(reviewer_tiers, known_tiers)
+    # C round1 C1：YAML A/B 档位必须在 mira 档位表（旁路健康检查）
+    consistent, consistency_reason = check_truth_layer_consistency(reviewers, known_tiers)
     if not consistent:
         print(json.dumps({
             "decision": "block",
@@ -337,7 +355,7 @@ def main():
         sys.exit(2)
 
     if is_mira:
-        ok, reason = check_mira_alignment(command, reviewer_tiers, known_tiers)
+        ok, reason = check_mira_alignment(command, reviewers)
         if not ok:
             print(json.dumps({
                 "decision": "block",
@@ -346,7 +364,7 @@ def main():
             sys.exit(2)
 
     if is_qoder:
-        ok, reason = check_qoder_alignment(command, reviewer_tiers)
+        ok, reason = check_qoder_alignment(command, reviewers)
         if not ok:
             print(json.dumps({
                 "decision": "block",

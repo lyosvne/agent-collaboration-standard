@@ -1,0 +1,60 @@
+# 评审方档位真值源（SO-11-v2-1，2026-07-25）
+#
+# 这是评审方档位的**唯一机器读真值源**。hook（chain-gate-precommit.py）+ lint 脚本
+# （scripts/check-reviewer-tiers-drift.py）都读本文件。
+#
+# 人读文档：
+# - governance/specs/governance-review-process.md §二表格（含视角/调度方式等人读列，档位指向本文件）
+# - governance/specs/mira-integration-status.md（mira 平台完整模型清单，hook 旁路健康检查用）
+#
+# 改档位时**必须三处同步**（lint 校验，AGENTS.md 强制跑）：
+# 1. 本文件（机器源）
+# 2. governance-review-process.md §二表格（人读）
+# 3. mira-integration-status.md（如新档位不在平台清单，需补登）
+#
+# 改完跑：python scripts/check-reviewer-tiers-drift.py（exit 0 = 一致）
+
+reviewers:
+  A:
+    tier: opus4.8p
+    platform: mira           # 引用 dispatchers.mira
+    dispatch_keyword: "评审方 A"   # hook 识别 prompt 里的评审方标识（防循环识别）
+    role: 架构级深度审查、语义一致性、第一性原理
+  B:
+    tier: gpt5.6sol
+    platform: mira
+    dispatch_keyword: "评审方 B"
+    role: 快速结构化审查、逻辑漏洞、覆盖度、规则冲突
+  C:
+    tier: cantus
+    platform: qoder_cantus   # 引用 dispatchers.qoder_cantus
+    dispatch_keyword: "评审方 C"
+    role: 编队主架构师视角、与 Aetheris 蓝图对齐、与现有架构契合
+
+# 调度器定义（v2-1 round2: A 建议把所有调度 pattern 集中此节点，消除硬编码）
+# reviewers 引用 platform 名，hook 从这里读调度指纹
+# 注：YAML 双引号字符串才解析反斜杠转义；正则的 \b \s \S 必须用双引号
+dispatchers:
+  mira:
+    # mira -p / mira --print 触发（A/B 通用，--model 参数指定档位）
+    invocation_pattern: "\\bmira\\s+(-p|--print)\\b"
+    model_arg_pattern: "--model(?:=|\\s+)(\\S+)"   # 提取 --model 值
+  qoder_cantus:
+    # ssh ecs 'qoder-bridge.py --tier cantus' 触发（C 专用）
+    invocation_pattern: "qoder-bridge(?:\\.py)?\\s+--tier\\s+cantus\\b"
+    tier_arg_pattern: "--tier(?:=|\\s+)(\\S+)"   # 提取 --tier 值
+
+# 评审调度识别的额外关键字（除 dispatch_keyword 外，命令含这些也算评审信号）
+# 用于识别"是评审调度但没显式标评审方"的场景（如汇总评审）
+review_dispatch_extra_keywords:
+  - review-package
+  - 评审材料
+  - 评审任务
+  - review-round
+  - 评审汇总
+
+# 平台档位可达性旁路检查（hook 读这个文件做"档位是否存在"的健康检查）
+# mira 平台完整档位清单在 mira-integration-status.md，hook 解析它做 A/B 档位的可达性校验
+# （防 spec §二漏更新——A/B 档位必须在此平台清单内）
+platform_tier_sources:
+  mira: governance/specs/mira-integration-status.md
