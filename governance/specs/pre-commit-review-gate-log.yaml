@@ -64,7 +64,7 @@
   trigger_class: [1, 4]  # 改 governance-review-process.md（治理契约）+ hook 脚本（治理基础设施）
   review_dir: archive/governance-review-meta-review-gate-20260725/
   pass_round: round3
-  commit_sha: pending  # round3 commit 后回填
+  commit_sha: 0645929
   date: 2026-07-25
   reviewer: [A, B, C]
   notes: |
