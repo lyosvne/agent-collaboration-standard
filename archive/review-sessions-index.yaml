@@ -42,7 +42,18 @@ projects:
   # 更早的历史项目（node1/node3/phaseD/pi-*，均已归档，不一一列举）
   # 完整列表见 archive/governance-review-*/ 目录
 
-  # ===== 当前/未来项目（按此模板登记）=====
+  # ===== 当前项目 =====
+  - project: so11-v2-2-session-continuity
+    review_dir: archive/governance-review-so11-v2-2-session-20260725/
+    status: REVIEWING  # round1 进行中
+    notes: SO-11-v2-2 自评审（eat own dogfood）。round1 fresh，round2+ 续接。
+    reviewer_sessions:
+      A:  # opus4.8p 会话链
+        round1: "235302197011"  # 2026-07-25 round1 fresh
+      B:  # gpt5.6sol 会话链
+        round1: "222347143699"  # 2026-07-25 round1 fresh
+
+  # ===== 未来项目（按此模板登记）=====
   # 模板：
   # - project: <对象名>
   #   review_dir: archive/governance-review-<对象>-<date>/

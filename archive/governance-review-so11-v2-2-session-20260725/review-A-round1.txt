@@ -1,0 +1,74 @@
+# 评审方 A (opus4.8p) round1
+session_id: 235302197011
+duration: 55627ms
+
+---
+
+# SO-11-v2-2 Round1 评审 —— 评审方 A（架构级深度审查）
+
+**verdict**: **CONDITIONAL**
+
+不客气地说：机制方向对，但有 3 处架构缺陷会让这个 hook 在真实使用中"看似生效实则失效"。归类索引 + spec 准则做得不错，但 hook 层面的**识别机制过于依赖文本约定**，威胁模型没有明确声明，构成了一个"绅士协议 hook"——防君子不防健忘，更不防误操作。
+
+---
+
+## 必修项（CONDITIONAL 阻塞项，编号可独立验证）
+
+### M1【fail-closed 化项目识别】(对应 Q2)
+当前 `find_current_project` 兜底扫 archive 最近改动目录，是**架构级反模式**：一个安全 hook 不应有"猜"的语义。
+
+**修改要求**：
+- `CURRENT_REVIEW_PROJECT` 未 export → **直接 deny**，错误信息明确要求 `export CURRENT_REVIEW_PROJECT=<project_key>`
+- 保留兜底扫描仅用于"生成建议值"打印在 deny 提示里（"检测到最近改动的项目可能是 X，如确认请 export"），但**不自动采用**
+- 验证：unset CURRENT_REVIEW_PROJECT 后执行任意 mira 评审调度 → 必须 deny 且提示明确
+
+### M2【round 标识改为强制显式参数】(对应 Q3)
+regex 抓 `round\d+` 是**语义级漏洞**——prompt 内容和调度元数据混在同一文本流里，第一性原理上就是错的（控制平面 vs 数据平面未分离）。
+
+**修改要求**：
+- 引入约定环境变量 `CURRENT_REVIEW_ROUND=roundN`（或调度侧 wrapper 注入）
+- hook 优先读环境变量；环境变量缺失时 **deny**（不再回退到 regex 扫命令文本）
+- regex 扫描仅作为"检测到命令内 roundX 与环境变量 roundY 不一致时告警"的**二次校验**，不作为主判据
+- 验证：prompt 内含 "round1 已修 / 本轮 round2" 且 `CURRENT_REVIEW_ROUND=round2` → 正确查 round1 session_id；无环境变量 → deny
+
+### M3【威胁模型显式声明 + 识别失败改为 deny-with-context】(对应 Q5)
+当前"识别不出评审方 → 放行"、"无 round 标识 → 放行"是**静默失败**，等价于 hook 不存在。这不是设计边界，是 bug——因为 §8.4 的教训恰恰是"漏执行"，而此机制在最容易漏的场景（忘写关键字）反而不拦。
+
+**修改要求**：
+- 在 spec §二.2.2 和 hook 文件头显式声明威胁模型：**"防健忘（ZCode 忘 -r），不防恶意绕过（ZCode 故意不写关键字）；但对'评审调度语义已确立却缺少调度元数据'的情况必须 deny"**
+- 具体规则：一旦命令文本命中 `mira -p` 且出现"评审方"任一字样 → 进入严格模式，此时 `CURRENT_REVIEW_PROJECT` / `CURRENT_REVIEW_ROUND` / `dispatch_keyword` 三者缺任一 → **deny 并提示补齐**
+- 命令中完全没有"评审方"字样 → 视为非评审调用，放行（这才是真正的设计边界）
+- 验证：mira -p "评审方 A ..." 但无 CURRENT_REVIEW_ROUND → deny；mira -p "帮我写周报" → 放行
+
+---
+
+## 建议项（非阻塞，round2 可迭代）
+
+- **B1**：`review-sessions-index.yaml` 回填 session_id 应通过 PostToolUse hook 自动追加候选值（供人工确认），而非依赖 ZCode 手动记录——否则准则 3 又会重演 §8.4 漏执行
+- **B2**：Q1 的上下文污染风险应写入 spec 作为**已知权衡**：续接=效率优先，接受 roundN-1 偏见延续；若某轮出现明显偏见锁定，允许 ZCode 显式 `--fresh` 断链并在 index 记录断链原因（当前 spec 未给这个逃生口）
+
+---
+
+## 本质问题回答
+
+**Q1**：根本问题是"跨进程评审记忆丢失导致的重复劳动"。用 `-r` 续接 vs prompt 内联 roundN-1 结果，**内联更本质**（显式、可审计、无隐藏状态），`-r` 更工程经济（省 token、省编排）。当前选 `-r` 是合理工程折中，但**上下文污染是真实风险**，spec 应显式声明"接受此权衡"并给 `--fresh` 逃生口。
+
+**Q2**：兜底扫 archive 是架构缺陷。安全 hook 的第一性原理是"不确定即拒绝"，必须 fail-closed（见 M1）。当前设计在最需要它的场景（ZCode 忘 export）反而最容易查错 session。
+
+**Q3**：regex 扫命令文本抓 round 号违反**控制平面/数据平面分离**原则。prompt 是数据，调度元数据是控制信号，混一起必然出漏洞（见 M2 举的双 round 例）。必须走显式参数/环境变量。
+
+**Q4**：本评审场景下，若 `export CURRENT_REVIEW_PROJECT=so11-v2-2-session-continuity` 已设置且 index 中该项目为空/不存在 round0 → 应正确放行；但若兜底扫描逻辑早于环境变量读取，且 archive 里另有近期改动项目，理论上可能查错。需实测 `find_current_project` 内部优先级——**建议修 M1 后此风险自然消除**。
+
+**Q5**：这**既是设计边界也是 bug**。防"忘记写 -r"是核心目标，防"忘记写关键字"应该也是（因为都是健忘范畴）。当前把后者当边界放行，等于把 §8.4 教训只学了一半。M3 的分层策略：完全无关键字=真边界（放行），有关键字但缺元数据=健忘（deny）。
+
+---
+
+## 覆盖范围声明
+
+**已审**：spec §二.2.2 六条准则、reviewer-tiers.yaml session_continuity 字段设计、hook 核心逻辑（main 函数注释级）、review-sessions-index.yaml 归类模型、mira -r 实测结果、8/8 单测场景覆盖度。
+
+**未审（round2 需补）**：hook 源码逐行（仅看了逻辑注释）、session-gate 与 chain-gate/drift-gate 的执行顺序及互斥关系、index 文件的并发写入保护（多 ZCode 会话并发会不会写坏 yaml）、archived 状态的回滚机制（如项目 PASS 后发现问题需要 reopen 怎么办）。
+
+---
+
+**结论**：CONDITIONAL。M1/M2/M3 三项修完可 PASS。当前状态不建议进 round2 主评审——机制层有静默失败面，一旦上线会给 §8.6 教训清单再添一条。

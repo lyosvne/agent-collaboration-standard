@@ -1,0 +1,160 @@
+# 评审方 B (gpt5.6sol) round1
+session_id: 222347143699
+duration: 74105ms
+
+---
+
+# SO-11-v2-2 评审 Round1 — 评审方 B（结构化审查）
+
+**verdict**: **CONDITIONAL**（3 个 BLOCKER 级漏洞 + 若干覆盖度缺口，修完可 PASS）
+
+---
+
+## D1【单测覆盖度】— **FAIL**
+
+8 case 覆盖了主干路径，但边界严重欠缺。
+
+**缺失 case 清单：**
+- **C1**：命令同时含 `round1` 和 `round2` 字样（如 `"round1 已修，本次 round2 复核"`）→ 当前 regex 会抓第一个 `round1`，导致误判为首轮放行，**逻辑破坏**。
+- **C2**：`-r` 后无值（`mira -p "..." -r`）→ regex `-r(?:=|\s+)(\S+)` 不匹配，`extract_resume_id` 返回 `None`，等同于"未续接"被 deny，行为**看似正确但未验证**。
+- **C3**：`-r ""`（显式空串）→ `\S+` 不匹配空串，同 C2，未测。
+- **C4**：`review-sessions-index.yaml` 文件损坏 / 非法 YAML → hook 读取时 `yaml.safe_load` 抛异常，未见 try/except 兜底测试。
+- **C5**：`session_id` 含 shell 特殊字符（空格、`$`、反引号）→ 未测转义与安全性。
+- **C6**：环境变量 `CURRENT_REVIEW_PROJECT` **未 export** → 落入兜底扫 `archive/`，未测；若 archive 为空 → `find_current_project` 返回 `None`，hook 后续逻辑未验证。
+- **C7**：`round` 大小写混写（`Round2`、`ROUND_2`）→ regex 有 `IGNORECASE`，应过，但未列入 case 明示。
+- **C8**：`-r` 参数出现两次（`-r abc -r def`）→ regex `search` 抓第一个，语义未定义。
+- **C9**：命令跨行 / 含 `\n` → 未测。
+
+**S2 注释里的 `AGENT_COLLABERATION` 拼写问题：**
+拼写错误（正确应为 `COLLABORATION`）。需要确认：
+- 若这是**测试代码里 mock 的环境变量名** → 是测试 bug，实际 hook 用的是 `config.current_project_env` 配的值，不影响生产。
+- 若这是 **hook 或 config 里真实使用的 key** → 是硬编码 typo，属 BLOCKER。
+
+请贴出该注释上下文，或直接搜 repo 里 `AGENT_COLLABERATION` 是否有出现；若只在测试注释里，降为**必修-文档**。
+
+---
+
+## D2【识别逻辑漏洞】— **FAIL（含 1 个 BLOCKER）**
+
+**BUG-1（BLOCKER）：`identify_current_round` 抓第一个 round**
+```python
+m = re.search(r'\bround[_\s]*(\d+)\b', command, re.IGNORECASE)
+```
+`re.search` 返回首个匹配。真实评审 prompt 极常见描述历史轮次（"round1 已修 → round2 复核"），会把当前轮识别为 `round1`，S2 的 "roundN 无 -r deny" 规则**直接被绕过**。
+
+**修复建议**：
+- 要求 prompt 采用受控标记，如 `[CURRENT_ROUND=2]`，hook 只认这个 tag；
+- 或抓**最后一个** `round\d+`（`findall()[-1]`）——仍不严谨，但比首个好；
+- 或强制约定"当前轮号"只出现在命令第一行 / 特定前缀后。
+
+**BUG-2：`extract_resume_id` 对 `-r` 后无值静默返回 None**
+```python
+pat = re.compile(re.escape(resume_arg) + r'(?:=|\s+)(\S+)', re.IGNORECASE)
+```
+`mira -p "..." -r` 命令：regex 不匹配（`-r` 后是行尾或无 `\S+`），返回 `None`。roundN 场景下等价于"未续接" → deny，行为**恰好正确但纯属巧合**。若未来把"None 视为放行"的分支加入，会立刻出漏洞。建议**显式检测"有 -r 但无值"并 fail-closed 报错**，比隐式 deny 更安全。
+
+**BUG-3：`find_current_project` 兜底返回 `None`**
+archive 为空 → 返回 `None`。后续 hook 拿 `None` 去查 `review-sessions-index.yaml` 的 project 节点，行为未在代码片段中呈现。可能：
+- 抛 KeyError（fail-closed，OK）；
+- 或误认为"无历史轮次" → 首轮放行（漏洞，BLOCKER）。
+
+**必须明示**：project=None 时 hook 的策略是 deny 还是 allow。当前不可知。
+
+**BUG-4：`find_current_project` 的兜底扫描按 mtime 排序**
+Windows 下 mtime 精度 & git checkout 会触碰 mtime，可能与"逻辑最新项目"不一致。评审并发时（同时改多个 governance-review-* 目录），会挑错项目。建议**兜底策略以显式索引文件为准**（`review-sessions-index.yaml` 里的 `current_project` 字段），mtime 扫描完全废弃。
+
+---
+
+## D3【规则冲突】— **FAIL（1 个 BLOCKER）**
+
+**CONFLICT-1（BLOCKER）：spec §二.2.2 vs S8 case 语义冲突**
+- spec 第 2 条："roundN 必须用 -r"；
+- S8：无 round 标识 → 放行。
+
+**问题**：ZCode 只要**不写 round 字样**就绕过 hook。这是**设计漏洞**，不是边界。建议：
+- 方案 A（严格）：无 round 标识时，若命令含 dispatch_keyword，**默认视为 round1**（首轮放行，但要求回填 session_id）；
+- 方案 B（严格+）：无 round 标识直接 deny，强制 ZCode 显式标注轮次；
+- 方案 C（宽松）：保持现状，但在 spec 明确写"round 标识为可选，缺省视为首轮"，并要求 `review-sessions-index.yaml` 记录未标注轮次的会话以供事后追溯。
+
+**当前实现 + spec 组合会让"故意漏 round 字样"成为规避手段**，必须闭环。
+
+**CONFLICT-2：chain-gate 与 session-gate 执行顺序**
+两个 PreToolUse hook 都拦 `mira` 调度。Claude Code hook 执行顺序按 `hooks` 数组顺序**串行**执行，任一 deny 即阻断。需要：
+- 明确 `.zcode/config.json` 里 chain-gate 在前还是 session-gate 在前；
+- 两者的 exit code / stdout 契约是否兼容（都用 exit 2 阻断？）；
+- 双 deny 场景的错误信息合并策略。
+
+未见代码片段展示 config.json 顺序，**必须补文档**。
+
+---
+
+## D4【数据一致性】— **CONDITIONAL**
+
+**Windows 路径问题**：
+`os.path.join(REPO_ROOT, "archive/review-sessions-index.yaml")` 在 Windows 上会产出 `C:\...\archive/review-sessions-index.yaml`（混合分隔符）。Python 的 `open()` 能吃，YAML 读取无问题；**但**：
+- 如果 hook 把这个路径**回写到 yaml 里作为记录字段**，跨平台 diff 会不稳定；
+- 如果传给外部工具（shell），bash.exe 下正斜杠 OK，cmd.exe 下混合会崩。
+
+建议统一用 `pathlib.Path` + `.as_posix()` 存储、`str(Path(...))` 用于本地文件访问。
+
+**跨平台一致性**：
+hook 只在 ZCode（Windows）跑 → 只需 Windows OK。但 ECS/Linux CI 跑单测时，`os.path.join` 分隔符不同，测试 fixture 里若硬编码 `\\` 或 `/` 会跨平台失败。8/8 单测只在 Windows 跑过是不够的，**必须在 Linux CI 也跑一遍**再声明"验证通过"。
+
+---
+
+## D5【配置健壮性】— **FAIL**
+
+当前 fallback 策略：
+| 缺失场景 | 当前行为 | 应有行为 |
+|---|---|---|
+| 无 `session_continuity` 节点 | 放行 | **fail-closed（deny + 报错）** |
+| `enabled: false` | 放行 | 放行（合理） |
+| `resume_arg` 缺失 | fallback `-r` | fallback（合理，但需 warn） |
+| `record_index` 缺失 | 未知 | **fail-closed** |
+| `review-sessions-index.yaml` 不存在 | 未知 | **首次自动创建**或 fail-closed |
+
+**问题**：session_continuity 节点整个丢失就放行，等于**配置文件被误删就能绕过整个机制**。这是安全边界失守。建议：
+- `enabled` 缺省视为 `true`（fail-secure）；
+- 节点整体缺失时，hook 输出显式 error 并 deny；
+- 提供 `--strict-mode` 配置开关，让 dev 环境可关但生产必开。
+
+---
+
+## D6【与现有 hook 共存】— **CONDITIONAL**
+
+**性能影响**：
+每次 Bash 调用都跑 4 个 hook（3 PreToolUse + 1 PostToolUse）。假设每个 hook 冷启动 Python 解释器 ~150ms（Windows），单次 Bash 多增 450-600ms。评审密集场景下（几十次调用）体感明显。建议：
+- 合并同类 PreToolUse hook 为单个 dispatcher；
+- 或用长驻进程（socket）+ 客户端脚本调用，避免重复冷启动。
+
+**drift-gate 误判**：
+`session_continuity` 是 reviewer-tiers.yaml 新加节点。drift-gate 若基于 schema 白名单校验，新字段会被视为漂移。**必须同步更新 drift-gate 的 schema 白名单**，否则 SO-11-v2-2 一合入就触发 drift 告警。
+
+需检查 `.zcode/hooks/tiers-drift-gate.py` 的 schema 定义，本次改动是否已联动更新——commit 317d213 diff 里没提到，**列为 BLOCKER 候选**，请贴 diff 确认。
+
+---
+
+## 必修项（阻断 PASS）
+
+1. **【BLOCKER】修复 `identify_current_round`** 首个 round 匹配的语义漏洞（D2 BUG-1）。采用显式 `[CURRENT_ROUND=N]` tag 或 `findall()[-1]`。
+2. **【BLOCKER】闭环 spec §二.2.2 vs S8** 冲突（D3 CONFLICT-1）。明确"无 round 标识"的行为并写入 spec。
+3. **【BLOCKER】明示 `find_current_project` 返回 None 的策略**（D2 BUG-3）。fail-closed 或明确规则。
+4. **【BLOCKER 候选】确认 drift-gate schema 白名单已联动更新**（D6）。未更新则加入本 commit。
+5. **补 case C1/C2/C4/C6**：跨轮次混写、-r 无值、yaml 损坏、环境变量未 export 兜底（D1）。
+6. **补 Linux CI 单测**：8/8 需在 Linux 也 pass（D4）。
+7. **`session_continuity` 节点整体缺失时改为 fail-closed**（D5）。
+8. **明确 chain-gate 与 session-gate 的执行顺序与冲突处理**，写入 `.zcode/config.json` 注释或 spec（D3 CONFLICT-2）。
+9. **确认 S2 注释里 `AGENT_COLLABERATION` 是测试 typo 还是生产代码 typo**（D1）。
+
+## 建议项（不阻断 PASS）
+
+1. `find_current_project` 兜底废弃 mtime 扫描，改读 `review-sessions-index.yaml.current_project`（D2 BUG-4）。
+2. 路径处理统一 `pathlib.Path`（D4）。
+3. 补 case C3/C5/C7/C8/C9（D1）。
+4. `extract_resume_id` 检测"有 -r 无值"并显式报错，而非静默 None（D2 BUG-2）。
+5. hook 合并 dispatcher 优化冷启动开销（D6）。
+6. spec §二.2.2 增加第 7 条：hook 失败时的降级策略（fail-open / fail-closed 明示）。
+
+---
+
+**总结**：机制骨架 OK，8/8 单测覆盖主干，但**边界识别（round 抓取）、规则闭环（无 round 标识）、配置健壮性（节点缺失）**三个方向有实质漏洞，任一被 ZCode 无意或有意触发都会让整个 session 续接机制失效。修完必修 1-4 后可 PASS，其余可 round2 跟进。
