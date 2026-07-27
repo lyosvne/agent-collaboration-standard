@@ -242,6 +242,7 @@ ZCode 自我开脱"B 层是小改动"是错的。加端点是真设计决策：
 2. 改任何 ECS systemd 服务文件 / `.service` unit
 3. 改 dispatch-server 端点（加/改/删路由）
 4. 改 drift-cron.sh / drift-check.sh / conflict-tracker.py（漂移治理核心脚本）
+5. 改 dispatch-server 鉴权逻辑（AUTH_KEY/IP allowlist/Caddy auth）—— round3 `/dispatch/drift` 加 AUTH_KEY 就走了完整 pre-commit Plan Mode 流程（先 plan → 用户审 → 应用 → 验证 → 评审），是 §8.4 的首个正面案例
 
 **强制机制**：ZCode 在 Plan Mode 出方案时，若命中以上任一，必须在 plan 里显式标"⚠️ pre-commit 三方评审强制触发"，否则用户应拒绝批准。
 
