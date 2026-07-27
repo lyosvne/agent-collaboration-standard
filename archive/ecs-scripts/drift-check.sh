@@ -9,40 +9,43 @@ CONFIG="/opt/pi/governance-mirror/repo/governance/configs/drift-config.json"
 cd "$MIRROR"
 git fetch origin 2>/dev/null
 
-# 从 drift-config.json 读 Aetheris active 分支列表
-# fail-closed: 配置不存在/语法坏/Aetheris 条目缺失 → exit 1（drift-cron.sh 会记日志但不写 drift-latest.json）
+# fail-closed: 配置不存在 → exit 1
 if [ ! -f "$CONFIG" ]; then
   echo "ERROR: drift-config.json 不存在: $CONFIG" >&2
   exit 1
 fi
 
-BRANCHES_STR=$(python3 -c "
-import json, sys
+# 单 python 进程完成: 读 config → fetch 分支 → 算漂移 → 输出 JSON
+# CONFIG 路径用 argv[1] 传值（不插值进 python 代码, 防注入面, round1 评审 P1 修复）
+# heredoc 用 'PYEOF'（关闭 bash 变量展开, 消除注入面）
+python3 - "$CONFIG" <<'PYEOF'
+import json, sys, subprocess, os
+
+config_path = sys.argv[1]
+
+# 1. 读 drift-config.json 拿 Aetheris active 分支（fail-closed: 4 种失败模式 exit 1）
 try:
-    with open('$CONFIG') as f:
+    with open(config_path) as f:
         cfg = json.load(f)
 except Exception as e:
-    sys.stderr.write(f'ERROR: drift-config.json 读取失败: {e}\n')
+    sys.stderr.write(f"ERROR: drift-config.json 读取失败: {e}\n")
     sys.exit(1)
-aetheris = next((r for r in cfg.get('repos', []) if r.get('name') == 'Aetheris'), None)
+
+aetheris = next((r for r in cfg.get("repos", []) if r.get("name") == "Aetheris"), None)
 if not aetheris:
-    sys.stderr.write('ERROR: Aetheris not in drift-config.json repos\n')
+    sys.stderr.write("ERROR: Aetheris not in drift-config.json repos\n")
     sys.exit(1)
-branches = aetheris.get('agent_branches', [])
+branches = aetheris.get("agent_branches", [])
 if not branches:
-    sys.stderr.write('ERROR: Aetheris agent_branches 为空\n')
+    sys.stderr.write("ERROR: Aetheris agent_branches 为空\n")
     sys.exit(1)
-print(' '.join(branches))
-") || exit 1
 
-# bash fetch 循环（与原版一致, || true 容忍 ref 不存在）
-for b in $BRANCHES_STR; do
-  git fetch origin "$b:refs/remotes/origin/$b" 2>/dev/null || true
-done
+# 2. fetch 每个分支（|| true 容忍 ref 不存在, 不阻断）
+for b in branches:
+    subprocess.run(["git", "fetch", "origin", f"{b}:refs/remotes/origin/{b}"],
+                   capture_output=True)
 
-python3 <<PYEOF
-import subprocess, json, os
-branches = "$BRANCHES_STR".split()
+# 3. 算漂移
 master = "refs/remotes/origin/master"
 results = []
 
@@ -53,10 +56,12 @@ for b in branches:
     verify = subprocess.run(["git", "rev-parse", "--verify", "--quiet", ref],
                             capture_output=True)
     if verify.returncode != 0:
+        # round1 评审 P0 修复: level=CRITICAL（不是 MISSING）
+        # 原因: drift-cron.sh state hash 只过滤 CRITICAL/WARN, 用 MISSING 会被静默吞掉, 配置漂移永远不告警
         results.append({
             "branch": b, "ahead": -1, "behind": -1, "head": "",
-            "level": "MISSING",
-            "status_desc": f"\u26a0\ufe0f \u5206\u652f {b} \u5728\u8fdc\u7aef\u4e0d\u5b58\u5728\uff08\u914d\u7f6e\u6f02\u79fb\uff1f\uff09",
+            "level": "CRITICAL",
+            "status_desc": f"⚠️ 配置漂移: drift-config.json 列了 {b} 但远端不存在",
             "conflicts": []
         })
         continue
@@ -71,21 +76,19 @@ for b in branches:
     else: level = "OK"
     if ahead > 0 and level == "OK": level = "NOTICE"
 
-    # 冲突检测(只有双向分叉才检测)
     conflicts = []
     status_desc = ""
     if ahead == 0 and behind == 0:
-        status_desc = "\u2705 \u5b8c\u5168\u540c\u6b65"
+        status_desc = "✅ 完全同步"
     elif ahead == 0 and behind > 0:
-        status_desc = f"\U0001f7e2 \u843d\u540emaster {behind}\u4e2acommit,\u65e0\u65b0\u5de5\u4f5c,Pi\u53ef\u5b89\u5168\u540c\u6b65"
+        status_desc = f"🟢 落后master {behind}个commit,无新工作,Pi可安全同步"
     elif ahead > 0 and behind == 0:
-        status_desc = f"\U0001f7e1 \u6709{ahead}\u4e2a\u65b0\u5de5\u4f5c\u672a\u5408\u5165master,\u7b49\u96c6\u6210\u7a97\u53e3"
+        status_desc = f"🟡 有{ahead}个新工作未合入master,等集成窗口"
     elif ahead > 0 and behind > 0:
-        status_desc = f"\U0001f534 \u53cc\u5411\u5206\u53c9:{ahead}\u4e2a\u65b0\u5de5\u4f5c+\u843d\u540e{behind},\u9700\u5224\u65ad"
-        # 检测冲突(merge dry-run)
+        status_desc = f"🔴 双向分叉:{ahead}个新工作+落后{behind},需判断"
         try:
             os.makedirs("/tmp/_drift_conflict_check", exist_ok=True)
-            os.system(f"rm -rf /tmp/_drift_conflict_check/*")
+            os.system("rm -rf /tmp/_drift_conflict_check/*")
             subprocess.run(["git", "worktree", "add", "--detach", "/tmp/_drift_conflict_check", ref],
                          capture_output=True)
             subprocess.run(["git", "-C", "/tmp/_drift_conflict_check", "fetch", "origin", "master"],
