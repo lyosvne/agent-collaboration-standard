@@ -41,13 +41,31 @@ def run_hook(command_text, repo_root=None):
 
 
 def ensure_no_override():
+    """清理 override 文件 + pending log（每个 case 前置）"""
     override = os.path.join(os.path.dirname(HOOK), ".review-gate-override.json")
     if os.path.exists(override):
         os.remove(override)
+    pending = os.path.join(os.path.dirname(HOOK), ".review-gate-override-pending.json")
+    if os.path.exists(pending):
+        os.remove(pending)
 
 
 PASS_COUNT = 0
 FAIL_COUNT = 0
+
+
+def _record(ok, name, detail=""):
+    """简化记录（SO-8 case 用）"""
+    global PASS_COUNT, FAIL_COUNT
+    if ok:
+        PASS_COUNT += 1
+        print(f"✅ PASS | {name}")
+    else:
+        FAIL_COUNT += 1
+        print(f"❌ FAIL | {name}")
+    if detail:
+        print(f"        {detail}")
+    print()
 
 
 def case(name, command, expected_exit, expected_contains=None, repo_root=None):
@@ -271,6 +289,233 @@ def main():
         shutil.rmtree(tmp_bad_yaml)
     except Exception:
         pass
+
+    # ===== round4 / SO-8: override 补录强制校验（round2: override_id 精确匹配）=====
+
+    pending = os.path.join(os.path.dirname(HOOK), ".review-gate-override-pending.json")
+    override = os.path.join(os.path.dirname(HOOK), ".review-gate-override.json")
+
+    # Case P1: override 触发 → 放行 + pending log 写入（含 override_id）
+    ensure_no_override()
+    with open(override, "w") as f:
+        json.dump({"until": time.time() + 600, "reason": "紧急 hotfix P1"}, f)
+    ec, out = run_hook(
+        'scp apply-foo-20260725.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        repo_root=tmp_repo,
+    )
+    p1_pending_written = os.path.exists(pending)
+    p1_has_id = False
+    if p1_pending_written:
+        try:
+            with open(pending) as f:
+                p1_data = json.load(f)
+            p1_has_id = (isinstance(p1_data, list) and len(p1_data) > 0
+                         and p1_data[-1].get("reason") == "紧急 hotfix P1"
+                         and p1_data[-1].get("override_id"))  # round2 必须有 override_id
+        except Exception:
+            pass
+    _record(ec == 0 and p1_has_id, "P1【SO-8】: override 触发 → 放行 + pending 含 override_id",
+            f"exit={ec} pending_has_id={p1_has_id}")
+
+    # Case P2: override 过期 + pending 未补录 → deny
+    ensure_no_override()
+    with open(pending, "w", encoding="utf-8") as f:
+        json.dump([{
+            "override_id": "1753000000-1234",
+            "used_at_iso": "2026-07-25T10:00:00",
+            "used_at_ts": time.time() - 3600,
+            "reason": "紧急 hotfix 未补录",
+            "filename": "apply-foo-20260725.py",
+            "command_head": "scp apply-foo...",
+        }], f, ensure_ascii=False)
+    ec, out = run_hook(
+        'scp apply-foo-20260725.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        repo_root=tmp_repo,  # 无 override 条目
+    )
+    _record(ec == 2 and "override 未补录" in out, "P2【SO-8】: pending 未补录 → deny",
+            f"exit={ec} 含提示={'override 未补录' in out}")
+
+    # Case P3: 闸门表加匹配 override_id 的 override 条目 → pending 清理（命令仍 deny 因 override≠PASS）
+    ensure_no_override()
+    tmp_repo_p3 = make_temp_repo("""\
+- gate_id: foo
+  verdict: override
+  override_id: 1753000000-1234
+  override_reason: 紧急 hotfix 已补录
+  override_date: 2026-07-25
+  files: [apply-foo-20260725.py]
+""")
+    with open(pending, "w", encoding="utf-8") as f:
+        json.dump([{
+            "override_id": "1753000000-1234",  # 与闸门表一致
+            "used_at_iso": "2026-07-25T10:00:00",
+            "used_at_ts": time.time() - 3600,
+            "reason": "紧急 hotfix",
+            "filename": "apply-foo-20260725.py",
+            "command_head": "scp apply-foo...",
+        }], f, ensure_ascii=False)
+    ec, out = run_hook(
+        'scp apply-foo-20260725.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        repo_root=tmp_repo_p3,
+    )
+    p3_cleared = not os.path.exists(pending)
+    _record(p3_cleared and ec == 2,
+            "P3【SO-8】: override_id 匹配 → pending 清理（命令仍 deny 因 override≠PASS）",
+            f"exit={ec} cleared={p3_cleared}")
+    try:
+        shutil.rmtree(tmp_repo_p3)
+    except Exception:
+        pass
+
+    # Case C1【核心】: 历史已有补录条目 + 新 override（不同 override_id）→ 仍 deny（防机制自毁）
+    # 这是 C round1 C1 钉死的 case
+    ensure_no_override()
+    tmp_repo_c1 = make_temp_repo("""\
+- gate_id: old-foo
+  verdict: override
+  override_id: 1753000000-old
+  override_reason: 老 override 已补录
+  override_date: 2026-07-20
+  files: [apply-old-foo.py]
+""")
+    # 新 override 的 pending（override_id 与老条目不同）
+    with open(pending, "w", encoding="utf-8") as f:
+        json.dump([{
+            "override_id": "1753000000-new",  # 新 id，老条目匹配不上
+            "used_at_iso": "2026-07-25T10:00:00",
+            "used_at_ts": time.time() - 3600,
+            "reason": "新 override 未补录",
+            "filename": "apply-new-foo.py",
+            "command_head": "scp apply-new-foo...",
+        }], f, ensure_ascii=False)
+    ec, out = run_hook(
+        'scp apply-new-foo-20260725.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        repo_root=tmp_repo_c1,
+    )
+    c1_pending_kept = os.path.exists(pending)  # 不应被老条目清理
+    _record(ec == 2 and c1_pending_kept and "override 未补录" in out,
+            "C1【C round1 C1】: 历史补录条目 + 新 override（不同 id）→ 仍 deny + pending 保留",
+            f"exit={ec} pending_kept={c1_pending_kept}")
+    try:
+        shutil.rmtree(tmp_repo_c1)
+    except Exception:
+        pass
+
+    # Case T1: override_reason 空串 → 即使 override_id 匹配也不算补录 → deny
+    ensure_no_override()
+    tmp_repo_t1 = make_temp_repo("""\
+- gate_id: foo
+  verdict: override
+  override_id: 1753000000-1234
+  override_reason: ""
+  override_date: 2026-07-25
+  files: [apply-foo.py]
+""")
+    with open(pending, "w", encoding="utf-8") as f:
+        json.dump([{
+            "override_id": "1753000000-1234",
+            "used_at_iso": "2026-07-25T10:00:00",
+            "used_at_ts": time.time() - 3600,
+            "reason": "x", "filename": "apply-foo.py", "command_head": "x",
+        }], f, ensure_ascii=False)
+    ec, out = run_hook(
+        'scp apply-foo-20260725.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        repo_root=tmp_repo_t1,
+    )
+    _record(ec == 2, "T1【B round2】: override_reason 空串 → deny",
+            f"exit={ec} (期望 2)")
+    try:
+        shutil.rmtree(tmp_repo_t1)
+    except Exception:
+        pass
+
+    # Case T2: override_reason 纯空白 " " → .strip() 后为空 → deny
+    ensure_no_override()
+    tmp_repo_t2 = make_temp_repo("""\
+- gate_id: foo
+  verdict: override
+  override_id: 1753000000-1234
+  override_reason: "   "
+  override_date: 2026-07-25
+  files: [apply-foo.py]
+""")
+    with open(pending, "w", encoding="utf-8") as f:
+        json.dump([{
+            "override_id": "1753000000-1234",
+            "used_at_iso": "2026-07-25T10:00:00",
+            "used_at_ts": time.time() - 3600,
+            "reason": "x", "filename": "apply-foo.py", "command_head": "x",
+        }], f, ensure_ascii=False)
+    ec, out = run_hook(
+        'scp apply-foo-20260725.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        repo_root=tmp_repo_t2,
+    )
+    _record(ec == 2, "T2【B round2】: override_reason 纯空白 → .strip() 后 deny",
+            f"exit={ec} (期望 2)")
+    try:
+        shutil.rmtree(tmp_repo_t2)
+    except Exception:
+        pass
+
+    # Case T3: 2 条 pending（不同 id），闸门表只补 1 条 → 清理已补的，剩 1 条仍 deny
+    ensure_no_override()
+    tmp_repo_t3 = make_temp_repo("""\
+- gate_id: foo
+  verdict: override
+  override_id: id-A
+  override_reason: 补了 A
+  override_date: 2026-07-25
+  files: [apply-foo.py]
+""")
+    with open(pending, "w", encoding="utf-8") as f:
+        json.dump([
+            {"override_id": "id-A", "used_at_iso": "2026-07-25T10:00:00", "used_at_ts": time.time() - 3600,
+             "reason": "A", "filename": "apply-foo.py", "command_head": "x"},
+            {"override_id": "id-B", "used_at_iso": "2026-07-25T11:00:00", "used_at_ts": time.time() - 1800,
+             "reason": "B 未补", "filename": "apply-foo.py", "command_head": "x"},
+        ], f, ensure_ascii=False)
+    ec, out = run_hook(
+        'scp apply-foo-20260725.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        repo_root=tmp_repo_t3,
+    )
+    # 检查 pending 只剩 id-B
+    t3_remaining = []
+    if os.path.exists(pending):
+        try:
+            with open(pending) as f:
+                t3_remaining = [p.get("override_id") for p in json.load(f)]
+        except Exception:
+            pass
+    _record(ec == 2 and t3_remaining == ["id-B"],
+            "T3【B round2】: 2 条 pending 只补 1 → 清已补的，剩 1 条仍 deny",
+            f"exit={ec} remaining={t3_remaining} (期望 ['id-B'])")
+    try:
+        shutil.rmtree(tmp_repo_t3)
+    except Exception:
+        pass
+
+    # Case P4: pending log 不存在 → 正常放行（不误伤新装）
+    ensure_no_override()
+    ec, out = run_hook(
+        'scp apply-b-layer-20260727.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        repo_root=tmp_repo,
+    )
+    _record(ec == 0, "P4【SO-8】: pending 不存在 → 正常放行（不误伤新装）",
+            f"exit={ec} (期望 0)")
+
+    # Case F5【C round1 C2】: pending log 损坏 → fail-closed deny
+    ensure_no_override()
+    with open(pending, "w") as f:
+        f.write("not valid json {{{")
+    ec, out = run_hook(
+        'scp apply-b-layer-20260727.py root@aetherisonline.xyz:/opt/pi-orchestrator/',
+        repo_root=tmp_repo,
+    )
+    _record(ec == 2 and "损坏" in out, "F5【C round1 C2】: pending 损坏 → fail-closed deny",
+            f"exit={ec} 含损坏提示={'损坏' in out}")
+
+    # 清理
+    ensure_no_override()
 
     # ===== 非 Bash 工具 =====
     case_non_bash()

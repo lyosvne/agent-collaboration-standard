@@ -2,7 +2,7 @@
 #
 # 字段约定：
 #   gate_id      : 闸门对象唯一标识（patch 脚本命名 apply-<gate_id>.py 必须与此精确等值匹配）
-#   files        : patch 文件名精确列表（hook 提取 apply-*.py 的 <gate_id> 后查 gate_id 字段）
+#   files        : patch 文件名精确列表（hook 提取 apply-*.py 完整文件名后查 files 字段精确等值）
 #   verdict      : PASS / 事后补审 / override / REVIEWING
 #   trigger_class: governance-review-process.md §四.步骤0 强制清单编号（1-6，可多选）
 #   review_dir   : archive/governance-review-<对象>-<date>/
@@ -11,10 +11,15 @@
 #   date         : patch 应用日期（YYYY-MM-DD）
 #   reviewer     : 评审方组合（A/B/C）
 #   expires      : 可选，PASS 有效期截止（ISO 日期），不填则永久
-#   override_reason: 仅 verdict=override 时必填，紧急 hotfix 原因
+#   override_reason: **verdict=override 时必填**，紧急 hotfix 原因（SO-8: hook 校验非空）
+#   override_date  : **verdict=override 时必填**，override 使用日期（YYYY-MM-DD）
 #
-# Hook 读取：~/.zcode/hooks/review-gate-precommit.py 在 scp/ssh 到 ECS 且匹配
-#   apply-*.py 或 /opt/pi-orchestrator 写路径时，读本表判定是否已有 PASS 条目；无则 deny。
+# Hook 读取：~/.zcode/hooks/review-gate-precommit.py 在 scp/rsync/ssh 到 ECS 且匹配
+#   apply-*.py 或 /opt/pi-orchestrator 写路径时：
+#   1. 查 files 字段精确等值 + verdict=PASS → 放行
+#   2. 无 PASS 条目 → deny
+#   3. SO-8 强制校验：若本地有未补录的 override pending（~/.zcode/hooks/.review-gate-override-pending.json），
+#      且本表无 verdict=override + override_reason 非空 条目 → deny（防"事后补退化为事后忘"）
 #
 # 维护方：ZCode（每次 ECS patch PASS 后追加；每次"事后补审/override"也必须留痕）。
 #
@@ -73,3 +78,22 @@
     round2：修 B/C 共识（files 精确等值 / lessons 单源 / config project 级 / rsync+IP / override 留痕 / 循环闭合）。
     round3：跳链纠正（用真实 opus4.8p 重调 A→PASS 撤销 round1 BLOCKER）+ fail-closed 单测钉死（C 自动降级条款）+ 路径归一化（B-Q3）+ 指针冻结（B-Q4）+ 跳链教训（lessons §8.6）+ spec §二.2.1 调度前校验。
     三方一致 PASS。详见 review-round3-PASS.md。
+
+# SO-8 override 补录强制校验（2026-07-25，B round2 标的真 fail-open）
+- gate_id: so8-override-backfill
+  files:
+    - .zcode/hooks/review-gate-precommit.py
+    - .zcode/hooks/test-review-gate.py
+  verdict: PASS
+  trigger_class: [4]  # 改 hook 脚本（治理基础设施）
+  review_dir: archive/governance-review-so8-override-backfill-20260725/
+  pass_round: round2
+  commit_sha: pending  # commit 后回填
+  date: 2026-07-25
+  reviewer: [A, B, C]
+  notes: |
+    SO-8 override 补录强制校验。round1 三方 CONDITIONAL（共识：补录判定宽松致机制自毁）。
+    round2 修复：override_id 精确匹配（A 方案 A + B/C 共识）+ override_reason .strip() + P3 文档化 +
+    原子写 + 结构性上限声明。30/30 单测 PASS（含 C1 钉死：历史补录+新 override→仍 deny）。
+    详见 review-round2-PASS.md。
+

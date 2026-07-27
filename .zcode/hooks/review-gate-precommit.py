@@ -26,6 +26,9 @@ import time
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OVERRIDE_FILE = os.path.join(SCRIPT_DIR, ".review-gate-override.json")
+# SO-8: override 补录强制校验。override 触发时写 pending log（本地状态，不进 repo），
+# 下次 hook 触发时校验闸门表是否有 verdict=override 条目，无则 deny（防"事后补退化为事后忘"）。
+OVERRIDE_PENDING_FILE = os.path.join(SCRIPT_DIR, ".review-gate-override-pending.json")
 
 # repo root 推断：hook 位于 <repo>/.zcode/hooks/，向上两级是 repo root
 # 环境变量优先（测试用），否则用脚本位置推断（团队 clone 零配置）
@@ -85,6 +88,160 @@ def get_override():
     except Exception:
         pass
     return None
+
+
+# ===== SO-8: override 补录强制校验（round2: override_id 精确匹配）=====
+
+def _atomic_write_json(path, data):
+    """原子写 JSON（A round2 建议：tmp + rename，避免断电损坏）。
+
+    失败不抛异常（紧急 hotfix 不能因日志写失败卡死），返回 bool。
+    """
+    tmp = path + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        # Unix 下设 0600（B round2 建议）；Windows 下 chmod 可能无效但不报错
+        try:
+            os.chmod(tmp, 0o600)
+        except Exception:
+            pass
+        os.replace(tmp, path)  # 原子 rename
+        return True
+    except Exception:
+        try:
+            if os.path.exists(tmp):
+                os.remove(tmp)
+        except Exception:
+            pass
+        return False
+
+
+def _gen_override_id():
+    """生成 override 唯一 id（round2 精确匹配用）。
+
+    格式：时间戳后10位 + 进程pid 后4位，保证单机内唯一性（pre-commit 串行）。
+    """
+    return f"{int(time.time())}-{os.getpid() & 0xFFFF}"
+
+
+def append_override_pending(reason, filename, command):
+    """override 触发时追加 pending 记录（本地状态，不进 repo）。
+
+    每条记录含唯一 override_id，闸门表补录时必须回填相同 override_id 才能清理。
+    """
+    pending = []
+    try:
+        with open(OVERRIDE_PENDING_FILE, "r", encoding="utf-8") as f:
+            pending = json.load(f)
+        if not isinstance(pending, list):
+            pending = []
+    except Exception:
+        pass
+
+    now_ts = time.time()
+    entry = {
+        "override_id": _gen_override_id(),
+        "used_at_iso": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(now_ts)),
+        "used_at_ts": now_ts,
+        "reason": reason or "(无 reason)",
+        "filename": filename or "(未识别)",
+        "command_head": (command or "")[:120],
+    }
+    pending.append(entry)
+    _atomic_write_json(OVERRIDE_PENDING_FILE, pending)
+
+
+def check_override_pending_backfilled():
+    """校验 pending log 里的 override 是否已在闸门表补录（round2: 逐条 override_id 精确匹配）。
+
+    返回: (all_backfilled: bool, unmatched_count: int, detail: str)
+    """
+    if not os.path.exists(OVERRIDE_PENDING_FILE):
+        return True, 0, "无 pending 记录"
+
+    pending = []
+    try:
+        with open(OVERRIDE_PENDING_FILE, "r", encoding="utf-8") as f:
+            pending = json.load(f)
+        if not isinstance(pending, list):
+            pending = []
+    except Exception as e:
+        # 解析失败 fail-closed（A/B 共识）
+        return False, -1, f"pending log 损坏: {e}（建议 rm {OVERRIDE_PENDING_FILE}）"
+
+    if not pending:
+        return True, 0, "pending 为空"
+
+    # 读闸门表，收集所有已补录的 override_id（verdict=override + override_reason.strip() 非空 + override_id 非空）
+    entries, err = load_gate_log()
+    if entries is None:
+        return False, len(pending), f"闸门表不可读无法校验 override 补录: {err}"
+
+    backfilled_ids = set()
+    for e in entries:
+        if not isinstance(e, dict):
+            continue
+        if str(e.get("verdict", "")).strip().lower() == "override":
+            reason = str(e.get("override_reason", "")).strip()  # round2: .strip() 归一化
+            oid = str(e.get("override_id", "")).strip()
+            if reason and oid:  # 必须有 override_id 且 reason 非空才算补录
+                backfilled_ids.add(oid)
+
+    # 逐条匹配
+    unmatched = [p for p in pending if p.get("override_id") not in backfilled_ids]
+    if not unmatched:
+        return True, 0, "全部 pending 已补录"
+    else:
+        sample = unmatched[-1]
+        ids_list = [p.get("override_id", "?") for p in unmatched]
+        return False, len(unmatched), (
+            f"检测到 {len(unmatched)} 条未补录 override（共 {len(pending)} 条 pending，"
+            f"已补 {len(pending) - len(unmatched)} 条）。未补录 override_id: {ids_list[:5]}"
+        )
+
+
+def clear_matched_override_pending():
+    """清理已被闸门表补录的 pending 记录（round2: 逐条按 override_id 清理，未匹配的保留）。"""
+    if not os.path.exists(OVERRIDE_PENDING_FILE):
+        return
+
+    try:
+        with open(OVERRIDE_PENDING_FILE, "r", encoding="utf-8") as f:
+            pending = json.load(f)
+        if not isinstance(pending, list):
+            return
+    except Exception:
+        return  # 损坏时不清理（让 check 路径处理）
+
+    entries, _ = load_gate_log()
+    if entries is None:
+        return
+
+    backfilled_ids = set()
+    for e in entries:
+        if isinstance(e, dict) and str(e.get("verdict", "")).strip().lower() == "override":
+            reason = str(e.get("override_reason", "")).strip()
+            oid = str(e.get("override_id", "")).strip()
+            if reason and oid:
+                backfilled_ids.add(oid)
+
+    remaining = [p for p in pending if p.get("override_id") not in backfilled_ids]
+
+    if len(remaining) == len(pending):
+        return  # 无变化，不写
+
+    if not remaining:
+        # 全清理：直接删文件
+        try:
+            os.remove(OVERRIDE_PENDING_FILE)
+        except Exception:
+            pass
+    else:
+        _atomic_write_json(OVERRIDE_PENDING_FILE, remaining)
+
+
+
 
 
 def extract_patch_filename(command):
@@ -230,19 +387,8 @@ def build_deny_reason(command, filename, target_hint, status, detail, open_ids):
         f"  4. 重试本命令\n\n"
         f"**紧急 hotfix override**（不推荐，会留痕）:\n"
         f"  写 `{OVERRIDE_FILE}` 内容 `{{\"until\": <unix_ts_30min后>, \"reason\": \"<必填>\"}}`\n"
-        f"  override 使用必须在闸门表追加 verdict=override 条目 + override_reason"
+        f"  **SO-8 强制校验**: override 使用会在 pending log 记录，下次部署前若闸门表无 verdict=override 条目会被拦"
     )
-
-
-def log_override_use(override_data):
-    """override 被使用时，在闸门表追加留痕行（B-Q5）。
-
-    注意：hook 只读不写 repo 文件（避免 hook 改 repo 造成副作用）。
-    此函数仅打印提示，实际留痕靠 ZCode 自觉（spec 约束）。
-    """
-    # 仅 stdout 提示（hook stdout 在 deny 时显示给用户，在 pass 时不显示）
-    # 这里靠 deny_reason 里的提示已经够了，不再额外动作
-    pass
 
 
 def main():
@@ -261,11 +407,16 @@ def main():
     if not command:
         return
 
-    # 检查 override（用于 deny 消息提示，但仍记录使用）
+    # 检查 override（SO-8: 放行前追加 pending log，留下次校验）
     override_data = get_override()
     if override_data:
-        # override 生效 → 放行（但提示需留痕）
-        # 注：override 放行时不阻断，提示靠下次 ZCode 自觉补表
+        # override 生效 → 放行，但记 pending（下次非 override 触发会校验是否已补闸门表）
+        filename_hint = extract_patch_filename(command)
+        append_override_pending(
+            override_data.get("reason", "(无 reason)"),
+            filename_hint,
+            command,
+        )
         return
 
     # 判定是否命中强制触发
@@ -278,6 +429,39 @@ def main():
 
     if not (is_transfer_apply or is_ssh_write):
         return  # 非强制触发，放行
+
+    # SO-8: 命中强制触发后，先校验是否有未补录的 override（B-Q5 真阻断）
+    backfilled, unmatched_count, pending_detail = check_override_pending_backfilled()
+
+    # 无论是否全部补录，都先清理已匹配的 pending（round2 T3: 部分补录场景下清已补的）
+    clear_matched_override_pending()
+
+    if not backfilled:
+        reason = (
+            f"⚠️ **Pre-commit 评审闸门阻断（override 未补录）**\n\n"
+            f"检测到 {unmatched_count} 条 override 使用未在闸门表补录条目。\n\n"
+            f"**详情**: {pending_detail}\n\n"
+            f"**为何阻断**: override 紧急放行后必须在闸门表补 verdict=override 条目（含相同 override_id），"
+            f"否则审计链断（B-Q5: '事后补退化为事后忘'；round2: 精确匹配防首次成功后永久失效）。\n\n"
+            f"**解锁步骤**:\n"
+            f"  1. 在 `governance/specs/pre-commit-review-gate-log.yaml` 追加条目，**override_id 必须与 pending 一致**:\n"
+            f"     ```yaml\n"
+            f"     - gate_id: <对象>\n"
+            f"       files: [<patch 文件名>]\n"
+            f"       verdict: override\n"
+            f"       override_id: <上面列出的 override_id>\n"
+            f"       override_reason: \"<紧急 hotfix 原因>\"\n"
+            f"       override_date: <YYYY-MM-DD>\n"
+            f"       trigger_class: [...]\n"
+            f"       commit_sha: <sha>\n"
+            f"     ```\n"
+            f"  2. 重试本命令（hook 按 override_id 逐条匹配，已补的清理，未补的仍 deny）\n\n"
+            f"  **注**: override 条目仅完成审计补录，本次部署仍需 PASS 条目才能放行（verdict=override ≠ verdict=PASS）。\n\n"
+            f"**或手动清理 pending**（如 override 是误触发）:\n"
+            f"  `rm {OVERRIDE_PENDING_FILE}`"
+        )
+        print(json.dumps({"decision": "block", "reason": reason}, ensure_ascii=False))
+        sys.exit(2)
 
     # 提取 patch 文件名（精确，消灭子串推断）
     filename = extract_patch_filename(command)

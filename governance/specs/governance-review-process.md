@@ -115,7 +115,19 @@ supersedes: []
 **强制机制**：
 - ZCode 在 Plan Mode 出方案时，若命中以上任一，必须在 plan 里显式标"⚠️ pre-commit 三方评审强制触发"，否则用户应拒绝批准
 - ZCode 应用层 PreToolUse hook（`~/.zcode/hooks/review-gate-precommit.py`）会在 `scp/ssh` 到 ECS 且匹配 `apply-*.py` 或 `/opt/pi-orchestrator` 写路径时，**Hard deny**——查闸门日志表无对应 PASS 条目即阻断
-- 紧急 hotfix 可写 `.review-gate-override.json`（30 分钟窗口）绕过，但闸门表会留"override 跳闸"记录（不推荐）
+- 紧急 hotfix 可写 `~/.zcode/hooks/.review-gate-override.json`（30 分钟窗口）绕过，但 **SO-8 强制补录闭环**：
+  - override 触发时 hook 自动写 pending log（`~/.zcode/hooks/.review-gate-override-pending.json`，本地状态不进 repo）
+  - 每条 pending 含唯一 `override_id`，闸门表补录时必须回填相同 `override_id`（round2 精确匹配，防首次成功后永久失效）
+  - 下次部署（override 窗口外）若闸门表无对应 `override_id` 的 `verdict: override` + `override_reason` 非空 条目 → **hook deny**，强制补录
+  - 补录后 hook 按 `override_id` 逐条清理 pending（部分补录场景：清已补的，剩未补的仍 deny）
+  - 闸门表 override 条目必填字段：`verdict: override` / `override_id` / `override_reason` / `override_date` / `files` / `commit_sha`
+  - **override 条目仅完成审计补录，本次部署仍需 PASS 条目才能放行**（verdict=override ≠ verdict=PASS）
+  - 不推荐常规使用（防忘记机制不应被 override 习惯化）
+- **SO-8 结构性上限声明**（A round1 建议，防误以为闸门已闭环）：
+  - 本机制**不解决** `git commit --no-verify` / `rm ~/.zcode/hooks/.review-gate-override-pending.json` / 多机漂移等恶意绕过
+  - 防恶意靠 server 端 pre-receive hook 兜底（SO-9，独立任务）
+  - 本地 pending log 不进 repo → drift-check 监控不到，但闸门表 override 条目进 git 真值层（drift-check 可校验 schema 必填字段非空）
+  - pending log 写入用原子写（tmp + rename）+ 0600 权限（Unix），防断电损坏
 
 **反面案例**（写入 `review-process-lessons.md` §8）：2026-07-27 Pi 治理纳入 B/C 层三次跳过此闸门，事后补审，根因是当时无强制触发机制（本步骤 0 + hook 是修复方案）。
 
