@@ -127,7 +127,7 @@ Pi（ECS）能做的：
 |----|------|------|
 | A 文档/配置 | spec 真值对齐 + `drift-config.json` 创建 | ✅ 2026-07-26 完成 |
 | B 协议层 | dispatch-server `/truth/versions` 端点（时序版本自动化）| ✅ 2026-07-27 完成（加 `/dispatch/truth/versions` + `/dispatch/drift` 两端点，patch 见 `archive/dispatch-server-patches/apply-b-layer-20260727.py`）|
-| C ECS 工程 | `pi-drift-guard` Extension 代码 + systemd 托管 + spawn exports 修复 | ⏳ 待用户授权（systemd / `.service` 红线）+ ZCode 实施；C 层范围已收窄：ECS shell cron（drift-cron.sh/drift-check.sh/conflict-tracker.py）已覆盖 §3 漂移体检 90% 功能，C 层剩 drift-check.sh 退役分支修复（claude/trae→按 drift-config.json）+ 可选 TS Extension（需先修 spawn exports bug）|
+| C ECS 工程 | `pi-drift-guard` Extension 代码 + systemd 托管 + spawn exports 修复 | ⏳ 待用户授权（systemd / `.service` 红线）+ ZCode 实施。**C 层范围已收窄（实证见 `archive/ecs-scripts/README.md`）**：ECS shell cron（drift-cron.sh/drift-check.sh/conflict-tracker.py）已覆盖 §3 漂移体检 ~95%（仅"写 Aetheris 真值层"未实现，但飞书卡片 + `/dispatch/drift` 端点已暴露）；§5 源头预防部分覆盖（§5.1 铁律已固化 / §5.2 pre-commit hook 未实现 / §5.3 集成窗口未实现，不阻断核心闭环）。C 层剩余：drift-check.sh 退役分支修复（claude/trae→按 drift-config.json）+ §5.2/§5.3 增强 + 可选 TS Extension（需先修 spawn exports bug）|
 
 **deployment 实证**（来源 `templates/zcode-claude-replacement-report.md`，非真值层）：
 - Pi daemon 进程存活（部署验证时 PASS：daemon / 崩溃恢复 / IPC / Aetheris 连通）

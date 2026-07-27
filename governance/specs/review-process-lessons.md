@@ -207,8 +207,52 @@ B 的 10 条量化门禁、A 的"自相矛盾"检查、C 的"Pi 纳入而非另�
 
 **改进**:修复 fail-closed 探针后,必须用真实数据复跑,验证"该阻断的阻断、该放行的放行"。round2 经过 3 次迭代(117→61→0)才让 gate3 正确三分类。这证明 fail-closed 设计需要真实数据校准,不能只看代码逻辑。
 
+## 八、节点纪律违规：Pi 治理纳入 B 层事后补审（2026-07-27）
+
+### 8.1 违规情形
+
+Pi 治理纳入 B 层（dispatch-server 加 `/truth/versions` + `/drift` 端点，commit bac6e95）**未走 pre-commit 三方评审**，直接改 ECS + push + 重启服务。用户发现后要求事后补审，A/B/C 三方评审全 CONDITIONAL（无 PASS），共识 4 阻断：
+- `/truth/versions` 缺 commit SHA / content hash（node1 §5.3 原设计含）
+- drift 透传 fail-open（文件缺失返回 200 + `{}`）
+- C 层"90%"收窄依据是 self-claim 非实证
+- 过程违规未落账
+
+### 8.2 为何可接受（不强制回滚）
+
+A/B/C 三方共识不要求回滚，依据：
+- 改动 additive（2 个 GET 端点 + 1 常量），非破坏性
+- 有 `.bak` 备份 + 回滚方案齐备
+- `/health` 回归通过，blast radius 低
+- 不涉及密钥/写操作/master 分支
+- 补审质量高（diff 真实 + 锚点 fail-closed + ECS 实证有时间戳）
+
+### 8.3 真问题（不能因"结果工作"放过）
+
+ZCode 自我开脱"B 层是小改动"是错的。加端点是真设计决策：
+- 字段设计（filename/version/source 三字段够不够）—— A/B 共识缺 commit SHA 让端点变"装饰品"
+- 透传方式（raw vs json 规范化）—— C 指出踩中 §6.4 fail-open 模式
+- 版本解析（正则边界）—— 未来 semver 三段必断
+
+这些都是评审该拦的设计问题，pre-commit 评审能避免补审 + 重新 patch + 二次重启的返工成本。
+
+### 8.4 防复发措施（强制触发条件）
+
+**今后以下动作必须 pre-commit 三方评审**（节点纪律强化）：
+1. 改 `/opt/pi-orchestrator/extensions/dispatch-server.py`（治理契约对外接口）
+2. 改任何 ECS systemd 服务文件 / `.service` unit
+3. 改 dispatch-server 端点（加/改/删路由）
+4. 改 drift-cron.sh / drift-check.sh / conflict-tracker.py（漂移治理核心脚本）
+
+**强制机制**：ZCode 在 Plan Mode 出方案时，若命中以上任一，必须在 plan 里显式标"⚠️ pre-commit 三方评审强制触发"，否则用户应拒绝批准。
+
+### 8.5 教训
+
+- "小改动"是 agent 给自己开脱的话术，节点纪律不看改动大小看"是否有设计决策"
+- ECS 改动回滚成本（服务已重启 + 端点已暴露）高于补审收益时，补审可接受，但必须落账 + 修阻断
+- 评审方要敢标阻断（A 标 3 阻断是对的态度），不能因"实测返回 200"就放过
+
 ## 七、当前状态
 
 本文件作为活文档，后续每次评审后追加新教训。
 
-**最近更新**:2026-07-26 节点2 round1 + round2 教训(§六.1-6.5)。
+**最近更新**:2026-07-27 §八 节点纪律违规（Pi B 层事后补审）；2026-07-26 节点2 round1 + round2 教训(§六.1-6.5)。
