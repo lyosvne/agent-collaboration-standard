@@ -173,7 +173,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 ## 当前位置
 
-**O1（基座就绪）Phase D + 节点 3 方案 A 执行全部完成；Pi 治理纳入 A 层完成（B/C 层待 ECS 实施）；待 .zcode/AGENTS.md 切换（2026-07-26 更新）。**
+**O1（基座就绪）Phase D + 节点 3 方案 A + Pi 治理纳入 A 层 + .zcode/AGENTS.md 路径切换全部完成；待 Pi 治理纳入 B/C 层（ECS 实施）+ 5 域闭环（云端/知识库校准）（2026-07-26 更新）。**
 
 ### 已完成（O1 协作底座 + 退役清理 + 治理真值）
 - CC→ZCode 迁移（CC 完全退役 + 密钥清除本机零残留）
@@ -235,7 +235,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 ### O1 待完成（P0 阻断真退出）
 1. **5 域一致性真闭环**（Git + ECS 已完成，本地降级为快照，云端/知识库 待校准）
 2. **Pi 漂移治理纳入** + **时序版本自动化**：A 层 ✅ 完成（spec 真值对齐 + `configs/drift-config.json`，2026-07-26）；B 层（dispatch-server `/truth/versions` 端点）+ C 层（pi-drift-guard Extension + systemd 托管）待 ECS 实施，详见 `specs/pi-drift-governance-spec.md §10`
-3. **`.zcode/AGENTS.md` 路径声明切换**（红线：全局配置，需用户单独审；当前仍指向 `~/.agent-collaboration/standards/`，因快照保留不断链）
+3. **`.zcode/AGENTS.md` 路径声明切换** ✅ 已完成（2026-07-26，Option Y 落地）：L54-56 路径切到 git 仓库本地 clone（`Documents\trae_projects\agent-collaboration-standard\`）；L44 Trae→Trae SOLO + L45 架构真值路径补全；L59 加 Phase D 降级声明；快照保留作只读历史（用户裁定，物理删除留第 5 批）
 
 ### 节点 2 评审新暴露的真缺口（2026-07-26 新增，无历史章节承载）
 5. ~~**dispatch-server 治理文档透出缺失**（P0 传播缺口）~~ ✅ **已闭环（2026-07-26 第 1 批）**：
@@ -283,6 +283,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v1.8 .zcode/AGENTS.md 路径切换 | 2026-07-26 | Option Y 落地（node1 用户裁决第 1 项）：`.zcode/AGENTS.md` L54-56 路径切到 git 仓库本地 clone（START_HERE/governance/templates）；L44 Trae→Trae SOLO；L45 架构真值路径补全；L59 加 Phase D 降级声明；快照保留作只读历史（用户裁定）。O1 #3 标完成。AGENTS.md 在仓库外不入 git，本行留审计痕迹 |
 | v1.7 Pi 治理纳入 A 层 | 2026-07-26 | Pi 治理纳入 A 层完成：spec 4 处过时修复（claude/trae/mira角色/review状态）+ `configs/drift-config.json` 创建（治理对象清单不硬编码）+ L180 措辞对齐 deployment 实证（Pi 未 systemd 托管/Extension 未写）+ spec §10 实施状态固化；O1 #2 改为"A 层完成；B/C 层待 ECS 实施"；删 O1 重复 #5；manual-overrides +7 条（pi-spec 5 + drift-config 2）；B/C 层登记后续任务 |
 | v1.6 节点3执行完成 | 2026-07-26 | §当前位置更新：节点3方案A执行4轮评审通过（A/B/C 全PASS）；Qoder Webhook 全面传播+Trae SOLO 全仓统一+exceptions ROLE清零；O1收口项 #10/#11 标完成；增 #9 root层legacy文档清理待办；Pi治理纳入触发条件已满足 |
 | v1.5 节点3评审通过 | 2026-07-26 | §当前位置更新：Phase D 合并 master+push+ECS 同步完成；第3批远程分支清理（5→1）+ feat 合并；节点3评审三方一致推荐方案 A（分层保留）；待办改为节点3执行 + Pi 治理纳入 |
