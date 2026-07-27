@@ -1,16 +1,16 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "version": "1.0",
-  "updated": "2026-07-26",
-  "note": "Pi 漂移治理体检对象清单（pi-drift-governance-spec.md §2）。clone 路径占位符由部署方按 ECS/本机实际填写，不硬编码。",
+  "version": "1.1",
+  "updated": "2026-07-27",
+  "note": "Pi 漂移治理体检对象清单（pi-drift-governance-spec.md §2）。clone 路径占位符由部署方按 ECS/本机实际填写，不硬编码。drift-check.sh 自 2026-07-27 起从本文件读 Aetheris agent_branches（去硬编码）。",
   "repos": [
     {
       "name": "agent-collaboration-standard",
-      "origin": "https://github.com/AetherisClubs/agent-collaboration-standard",
+      "origin": "https://github.com/lyosvne/agent-collaboration-standard",
       "truth_branch": "master",
-      "agent_branches": ["agent/zcode", "agent/qoder", "agent/kimi", "agent/solo", "agent/mira"],
-      "monitor_level": "full",
-      "note": "本仓库（agent-collaboration-git-sync-plan.md §六验收对象，依赖 pi-drift-guard Extension 上线）"
+      "agent_branches": [],
+      "monitor_level": "none",
+      "note": "治理仓库，不用 agent/* 分支模型（直接 commit master，2026-07-27 校准）。drift-check.sh 不扫此仓库；版本真值经 dispatch-server /truth/versions 端点暴露（spec §10 B 层），pi-drift-guard Extension 上线后可纳入完整体检"
     },
     {
       "name": "Aetheris",
@@ -18,7 +18,7 @@
       "truth_branch": "master",
       "agent_branches": ["agent/zcode", "agent/qoder", "agent/kimi", "agent/solo", "agent/mira"],
       "monitor_level": "full",
-      "note": "主仓库（架构 v1.0 §五）"
+      "note": "主仓库（架构 v1.0 §五）。2026-07-27 校准：agent/mira 实测存在于 Aetheris 远程（head=c51a93a7，CRITICAL 状态），保留监控；agent/claude / agent/trae 已退役见 retired_clones"
     }
   ],
   "retired_clones": {

@@ -243,6 +243,7 @@ ZCode 自我开脱"B 层是小改动"是错的。加端点是真设计决策：
 3. 改 dispatch-server 端点（加/改/删路由）
 4. 改 drift-cron.sh / drift-check.sh / conflict-tracker.py（漂移治理核心脚本）
 5. 改 dispatch-server 鉴权逻辑（AUTH_KEY/IP allowlist/Caddy auth）—— round3 `/dispatch/drift` 加 AUTH_KEY 就走了完整 pre-commit Plan Mode 流程（先 plan → 用户审 → 应用 → 验证 → 评审），是 §8.4 的首个正面案例
+6. 改 drift-cron.sh / drift-check.sh（2026-07-27 C 层补：drift-check.sh 去硬编码读 drift-config.json，是第 4 类首次触发）—— **教训**：派 Explore agent 探明 Aetheris 分支时报告"agent/mira 不存在"，据此让用户决策"修配置去 mira"，但 drift-check.sh 实测应用后发现 mira 真实存在（head=c51a93a7）。**根因**：探明与实际部署之间有时间窗，且 `git branch -r` 依赖本地 fetch 时机。**改进**：凡涉及"远端有什么"的事实，应**先跑实际命令（drift-check.sh / git ls-remote）**再让用户决策，不要基于二手探明报告让用户做配置裁定
 
 **强制机制**：ZCode 在 Plan Mode 出方案时，若命中以上任一，必须在 plan 里显式标"⚠️ pre-commit 三方评审强制触发"，否则用户应拒绝批准。
 
