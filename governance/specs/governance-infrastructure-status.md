@@ -59,6 +59,29 @@ python scripts/check-reviewer-tiers-drift.py  # lint
 
 **当前全绿状态**（2026-07-28，commit 9c6d8c1）：bootstrap 15/15 + session 14/14 + chain 29/29 + drift 6/6 + review 30/30 + lint exit 0
 
+## 二·五、四闸门拦截矩阵（C round2 Q5 诉求：防闸门本身成漂移面）
+
+> 单点看每个 hook 的文档不够——必须有一张统一矩阵，横向比对"拦什么 / 查什么 / fail 行为"，发现重叠或漏洞。
+
+| 闸门 | 事件 | matcher | 拦什么动作 | 查什么条件 | fail 行为 | 威胁模型 |
+|---|---|---|---|---|---|---|
+| **bootstrap-gate** | PreToolUse（第1位） | Bash | 动手类：mira 评审调度 / ECS 操作（aetherisonline.xyz, apply-*.py）/ 改真值层（>file,cp,mv,python open 等） | bootstrap 标记：session_id 匹配 + truth_hashes（三件套 sha256）匹配 | 缺失/不匹配/损坏 → **deny + 提示重启 session** | 防诚实健忘，不防主动规避（变量拼接/eval 可绕，设计边界） |
+| **review-gate** | PreToolUse（第2位） | Bash | ECS patch 部署：scp/rsync apply-*.py 到 ECS / ssh 写 /opt/pi-orchestrator | 闸门表（pre-commit-review-gate-log.yaml）有对应 files 的 verdict=PASS；SO-8 override 补录闭环 | 无 PASS 条目 / override 未补录 → **deny + 提示走三方评审** | 防漏评审，不防恶意绕过（git --no-verify / rm pending 可绕） |
+| **chain-gate** | PreToolUse（第3位） | Bash | mira 评审调度（mira -p + 评审关键字）/ qoder C 调度 | --model/--tier 与 reviewer-tiers.yaml 一致 + 双源比对（YAML A/B 档位在 mira 平台清单） | 档位不一致 / 真值层解析失败 / 双源漂移 → **deny + 提示真值层期望档位** | 防跳链（凭 --help 换档），不防改 prompt 绕关键字 |
+| **session-gate** | PreToolUse（第4位） | Bash | mira 评审调度（同 chain-gate，但只校验 mira 平台 reviewer） | CURRENT_REVIEW_PROJECT + CURRENT_REVIEW_ROUND 环境变量齐备 + roundN 用 -r 续接 roundN-1 的正确 session_id | 未 export / 未用 -r / -r 错 id / 配置缺失 → **deny + 提示正确 id** | 防忘续接，不防故意不写关键字 |
+| **tiers-drift-gate** | PostToolUse | Write\|Edit | 改真值层文件（reviewer-tiers.yaml / governance-review-process.md / mira-integration-status.md） | 改后跑 lint（check-reviewer-tiers-drift.py）：reviewers/dispatchers/平台清单/session_continuity 必填字段一致 | lint exit≠0 → **deny + 提示 drift 详情** | 防手动 lint 靠自觉，不防 git checkout 旧版（独立任务） |
+
+**重叠与互补分析**：
+- bootstrap-gate（第1位）是**前置条件**：没 bootstrap，下游 3 个 gate 的"放行"决策不可信（hook 链短路，bootstrap-gate deny 了后面不跑）
+- chain-gate 与 session-gate 都拦 mira 评审调度，但**查的条件不同**（档位 vs 续接），互补不冲突
+- review-gate 只管 ECS patch，不与 mira 调度重叠
+- drift-gate 是 PostToolUse，与 PreToolUse 闸门正交（改后校验 vs 调用前校验）
+
+**已知覆盖缺口**（SO-13 待补）：
+- 改 review-sessions-index.yaml / pre-commit-review-gate-log.yaml / AGENTS.md 不被任何 gate 拦（truth_patterns 未含，B round2 D2）
+- hook 执行顺序无 lint 校验（A round2 新发现 2）
+- AGENTS.md 漂移不被 bootstrap truth hash 检测（C round2 新发现 3）
+
 ## 三、闸门表（pre-commit-review-gate-log.yaml）
 
 每个 hook 改动必须有对应 PASS 条目，否则下次部署被 review-gate 拦。
@@ -132,23 +155,25 @@ C（cantus via qoder-bridge）无 -r 续接，每轮 fresh + prompt 内嵌上轮
 
 **验证方法 + 应急方案**：见 `archive/governance-review-so12-bootstrap-gate-20260728/post-deploy-verification.md`
 
-## 六、fresh session 必读文件清单（compact 续接 bootstrap 三件套）
+## 六、fresh session 必读文件清单（compact 续接 bootstrap 三件套 + 2 扩展）
 
 SessionStart hook（SO-12）自动注入以下三件套到 additionalContext：
 1. **reviewer-tiers.yaml**（档位 + dispatchers + session_continuity）
 2. **governance-review-process.md §二**（A/B/C 调度 + C 完整 ssh 命令 + 续接准则）
 3. **.zcode/config.json**（hook 实际生效路径）
 
-**本文件（governance-infrastructure-status.md）也应进 bootstrap 集合**（SO-13 改进项——当前三件套不含本文件，是缺口）。
+**扩展必读**（SO-13 应纳入 bootstrap 集合，当前需手动查）：
+4. **本文件**（governance-infrastructure-status.md）—— 5 hook 全景 + 拦截矩阵 + 漂移面
+5. **cross-boundary-state-transfer-principle.md** —— 跨边界状态传递元原则（A round2 Q5 抽象，指导未来新场景）
 
-## 七、SO-13 / v2-13 backlog（11 项，三方评审共识）
+## 七、SO-13 / v2-13 backlog（13 项，三方评审共识 + 本文件派生）
 
 按优先级：
 
 ### 高优先级（C 强调否则评审记忆断链）
 1. **Aetheris 审计轨迹**：bootstrap 事件（session_id + 三件套版本 + 时间）异步写入 Aetheris 审计轨迹，作为"已读真值"的编队级审计证据（C round2 Q3）
-2. **编队原则提炼进 governance/**："session 边界必须重载真值 + 动手前 fail-closed"原则提炼一条进编队规范层，标注各 agent 实现方式（ZCode=hook，Qoder=prompt 内嵌+WebFetch），供 Kimi/Trae/Pi 接入（C round2 Q4 + A round2 Q5）
-3. **四闸门统一拦截矩阵**：chain/session/review/bootstrap 四闸门画统一矩阵（拦什么动作 / 查什么条件 / fail 行为），防闸门本身成为下一个漂移面（C round2 Q5）
+2. ~~**编队原则提炼进 governance/**~~ ✅ **已完成**（2026-07-28，`cross-boundary-state-transfer-principle.md` 落地，含各 agent 实现方式标注）
+3. ~~**四闸门统一拦截矩阵**~~ ✅ **已完成**（2026-07-28，本文件 §二·五 落地，含重叠互补分析 + 覆盖缺口）
 
 ### 中优先级
 4. truth_patterns 扩展：改为白名单目录 + `.agents/rules/truth-file.yaml` 自描述清单（B round2 D2）
