@@ -13,8 +13,31 @@ LAST_HASH_FILE="/opt/pi-orchestrator/logs/drift-last-state.hash"
 
 mkdir -p "$REPORT_DIR"
 
-# ① 体检
+# ① 体检（fail-open 修复 2026-07-27: drift-check 失败发系统异常卡片, 不再静默 abort）
+# PATCH-C-LAYER-FAILOPEN-FIX-20260727-APPLIED
+set +e
 bash "$DRIFT_CHECK" > "$REPORT_FILE" 2>/dev/null
+DRIFT_CHECK_RC=$?
+set -e
+
+if [ "$DRIFT_CHECK_RC" -ne 0 ]; then
+  # drift-check 失败: 不 cp（保留旧 drift-latest.json）, 发系统异常卡片
+  echo "[$TIMESTAMP] drift-check 失败(exit=$DRIFT_CHECK_RC), 发系统异常卡片"
+  lark-cli im +messages-send --as bot --chat-id "$CHAT_ID" \
+      --markdown "🚨 **Pi 漂移体检失败** (exit=$DRIFT_CHECK_RC)
+
+drift-check.sh 异常退出, 可能原因:
+- drift-config.json 不存在/语法坏/Aetheris 条目缺失
+- drift-mirrors/aetheris 目录被删
+- python3 / git 不可用
+
+排查: ssh root@aetherisonline.xyz 'bash /opt/pi-orchestrator/extensions/drift-check.sh'
+保留: 旧 drift-latest.json 未被覆盖, /dispatch/drift 端点仍返回上次成功报告" 2>/dev/null >> /dev/null || true
+  # 清理失败的报告文件（部分输出无价值）
+  rm -f "$REPORT_FILE" 2>/dev/null || true
+  exit 1
+fi
+
 cp "$REPORT_FILE" /opt/pi-orchestrator/logs/drift-latest.json
 python3 /opt/pi-orchestrator/extensions/conflict-tracker.py 2>/dev/null >> /opt/pi-orchestrator/logs/conflict-track.log || true
 

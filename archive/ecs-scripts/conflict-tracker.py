@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+# # PATCH-C-LAYER-FAILOPEN-FIX-20260727-APPLIED
 """
-Pi 冲突追踪+升级机制
+Pi 冲突追踪+升级机制（fail-open 修复 2026-07-27: 区分 RESOLVED vs DISAPPEARED）
 - 记录每个分支代码冲突的首次发现时间 + 持续次数
 - 每次体检后更新追踪状态
 - 持续未解决自动升级(NOTICE→WARN→CRITICAL)
 - 升级时发飞书告警给用户
+- 分支消失/配置漂移标 DISAPPEARED, 不误判 RESOLVED
 """
 import json, os, time, subprocess
 
@@ -43,38 +45,63 @@ def get_level(count):
             level = lvl
     return level
 
-def update_track(current_conflicts):
+def update_track(current_state):
     """
-    current_conflicts: dict {branch_name: [conflict_files]}
-    返回: 需要发告警的升级事件列表
+    current_state: dict {branch_name: {"conflicts": [...], "exists": bool}}
+    exists=False 表示分支在 report 但标记为配置漂移（drift-check ref 不存在）
+    返回: 需要发告警的升级事件列表（含 RESOLVED / DISAPPEARED 区分, 2026-07-27）
     """
     track = load_track()
     now = time.time()
     branches = track["branches"]
     escalations = []
 
-    # 更新已追踪的分支
+    # 更新已追踪的分支（fail-open 修复: 区分 RESOLVED vs DISAPPEARED）
     for name in list(branches.keys()):
-        if name in current_conflicts:
-            # 冲突还在,次数+1
+        state = current_state.get(name)
+        # 分支本次不在 report 里（被 drift-config.json 移除）→ DISAPPEARED
+        if state is None:
+            branches[name]["resolved"] = True
+            branches[name]["resolved_at"] = now
+            escalations.append({
+                "branch": name,
+                "level": "DISAPPEARED",
+                "hours": 0,
+                "files": [],
+                "first_seen": branches[name]["first_seen"]
+            })
+            continue
+        # 分支在 report 但标记为配置漂移（exists=False）→ DISAPPEARED（不误判 RESOLVED）
+        if not state.get("exists", True):
+            branches[name]["resolved"] = True
+            branches[name]["resolved_at"] = now
+            escalations.append({
+                "branch": name,
+                "level": "DISAPPEARED",
+                "hours": 0,
+                "files": [],
+                "first_seen": branches[name]["first_seen"]
+            })
+            continue
+        # 分支存在且 conflicts 非空 → 原 count+1 逻辑
+        if state["conflicts"]:
             branches[name]["count"] += 1
             branches[name]["last_seen"] = now
             old_level = branches[name]["level"]
             new_level = get_level(branches[name]["count"])
             branches[name]["level"] = new_level
-            
-            # 级别升级了 → 告警
+
             if new_level != old_level:
-                hours = branches[name]["count"] * 0.5  # 每次30分钟
+                hours = branches[name]["count"] * 0.5
                 escalations.append({
                     "branch": name,
                     "level": new_level,
                     "hours": hours,
-                    "files": current_conflicts[name],
+                    "files": state["conflicts"],
                     "first_seen": branches[name]["first_seen"]
                 })
         else:
-            # 冲突解决了!
+            # 分支存在且 conflicts=[] → 真解决了
             branches[name]["resolved"] = True
             branches[name]["resolved_at"] = now
             escalations.append({
@@ -84,10 +111,14 @@ def update_track(current_conflicts):
                 "files": [],
                 "first_seen": branches[name]["first_seen"]
             })
-            # 保留记录但标记已解决(下次体检可以清理)
 
-    # 新发现的冲突
-    for name, files in current_conflicts.items():
+    # 新发现的冲突（只看 exists=True 且 conflicts 非空）
+    for name, state in current_state.items():
+        if not state.get("exists", True):
+            continue
+        files = state["conflicts"]
+        if not files:
+            continue
         if name not in branches or branches[name].get("resolved"):
             branches[name] = {
                 "first_seen": now,
@@ -119,8 +150,15 @@ def process_escalations(escalations):
         name = esc["branch"]
         level = esc["level"]
         files = esc["files"]
-        
-        if level == "RESOLVED":
+
+        if level == "DISAPPEARED":
+            send_feishu(
+                f"⚠️ **{name} 分支消失**\n\n"
+                f"Pi 上次记录 agent/{name} 有冲突, 本次体检找不到该分支。\n"
+                f"可能: 分支被删/改名, 或 drift-config.json 配置漂移。\n"
+                f"未发'冲突已解决'卡片（避免误报）。"
+            )
+        elif level == "RESOLVED":
             send_feishu(
                 f"✅ **{name} 冲突已解决!**\n\n"
                 f"Pi 体检验证:agent/{name} 的代码冲突已被解决,分支已恢复正常。\n"
@@ -164,18 +202,22 @@ if __name__ == "__main__":
     if not os.path.exists(report_path):
         print("无体检报告,跳过")
         exit(0)
-    
+
     with open(report_path) as f:
         report = json.load(f)
-    
-    # 提取有代码冲突的分支(排除已解决的 work-ledger)
+
+    # 提取分支状态（fail-open 修复: 区分 RESOLVED vs DISAPPEARED）
+    # exists=False 表示配置漂移（drift-check ref 不存在, level=CRITICAL + ahead=-1）
     current = {}
     for b in report.get("branches", []):
         code_conflicts = [c for c in b.get("conflicts", []) if "work-ledger" not in c]
-        if code_conflicts:
-            name = b["branch"].replace("agent/", "")
-            current[name] = code_conflicts
-    
+        name = b["branch"].replace("agent/", "")
+        is_drift_marker = (b.get("level") == "CRITICAL" and b.get("ahead", 0) == -1)
+        current[name] = {
+            "conflicts": code_conflicts,
+            "exists": not is_drift_marker
+        }
+
     escalations = update_track(current)
     if escalations:
         process_escalations(escalations)
