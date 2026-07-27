@@ -94,7 +94,9 @@ def update_track(current_state):
         # 分支存在且 conflicts 非空 → 原 count+1 逻辑
         if state["conflicts"]:
             # round2: 分支复活（之前 disappeared_notified=True, 现在 exists=True 有冲突）→ 重置通知标记
+            # round3 修 B round2 C-1: 同时重置 resolved=False（DISAPPEARED 时遗留 True 会让 L127 当新分支双发）
             branches[name]["disappeared_notified"] = False
+            branches[name]["resolved"] = False
             branches[name]["count"] += 1
             branches[name]["last_seen"] = now
             old_level = branches[name]["level"]
