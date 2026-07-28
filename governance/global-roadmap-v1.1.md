@@ -252,7 +252,10 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
    - 新建 `specs/scripts-ownership.md`：盘点**实际 10 个脚本**（修正本行「5 个」滞后数字）+ 4 分类（lint 常驻 / 门禁执行器 / 门禁辅助 / 同步工具）+ 共性约定（路径常量 / 敏感配置归属 / fail-closed）+ 准入门槛 + 变更前置
    - 明确生命周期：check-hook-order / check-reviewer-tiers-drift 常驻（hook 依赖）；analyze-gate3 docstring 自标「用完可删」（删除需红线授权）；mirror-sync `--apply` 已禁用
    - 固化 Phase D-B 已建立的路径常量 + fail-closed 实践为 spec 条款
-8. **manual-history-overrides 可持续性**（人工 override + 双解析函数会漂移；每次文档增行要 rebuild-exceptions）
+8. ~~**manual-history-overrides 可持续性**（人工 override + 双解析函数会漂移；每次文档增行要 rebuild-exceptions）~~ ✅ **已闭环（2026-07-28，方案 spec）**：
+   - 新建 `specs/manual-overrides-sustainability.md`：机制现状（overrides 67 条 / exceptions 146 条 + round1→round4 fail-open→fail-closed 演进）+ 3 问题诊断（文件名带日期语义错位 / `_load_manual_overrides` 双实现漂移 / rebuild 门槛高）+ 4 改进方案（A 去日期后缀 / B 提取共享模块 / C overrides 自描述化 / D 现状+lint）
+   - 推荐路径：短期 D（本 spec + lint）/ 中期 A+B 合并 / 长期 C（SO-13 后续）
+   - **本 spec 是方案文档，非立即实施**——改进项（A/B/C）待排期，动 gate-checks/rebuild 时顺手做
 9. **root 层 legacy 文档退役角色清理**（C round4 指出非阻断）：TOOL_ROLE_MATRIX.md / GLOBAL_AGENT_GUIDE.md L5 / protocols/communication-command-protocol.md L218/254-255 / BOOTSTRAP_ONE_LINE.md L3 / docs/multi-agent-collaboration-operating-system.md L26 仍含 Trae IDE / Claude Code 活跃角色表述，建议并入"删 Tool Roles"待办或第 5 批长期卫生阶段
 
 ### O1 收口并行项（P1）
@@ -290,6 +293,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v1.15 manual-overrides 可持续性方案 | 2026-07-28 | 闭合 O1 缺口 #8：新建 `specs/manual-overrides-sustainability.md`，诊断 3 问题（日期后缀语义错位 / 双 `_load_manual_overrides` 漂移 / rebuild 门槛）+ 4 改进方案（A/B/C/D）+ 推荐路径。方案 spec 非立即实施，改进项待排期 |
 | v1.14 scripts 归属 spec | 2026-07-28 | 闭合 O1 缺口 #7「scripts 长期维护归属」：新建 `specs/scripts-ownership.md`，盘点实际 10 个脚本（修正本 roadmap「5 个」滞后数字）+ 4 分类 + 共性约定（路径常量/敏感配置/fail-closed）+ 准入门槛 + 变更前置。纯文档新增，不触发 pre-commit 评审 |
 | v1.13 dispatch-server 架构 spec | 2026-07-28 | 闭合 O1 缺口 #6「dispatch-server 架构 spec 缺失」：新建 `specs/dispatch-server-architecture.md` v0.1 草案（从 5 patch + ecs-scripts/README + roadmap 反推），覆盖部署拓扑 / 6 端点契约 / 鉴权模型 / 消费者契约 / 变更前置红线；5 项字段待 ECS 实测补完（spec §7）。纯文档新增，不触发 pre-commit 评审（非 hook 代码/ECS/红线配置） |
 | v1.12 Pi C 层 fail-open 修复 | 2026-07-27 | drift-cron.sh + conflict-tracker.py 两个 fail-open 路径修复（三方评审软观察 backlog）：(1) drift-cron drift-check 失败发飞书系统异常卡片 + 保留旧 drift-latest.json（实测验证 fail-safe，B/C 评审说的"半成品 cp"证伪——set -e 在 L17 触发，L18 cp 不执行）；(2) conflict-tracker 区分 RESOLVED vs DISAPPEARED（分支消失/配置漂移不误判 RESOLVED，实测 3 场景验证：配置漂移→DISAPPEARED / 真解决→RESOLVED / 冲突还在→无 escalation）。patch `apply-c-layer-failopen-fix-20260727.py`（整体重写 conflict-tracker 避免锚点脆弱）；gen-card.py 归档 `archive/ecs-scripts/`；按 §8.4 第 4 类走 pre-commit 流程 |
