@@ -243,7 +243,11 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
    - qoder-bridge.py 注入 FLEET_HEADER 启动头（红线 + 编队身份 + WebFetch 指引）
    - ECS 部署 + governance-mirror 同步 + 端到端验证（cantus 复述红线 5 条 + 北极星 + 路线图）
    - 详见 `specs/node2-review-retrospective-20260726.md` §三
-6. **dispatch-server 架构 spec 缺失**（生产组件无文档/无职能归属）
+6. ~~**dispatch-server 架构 spec 缺失**（生产组件无文档/无职能归属）~~ ✅ **已闭环（2026-07-28，草案 v0.1）**：
+   - 新建 `specs/dispatch-server-architecture.md`：从 5 个 patch + ecs-scripts/README + 本 roadmap 反推部署拓扑 / 端点契约 / 鉴权模型 / 消费者契约 / 变更前置
+   - 覆盖 6 端点（4 治理文档公开 + truth/versions 公开 + drift AUTH_KEY + append-history AUTH_KEY）+ systemd unit + Caddy 反代 + 5 配套 cron 脚本
+   - 明确变更前置红线（§8.4 第 4 类 pre-commit 评审）+ patch 规范（幂等+备份+哨兵，归档 archive/dispatch-server-patches/）
+   - **草案状态**：5 项字段待 ECS 实测补完（append-history 字段表 / Content-Type / Caddy 真值 / DISPATCH_DIR 结构 / 健康检查端点），见 spec §7
 7. **scripts/ 工具脚本长期维护归属**（5 个 .py 无 spec；Phase D-B 已触及，建议合并处理）
 8. **manual-history-overrides 可持续性**（人工 override + 双解析函数会漂移；每次文档增行要 rebuild-exceptions）
 9. **root 层 legacy 文档退役角色清理**（C round4 指出非阻断）：TOOL_ROLE_MATRIX.md / GLOBAL_AGENT_GUIDE.md L5 / protocols/communication-command-protocol.md L218/254-255 / BOOTSTRAP_ONE_LINE.md L3 / docs/multi-agent-collaboration-operating-system.md L26 仍含 Trae IDE / Claude Code 活跃角色表述，建议并入"删 Tool Roles"待办或第 5 批长期卫生阶段
@@ -283,6 +287,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v1.13 dispatch-server 架构 spec | 2026-07-28 | 闭合 O1 缺口 #6「dispatch-server 架构 spec 缺失」：新建 `specs/dispatch-server-architecture.md` v0.1 草案（从 5 patch + ecs-scripts/README + roadmap 反推），覆盖部署拓扑 / 6 端点契约 / 鉴权模型 / 消费者契约 / 变更前置红线；5 项字段待 ECS 实测补完（spec §7）。纯文档新增，不触发 pre-commit 评审（非 hook 代码/ECS/红线配置） |
 | v1.12 Pi C 层 fail-open 修复 | 2026-07-27 | drift-cron.sh + conflict-tracker.py 两个 fail-open 路径修复（三方评审软观察 backlog）：(1) drift-cron drift-check 失败发飞书系统异常卡片 + 保留旧 drift-latest.json（实测验证 fail-safe，B/C 评审说的"半成品 cp"证伪——set -e 在 L17 触发，L18 cp 不执行）；(2) conflict-tracker 区分 RESOLVED vs DISAPPEARED（分支消失/配置漂移不误判 RESOLVED，实测 3 场景验证：配置漂移→DISAPPEARED / 真解决→RESOLVED / 冲突还在→无 escalation）。patch `apply-c-layer-failopen-fix-20260727.py`（整体重写 conflict-tracker 避免锚点脆弱）；gen-card.py 归档 `archive/ecs-scripts/`；按 §8.4 第 4 类走 pre-commit 流程 |
 | v1.11 Pi C 层 drift-check 去硬编码 | 2026-07-27 | drift-check.sh 去硬编码（从 drift-config.json 读 Aetheris agent_branches）+ 加 ref 存在性检查（防御配置漂移，MISSING 级别）+ 配置读失败 fail-closed；drift-config.json 真值校准（repos[0] agent-collaboration-standard 标 monitor_level none + agent_branches=[] 因治理仓库无 agent/* 模型；repos[1] Aetheris 保留 5 分支含 mira——实测 mira 存在 head=c51a93a7）；patch `apply-c-layer-drift-check-20260727.py`；实测 5 分支（zcode OK / qoder+kimi+mira CRITICAL / solo NOTICE），claude/trae 已移除；按 §8.4 第 4 类走 pre-commit 流程；**过程教训**：探明报告说 mira 不存在误导用户决策，实测应用后发现真实存在，已写入 lessons §8.4.6 |
 | v1.10 Pi B 层 round3 drift 鉴权 | 2026-07-27 | `/dispatch/drift` 加 AUTH_KEY（query param `?key=$DISPATCH_KEY`，修 A round2 阻断：公网 `https://aetherisonline.xyz/dispatch/drift` 无 auth 可达）；`/truth/versions` 保持公开（敏感度低）；3 patch 脚本归档 `archive/dispatch-server-patches/`；按 §8.4 走完整 pre-commit 流程（Plan Mode → 用户审 → 应用 → 验证 → 评审），是 §8.4 首个正面案例；实测公网无 key 403 / 带 key 200 / truth/versions 公开 / health 回归 |
