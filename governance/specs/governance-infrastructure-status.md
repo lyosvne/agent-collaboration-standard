@@ -54,7 +54,8 @@ python .zcode/hooks/test-session-gate.py
 python .zcode/hooks/test-chain-gate.py
 python .zcode/hooks/test-tiers-drift-gate.py
 python .zcode/hooks/test-review-gate.py
-python scripts/check-reviewer-tiers-drift.py  # lint
+python scripts/check-reviewer-tiers-drift.py  # 档位真值层 lint
+python scripts/check-hook-order.py            # PreToolUse 顺序契约 lint（SO-13 #8）
 ```
 
 **当前全绿状态**（2026-07-28，commit 9c6d8c1）：bootstrap 15/15 + session 14/14 + chain 29/29 + drift 6/6 + review 30/30 + lint exit 0
@@ -180,7 +181,7 @@ SessionStart hook（SO-12）自动注入以下三件套到 additionalContext：
 5. SessionStart hook 单测：3 case（三件套齐 / 缺 1 / 全缺），验证 additionalContext + 标记写入（B round2 D5）
 6. hook 性能预算：PreToolUse 链 P95 < 200ms + bootstrap-gate 60s TTL 缓存（B round2 D6）
 7. 共享模块 fail-closed：`_bootstrap_common.py` import 失败时 gate 应 deny 而非崩（A round2 新发现 1）
-8. config.json 顺序 lint：PreToolUse 顺序与 AGENTS.md 声明一致性校验（A round2 新发现 2）
+8. ~~config.json 顺序 lint~~ ✅ **部分完成**（2026-07-28，`scripts/check-hook-order.py` 落地，校验 bootstrap-gate 第 1 位硬契约）。**子任务待做**：接入 drift-gate 的 TRIGGER_PATTERNS（改 config.json 时自动跑此 lint），需改 hook 代码（触发 §四.步骤0）
 9. AGENTS.md 纳入 truth hash 集：自举规则/顺序契约本身写在 AGENTS.md，漂移检测不到（C round2 新发现 3）
 10. env 缺失全 deny 的入口覆盖确认：ZCode 所有启动路径都触发 SessionStart 注入 session_id（C round2 新发现 2）
 
