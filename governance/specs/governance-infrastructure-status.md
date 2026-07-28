@@ -117,24 +117,34 @@ C（cantus via qoder-bridge）无 -r 续接，每轮 fresh + prompt 内嵌上轮
 
 ### 5.1 home 级 vs project 级 hooks 双源（SO-11-v2-2 时发现，未消除）
 
-**现状**：
-- `C:\Users\Admin\.zcode\hooks\`（home 级）和 repo `.zcode/hooks/`（project 级）**两处都有 hook 文件**
-- 全局 config（`~/.zcode/v2/config.json`）**不挂任何 hook**（hooks: {}），只有 project 级 config 挂
-- 实际生效的是 **project 级**（config.json `${ZCODE_PROJECT_DIR}` 指向它）
+> ⚠️ **2026-07-28 事实订正**（原描述基于查错 config 文件的错误推断，本节经实测重写）：之前说"全局 config 不挂任何 hook"是**错的**——ZCode 有**两个** user 级 config 文件，之前只查了 `v2/config.json`（纯 provider），漏查了 `cli/config.json`（真正挂 hook 的）。
 
-**冗余副本**（两处一致，hash 相同，但双份）：
-- chain-gate-precommit.py / review-gate-precommit.py / session-gate-precommit.py / tiers-drift-gate-postuse.py
-- 对应的 test-*.py
+**现状（2026-07-28 实测，3 套配置并存）**：
 
-**home 级孤儿文件**（project 级没有，全局 config 不引用，疑似 Claude Code 时代遗留）：
+| 配置文件 | 作用域 | 挂了什么 | 实际生效 |
+|----------|--------|----------|----------|
+| `~/.zcode/cli/config.json`（user 级） | **全域**（所有 session） | 3 个 CC 时代 hook：context-monitor（PostToolUse）/ context-monitor-gate + execution-discipline-gate（PreToolUse） | ✅ 全域跑（指向 `C:\Users\Admin\.zcode\hooks\`） |
+| `~/.zcode/v2/config.json` | 全域 | **只有 provider，无 hooks 块** | ❌ 不挂任何 hook（之前误查这个下错结论） |
+| `<repo>/.zcode/config.json`（project 级） | 仅项目目录启动 | 4 个治理 hook（bootstrap/review/chain/session PreToolUse）+ tiers-drift（PostToolUse） | ✅ 仅项目目录启动时生效 |
+
+**冗余副本**（home 级 `~/.zcode/hooks/` 和 project 级 `repo/.zcode/hooks/` 两处都有，hash 相同）：
+- chain-gate-precommit.py / review-gate-precommit.py / session-gate-precommit.py / tiers-drift-gate-postuse.py + 对应 test-*.py
+
+**CC 时代 hook**（home 级独有，project 级没有）：
 - context-monitor-gate.py / context-monitor.py / execution-discipline-gate.py
+- **之前误标"孤儿文件"是错的**——它们被 `cli/config.json` 全域挂载，一直在跑
+- 风险：与治理 4 闸门功能可能重叠/冲突（都拦 PreToolUse Bash），未评估
 
-**风险**：未来改 hook 只改一处（如改 project 级忘了同步 home 级，或反之），导致"改了但没生效"或"生效的不是真值层版本"。SO-11-v2-2 时我就改错过（改到 home 级，实际生效的是 project 级）。
+**核心风险（2026-07-28 新发现，比双源更严重）**：
+- **治理 4 闸门只在项目目录启动时生效**。default workspace 或任何非项目目录 session → 4 闸门零生效，但 session 照常能用（本 session 实证：default workspace 聊了几十轮才发现没 hook）
+- 这违背治理 hook 的设计初衷——"防忘记"保护自己就有个"启动姿势"入口，是典型的 fail-open 缺口
+- **治理全域化路径已确认**：把 4 个治理 hook 加到 `~/.zcode/cli/config.json`（不是 v2/config.json），用绝对路径 `C:\Users\Admin\.zcode\hooks\<name>.py`（因 user 级无 `${ZCODE_PROJECT_DIR}`）
 
-**治理方案**（待用户裁决，删文件是红线）：
-- 方案 A：删 home 级所有 hook 副本 + 孤儿文件，只留 project 级（最彻底，但需红线授权）
-- 方案 B：home 级改为 symlink 指向 project 级（保持兼容，但 Windows symlink 需管理员权限）
-- 方案 C：保留现状，在 AGENTS.md 加规则"改 hook 必须两处同步"，drift-gate 加 lint 校验两处一致
+**治理方案**（待用户裁决，改 user 级 config = 红线 + 改治理机制 = §8.4 评审）：
+- 方案 A：删 home 级所有治理 hook 副本 + 退役 CC 时代 3 hook，治理 hook 只挂项目级（最彻底，但 default workspace 仍裸奔）
+- 方案 B：治理 hook 迁到 user 级 cli/config.json 全域挂载（路径用绝对地址），项目级 config 清空（根治启动姿势漂移，但需评估与 CC 时代 hook 冲突 + 走评审）
+- 方案 C：user 级 + 项目级双挂（冗余但安全，需 drift-gate 校验两处 config 一致）
+- **当前状态**：未裁决。本 session（2026-07-28）实测确认了路径和现状，但未改任何 config（红线 + 机制未运行时验证）。下次决策时查本节，不凭记忆
 
 ### 5.2 ZCode hook 执行的可观测性（SO-12 排查时发现）
 
@@ -175,6 +185,7 @@ SessionStart hook（SO-12）自动注入以下三件套到 additionalContext：
 1. **Aetheris 审计轨迹**：bootstrap 事件（session_id + 三件套版本 + 时间）异步写入 Aetheris 审计轨迹，作为"已读真值"的编队级审计证据（C round2 Q3）
 2. ~~**编队原则提炼进 governance/**~~ ✅ **已完成**（2026-07-28，`cross-boundary-state-transfer-principle.md` 落地，含各 agent 实现方式标注）
 3. ~~**四闸门统一拦截矩阵**~~ ✅ **已完成**（2026-07-28，本文件 §二·五 落地，含重叠互补分析 + 覆盖缺口）
+14. **【fail-open 缺口，2026-07-28 新发现】治理 hook 全域化**：治理 4 闸门只挂项目级 config，default workspace / 非项目目录 session 零生效（本 session 实证）。根因 + 全域化路径见 §5.1（迁到 `~/.zcode/cli/config.json` 用绝对路径）。前置：① 先在项目目录启动验证 4 闸门确实工作（未验证就全域化=把假设当事实）② 评估 CC 时代 3 hook（cli/config.json 已挂）与治理 4 闸门冲突 ③ 改 user 级 config = 红线，走 §四.步骤0 评审。**比双源治理 #12 更优先——这是保护机制自身的 fail-open 入口**
 
 ### 中优先级
 4. truth_patterns 扩展：改为白名单目录 + `.agents/rules/truth-file.yaml` 自描述清单（B round2 D2）
