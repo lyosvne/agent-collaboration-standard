@@ -28,6 +28,7 @@ GitHub standard source: `https://github.com/lyosvne/agent-collaboration-standard
 9. `configs/tool-entry-map.md` — 工具入口与能力适配
 10. `governance/cloud-agent-connection-protocol.md` — 涉及云端 agent 时
 11. Project-specific entry files after entering a project.
+12. **治理 hook 基础设施（ZCode 专属，但原则编队共享）**: `governance/specs/governance-infrastructure-status.md` — 5 个 ZCode hook（chain/session/review/bootstrap/drift-gate）全景 + 四闸门拦截矩阵 + 漂移面。涉及 hook 行为/评审调度/compact 续接时查。配套原则：`governance/specs/cross-boundary-state-transfer-principle.md`（跨边界状态传递元原则）。
 
 Truth source: `https://github.com/lyosvne/agent-collaboration-standard` → `governance/` 目录
 Local snapshot (read-only, 2026-07-26 Phase D 起降级为历史快照): `C:\Users\Admin\.agent-collaboration\standards\`
