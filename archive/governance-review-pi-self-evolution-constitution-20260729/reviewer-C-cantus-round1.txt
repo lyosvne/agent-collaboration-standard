@@ -1,0 +1,63 @@
+📤 发送到 Qoder [qoder-cantus/cmodel]: 你是 Aetheris 编队的主架构师 cantus，对一份「Pi 自进化宪法 v0.1」做评审。
+你的视角：编队主架构师、与 Aetheris 蓝图 v1.1...
+
+⏱ 耗时: 140.5s  状态: done
+🆔 会话: sess_00kouql78xc74u3rluy1
+
+💬 回复:
+# 「Pi 自进化宪法 v0.1」评审 —— 评审方 C（cantus，主架构视角）
+
+已读取调度上下文（北极星 v1.2 / 架构真值 v1.0 / 编队分工 v1.1 / 路线图 v1.1）。以下为独立判断。
+
+## 评审方 C 判决：条件通过
+
+同意 A/B 的条件通过，但我要加三条 A/B 没看到的架构级阻断条件（见各节，汇总在整体判断）。
+
+## 蓝图对齐审查
+
+**终局对齐，阶段偏离，且有一处红线级冲突。**
+
+1. **终局对齐**：北极星 v1.2 §六 + 路线图 O4 明确预期"系统自治运转中持续进化（执行结果反哺为新能力，有质量门把关）"。宪法的自进化闭环就是 O4 的实现规格，方向不偏。M1（harness 非 weights）与架构真值 v1.0 §三"Pi 三层成长机制（Extensions/Skills/Packages）"完全一致——蓝图里 Pi 的成长本来就定义在 harness 层。
+2. **阶段偏离**：北极星 v1.2 §二有用户裁定原文——"**现阶段是'他进化'：亲属建设 Pi，不是 Pi 自进化；自进化能力等底座跑顺、质量门成熟后再开**"。当前位置是 O1 未退出（P0 阻断项还有 5 域闭环等）。宪法直接启动 L1 与该裁定冲突。可辩护的口径是：L1 report-only 是"观测准备"不是自进化——但这必须由用户显式裁定，不能由宪法自我授权。**建议宪法显式绑定档位与阶段：L1↔O2、L2↔O3、L3↔O4，每次升档 = 阶段门 + 用户裁定。**
+3. **红线级冲突（A/B 未发现）**：可改区（hermes/skills、prompts、policies）如果在 git 仓库内，Adopt 步骤"带备份覆盖 live 文件"就是**绕过 git 真值直接改生产代码**——违反红线"git 真值不可绕过，master 变更必经审批"。更实际的后果：Pi 自己的漂移治理 cron（每 30 分钟）会把 Pi 自改的文件报为漂移，自进化与漂移治理左右互搏。必须二选一：(a) Adopt 产物走 `agent/pi` 分支 + PR，L1/L2 期间人审合入；(b) 可改区显式定义为 git 之外的运行时数据区（data/vault 类），并在漂移治理 denylist 中登记。我推荐 (a)——与 G6 流水线天然衔接，审计免费。
+
+## 架构契合审查（复用 vs 重造）
+
+**复用意识及格，但接线方式有三处不贴合：**
+
+1. **七步循环 vs EvolutionEngine.runCycle()**：runCycle 五阶段阀门完整但全仓 0 调用（技术债 #2）。宪法的七步睡眠循环语义上是它的超集（Harvest/Mine≈感知采集，Replay/Gate≈阀门，Adopt≈落地）。**正确接法是把七步循环实现为 runCycle 的调用方/扩展，而不是新写 SelfGrowthLoop**。A/B 建议的 core/strategy 拆分方向对：core（阀门，只读区）+ strategy（七步编排，可改区外的普通代码）——这同时解决只读矛盾和孤儿方法两个问题，一石二鸟。
+2. **调度接线**：睡眠循环和 09:00 日报都应注册为 ScheduleService + LifecycleRegistry 的第 13/14 个 backgroundTask，复用现有生命周期管理（含 recoverAfterRestart）。宪法没写清这点，若另起 cron/daemon 就是重造。日报健康段直接消费 HealthCheckService 8 项，额度段消费 QuotaTracker——这两处宪法资源清单写对了。
+3. **记忆层双真值（A/B 未发现，违反宪法自己的 M3）**：宪法定"markdown 为 canonical + mem0 v3 ADD-only"，但现有资产是 MemoryRetrievalService + `agent_memories` 表（DB）。两套并存 = canonical 不单一，直接违反 M3。叠加技术债 #1（两同名 MemoryGovernanceService），记忆写路径现在有**三个候选真值**。必须裁定：要么 markdown canonical + DB 做索引投影（与"OpenViking=缓存、Aetheris=真值"的既有分层哲学一致，推荐），要么反过来。不裁定这条，Consolidate 步骤写出来的东西没有权威读路径，M6（防 memory 污染）也无从谈起。
+4. **kill switch 违反自己的 M2**：M2 说"自进化协议必须 agent 之外的代码强制"，但主 kill switch 是"飞书指令监听"——监听逻辑跑在 Pi 进程组内（pi-feishu-bridge/callback 都是 Pi 侧 systemd 服务）。Pi 主进程失控或事件循环阻塞时，主开关随之失效；ZCode SSH 兜底依赖 PC 在线，不是 24h 保证。**贴合现有架构的接法：ECS 上独立 systemd timer（非 Pi 进程）每分钟检查一个 kill 标志文件/端点，命中即 `systemctl stop`。飞书指令只负责写这个标志。**这才叫"agent 之外强制"。
+
+## 编队协作影响
+
+**边界会变，且有一个具体的质量风险：**
+
+- Pi 的可改区含 hermes/prompts + decision-policy——这些直接决定 Pi 作为**编队调度者**的行为（任务路由、漂移治理措辞、审批门判断）。Pi 自改 prompts 后，编队面对的是一个行为漂移的协调者，而 ZCode/Kimi/Trae 对 Pi 的行为预期建立在旧版本上。这不是假想：漂移治理的"代劳 push"授权是按 Pi 当前行为签发的，prompts 变了授权语义就变了。
+- **对策**：把"编队协作关键路径"（漂移治理策略、审批门逻辑、调度路由 prompts）从 L1/L2 可改区排除，或强制走 G6 人工门（Mira 评审 + 用户批准）——这正好符合用户已裁定的"G6/M3 质量门先以人工评审形态存在，自动化后置"。Pi 只在 L1/L2 自改**非协调类**技能（如报告格式、知识整理 skills）。
+- G6 流水线角色变化要写清：Pi 自进化 = Pi 兼任 Proposer，但 Verifier（M4）+ Mira 评审 + 用户批准的门不变。宪法的 Gate（held-out 机器验证）与 G6（人工评审）是**串联**关系不是替代关系，L3 之前人门不可拆。
+
+## L1 最小可启动集（我的判断）
+
+L1 是 report-only，标准是"报告可信 + 循环真实存在 + 不烧穿预算"。5 项技术债按此裁：
+
+| 技术债 | L1 前必修？ | 理由 |
+|---|---|---|
+| #5 Observer 未接真实 ledger | **必修** | Harvest 无真实数据，L1 报告全是幻觉，两周观察期作废 |
+| #2 runCycle 孤儿 0 调用 | **必修** | 循环本体不存在，L1 无从启动；接线即上文 core/strategy 拆分 |
+| #3 Proposer 占位校验反向卡死 | **必修** | L1 的产出就是提案报告，反向卡死 = 零产出空转烧预算 |
+| #1 两同名 MemoryGovernanceService | L2 前修 | L1 只读不写记忆，可缓；但 Consolidate 开写前必须收敛（连同上文双真值裁定） |
+| #4 QuotaTracker token 不进判定 | L2 前修 | L1 可用按次数断路器凑合（次数 cap 收紧 50%补偿）；L2 开始花真钱改东西，token 级断路器是硬前置 |
+
+**最小可启动集 = #5 + #2 + #3，外加两件宪法自身的事：Adopt 的 git 路径裁定（红线冲突）+ 进程外 kill switch。** 没有后两件，L1 观察期结束升 L2 时会发现地基是斜的。
+
+## 风险预判（最可能先出问题的环节）
+
+**第一个出问题的不是失控，是"死锁式空转"。** 具体链路：Gate 依赖密封测试集（held-out），但现在没人建这个测试集，也没有明确 owner；叠加技术债 #3（占位校验反向卡死），最可能的实况是：睡眠循环每晚跑，Harvest→Mine 烧掉预算，到 Gate 全部 REJECT（默认 REJECT 是对的，但没有测试集就是 100% REJECT），零提案通过，连续两周"看似安全实则空转"。这比失控更隐蔽——失控会触发告警，空转只会安静地烧钱，且让 L1→L2 的"证据函数"永远凑不齐证据。**对策：把密封测试集建设列为 L1 启动的显式前置交付物（建议 owner：Trae SOLO 出测试集 + Mira 评审密封性），并在日报里强制透出"Gate 通过率 + REJECT 原因分布"，空转两天即报警。**
+
+第二顺位风险才是上文的 Adopt/漂移治理左右互搏——那要到 L2 首次 Adopt 才会引爆。
+
+## 整体判断（一段话）
+
+这份宪法的元原则层（M1-M5 + A/B 补的 M6）质量高，方向与蓝图 O4 终局一致，复用意识也及格——但它现在是一份"悬空的好设计"：向上，它未与北极星"现阶段他进化"的用户裁定和 O 阶段门对齐，且 Adopt 机制与 git 真值红线正面冲突；向下，它假设的地基（EvolutionEngine 已接线、Observer 有真数据、Gate 有测试集、断路器懂 token）有四块还不存在；向内，它自己的 M2（进程外强制）和 M3（canonical 唯一）被自己的 kill switch 设计和记忆双真值设计违反。条件通过的条件：①档位绑定 O 阶段并经用户裁定 L1 启动；②Adopt 走 `agent/pi` 分支 + G6 人门，不直接覆盖 live；③记忆 canonical 裁定为单一；④kill switch 移到 Pi 进程外的 systemd timer；⑤最小可启动集（技术债 #5/#2/#3 + 密封测试集有 owner）修完再开 L1。满足这五条，这份宪法可以从"上岗证"变成真正可执行的运行协议。

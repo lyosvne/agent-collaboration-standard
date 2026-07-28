@@ -1,0 +1,30 @@
+📤 发送到 Qoder [qoder-cantus/cmodel]: 你是 cantus，Pi 自进化宪法 v0.2 round2 二审。round1 你判条件通过提了5条阻断。
+
+【round1→v0.2 修订对照】
+1.Ado...
+
+⏱ 耗时: 48.9s  状态: done
+🆔 会话: sess_00kowv30c2e4g4kga99q
+
+💬 回复:
+【round2 判决】
+
+**1. 五条阻断逐条核验**
+1. Adopt混合落地 ✅ 代码走 agent/pi+PR+G6 人审不绕 git 真值，数据走 denylist，红线冲突解除
+2. Kill switch ✅ 进程外 systemd timer 是正确形态；飞书只写标志，制动独立于 Pi 存活
+3. 档位绑 O 阶段 ✅ 用户裁定即终裁，L2/L3 门槛与 O1/O4 对齐合理
+4. 密封集 ✅ owner 闭环（Trae 出题+Mira 密封+hash 脱敏+禁自由文本堵了泄题面）
+5. runCycle ✅ core 只读/strategy 可改的分层是对的，接线点明确
+
+新增修订：M6 Verifier 四元组、记忆分层+taint、证据函数化 L1、闭合律、关键路径排除——均 ✅。runtime 检测标 ⚠️（见下）。
+
+**2. 新矛盾/观察项（非阻断）**
+- ⚠️ fs hook + require allowlist **不是硬边界**（child_process/worker_threads/native addon 可绕）。硬边界只有 bubblewrap 沙箱+PR 门；宪法措辞应把 runtime 检测定位为"纵深防御层"而非防线本身，防止未来误信
+- ⚠️ 密封集缺**轮换机制**：21 天+100 样本足够 Pi 对固定题集过拟合，建议 L2 前加"密封集按周期换血、旧题降级为公开回归集"条款
+- ⚠️ strategy 层挂 ScheduleService "第13个task"是位置耦合，应按 ID 注册而非序号（实现细节，留给 ZCode）
+
+**3. 判决：PASS**
+
+round1 五条阻断全部实质补齐，无新阻断级矛盾。三条观察项写入实施注意即可，不构成再审条件。可进入 G6 流水线：ZCode 实现 → Mira 评审 → 用户批准上线。
+
+— AI-cantus
