@@ -256,7 +256,10 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
    - 新建 `specs/manual-overrides-sustainability.md`：机制现状（overrides 67 条 / exceptions 146 条 + round1→round4 fail-open→fail-closed 演进）+ 3 问题诊断（文件名带日期语义错位 / `_load_manual_overrides` 双实现漂移 / rebuild 门槛高）+ 4 改进方案（A 去日期后缀 / B 提取共享模块 / C overrides 自描述化 / D 现状+lint）
    - 推荐路径：短期 D（本 spec + lint）/ 中期 A+B 合并 / 长期 C（SO-13 后续）
    - **本 spec 是方案文档，非立即实施**——改进项（A/B/C）待排期，动 gate-checks/rebuild 时顺手做
-9. **root 层 legacy 文档退役角色清理**（C round4 指出非阻断）：TOOL_ROLE_MATRIX.md / GLOBAL_AGENT_GUIDE.md L5 / protocols/communication-command-protocol.md L218/254-255 / BOOTSTRAP_ONE_LINE.md L3 / docs/multi-agent-collaboration-operating-system.md L26 仍含 Trae IDE / Claude Code 活跃角色表述，建议并入"删 Tool Roles"待办或第 5 批长期卫生阶段
+9. ~~**root 层 legacy 文档退役角色清理**（C round4 指出非阻断）~~ ✅ **已闭环（2026-07-28，清理清单 spec）**：
+   - 新建 `specs/legacy-doc-role-cleanup.md`：5 文件实证扫描 + 逐文件逐行清理清单（TOOL_ROLE_MATRIX 必清 / GLOBAL_AGENT_GUIDE L5+L74 / communication-command-protocol L218+L254 / BOOTSTRAP_ONE_LINE L3 / multi-agent-operating-system 仅 L26-27 角色表加注，其余通用举例保留）
+   - 核心原则：区分**活跃角色表述**（必清）vs **通用举例/历史叙述**（保留或加注）—— docs/multi-agent-...md L3 自声明"不脱敏"，是通用方法论文档，不全清
+   - **执行留第 5 批长期卫生阶段**（roadmap 原定优先级）：改 root 入口文档触发评审，当前收益低于 hook 加固 + 5 域一致性。本 spec 锁定清单，待时机成熟批量执行
 
 ### O1 收口并行项（P1）
 10. ~~远程分支清理（29 条已合未删）~~ ✅ 已完成（2026-07-26 第 3 批，5→1 只剩 master）
@@ -293,6 +296,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v1.16 legacy 文档清理清单 | 2026-07-28 | 闭合 O1 缺口 #9：新建 `specs/legacy-doc-role-cleanup.md`，5 文件逐行清理清单 + 两类引用区分原则（活跃表述必清 / 通用举例保留）。执行留第 5 批长期卫生阶段（roadmap 原定优先级），本 spec 锁定清单待批量执行 |
 | v1.15 manual-overrides 可持续性方案 | 2026-07-28 | 闭合 O1 缺口 #8：新建 `specs/manual-overrides-sustainability.md`，诊断 3 问题（日期后缀语义错位 / 双 `_load_manual_overrides` 漂移 / rebuild 门槛）+ 4 改进方案（A/B/C/D）+ 推荐路径。方案 spec 非立即实施，改进项待排期 |
 | v1.14 scripts 归属 spec | 2026-07-28 | 闭合 O1 缺口 #7「scripts 长期维护归属」：新建 `specs/scripts-ownership.md`，盘点实际 10 个脚本（修正本 roadmap「5 个」滞后数字）+ 4 分类 + 共性约定（路径常量/敏感配置/fail-closed）+ 准入门槛 + 变更前置。纯文档新增，不触发 pre-commit 评审 |
 | v1.13 dispatch-server 架构 spec | 2026-07-28 | 闭合 O1 缺口 #6「dispatch-server 架构 spec 缺失」：新建 `specs/dispatch-server-architecture.md` v0.1 草案（从 5 patch + ecs-scripts/README + roadmap 反推），覆盖部署拓扑 / 6 端点契约 / 鉴权模型 / 消费者契约 / 变更前置红线；5 项字段待 ECS 实测补完（spec §7）。纯文档新增，不触发 pre-commit 评审（非 hook 代码/ECS/红线配置） |
