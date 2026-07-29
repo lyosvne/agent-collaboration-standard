@@ -1,0 +1,19 @@
+📤 发送到 Qoder [qoder-cantus/cmodel]: cantus round3评审。Pi工具集+观测方案。前两轮你PASS了宪法v0.2。
+
+方案：4件工具(webfetch域名白名单/web_search智谱工...
+
+⏱ 耗时: 41.8s  状态: done
+🆔 会话: sess_00kpxyensjcw0p4asjj5
+
+💬 回复:
+**判决：CONDITIONAL PASS**（共振4点为阻断项，尤其①预算死条款必须先修：改为 sum(硬上限)≥总池 或 总池为唯一硬约束+上限为软护栏，二选一，不能双硬）。
+
+**架构契合三问：**
+
+**1. Qoder接法：契合，但缺一半。** 架构真值明确"REST+SSE+轮询兜底，无Webhook"（2026-07-26裁定）。方案只写REST+SSE，未见轮询兜底——SSE断流时Pi会丢任务终态。且ECS已有SSE消费器+qoder-bridge.py生产资产，qoder_dispatch必须复用该链路，不得在Pi里再写一套SSE客户端（否则两处消费同一session事件流，状态分叉）。
+
+**2. 复用判断：半复用半重造，可接受。** 核验真相成立：webfetch/github_readonly无现成资产，新建合理且是最小面（域名白名单+公开只读，T1级）。web_search走智谱工具调用属新依赖非复用——建议标记为可替换实现，接口抽象与webfetch对齐，避免锁死单一provider。qoder_dispatch是唯一必须强制复用的（见1）。
+
+**3. 并行，不融合。** 用户已裁定"现阶段是他进化，自进化后置"。工具集作为Pi Extensions独立接入（G6流水线：规格→ZCode实现→Mira评审→用户批准），不进SelfGrowthLoop闭环——否则等于提前开自进化，违反裁定。ProactiveRunner留L2合理：主动行为在质量门成熟前不应触发外部副作用，L2（建议不执行）恰好卡在红线内。待M3退化检测上线后再议升级。
+
+**附加条件**：qoder_dispatch产出的lineage必须落Aetheris审计轨迹（共振④），这是"一切自动化可审计"红线，非可选项。
