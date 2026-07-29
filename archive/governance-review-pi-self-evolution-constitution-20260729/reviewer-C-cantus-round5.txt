@@ -1,0 +1,26 @@
+📤 发送到 Qoder [qoder-cantus/cmodel]: cantus round5。Pi ECS部署方案评审。前四轮你PASS了宪法+工具集。
+
+方案：Pi独立部署到/opt/pi-self-growth（独立bac...
+
+⏱ 耗时: 44.2s  状态: done
+🆔 会话: sess_00krfjdbt4feor6wgy7g
+
+💬 回复:
+**判决：PASS（附 3 项条件）**
+
+**专问回答：**
+
+**1. 独立目录+复用 qoder-bridge：契合，但复用方式需钉死。**
+独立 backend/DB/18090/进程，不碰旧 aetheris-backend——符合"新旧隔离、爆炸半径最小"预期。EnvironmentFile 指向凭证不复制值，符合密钥主权红线。
+条件①：qoder-bridge.py 若直接引用 pi-orchestrator 目录内文件，形成跨服务隐性耦合（orchestrator 升级 bridge 即打断 Pi）。要求 vendor 一份副本进 /opt/pi-self-growth 并记录来源 commit，或 symlink+版本锁注释，二选一，禁止裸路径引用。
+
+**2. 双系统并存→成熟替代：路径合理，是标准绞杀者模式，且契合"他进化+质量门"裁定。**
+条件②：必须预定义切换判据与退役条件（如：Pi 独立闭环 N 个任务、漂移治理指标不劣于现行 cron），否则双系统长期并存本身变成漂移源——这正是编队最痛的旧伤。
+条件③：Pi 独立 DB 只能定位为**私有工作数据**，产出的 matter/decision/knowledge 仍须写回 Aetheris。绝不允许出现第二真值层，这是架构真值的硬边界。
+
+**3. 有无更贴合的方式：没有明显更优项。**
+ECS 现行模式就是 systemd 多服务并存（18080/19089/orchestrator/前端），第 5 个服务是对现有范式的自然延伸。容器化隔离更干净但 ECS 无容器基建，引入成本>收益，不推荐。18090 无端口冲突。hermes-sidecar 退役合理（Pi 不依赖即无保留理由）。
+
+**一处提醒（非阻断）**：pi-kill-watcher 的自动拉活逻辑必须让位于 M5 紧急制动——建议以制动标志文件为最高优先级，watcher 检测到标志则不重启。否则"杀不死的 Pi"违反"可制动"红线。
+
+**契合判断：与前四轮 PASS 的宪法+工具集方向一致，架构契合度高。满足 3 条件即可进入实施。**
