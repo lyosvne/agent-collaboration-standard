@@ -82,17 +82,19 @@ projects:
 
   - project: pi-self-evolution-constitution
     review_dir: archive/governance-review-pi-self-evolution-constitution-20260729/
-    status: REVIEWING  # 2026-07-29 round1，Pi 自进化宪法（ground-truth 83）+ 资源清单首次评审
+    status: PASS  # 2026-07-29 四轮评审完成：round1/3 条件通过，round2/4 PASS
     expired_rounds: []
     reviewer_sessions:
       A:  # opus4.8p 会话链
         round1: "337332156435"  # 2026-07-29 round1 fresh，条件通过（3P0+4P1+3P2）
         round2: "337332156435"  # 2026-07-29 round2 -r 续接，PASS
-        round3: "337332156435"  # 2026-07-29 round3 -r 续接，条件通过（工具集+观测方案）
+        round3: "337332156435"  # round3 条件通过
+        round4: "337332156435"  # round4 PASS
       B:  # gpt5.6sol 会话链
         round1: "337247830035"  # 2026-07-29 round1 fresh，条件通过（3P0+4P1+3P2，与A共振）
         round2: "337247830035"  # 2026-07-29 round2 -r 续接，仍条件通过（N1+N2）
-        round3: "337247830035"  # 2026-07-29 round3 -r 续接，条件通过（工具集+观测方案）
+        round3: "337247830035"  # round3 条件通过
+        round4: "337247830035"  # round4 PASS
       # C 不记（qoder-bridge 无续接）
 
   # ===== 未来项目（按此模板登记）=====

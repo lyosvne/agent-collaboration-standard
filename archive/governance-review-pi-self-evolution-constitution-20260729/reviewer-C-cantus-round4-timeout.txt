@@ -1,0 +1,7 @@
+📤 发送到 Qoder [qoder-cantus/cmodel]: cantus round4。Pi工具集+观测方案v0.3二审。round3你判条件通过，独家指出qoder必须复用ECS SSE消费器+补轮询兜底，工具集并行不...
+
+⏱ 耗时: 90.2s  状态: timeout
+🆔 会话: sess_00kpyupe5imm8kizk6y5
+
+💬 回复:
+
