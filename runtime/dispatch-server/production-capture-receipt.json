@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-08-08T13:35:34Z",
+  "transport": "SSH public-key authentication",
+  "host": "[redacted-production-host]",
+  "service": {
+    "name": "pi-dispatch-server.service",
+    "state": "active",
+    "startedAt": "2026-07-27 11:36:41 CST"
+  },
+  "files": [
+    {
+      "productionPath": "/opt/pi-orchestrator/extensions/dispatch-server.py",
+      "sha256": "99ce72a3fcb74e88a9c6a865b96b23ddfd4885708230f95a28e9413dadeadc97"
+    },
+    {
+      "productionPath": "/etc/systemd/system/pi-dispatch-server.service",
+      "captureMode": "systemctl cat with inline Environment values removed",
+      "sha256": "2c429dc6f1d4095d5fba5ea50b2da7ba76f5f90f106c50af21c1f6ae2a008cac"
+    }
+  ],
+  "productionModified": false,
+  "serviceRestarted": false,
+  "secretPrinted": false
+}

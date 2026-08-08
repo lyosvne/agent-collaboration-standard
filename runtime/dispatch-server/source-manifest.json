@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-08T10:46:03Z",
+  "sourceHost": "[redacted]",
+  "behaviorChange": false,
+  "files": [
+    {
+      "path": "dispatch-server.py",
+      "productionPath": "/opt/pi-orchestrator/extensions/dispatch-server.py",
+      "sha256": "99ce72a3fcb74e88a9c6a865b96b23ddfd4885708230f95a28e9413dadeadc97"
+    },
+    {
+      "path": "systemd/pi-dispatch-server.service",
+      "productionPath": "/etc/systemd/system/pi-dispatch-server.service",
+      "sha256": "2c429dc6f1d4095d5fba5ea50b2da7ba76f5f90f106c50af21c1f6ae2a008cac",
+      "sanitized": true
+    }
+  ],
+  "notes": [
+    "The Python source is byte-identical to the ECS production capture.",
+    "The systemd unit excludes environment values and contains only the unit contract.",
+    "This recovery commit does not deploy or restart the service."
+  ]
+}

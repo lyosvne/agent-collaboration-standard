@@ -1,0 +1,18 @@
+# /etc/systemd/system/pi-dispatch-server.service
+[Unit]
+Description=Pi Dispatch Context Server (fleet shared context HTTP endpoint)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/pi-orchestrator/extensions
+EnvironmentFile=/opt/pi-orchestrator/.env
+ExecStart=/usr/bin/python3 /opt/pi-orchestrator/extensions/dispatch-server.py
+Restart=always
+RestartSec=5
+StandardOutput=append:/opt/pi-orchestrator/logs/dispatch-server.log
+StandardError=append:/opt/pi-orchestrator/logs/dispatch-server.log
+
+[Install]
+WantedBy=multi-user.target
