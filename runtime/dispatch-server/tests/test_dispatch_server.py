@@ -197,6 +197,100 @@ class Server:
 
 
 class DispatchRecoveryTests(unittest.TestCase):
+    def test_fixed_safe_directory_reads_a_real_different_owner_repository(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "governance"
+            root.mkdir()
+            (root / "governance").mkdir()
+            document = root / "governance/test.md"
+            document.write_text("# test\n")
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+            subprocess.run(
+                [
+                    "git", "-C", str(root),
+                    "-c", "user.name=test", "-c", "user.email=test@example.invalid",
+                    "commit", "-qm", "fixture",
+                ],
+                check=True,
+            )
+
+            with patch.dict(
+                os.environ,
+                {
+                    "GIT_CONFIG_GLOBAL": os.devnull,
+                    "GIT_CONFIG_NOSYSTEM": "1",
+                    "GIT_TEST_ASSUME_DIFFERENT_OWNER": "1",
+                },
+            ):
+                unsafe = subprocess.run(
+                    ["git", "-C", str(root), "rev-parse", "HEAD"],
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertNotEqual(unsafe.returncode, 0)
+
+                with patch.object(
+                    DISPATCH_MODULE,
+                    "GOVERNANCE_ROOT",
+                    str(root),
+                ):
+                    commit = DISPATCH_MODULE.get_mirror_head()
+                    self.assertRegex(commit, r"^[0-9a-f]{40}$")
+                    self.assertEqual(
+                        DISPATCH_MODULE.read_snapshot_file(
+                            commit,
+                            "governance/test.md",
+                        ),
+                        (b"# test\n", "ok"),
+                    )
+                    self.assertIsNotNone(
+                        DISPATCH_MODULE.snapshot_file_commit_time(
+                            commit,
+                            "governance/test.md",
+                        )
+                    )
+
+    def test_all_governance_git_reads_allow_the_fixed_root_owned_mirror(self):
+        commit = "a" * 40
+        responses = [
+            subprocess.CompletedProcess([], 0, stdout=f"{commit}\n", stderr=""),
+            subprocess.CompletedProcess([], 0, stdout=b"content", stderr=b""),
+            subprocess.CompletedProcess(
+                [],
+                0,
+                stdout="2026-08-08T00:00:00+00:00\n",
+                stderr="",
+            ),
+        ]
+        with patch.object(
+            DISPATCH_MODULE.subprocess,
+            "run",
+            side_effect=responses,
+        ) as run:
+            self.assertEqual(DISPATCH_MODULE.get_mirror_head(), commit)
+            self.assertEqual(
+                DISPATCH_MODULE.read_snapshot_file(commit, "governance/test.md"),
+                (b"content", "ok"),
+            )
+            self.assertEqual(
+                DISPATCH_MODULE.snapshot_file_commit_time(
+                    commit,
+                    "governance/test.md",
+                ),
+                "2026-08-08T00:00:00Z",
+            )
+
+        expected_prefix = [
+            "git",
+            "-c",
+            f"safe.directory={DISPATCH_MODULE.GOVERNANCE_ROOT}",
+            "-C",
+            DISPATCH_MODULE.GOVERNANCE_ROOT,
+        ]
+        for call in run.call_args_list:
+            self.assertEqual(call.args[0][:5], expected_prefix)
+
     def test_baseline_commit_matches_production_capture(self):
         manifest = json.loads((ROOT / "source-manifest.json").read_text())
         baseline = manifest["productionBaselineCommit"]
