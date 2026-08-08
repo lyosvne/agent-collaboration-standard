@@ -1,5 +1,7 @@
 # Trae SOLO PC Alignment
 
+> 状态：historical/deprecated。当前统一 Trae 继承本文件中仍有效的通用纪律；独立 Solo 身份、路径和分支已经失效。
+
 Trae SOLO PC should be treated as a full autonomous coding agent.
 
 ## Required Behavior
@@ -44,4 +46,3 @@ Every SOLO PC task must end with:
 - Can independently implement features, fixes, docs, and reviews.
 - Should use the same handoff pack as other agents.
 - Should not invent a separate project language or completion definition.
-

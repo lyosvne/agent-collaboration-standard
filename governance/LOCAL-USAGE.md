@@ -6,7 +6,7 @@ It is not project-specific.
 ## Purpose
 
 - Keep human style, collaboration language, and completion standards consistent across tools.
-- Let ZCode, Trae SOLO, Qoder, Kimi, Mira, GitHub, and future cloud agents hand work to each other safely.
+- Let Pi, unified Trae, ZCode, Qoder, Kimi, Mira, GitHub, and future cloud agents hand work to each other safely.
 - Keep project rules inside each project and tool rules here.
 
 ## Read Order
@@ -16,9 +16,9 @@ It is not project-specific.
 3. `registry/skill-registry.md`
 4. `templates/handoff-pack.md`
 5. `configs/tool-entry-map.md`
-6. `configs/trae-solo-pc-alignment.md`
+6. `specs/pi-cognitive-plane-and-self-evolution-v1.0.md`
 
-> 2026-07-26 C 选项：Trae IDE 已退役为编队角色（软件保留个人用），编队里 Trae 系只保留 SOLO 独立角色。原 B1 合并方案已撤销。
+> 2026-08-08：原 Trae 与 Solo 已合并为统一 Trae。`configs/trae-solo-*` 只保留历史证据，不再作为活动入口。
 
 ## Useful Operating Files
 

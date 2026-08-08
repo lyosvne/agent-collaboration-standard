@@ -1,6 +1,6 @@
 # Bootstrap One-Liner
 
-Use this when asking Mira, Claude Code, Trae SOLO, or another coding agent to join a project.
+Use this when asking Pi, unified Trae, ZCode, Qoder, Kimi, Mira, or another approved agent to join a project. Claude Code and independent Solo are retired.
 
 ```text
 Read https://github.com/lyosvne/agent-collaboration-standard first, then read this project's AGENTS.md, .agents/project-agents.md, current source-of-truth, .agents/coordination if present, active .agents/tasks records, and Git state; report collaboration state, role, HEAD, active risks, locks, and next safe action before changing anything.

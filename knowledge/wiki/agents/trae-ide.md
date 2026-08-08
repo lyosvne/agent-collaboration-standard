@@ -1,14 +1,15 @@
 ---
 title: "Trae IDE"
 tags: ["agent"]
-role: "local integration dev"
+role: "historical alias of unified Trae"
 model: "built-in"
-status: "active"
-updated: "2026-07-21"
+status: "retired-alias"
+successor: "Trae"
+updated: "2026-08-08"
 ---
 
 # Trae IDE
 
-- **Role**: local integration dev
+- **Role**: historical alias of unified Trae
 - **Model**: built-in
-- **Status**: active
+- **Status**: retired alias; capabilities are part of unified Trae

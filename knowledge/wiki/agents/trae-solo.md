@@ -1,14 +1,15 @@
 ---
 title: "Trae SOLO"
 tags: ["agent"]
-role: "product testing director"
+role: "historical product testing source"
 model: "built-in"
-status: "active"
-updated: "2026-07-21"
+status: "retired"
+successor: "Trae"
+updated: "2026-08-08"
 ---
 
 # Trae SOLO
 
-- **Role**: product testing director
+- **Role**: historical product testing source
 - **Model**: built-in
-- **Status**: active
+- **Status**: retired; duties and memory inherited by unified Trae

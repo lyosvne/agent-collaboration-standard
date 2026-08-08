@@ -3,7 +3,7 @@ version: 1.0
 status: active
 type: process-spec
 created: 2026-07-26
-owner: ZCode
+owner: Mira + Trae
 title: O1 全域一致性治理 — 评审流程规范
 scope: 定义 O1 治理工程的强制交叉评审流程，覆盖计划审查 + 每个交付审查
 related:
@@ -193,36 +193,28 @@ CURRENT_REVIEW_PROJECT=<项目名> CURRENT_REVIEW_ROUND=<N> mira -p "评审方 A
 5. **PASS 后**才允许写 patch 脚本（`apply-<对象>-<date>.py`）+ scp 到 ECS + 重启服务
 6. 在 `governance/specs/pre-commit-review-gate-log.md` 追加一行（对象 / commit SHA / 触发类 / 评审目录 / PASS 轮次 / 状态=PASS）
 
-**强制机制**：
-- ZCode 在 Plan Mode 出方案时，若命中以上任一，必须在 plan 里显式标"⚠️ pre-commit 三方评审强制触发"，否则用户应拒绝批准
-- ZCode 应用层 PreToolUse hook（`~/.zcode/hooks/review-gate-precommit.py`）会在 `scp/ssh` 到 ECS 且匹配 `apply-*.py` 或 `/opt/pi-orchestrator` 写路径时，**Hard deny**——查闸门日志表无对应 PASS 条目即阻断
-- 紧急 hotfix 可写 `~/.zcode/hooks/.review-gate-override.json`（30 分钟窗口）绕过，但 **SO-8 强制补录闭环**：
-  - override 触发时 hook 自动写 pending log（`~/.zcode/hooks/.review-gate-override-pending.json`，本地状态不进 repo）
-  - 每条 pending 含唯一 `override_id`，闸门表补录时必须回填相同 `override_id`（round2 精确匹配，防首次成功后永久失效）
-  - 下次部署（override 窗口外）若闸门表无对应 `override_id` 的 `verdict: override` + `override_reason` 非空 条目 → **hook deny**，强制补录
-  - 补录后 hook 按 `override_id` 逐条清理 pending（部分补录场景：清已补的，剩未补的仍 deny）
-  - 闸门表 override 条目必填字段：`verdict: override` / `override_id` / `override_reason` / `override_date` / `files` / `commit_sha`
-  - **override 条目仅完成审计补录，本次部署仍需 PASS 条目才能放行**（verdict=override ≠ verdict=PASS）
-  - 不推荐常规使用（防忘记机制不应被 override 习惯化）
-- **SO-8 结构性上限声明**（A round1 建议，防误以为闸门已闭环）：
-  - 本机制**不解决** `git commit --no-verify` / `rm ~/.zcode/hooks/.review-gate-override-pending.json` / 多机漂移等恶意绕过
-  - 防恶意靠 server 端 pre-receive hook 兜底（SO-9，独立任务）
-  - 本地 pending log 不进 repo → drift-check 监控不到，但闸门表 override 条目进 git 真值层（drift-check 可校验 schema 必填字段非空）
-  - pending log 写入用原子写（tmp + rename）+ 0600 权限（Unix），防断电损坏
+**当前强制机制（2026-08-08）**：
+- Pi 负责触发评审和收敛状态，不执行代码或部署。
+- ZCode 负责非终端风险评审，不运行 hook、shell、SSH 或 Git 写操作。
+- Mira 负责治理真值评审。
+- Trae 负责分支、PR、CI、测试和集成；Qoder/Kimi 按领域参与实现与交叉评审。
+- 所有治理 master 变更必须经 PR，并通过 `.github/workflows/governance-validate.yml`。
+- ECS、systemd、Caddy、数据库、secrets 和 T3 变更仍需用户明确授权。
+- 历史 `.zcode/hooks/review-gate-precommit.py` 和 override 流程只作审计证据，不是当前执行入口。
 
 **反面案例**（写入 `review-process-lessons.md` §8）：2026-07-27 Pi 治理纳入 B/C 层三次跳过此闸门，事后补审，根因是当时无强制触发机制（本步骤 0 + hook 是修复方案）。
 
 **循环闭合声明**（2026-07-25 meta-review-gate round2 加，C 裁定）：
 - **本机制自身的变更属强制评审对象**。改 `review-gate-precommit.py` / `pre-commit-review-gate-log.yaml` schema / 本 §四.步骤0 强制清单 / `.zcode/config.json` hook 挂载点 → 命中本步骤 0，必须走三方评审。这把"修评审流程的方案走评审"从循环依赖闭合为自指但良性的结构。
-- **覆盖缺口声明**：本闸门**只覆盖 ZCode 路径**（PreToolUse 拦 ZCode 的 Bash 调用）。Kimi / Trae SOLO 等其他 agent 直接碰 ECS 不受本闸门控制。可接受——过去 3 次跳审全是 ZCode，先修出血点；其他 agent 的治理靠 ECS 侧 drift-check 兜底（漂移发现）+ 编队分工纪律。
-- **威胁模型边界**：hook 是"防忘记"不是"防恶意"。agent 主动改写命令文本（rsync/sftp/管道/IP 拆分）可绕过——这是设计边界不是 bug。防恶意需 ECS 服务端闸门（部署入口校验 PASS token），是 v2 演进方向（SO-3）。
+- **覆盖缺口声明**：GitHub CI 只能覆盖进入 PR 的变更。未授权生产直改由用户授权门、ECS 漂移检测和审计记录共同约束。
+- **威胁模型边界**：本机制防止误操作和未评审变更，不替代 GitHub/ECS 访问控制。
 
 ### 步骤 1：准备评审材料包
-ZCode 为每个交付准备：
+Pi 指定 owner；Mira、Trae 或专项 owner 为每个交付准备：
 1. **交付物本身**（文档/diff/代码）
 2. **目标映射表**（对应北极星/路线图哪条）
 3. **项目上下文摘要**（本次治理的目标、范围、约束）
-4. **北极星 v1.2 + 路线图 v1.1 关键条款**（让评审方对齐）
+4. **从 `governance/version-manifest.json` 读取当前北极星、路线图和规格版本**
 5. **第一性原理检验问题**（要评审方回答的 3-5 个本质问题）
 
 ### 步骤 2：并行调用三方评审

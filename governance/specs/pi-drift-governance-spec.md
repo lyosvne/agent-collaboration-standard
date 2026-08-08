@@ -13,22 +13,23 @@
 
 ## 2. 治理对象清单
 
-> 真值层对照 `fleet-division-v1.1.md`（2026-07-26 重对齐：Claude Code / Trae IDE 已退役，Mira 角色已裁定）。
+> 真值层对照 `fleet-division-v1.1.md`（逻辑 v1.2）：Pi 中央协调、统一 Trae、ZCode 非终端、Qoder/Kimi Mac clone、Mira 云端 fresh checkout。
 > 配置以文件维护（`governance/configs/drift-config.json`），编队变更时更新，不硬编码本地路径。
 
 | Clone | 分支 | 状态基线（2026-07-26 重对齐） |
 |-------|------|---------------------------|
 | agent-collaboration-standard（本仓库）| master | ✅ 真值层（git-sync-plan §六验收对象，依赖 §10 C 层 Extension 上线后纳入体检）|
 | Aetheris（主仓库） | master | 真值层（架构 v1.0） |
-| Aetheris-clones/kimi | agent/kimi | 活跃（Kimi = 前端实现主力）|
-| Aetheris-clones/qoder | agent/qoder | 活跃（Qoder = 主架构 + 云端执行）|
-| Aetheris-clones/solo | agent/solo | 活跃（Trae SOLO = 平行实现/QA，2026-07-26 C 选项后接管原 agent/trae 内容）|
-| Aetheris-clones/zcode | agent/zcode | 活跃（ZCode = 主控驾驶舱）|
-| agent/mira（GitHub 分支） | agent/mira | 活跃（Mira = 云端生图 + 评审，2026-07-23 用户裁定）|
+| Aetheris-clones/trae | agent/trae-mac | 活跃（统一 Trae = 实现/集成/测试）|
+| Aetheris-clones/kimi | agent/kimi-mac | 活跃（Kimi = 终端/数据/飞书）|
+| Aetheris-clones/qoder | agent/qoder-mac | 活跃（Qoder = 设计 + 受派实现）|
+| Aetheris-clones/zcode | agent/zcode-mac | 受控上下文（ZCode 非终端，不执行 Git 写操作）|
 
 **已退役**（drift-config.json `retired_clones` 显式记录，避免漂移报告误报）：
 - `agent/claude`：Claude Code 2026-07-25 退役，分支冻结
-- `agent/trae`：Trae IDE 2026-07-26 退役为编队角色，分支并入 `agent/solo`
+- `agent/solo`：独立 Solo 已并入统一 Trae
+- 旧 Windows `agent/trae` / `agent/zcode` / `agent/qoder` / `agent/kimi`：由 `agent/*-mac` 取代
+- `agent/mira`：Mira 改用云端 fresh checkout
 
 ## 3. 第一层：漂移体检 cron
 
@@ -63,7 +64,7 @@
 ### 4.1 代劳 push —— 架构修正（2026-07-23，ZCode 实证发现）
 
 **原设计缺陷**：规格假设 Pi 能直接访问各 agent clone 执行 push。
-**事实**：agent clone 分布在各 agent 本机（ZCode PC / Qoder 本地 / Kimi / Trae SOLO），ECS 上的 Pi 够不到。
+**事实**：代码 clone 分布在 Trae/Qoder/Kimi 的 Mac 环境；ZCode 只有非终端上下文。ECS 上的 Pi 不直接修改这些工作区。
 
 **修正后方案**：
 ```
@@ -74,13 +75,12 @@ Pi（ECS）能做的：
   ❌ 代劳 push：不可能（clone 不在 ECS）
 
 代劳 push 的实际执行者：
-  方案 A（当前）：Pi 通知 → agent 自行 push（用户常设授权仍有效，只是执行者是 agent 自己）
+  方案 A（当前）：Pi 通知 → Trae/Qoder/Kimi 在自己的受控分支执行
   方案 B（未来增强）：各 agent 本机装轻量 cron 自动 push 自己的 agent/<name> 分支
   方案 C（远期）：Pi 通过 agent 的通信通道（Qoder SSE/轮询，无 Webhook）下发 push 指令
 ```
 
-**用户常设授权仍然有效**：授权的是"push agent/<name> 分支"这个动作的合规性，
-不论执行者是 Pi 还是 agent 自身。当前阶段由 agent 自行执行，Pi 负责发现和催促。
+当前边界：Pi 只有检测、通知和生成集成提案的权限，不执行 Git push。代码分支由 Trae/Qoder/Kimi 在各自授权范围内推送。
 
 ### 4.2 提醒 pull（不代劳）
 
@@ -89,23 +89,20 @@ Pi（ECS）能做的：
 
 ## 5. 第三层：源头预防
 
-1. **铁律**（写入协议 v2.1）：agent 只在 `agent/<name>` 分支工作，绝不直接 commit master
+1. **铁律**（写入协议 v2.2）：代码执行 agent 只在隔离分支工作，绝不直接 commit master
 2. **pre-commit hook**（各 clone 安装）：commit 时检测 behind 量，>10 输出警告（不阻断）
 3. **集成窗口**：Pi 定期（建议每周）生成「集成提案」卡片——列出各 agent 分支可合并 master 的 commit 集与冲突预检结果；**合并动作本身走审批卡（T3），由用户批准后执行或指派 agent 执行**，Pi 不擅自合 master
 
-## 6. 前置授权（待用户签发，写入协议）
+## 6. Pi Git 权限
 
-> 「Pi 漂移治理常设授权」草案：
-> 授权 Pi daemon 在满足 §4.1 全部条件时自动执行 `git push origin agent/<name>`。
-> 范围限定：仅 agent/* 分支；禁止 master/main；禁止 --force / --delete / tag；
-> 每次执行必须审计留痕并飞书通知。违反任一限定即视为越界，Pi 停用该功能并告警。
+Pi 不持有代码 clone 的写权限，不执行 push、merge、rebase、reset、delete 或 tag。旧“Pi 代劳 push”草案已经失效。
 
 ## 7. 实现形态
 
-- Pi Extension `pi-drift-guard`（TypeScript）：cron 调度 + git 只读探测 + 分级报告 + 代劳 push（授权后启用）。**当前 spec-only，无代码（详见 §10）**
+- Pi Extension `pi-drift-guard`（TypeScript）：cron 调度 + git 只读探测 + 分级报告。**不得包含 Git 写操作**。
 - 与 pi-feishu 的接口：`DriftReport → 漂移报告卡/告警卡`；集成提案 → 审批卡
-- 与 Aetheris 的接口：体检记录/代劳 push 审计写真值层
-- Trae SOLO：统一监控 agent/solo 分支（节点 3 修订：原 agent/trae 已随 Trae IDE 退役）
+- 与 Aetheris 的接口：体检记录、通知和集成提案写真值层
+- 统一 Trae：监控 `agent/trae-mac`；历史 `agent/solo` 不参与活动体检
 
 ## 8. 验收标准
 
@@ -113,13 +110,13 @@ Pi（ECS）能做的：
 2. 只读保证：体检运行前后，各 clone 工作区与 HEAD 无任何变化（mtime + rev-parse 校验）
 3. 代劳 push 边界：构造 master 分支/dirty 工作区/非 ff 场景 → 全部拒绝执行并记录原因
 4. 告警链路：CRITICAL 场景 5 分钟内飞书收到告警卡
-5. review 与授权：ZCode review 已过 + 用户常设授权已签发（2026-07-23）并编入 `workspace-collaboration-v2.1.md §4`；§4.1 实际启用仍依赖 §10 C 层 `pi-drift-guard` Extension 上线
+5. review 与授权：ZCode 做非终端风险评审；Mira 审治理；Trae 执行验证；生产和 T3 操作仍需用户授权
 
 ## 9. 分工
 
 - 本规格：Qoder 出（本文档）
-- Review：ZCode（对等互检，重点审 §4.1 边界与 §3.3 只读保证）
-- 实施：待用户裁定（建议随 Pi ECS 部署验证后作为 Pi 第一个实战任务，v1.0 §八已建议）
+- Review：ZCode（非终端风险分析）+ Mira（治理）+ Trae（可执行性验证）
+- 实施：Trae/Kimi 在用户授权后执行；Pi 不直接 SSH 或部署
 
 ## 10. 实施状态（2026-07-26 实证，A 层对齐时固化）
 
@@ -127,7 +124,7 @@ Pi（ECS）能做的：
 |----|------|------|
 | A 文档/配置 | spec 真值对齐 + `drift-config.json` 创建 | ✅ 2026-07-26 完成 |
 | B 协议层 | dispatch-server `/truth/versions` 端点（时序版本自动化）| ✅ 2026-07-27 完成（加 `/dispatch/truth/versions` + `/dispatch/drift` 两端点，patch 见 `archive/dispatch-server-patches/apply-b-layer-20260727.py`）。**事后评审 round1→round3 修复**：(1) `/truth/versions` 加 commit_sha + content_sha12 + mtime + versioned（修字段不足）；(2) `/dispatch/drift` fail-closed（文件缺失/malformed 返回 502）；(3) `/dispatch/drift` 加 AUTH_KEY 鉴权（query param `?key=$DISPATCH_KEY`，修公网泄露——A round2 阻断）；(4) 正则放宽支持 semver 三段 + MARKER 改哨兵注释 + 消费者契约 docstring。3 个 patch 见 `archive/dispatch-server-patches/` |
-| C ECS 工程 | `pi-drift-guard` Extension 代码 + systemd 托管 + spawn exports 修复 | ⏳ 待用户授权（systemd / `.service` 红线）+ ZCode 实施。**C 层范围已收窄（实证见 `archive/ecs-scripts/README.md`）**：ECS shell cron（drift-cron.sh/drift-check.sh/conflict-tracker.py）已覆盖 §3 漂移体检 ~95%（仅"写 Aetheris 真值层"未实现，但飞书卡片 + `/dispatch/drift` 端点已暴露）；§5 源头预防部分覆盖（§5.1 铁律已固化 / §5.2 pre-commit hook 未实现 / §5.3 集成窗口未实现，不阻断核心闭环）。**drift-check.sh 退役分支修复 ✅ 2026-07-27 完成**：去硬编码 + ref 存在性检查（配置漂移标 CRITICAL）+ 配置读失败 fail-closed + 实测移除 claude/trae 后扫 5 active 分支（zcode/qoder/kimi/solo/mira）。**fail-open 修复 ✅ 2026-07-27 完成**：(1) drift-cron.sh drift-check 失败时不再静默 abort，发飞书系统异常卡片 + 保留旧 drift-latest.json（实测 fail-safe，B/C 评审说的"半成品 cp"证伪）；(2) conflict-tracker.py 区分 RESOLVED vs DISAPPEARED（分支消失/配置漂移不误判 RESOLVED，实测 3 场景验证）。C 层剩余：§5.2/§5.3 增强 + 可选 TS Extension（需先修 spawn exports bug）|
+| C ECS 工程 | `pi-drift-guard` Extension 代码 + systemd 托管 + spawn exports 修复 | ⏳ 具体增强仍需用户授权，由 Trae/Kimi 实施。现有 ECS shell cron 已覆盖主要只读体检；活动分支清单改读 `drift-config.json` v1.2。 |
 
 **deployment 实证**（来源 `templates/zcode-claude-replacement-report.md`，非真值层）：
 - Pi daemon 进程存活（部署验证时 PASS：daemon / 崩溃恢复 / IPC / Aetheris 连通）

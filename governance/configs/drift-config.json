@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "version": "1.1",
-  "updated": "2026-07-27",
+  "version": "1.2",
+  "updated": "2026-08-08",
   "note": "Pi 漂移治理体检对象清单（pi-drift-governance-spec.md §2）。clone 路径占位符由部署方按 ECS/本机实际填写，不硬编码。drift-check.sh 自 2026-07-27 起从本文件读 Aetheris agent_branches（去硬编码）。",
   "repos": [
     {
@@ -10,20 +10,25 @@
       "truth_branch": "master",
       "agent_branches": [],
       "monitor_level": "none",
-      "note": "治理仓库，不用 agent/* 分支模型（直接 commit master，2026-07-27 校准）。drift-check.sh 不扫此仓库；版本真值经 dispatch-server /truth/versions 端点暴露（spec §10 B 层），pi-drift-guard Extension 上线后可纳入完整体检"
+      "note": "治理仓库不用常驻 agent/* 分支模型；所有 master 变更走临时分支、PR 和治理门禁。版本真值经 dispatch-server /truth/versions 端点暴露。"
     },
     {
       "name": "Aetheris",
       "origin": "<待 ECS 部署方填写>",
       "truth_branch": "master",
-      "agent_branches": ["agent/zcode", "agent/qoder", "agent/kimi", "agent/solo", "agent/mira"],
+      "agent_branches": ["agent/trae-mac", "agent/zcode-mac", "agent/qoder-mac", "agent/kimi-mac"],
       "monitor_level": "full",
-      "note": "主仓库（架构 v1.0 §五）。2026-07-27 校准：agent/mira 实测存在于 Aetheris 远程（head=c51a93a7，CRITICAL 状态），保留监控；agent/claude / agent/trae 已退役见 retired_clones"
+      "note": "Aetheris Mac 独立 clone 分支。ZCode 分支只用于受控记忆和评审上下文，不表示终端执行能力；Pi 无代码分支；Mira 使用云端 fresh checkout。"
     }
   ],
   "retired_clones": {
-    "agent/claude": "Claude Code 2026-07-25 退役，分支冻结",
-    "agent/trae": "Trae IDE 2026-07-26 退役为编队角色，分支并入 agent/solo"
+    "agent/claude": "Claude Code 已退役，分支只作历史证据",
+    "agent/solo": "独立 Solo 已并入统一 Trae，分支只作历史证据",
+    "agent/trae": "旧 Windows Trae 分支已由 agent/trae-mac 取代",
+    "agent/zcode": "旧 Windows ZCode 分支已由 agent/zcode-mac 取代",
+    "agent/qoder": "旧 Windows Qoder 分支已由 agent/qoder-mac 取代",
+    "agent/kimi": "旧 Windows Kimi 分支已由 agent/kimi-mac 取代",
+    "agent/mira": "Mira 不使用常驻本地分支，改为云端 fresh checkout"
   },
   "schedule_minutes": 30,
   "notification_channels": ["feishu", "aetheris-truth-layer"]

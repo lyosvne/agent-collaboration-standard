@@ -1,6 +1,6 @@
 # 架构规格：Pi Dispatch Context Server
 
-> 签发: ZCode（出规格）| Review: 待对等互检 | 裁定: 用户 | 日期: 2026-07-28
+> 历史起草: ZCode | 当前 owner: Mira（治理）+ Trae（集成验证）| 裁定: 用户 | 更新: 2026-08-08
 > 状态: 草案（架构真值反推，待 ECS 实测补完字段后转 active）
 > 依据: `archive/dispatch-server-patches/*.py`（5 个 patch 头部说明）+ `archive/ecs-scripts/README.md`（systemd unit + crontab 实证）+ `pi-drift-governance-spec.md §10`（B 层实施状态）
 > 缺口来源: `global-roadmap-v1.1.md` L246「dispatch-server 架构 spec 缺失（生产组件无文档/无职能归属）」
@@ -10,7 +10,7 @@
 
 ## 1. 为什么存在（职能归属）
 
-**问题**：编队是多 agent / 多机 / 跨会话的（ZCode 本机 + Qoder/Kimi/Mira 云端 + Pi ECS）。每个 agent 启动时都需要同一份"编队上下文"（北极星 / 架构 / 分工 / 启动头 + 治理文档时序版本 + 漂移体检结果）。若各自从 GitHub fetch，有三个缺口：
+**问题**：编队是多 agent / 多机 / 跨会话的（Pi ECS + Trae/Qoder/Kimi Mac 环境 + ZCode 非终端 App + Mira 云端）。每个 agent 启动时都需要同一份"编队上下文"（北极星 / 架构 / 分工 / 启动头 + 治理文档时序版本 + 漂移体检结果）。若各自从 GitHub fetch，有三个缺口：
 - GitHub 网络不稳定（本机实测 `AGENTS.md`「本机运行经验」记录的 DNS 污染路径）
 - 没有"时序版本"概念——文档改了但消费方不知道改了什么、何时改的
 - 漂移体检结果是 ECS cron 产物，本机 agent 无法直接读
@@ -137,10 +137,10 @@ AUTH_KEY（?key=$DISPATCH_KEY，403 失败）:
 |--------|----------|----------|
 | `qoder-bridge.py` | `/dispatch/{north-star,architecture,fleet-division,start-here}` | 启动头注入（FLEET_HEADER：红线 + 编队身份 + WebFetch 指引）|
 | `qoder-bridge.py`（cantus 档） | 同上 | C 评审实测：cantus 能复述红线 5 条 + 北极星 + 路线图 |
-| ZCode 本机（漂移治理 hook） | `/dispatch/truth/versions` | chain-gate / tiers-drift-gate 比对本地版本 |
-| ZCode 本机（漂移诊断） | `/dispatch/drift` | 手动诊断时 curl（需 DISPATCH_KEY）|
+| Pi ECS / governance mirror | `/dispatch/truth/versions` | 对外发布 canonical 逻辑版本 |
+| Trae（授权诊断） | `/dispatch/drift` | 集成或部署验证时调用（需授权，不输出 key）|
 
-**未消费方**：Kimi / Trae SOLO / Mira 目前不经 dispatch-server（各自调度链），是覆盖缺口。
+**待扩展消费方**：Trae、Kimi、ZCode、Mira 应按各自能力读取公开治理端点；需要鉴权的运行诊断只能由获授权的执行角色调用。ZCode 只消费结果，不运行 curl。
 
 ---
 

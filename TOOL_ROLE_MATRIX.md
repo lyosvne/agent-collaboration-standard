@@ -1,44 +1,50 @@
 # Tool Role Matrix
 
-## Trae IDE
+## Pi
 
-- Role: project owner, architecture controller, final integrator.
-- Default access: local write with human-visible changes.
-- Must read: global standard, project `AGENTS.md`, `.agents/project-agents.md`, current source-of-truth.
-- Must not: silently mix concurrent task changes, reset, force push, or rewrite history.
+- Role: ECS central coordinator, intent routing, result convergence, cognitive and memory loop.
+- Local clone: none.
+- Must not: code, Git writes, SSH, deployment, T3 operations, secrets, or audit mutation.
 
-## Claude Code
+## Unified Trae
 
-- Role: focused implementation, review, refactor, debugging.
-- Default access: task-scoped write when assigned.
-- Must read: global standard, project `AGENTS.md`, `.agents/project-agents.md`, current source-of-truth.
+- Role: implementation, integration, Git/PR/CI, product testing, browser validation.
+- Default access: project-scoped write through an isolated branch and visible diff.
+- Inherits: historical Trae and Solo responsibilities.
+- Must not: push `master`, rewrite history, or perform production/T3 operations without user authorization.
 
-## Trae SOLO PC
+## ZCode
 
-- Role: autonomous implementation agent.
-- Default access: task-package driven.
-- Must read: global standard, project `AGENTS.md`, `.agents/project-agents.md`, current source-of-truth.
-- Must use branch or explicitly approved scope for writes.
+- Role: non-terminal knowledge assimilation, review, root-cause analysis, feedback, fallback.
+- Default access: read and structured review output.
+- Must not: shell, Git execution, code implementation, SSH, deployment, or production changes.
 
-## Trae SOLO Sandbox
+## Qoder
 
-- Role: cloud/sandbox review or small isolated patch.
-- Default access: read-only unless explicitly assigned a branch/PR task.
-- Must read: global standard, project `AGENTS.md`, `.agents/project-agents.md`, current source-of-truth.
-- Must not rely on local Windows paths.
+- Role: design assets, frontend design, architecture planning, assigned implementation.
+- Default access: read-only until a scoped branch or design task is assigned.
+- Must not: push `master`, rewrite history, or perform production operations without authorization.
+
+## Kimi
+
+- Role: terminal implementation, file/data processing, Feishu collaboration.
+- Default access: task-scoped terminal and branch work.
+- Must not: push `master`, expose credentials, or perform production/T3 operations without authorization.
 
 ## Mira
 
-- Role: senior architect, text-editing specialist, and review-oriented collaboration agent.
-- Default access: read-only.
-- Write access: only through explicit branch or PR task.
-- Must read: global standard, project `AGENTS.md`, `.agents/project-agents.md`, current source-of-truth.
-- Best use: architecture review, document restructuring, rules/text quality review, consistency audit, and design critique.
-- Must not: push to `master`, reset, force push, edit secrets, or touch runtime state.
-- Memory setup: ask Mira to remember `protocols/communication-command-protocol.md` and the project's entry path; if memory is unavailable, paste the Mira memory instruction from that protocol at session start.
+- Role: cloud PM, architecture, governance and public memory.
+- Default access: read-only fresh checkout.
+- Write access: explicit governance branch or PR task.
+- Must not: push `master`, edit secrets, or touch runtime state.
+
+## Retired roles
+
+- Claude Code: retired; coordination history → Pi, review knowledge → ZCode, execution → Trae.
+- Independent Solo: retired; product-test knowledge and duties → unified Trae.
 
 ## Future Cloud Agents
 
 - Role: task-specific reviewer or implementation worker.
-- Default access: read-only until a task package grants scoped write authority.
-- Must read: global standard, project `AGENTS.md`, `.agents/project-agents.md`, current source-of-truth.
+- Default access: read-only until a task package grants scoped authority.
+- Must read: `START_HERE.md`, current version manifest, project activity rules and current source-of-truth.

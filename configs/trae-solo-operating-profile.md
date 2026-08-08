@@ -1,5 +1,7 @@
 # Trae SOLO Operating Profile
 
+> 状态：historical/deprecated。独立 Solo 已于 2026-08-08 并入统一 Trae。本文件只解释历史工作面，不得作为当前角色、分支或权限入口。
+
 ## Positioning
 
 Trae SOLO is one agent identity with two operating surfaces:

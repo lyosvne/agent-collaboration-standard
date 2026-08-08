@@ -1,6 +1,6 @@
 ---
 version: "v1.0"
-status: "active"
+status: "historical"
 type": "integration-status"
 title: "Kimi接入现状"
 signoff: "ZCode 2026-07-25"
@@ -10,7 +10,8 @@ signoff: "ZCode 2026-07-25"
 
 > 记录日期: 2026-07-25
 > 记录者: ZCode
-> 性质: P0第六项 Kimi 部分的当前状态记录
+> 性质: 历史状态快照，不再作为当前调度和权限规则
+> 当前规则: Kimi 负责终端实现、文件数据和飞书协同；Pi 负责中央协调；Trae 负责集成验证；ZCode 不具备 Bash/SSH/代码执行能力
 
 ## 已验证可用
 
