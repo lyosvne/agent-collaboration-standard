@@ -76,7 +76,11 @@ class DeploymentContractTests(unittest.TestCase):
         self.assertIn("`--dry-run`", contract)
         self.assertIn("rollback", contract.lower())
         self.assertIn("allowlist-only JSON", contract)
-        self.assertIn("umask `077`", contract)
+        self.assertIn("umask `027`", contract)
+        self.assertIn("never group-writable", contract)
+        self.assertIn("only as a supplementary read group", contract)
+        self.assertIn("group ID must equal the helper effective GID", contract)
+        self.assertIn("group ID must equal the helper effective IDs", contract)
         self.assertIn("effective UID 0", contract)
         self.assertIn("exclusive writer", contract)
         self.assertIn("deposit an atomically completed bundle", contract)
@@ -87,6 +91,20 @@ class DeploymentContractTests(unittest.TestCase):
         self.assertIn("Receipt publication tracks", contract)
         self.assertIn("does **not** roll back the mirror", contract)
         self.assertIn("`receipt_state_uncertain`", contract)
+        for command in (
+            "flock -x 9",
+            "chown -R pi-governance-sync",
+            "chgrp -R pi-governance-sync",
+            r"\( -type d -o -type f \) -exec chmod g+rX",
+            "chmod -R go-w",
+            "! -user pi-governance-sync",
+            "! -group pi-governance-sync",
+            "-perm /022",
+            "test -z \"$bad\"",
+        ):
+            self.assertIn(command, contract)
+        self.assertIn("stop it and verify it is", contract)
+        self.assertIn("`find` is mandatory verification", contract)
         for mode in ("`0755`", "`0440`", "`0730`", "`0640`", "`0700`", "`0600`"):
             self.assertIn(mode, contract)
 

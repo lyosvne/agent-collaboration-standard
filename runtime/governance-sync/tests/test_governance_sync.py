@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import fcntl
 import hashlib
 import importlib.util
@@ -7,6 +8,7 @@ from importlib.machinery import SourceFileLoader
 import io
 import json
 import os
+import shutil
 import stat
 import subprocess
 import sys
@@ -18,6 +20,12 @@ from types import SimpleNamespace
 from unittest import mock
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "aetheris-governance-sync"
+REAL_READER_TEST = (
+    "IntegrationTests."
+    "test_linux_root_group_reader_has_real_read_only_io_before_and_after_sync"
+)
+REAL_READER_METHOD = REAL_READER_TEST.split(".", 1)[1]
+REAL_READER_SUDO_ENV = "GOVERNANCE_SYNC_READER_TEST_UNDER_SUDO"
 SPEC = importlib.util.spec_from_loader(
     "governance_sync",
     SourceFileLoader("governance_sync", str(MODULE_PATH)),
@@ -57,7 +65,7 @@ class CliValidationTests(unittest.TestCase):
             with mock.patch.object(sync.os, "geteuid", return_value=1234):
                 sync.establish_process_security()
             observed = os.umask(original)
-            self.assertEqual(0o077, observed)
+            self.assertEqual(0o027, observed)
         finally:
             os.umask(original)
         with mock.patch.object(sync.os, "geteuid", return_value=0):
@@ -134,6 +142,49 @@ class CliValidationTests(unittest.TestCase):
             json.loads(stderr.getvalue()),
         )
         self.assertNotIn("hidden", stderr.getvalue())
+
+    def test_linux_nonroot_real_reader_test_reexecutes_only_itself(self) -> None:
+        test = IntegrationTests(methodName=REAL_READER_METHOD)
+        completed = subprocess.CompletedProcess([], 0, "", "")
+        with (
+            mock.patch.object(sys, "platform", "linux"),
+            mock.patch.object(os, "geteuid", return_value=1000),
+            mock.patch.object(shutil, "which", return_value="/usr/bin/sudo"),
+            mock.patch.dict(os.environ, {}, clear=True),
+            mock.patch.object(
+                subprocess,
+                "run",
+                side_effect=(completed, completed),
+            ) as run,
+        ):
+            getattr(test, REAL_READER_METHOD)()
+
+        self.assertEqual(["/usr/bin/sudo", "-n", "true"], run.call_args_list[0].args[0])
+        command = run.call_args_list[1].args[0]
+        self.assertEqual(["/usr/bin/sudo", "-n", "env"], command[:3])
+        self.assertIn(f"{REAL_READER_SUDO_ENV}=1", command)
+        self.assertEqual(
+            [sys.executable, str(Path(__file__).resolve()), REAL_READER_TEST],
+            command[-3:],
+        )
+
+    def test_linux_nonroot_real_reader_test_propagates_sudo_failure(self) -> None:
+        test = IntegrationTests(methodName=REAL_READER_METHOD)
+        available = subprocess.CompletedProcess([], 0, "", "")
+        failed = subprocess.CompletedProcess([], 7, "child stdout", "child stderr")
+        with (
+            mock.patch.object(sys, "platform", "linux"),
+            mock.patch.object(os, "geteuid", return_value=1000),
+            mock.patch.object(shutil, "which", return_value="/usr/bin/sudo"),
+            mock.patch.dict(os.environ, {}, clear=True),
+            mock.patch.object(
+                subprocess,
+                "run",
+                side_effect=(available, failed),
+            ),
+            self.assertRaisesRegex(AssertionError, "sudo reader unittest failed"),
+        ):
+            getattr(test, REAL_READER_METHOD)()
 
 
 class BundleSafetyTests(unittest.TestCase):
@@ -465,6 +516,301 @@ class IntegrationTests(unittest.TestCase):
         with self.assertRaises(sync.SyncError) as caught:
             sync.validate_mirror()
         self.assertEqual("mirror_config_unsafe", caught.exception.code)
+
+    def test_rejects_mirror_root_with_wrong_effective_group(self) -> None:
+        real_lstat = Path.lstat
+
+        def lstat_with_wrong_mirror_gid(path: Path) -> os.stat_result:
+            metadata = real_lstat(path)
+            if path == self.mirror:
+                fields = list(metadata)
+                fields[5] = os.getegid() + 1
+                return os.stat_result(fields)
+            return metadata
+
+        with mock.patch.object(Path, "lstat", lstat_with_wrong_mirror_gid):
+            with self.assertRaises(sync.SyncError) as caught:
+                sync.validate_mirror()
+        self.assertEqual("mirror_unsafe", caught.exception.code)
+
+    def test_rejects_git_directory_with_wrong_effective_group(self) -> None:
+        git_directory = self.mirror / ".git"
+        real_lstat = Path.lstat
+
+        def lstat_with_wrong_git_gid(path: Path) -> os.stat_result:
+            metadata = real_lstat(path)
+            if path == git_directory:
+                fields = list(metadata)
+                fields[5] = os.getegid() + 1
+                return os.stat_result(fields)
+            return metadata
+
+        with mock.patch.object(Path, "lstat", lstat_with_wrong_git_gid):
+            with self.assertRaises(sync.SyncError) as caught:
+                sync.validate_mirror()
+        self.assertEqual("mirror_gitdir_invalid", caught.exception.code)
+
+    def test_rejects_git_config_with_wrong_effective_group(self) -> None:
+        config = self.mirror / ".git" / "config"
+        real_lstat = Path.lstat
+
+        def lstat_with_wrong_config_gid(path: Path) -> os.stat_result:
+            metadata = real_lstat(path)
+            if path == config:
+                fields = list(metadata)
+                fields[5] = os.getegid() + 1
+                return os.stat_result(fields)
+            return metadata
+
+        with mock.patch.object(Path, "lstat", lstat_with_wrong_config_gid):
+            with self.assertRaises(sync.SyncError) as caught:
+                sync.validate_mirror()
+        self.assertEqual("mirror_config_unsafe", caught.exception.code)
+
+    def test_recheck_rejects_mirror_root_with_wrong_effective_group(self) -> None:
+        real_lstat = Path.lstat
+        real_git = sync.git
+        git_inspection_started = False
+
+        def lstat_with_wrong_gid_on_recheck(path: Path) -> os.stat_result:
+            metadata = real_lstat(path)
+            if git_inspection_started and path == self.mirror:
+                fields = list(metadata)
+                fields[5] = os.getegid() + 1
+                return os.stat_result(fields)
+            return metadata
+
+        def mark_git_inspection(*args: str, **kwargs: object):
+            nonlocal git_inspection_started
+            git_inspection_started = True
+            return real_git(*args, **kwargs)
+
+        with (
+            mock.patch.object(Path, "lstat", lstat_with_wrong_gid_on_recheck),
+            mock.patch.object(sync, "git", side_effect=mark_git_inspection),
+        ):
+            with self.assertRaises(sync.SyncError) as caught:
+                sync.validate_mirror()
+        self.assertEqual("mirror_changed", caught.exception.code)
+
+    def test_recheck_rejects_git_directory_with_wrong_effective_group(self) -> None:
+        git_directory = self.mirror / ".git"
+        real_lstat = Path.lstat
+        real_git = sync.git
+        git_inspection_started = False
+
+        def lstat_with_wrong_gid_on_recheck(path: Path) -> os.stat_result:
+            metadata = real_lstat(path)
+            if git_inspection_started and path == git_directory:
+                fields = list(metadata)
+                fields[5] = os.getegid() + 1
+                return os.stat_result(fields)
+            return metadata
+
+        def mark_git_inspection(*args: str, **kwargs: object):
+            nonlocal git_inspection_started
+            git_inspection_started = True
+            return real_git(*args, **kwargs)
+
+        with (
+            mock.patch.object(Path, "lstat", lstat_with_wrong_gid_on_recheck),
+            mock.patch.object(sync, "git", side_effect=mark_git_inspection),
+        ):
+            with self.assertRaises(sync.SyncError) as caught:
+                sync.validate_mirror()
+        self.assertEqual("mirror_changed", caught.exception.code)
+
+    def test_linux_root_group_reader_has_real_read_only_io_before_and_after_sync(
+        self,
+    ) -> None:
+        if not sys.platform.startswith("linux"):
+            self.skipTest("requires Linux setgroups/setgid/setuid semantics")
+        if os.geteuid() != 0:
+            if os.environ.get(REAL_READER_SUDO_ENV) == "1":
+                self.fail("sudo re-execution did not acquire root")
+            sudo = shutil.which("sudo")
+            if sudo is None:
+                self.skipTest("sudo is unavailable for the Linux reader test")
+            available = subprocess.run(
+                [sudo, "-n", "true"],
+                check=False,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            if available.returncode != 0:
+                self.skipTest("passwordless sudo is unavailable for the Linux reader test")
+            env = os.environ.copy()
+            env[REAL_READER_SUDO_ENV] = "1"
+            command = [
+                sudo,
+                "-n",
+                "env",
+                *[f"{key}={value}" for key, value in env.items()],
+                sys.executable,
+                str(Path(__file__).resolve()),
+                REAL_READER_TEST,
+            ]
+            completed = subprocess.run(
+                command,
+                check=False,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            self.assertEqual(
+                0,
+                completed.returncode,
+                "sudo reader unittest failed\n"
+                f"stdout:\n{completed.stdout}\n"
+                f"stderr:\n{completed.stderr}",
+            )
+            return
+
+        writer_gid = os.getegid()
+        reader_uid = 65534 if writer_gid != 65534 else 65533
+        reader_gid = 65534 if writer_gid != 65534 else 65533
+        document = self.mirror / "truth.txt"
+        git_directory = self.mirror / ".git"
+
+        self.root.chmod(0o751)
+        for path in (self.mirror, *self.mirror.rglob("*")):
+            os.chown(path, os.geteuid(), writer_gid)
+            mode = stat.S_IMODE(path.stat().st_mode) & ~0o022
+            if path.is_dir():
+                mode |= stat.S_IRGRP | stat.S_IXGRP
+            elif path.is_file():
+                mode |= stat.S_IRGRP
+            path.chmod(mode)
+
+        def reader_probe(expected_document: str, readable_commit: str) -> dict[str, object]:
+            read_fd, write_fd = os.pipe()
+            pid = os.fork()
+            if pid == 0:
+                os.close(read_fd)
+                result: dict[str, object]
+                try:
+                    os.setgroups([writer_gid])
+                    os.setgid(reader_gid)
+                    os.setuid(reader_uid)
+
+                    head = (git_directory / "HEAD").read_text(encoding="utf-8")
+                    content = document.read_text(encoding="utf-8")
+                    object_type = subprocess.run(
+                        [
+                            "git",
+                            "-c",
+                            f"safe.directory={self.mirror}",
+                            "cat-file",
+                            "-t",
+                            readable_commit,
+                        ],
+                        cwd=self.mirror,
+                        check=True,
+                        text=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                    ).stdout.strip()
+
+                    def denied(operation) -> bool:
+                        try:
+                            operation()
+                        except OSError as exc:
+                            if exc.errno in (errno.EACCES, errno.EPERM, errno.EROFS):
+                                return True
+                            raise
+                        return False
+
+                    operations = {
+                        "worktree_create": lambda: os.open(
+                            self.mirror / "reader-created",
+                            os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                            0o600,
+                        ),
+                        "worktree_overwrite": lambda: document.write_text(
+                            "reader overwrite\n", encoding="utf-8"
+                        ),
+                        "worktree_rename": lambda: os.rename(
+                            document, self.mirror / "truth.reader-moved"
+                        ),
+                        "refs_create": lambda: os.open(
+                            git_directory / "refs" / "reader-created",
+                            os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                            0o600,
+                        ),
+                        "refs_overwrite": lambda: (
+                            git_directory / "refs" / "heads" / "master"
+                        ).write_text("0" * 40 + "\n", encoding="ascii"),
+                        "refs_rename": lambda: os.rename(
+                            git_directory / "refs" / "heads" / "master",
+                            git_directory / "refs" / "heads" / "master.reader-moved",
+                        ),
+                        "config_create": lambda: os.open(
+                            git_directory / "config.reader-created",
+                            os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                            0o600,
+                        ),
+                        "config_overwrite": lambda: (
+                            git_directory / "config"
+                        ).write_text("[reader]\nwrite = true\n", encoding="utf-8"),
+                        "config_rename": lambda: os.rename(
+                            git_directory / "config",
+                            git_directory / "config.reader-moved",
+                        ),
+                    }
+                    result = {
+                        "head_readable": head.startswith("ref: refs/heads/master"),
+                        "document": content,
+                        "object_type": object_type,
+                        "denied": {
+                            name: denied(operation)
+                            for name, operation in operations.items()
+                        },
+                    }
+                except BaseException as exc:
+                    result = {"child_error": f"{type(exc).__name__}: {exc}"}
+                payload = json.dumps(result, sort_keys=True).encode("utf-8")
+                os.write(write_fd, payload)
+                os.close(write_fd)
+                os._exit(1 if "child_error" in result else 0)
+
+            os.close(write_fd)
+            chunks = []
+            while True:
+                chunk = os.read(read_fd, 65536)
+                if not chunk:
+                    break
+                chunks.append(chunk)
+            os.close(read_fd)
+            _, status = os.waitpid(pid, 0)
+            result = json.loads(b"".join(chunks).decode("utf-8"))
+            self.assertTrue(os.WIFEXITED(status))
+            self.assertEqual(
+                0,
+                os.WEXITSTATUS(status),
+                f"reader child failed: {result.get('child_error', 'unknown error')}",
+            )
+            return result
+
+        before = reader_probe("old\n", self.old_commit)
+        self.assertNotIn("child_error", before)
+        self.assertTrue(before["head_readable"])
+        self.assertEqual("old\n", before["document"])
+        self.assertEqual("commit", before["object_type"])
+        self.assertTrue(all(before["denied"].values()))
+
+        original_umask = os.umask(0o027)
+        try:
+            sync.synchronize(self.request)
+        finally:
+            os.umask(original_umask)
+
+        after = reader_probe("new\n", self.new_commit)
+        self.assertNotIn("child_error", after)
+        self.assertTrue(after["head_readable"])
+        self.assertEqual("new\n", after["document"])
+        self.assertEqual("commit", after["object_type"])
+        self.assertTrue(all(after["denied"].values()))
 
     def test_incoming_contract_accepts_patched_fixed_group_id(self) -> None:
         expected_gid, identity = sync.validate_incoming_bundle(self.bundle)

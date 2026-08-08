@@ -30,25 +30,63 @@ The deployment contract is:
 |---|---|---|
 | Installed helper | `root:root` | `0755`, not writable by the caller |
 | Sudoers drop-in | `root:root` | `0440` |
-| Mirror directory | `pi-governance-sync:pi-governance-sync` | no group/world write |
-| Mirror `.git` directory | `pi-governance-sync:pi-governance-sync` | real in-mirror directory, no group/world write |
-| Mirror `.git/config` | `pi-governance-sync:pi-governance-sync` | real regular file, no group/world write |
+| Mirror directory | `pi-governance-sync:pi-governance-sync` | owner UID and group ID must equal the helper effective IDs; no group/world write |
+| Mirror `.git` directory | `pi-governance-sync:pi-governance-sync` | real in-mirror directory; owner UID and group ID must equal the helper effective IDs; no group/world write |
+| Mirror `.git/config` | `pi-governance-sync:pi-governance-sync` | real regular file, group ID must equal the helper effective GID, no group/world write |
 | Incoming directory | `pi-governance-sync:aetheris-governance-sync` | `0730`; caller group may only traverse and deposit/replace the fixed bundle |
 | Incoming bundle | depositor:`aetheris-governance-sync` | `0640`, regular non-symlink file, published by atomic rename |
 | Receipts directory | `pi-governance-sync:pi-governance-sync` | `0700` |
 | Receipt files | `pi-governance-sync:pi-governance-sync` | `0600` |
 | Lock file | `pi-governance-sync:pi-governance-sync` | `0600`, regular non-symlink file |
 
-The helper starts with umask `077` and resolves the fixed
+The helper starts with umask `027`: repository files remain readable by the
+`pi-governance-sync` group but are never group-writable. `pi-dispatch` uses
+`pi-governance-sync` only as a supplementary read group; its primary group
+remains `pi-dispatch`, and it receives no mirror ownership or write access.
+Only `pi-governance-sync` owns and writes the mirror. The helper resolves the fixed
 `aetheris-governance-sync` group through the system group database on every
 invocation. It requires the incoming directory to be a real directory owned by
 its effective UID, assigned to that fixed group, and exactly mode `0730`. The
 bundle must be a real non-symlink regular file assigned to the fixed group and
 exactly mode `0640`; the opened file descriptor must retain the validated inode,
 group, and mode. It also rejects a symlink, gitfile, escaped Git directory,
-wrong owner, or group/world-writable mirror, `.git`, or `.git/config`. It
+wrong owner/group, or group/world-writable mirror, `.git`, or `.git/config`. It
 verifies inode identity again after Git inspection to fail closed on replacement
 races.
+
+### One-time migration of an existing mirror
+
+Before enabling a reader on an existing mirror, run this migration once as
+root. Exclude the writer for the complete migration: stop it and verify it is
+not running, or retain the helper's exclusive lock while all commands and
+postcondition checks run. The lock-based procedure is:
+
+```sh
+lock=/run/lock/aetheris-governance-sync.lock
+mirror=/opt/pi/governance-mirror/repo
+(
+  flock -x 9
+  chown pi-governance-sync "$lock"
+  chgrp pi-governance-sync "$lock"
+  chmod 0600 "$lock"
+  chown -R pi-governance-sync "$mirror"
+  chgrp -R pi-governance-sync "$mirror"
+  find "$mirror" \( -type d -o -type f \) -exec chmod g+rX {} +
+  chmod -R go-w "$mirror"
+  bad=$(find "$mirror" \
+    \( ! -user pi-governance-sync -o ! -group pi-governance-sync -o -perm /022 \) \
+    -print -quit)
+  test -z "$bad"
+) 9>>"$lock"
+```
+
+The result must leave all directories group-readable/traversable, all regular
+files group-readable, and every path free of group/world write. The final
+`find` is mandatory verification that every path has the required owner and
+group and no `go+w` bit; do not restart a stopped writer unless it passes. In
+particular, `pi-dispatch` must be able to read `.git/HEAD` and governance
+documents through its supplementary group, but must not be able to create,
+overwrite, or rename content in the work tree, `.git/refs`, or `.git/config`.
 
 The sudoers grant is exactly:
 

@@ -323,11 +323,32 @@ class DispatchRecoveryTests(unittest.TestCase):
         unit = (ROOT / "systemd/pi-dispatch-server.service").read_text()
         self.assertIn("User=pi-dispatch", unit)
         self.assertIn("Group=pi-dispatch", unit)
+        self.assertIn("SupplementaryGroups=pi-governance-sync", unit)
         self.assertIn("EnvironmentFile=/opt/pi-orchestrator/config/dispatch.env", unit)
         self.assertNotIn("EnvironmentFile=/opt/pi-orchestrator/.env", unit)
         self.assertIn("NoNewPrivileges=true", unit)
         self.assertIn("ProtectSystem=strict", unit)
         self.assertIn("CapabilityBoundingSet=", unit)
+
+    def test_deployment_prerequisites_define_read_only_mirror_migration(self):
+        prerequisites = (ROOT / "deployment-prerequisites.md").read_text()
+        self.assertIn("only as a supplementary read group", prerequisites)
+        self.assertIn("SupplementaryGroups=pi-governance-sync", prerequisites)
+        for command in (
+            "flock -x 9",
+            "chown -R pi-governance-sync",
+            "chgrp -R pi-governance-sync",
+            r"\( -type d -o -type f \) -exec chmod g+rX",
+            "chmod -R go-w",
+            "! -user pi-governance-sync",
+            "! -group pi-governance-sync",
+            "-perm /022",
+            "test -z \"$bad\"",
+        ):
+            self.assertIn(command, prerequisites)
+        self.assertIn("stop the governance-sync writer", prerequisites)
+        self.assertIn("mandatory postcondition check", prerequisites)
+        self.assertIn("cannot write the mirror work tree, `.git/refs`,", prerequisites)
 
     def test_canonical_unit_passes_systemd_verify_when_available(self):
         systemd_analyze = shutil.which("systemd-analyze")
