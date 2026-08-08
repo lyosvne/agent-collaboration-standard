@@ -23,6 +23,10 @@ DISPATCH_MODULE = importlib.util.module_from_spec(DISPATCH_SPEC)
 assert DISPATCH_SPEC.loader is not None
 DISPATCH_SPEC.loader.exec_module(DISPATCH_MODULE)
 
+GOVERNANCE_SYNC_TESTS = (
+    Path(__file__).resolve().parents[1] / "runtime" / "governance-sync" / "tests"
+)
+
 
 class SecretPatternTests(unittest.TestCase):
     def matches(self, value: str) -> bool:
@@ -55,6 +59,7 @@ def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()
     suite.addTests(tests)
     suite.addTests(loader.loadTestsFromModule(DISPATCH_MODULE))
+    suite.addTests(loader.discover(str(GOVERNANCE_SYNC_TESTS), pattern="test_*.py"))
     return suite
 
 
