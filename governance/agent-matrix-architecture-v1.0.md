@@ -1,11 +1,11 @@
 ---
-version: "v1.0"
+version: "v1.1"
 status: "active"
 type: "architecture-truth"
 title: "架构真值"
-signoff: "ZCode 2026-07-23"
+signoff: "用户 2026-08-08（Pi 运行与六角色同步）"
 ---
-# 智能体矩阵架构真值 v1.0
+# 智能体矩阵架构真值 v1.1
 
 > 签发: ZCode | 裁定: 用户（林于炜）| 日期: 2026-07-23
 > 性质: 编队架构真值文档，后续所有实施以此为准
@@ -25,18 +25,18 @@ signoff: "ZCode 2026-07-23"
               ├─ 漂移治理 cron(核心实用功能)
               ├─ SSE 接收队列(Qoder 回传) + 轮询兜底（2026-07-26 用户裁定：Qoder 无 Webhook，本机实证 SSE+轮询）
               ├─ subprocess 调度(Kimi)
-              └─ MCP server(Trae SOLO 主动汇报/外部读取)
+              └─ 状态/任务接口（统一 Trae 与外部 App 回传）
                         │
         ┌───────────────┼───────────────────┐
         ▼               ▼                   ▼
-   【主控 PC 端】    【被调度节点】      【云端特化】
-   ZCode(驾驶舱)    Qoder(云端API)     Mira(生图+评审)
-   Trae SOLO(平行工作者) Kimi(ECS沙箱)     
+   【本地执行】      【被调度节点】      【云端特化】
+   Trae(实现/集成/测试) Qoder(云端API) Mira(生图+治理)
+   ZCode(非终端评审)    Kimi(终端/数据)
                         │
                         ▼
               【共享真值层】
          GitHub origin/master(唯一硬真值)
-         + Aetheris(瘦身后,控制平面+记忆)
+         + Aetheris(Pi 思维平面：认知外显、反馈、记忆与审计)
          + ECS 共享文件系统(Pi↔ZCode)
 ```
 
@@ -48,8 +48,8 @@ signoff: "ZCode 2026-07-23"
 
 | 智能体 | 定位 | 调度能力 | 被调度能力 | 云沙箱 |
 |---|---|---|---|---|
-| **ZCode** | 主控驾驶舱 | 调 Qoder(MCP+API)、调 Kimi(Pi subprocess) | ❌ 无入站API,不能被外部push触发 | ❌ 无,SSH连ECS工作区 |
-| **Trae SOLO(本机)** | 平行工作者 | ❌ 不能调度别人(无原生API) | ❌ 不能被ZCode调度(无入站) | 本地沙箱不限网络 |
+| **ZCode** | 非终端评审/分析/反哺 | ❌ 不承担中央调度 | 通过结构化 handoff 接收评审任务 | ❌ 无终端、SSH 和 Git 执行 |
+| **Trae(本机)** | 统一实现/集成/测试主体 | 可调用本地工具，不承担中央协调 | 接收 Pi 派单和跨角色 handoff | Mac 独立 clone |
 
 ### 被调度层
 
@@ -64,7 +64,7 @@ signoff: "ZCode 2026-07-23"
 | 智能体 | 状态 | 原因 |
 |---|---|---|
 | **Codex** | ⛔ 淘汰 | 本地用方舟模型,云沙箱绑OpenAI调不动,GUI/CLI两套维护重 |
-| **Trae IDE（编队角色）** | ⛔ 退役为编队角色 | 2026-07-26 C 选项裁定：编队里 Trae 系只保留 SOLO 一个独立角色（端到端测试/QA）。Trae IDE 退到个人工具，不进 Pi 调度。软件保留，Aetheris 历史分支待合并入 `agent/solo` |
+| **独立 Solo** | ⛔ 已退役并入统一 Trae | 历史分支和测试记忆只作证据；当前实现、集成和 product-test 均由 Trae 承接 |
 | **Claude Code** | ⛔ 退役完成 | 2026-07-25 退役，2026-07-26 密钥清理完成（详见 `.claude/RETIREMENT-STATUS.md`） |
 
 ---
@@ -87,7 +87,7 @@ signoff: "ZCode 2026-07-23"
 5. **模型无关**:pi-ai 多 provider(可接 GLM-5.2,有 custom-provider 示例)
 6. **技能兼容**:直接读 ~/.agents/skills(现有200+ skill零迁移)
 
-### Pi 部署形态(待ECS实测验证)
+### Pi 部署形态（ECS 已运行）
 ```
 ECS aetherisonline.xyz
 └── Pi orchestrator (serve 模式, 24h daemon)
@@ -109,16 +109,15 @@ ECS aetherisonline.xyz
 
 ## 四、协作模式(按关系分层)
 
-### 4.1 ZCode ↔ Qoder(主控↔被调度)
-- **ZCode→Qoder**:MCP 包装 Qoder REST API,秒级近实时调度
-- **Qoder→ZCode**:SSE 回传 Pi → Pi 写共享文件 → ZCode 读取(依赖ZCode活跃)；轮询兜底
-- **上下文共享**:产物级(git) + Pi 中转字段级,非 live session
+### 4.1 Pi ↔ Qoder（中央协调↔设计/云端节点）
+- **Pi→Qoder**：通过 Qoder API/SSE 派发设计、规划和云端任务
+- **Qoder→Pi**：SSE 回传，轮询兜底
+- **ZCode**：按需接收产物做非终端评审，不承担调度或执行
 
-### 4.2 ZCode ↔ Trae SOLO(主控↔平行工作者)
-- **不能互相调度**(Trae SOLO 无入站API,ZCode无触发本地应用能力)
-- **产物共享**:各自独立 clone + 独立分支,git 是同步层
-- **关系定位**:"共享工作区的同事",非"上下级调度"
-- **可选增强**:Trae SOLO 通过 MCP 主动向 Pi 汇报状态(状态实时,非内容)
+### 4.2 Pi ↔ Trae（中央协调↔统一执行主体）
+- Pi 负责派单和收敛，Trae 负责实现、集成、Git/PR/CI 和产品验收
+- Trae 使用独立 clone 和 `agent/trae-mac`
+- 历史 Solo 能力作为 Trae 的 product-test 模式
 
 ### 4.3 Pi ↔ Kimi(调度↔被调度)
 - Pi 通过 subprocess 在 ECS sandbox 调度 Kimi
@@ -133,7 +132,7 @@ ECS aetherisonline.xyz
 ### 4.5 移动端 → 编队
 - **统一入口:飞书移动端**(pi-feishu + 互动卡片审批)
 - 不依赖任何PC开机(Pi常驻ECS)
-- Trae SOLO Mobile 作为 Trae SOLO 的移动形态（编队里 Trae 系唯一角色的移动入口）
+- 移动端统一通过飞书/Pi，不建立独立 Solo 移动角色
 
 ---
 
@@ -157,19 +156,19 @@ ECS aetherisonline.xyz
 严重漂移(>10 commits) → 飞书告警
 ```
 
-**第二层:Pi 主动纠正**
-- **代劳 push(安全)**:检测到本地有未push commit → Pi 直接帮 push(不改工作区)
-- **提醒 pull(不代劳)**:检测到本地落后 → 通知人/等agent空闲(pull可能冲突,不能盲动)
+**第二层:Pi 主动协调**
+- **提醒 push**:检测到分支有未 push commit → Pi 通知对应执行 agent
+- **提醒同步**:检测到分支落后 → 通知对应 agent；Pi 不代劳 pull/merge
 
 **第三层:源头预防**
 - 铁律:一个agent只在自己分支干活,绝不直接动master
 - pre-commit hook:commit时检查漂移程度,警告
-- Pi 集成窗口:定期把各分支合并到master,控制漂移上限
+- Pi 集成提案:定期列出候选分支、冲突和验证状态；Trae 经 PR/CI 执行合并
 
-### Trae SOLO ↔ Pi 同步（节点 3 修订：原 Trae PC/Mobile 设计已随 Trae IDE 退役过时）
-- Pi 监控 `agent/solo` 分支（原 agent/trae 已随 Trae IDE 退役，2026-07-26 C 选项后改用 agent/solo）
-- 要求 Trae SOLO 任务必须 commit 到 `agent/solo`
-- Pi 漂移治理逻辑完全适用
+### Trae ↔ Pi 同步
+- Pi 读取 Trae handoff 与远端分支状态，不直接修改 Trae 工作区
+- Trae 任务提交到项目规定的 `agent/trae-mac` 或受审 feature 分支
+- 合并由 Trae 经 PR/CI 执行，Pi 负责协调和状态收敛
 
 ---
 
@@ -201,23 +200,22 @@ ECS aetherisonline.xyz
 - **信息聚合简报**:飞书消息 + 多维表格
 - 能力已齐(lark-im 卡片 + lark-approval),Pi Extension 桥接即可
 
-### Aetheris 网页侧(详细面板)
-- 任务板/状态看板/决策记录/知识库/审计轨迹
+### Aetheris 网页侧（Pi 思维平面）
+- 认知日记/活看板/提案/反馈/任务状态/知识库/审计轨迹
 - 结构化展示,群聊展示不了的东西放这
 
 ### 分层原则
 - 飞书 = "对话窗口"(下命令/收通知/移动端遥控/审批)
-- Aetheris网页 = "工作台/仪表盘"(任务板/状态/知识)
+- Aetheris网页 = "Pi 思维平面"(认知外显/反馈/状态/知识)
 - Pi 同时接两者(Extension 多向桥接)
 
 ---
 
 ## 八、待验证风险
 
-1. **Pi orchestrator 在 ECS 的 daemon 稳定性**(标 experimental,需实测)
-   - Radius 联邦真实可用性
-   - 24h 常驻可靠性
-   - 这是整个架构的地基验证
+1. **Pi ECS 长期可靠性**
+   - 基线闭环已运行
+   - 继续跟踪 daemon、漂移门禁、审计和回滚可靠性
 
 2. **Pi 第一个实战任务:漂移治理脚本**
    - 低风险,高ROI
@@ -231,13 +229,11 @@ ECS aetherisonline.xyz
 
 ## 九、实施优先级
 
-1. **CC→ZCode 迁移**(进行中,主仓库同步+身份/规则/配置迁移)
-2. **Pi ECS 部署验证**(地基测试)
-3. **Pi 漂移治理上线**(第一个实用功能)
-4. **Qoder API 接入 Pi**(SSE 接收队列 + 轮询兜底)
-5. **飞书移动端 → Pi 桥接**(pi-feishu)
-6. **Mira 接入**(特化能力)
-7. **Trae SOLO MCP 主动汇报**(可选优化)
+1. **治理真源与六角色同步**
+2. **认知自更新和能力自改质量门**
+3. **Pi ECS 漂移、审计和回滚可靠性**
+4. **Qoder/Kimi/Mira/Trae 反哺链路**
+5. **Aetheris 思维平面与反馈闭环**
 
 ---
 
@@ -247,9 +243,9 @@ ECS aetherisonline.xyz
 |---|---|---|
 | 中央协调体 | Pi(非ruflo/DeerFlow/aily) | 源码精读,成长性+协调+同栈 |
 | Codex 去留 | 淘汰 | 云沙箱绑OpenAI+GUI/CLI两套+本地已换方舟 |
-| Trae IDE 退役为编队角色 | 2026-07-26 C 选项裁定 | 编队里 Trae 系只保留 SOLO 独立角色（端到端测试/QA），Trae IDE 退到个人工具；Aetheris 分支合并见独立任务 |
+| Trae 与 Solo | 统一 Trae | Trae 承接实现、集成、Git/PR/CI、产品测试和浏览器验收；独立 Solo 退役 |
 | 移动端入口 | 飞书(非Trae Mobile) | 审批按钮+统一收口+不依赖PC |
 | 上下文共享粒度 | commit级(非keystroke) | 已被并发坑过,git是同步层 |
-| 漂移治理 | Pi轮询+代劳push+提醒pull | agent不可靠,系统强制同步 |
+| 漂移治理 | Pi只读轮询+通知+集成提案 | Git 写入由执行 agent 完成 |
 | Mira 角色 | 云端特化(生图+评审),Pi调度 | 无本地能力,优先类Kimi被调度 |
 | MatterSource枚举 | 只改可见层(DB/类型/Kimi UA不动) | 选B,零数据迁移零红线 |

@@ -1,0 +1,38 @@
+你是评审方C,负责编队主架构师视角,判断与Aetheris现有架构(goal/预算池/记忆)契合度,与Pi定位对齐。
+请对以下方案做严格评审。直接给判断,不客套,发现问题直接说。
+【项目上下文】
+Pi是用户林于炜(飞书CSM,非程序员)的自进化助理,跑在ECS上,每4h采集AI前沿资讯(豆包搜索/AIHOT/飞书自聊/GitHub高星)。
+已完成闭环:采集->reflectOnExplore用LLM反思->存memoryProvider(带embedding语义检索)->日报展示。
+现在用户想让Pi升级到'自主设定目标+花预算执行',即Pi自己提出想做什么、花搜索/模型预算研究、汇报进展。
+
+【现状调研结论(已核实)】
+Pi有goal账本系统(GoalLedgerService),骨架完整但全部动态链路是空的:
+1. create()方法存在但全代码库零自动调用点(只有人工API,实际未挂路由)
+2. approve()审批方法零调用,'策略引擎'(判断哪些goal可自动放行)根本不存在,连一行代码都没写
+3. advanceStep()推进goal时只递增计数器,不执行任何动作(不调工具/不花预算/不改代码)
+4. 没有任何'goal->调用工具'的路径,goal和预算池(ToolBudgetPool)完全解耦
+5. 5张goal表全0行,dreamTick每天推进active goal但无goal可推进(空转)
+日报文案印证设计意图:'等Pi攒够观察数据后,会自己提出想做什么,到时候会让你审批'——但这套代码从没写过。
+
+Pi现在真正能花预算做事的工具只有两个:web_search(联网搜索,日额度200次)、pi_chat(调模型生成文本,日额度200次,火山doubao-seed-evolving订阅制月成本<1元)。预算池双层硬上限(单工具+总池200/天)。
+north_star_axis三枚举:cognitive_amplifier/ai_colleague/stable_evolution。
+【待评审方案:让Pi自主设定目标MVP】
+最小闭环:反思笔记->提取goal候选->create(proposed)->日报展示->人审批->activate->dreamTick研究型执行(花预算)->advanceStep(真实observation)
+分4commit:
+Commit1 反思->goal提案:reflectOnExplore后加proposeGoalFromReflection(),读最近反思调pi_chat让模型判断'反思有没有值得立成目标的事',LLM输出{shouldPropose,title,axis,reasoning},去重检查(标题重叠>50%跳过),调create({title,northStarAxis,targetClose:7天后})状态proposed
+Commit2 审批入口:新增POST /api/goals/:id/approve+reject路由,不建策略引擎(MVP全riskClass:normal+人审批),日报加'Pi想做的事'区块,审批走HTTP API(用户告知id,ZCode SSH调,不碰Python card callback)
+Commit3 研究型执行:改dreamTick不再空转,给每个active goal做一轮研究(用goal.title作query调pi_web_search+pi_chat产出研究笔记存memoryProvider,advanceStep喂真实observation),每天凌晨跑一次(DREAM_HOUR=3),迭代到maxIterations自动escalate
+Commit4 日报展示goal进展
+【边界】不做策略引擎;不碰Python card callback;不做建设型执行(不改代码/不发消息/不搭系统,goal执行只限研究);不给goal独立预算池(复用全局ToolBudgetPool)
+【请回答的第一性问题】
+1.这个MVP抓住正确本质了吗?让Pi从被动反思到自主提目标+研究型执行,对Pi(资讯采集+反思助理)合理吗?还是过度延伸Pi定位?
+2.用LLM判断'反思里有没有值得立成目标的事'——这个抽象可靠吗?会不会提空泛/重复/无意义goal?去重(标题重叠>50%)够防垃圾吗?
+3.研究型执行(dreamTick用web_search+pi_chat深挖goal主题)是真有价值,还是只是'看起来在做事'(把已有反思换角度再搜)?会不会产出同质化研究笔记污染记忆?
+4.审批走HTTP API(用户告知id,ZCode SSH调)而非飞书卡片按钮——对非程序员太重吗?审批会成瓶颈吗(goal堆proposed等审批)?
+5.goal和预算解耦现状->Commit3让dreamTick为goal调工具,会不会预算被goal研究蚕食挤压正常explore/反思?双层硬上限够防失控吗?
+6.从第一性原理:Pi真正需要的是'自主目标+执行',还是只需'更有深度反思+主动推有价值内容'?这个MVP是在堆功能还是解决核心问题?
+请按结构输出(纯文本,不要图片):
+## 总体判断(PASS/反对/有条件通过,一句话)
+## 关键问题(逐条判断+理由)
+## 改进建议(做的话怎么改;不做的理由和替代)
+## 风险提示

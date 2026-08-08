@@ -1,14 +1,15 @@
 ---
 title: "Claude Code"
 tags: ["agent"]
-role: "deep impl/debug/review"
+role: "historical implementation and review source"
 model: "zhipu"
-status: "active"
-updated: "2026-07-21"
+status: "retired"
+successors: ["Pi", "ZCode", "Trae"]
+updated: "2026-08-08"
 ---
 
 # Claude Code
 
-- **Role**: deep impl/debug/review
+- **Role**: historical implementation and review source
 - **Model**: zhipu
-- **Status**: active
+- **Status**: retired; coordination → Pi, review knowledge → ZCode, execution → Trae

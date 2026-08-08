@@ -155,7 +155,7 @@ Every meaningful finish must include a copyable next command and a recommended n
 
 ## Safety Red Lines
 
-> **权威声明（节点 3）**：红线权威版本为 `workspace-collaboration-v2.1.md` §4（含 Pi 代劳 push 例外、T1/T2/T3 密钥分级、分支纪律）。本节是操作视角的执行清单，与 §4 不一致时以 §4 为准。本标准不复制授权例外（避免双源漂移）。
+> **权威声明（节点 3）**：红线权威版本为 `workspace-collaboration-v2.1.md` §4（T1/T2/T3 密钥分级、分支纪律、Pi 无 Git 写权限）。本节是操作视角的执行清单，与 §4 不一致时以 §4 为准。
 
 Ask before:
 
@@ -169,7 +169,7 @@ Ask before:
 
 ## Git Rules
 
-> **权威声明（节点 3）**：分支所有权、push 权限、master 集成窗口等治理规则以 `workspace-collaboration-v2.1.md` §4/§6 为准（含 Pi 代劳 push 例外）。本节只规定操作纪律。
+> **权威声明（节点 3）**：分支所有权、push 权限、master 集成等治理规则以 `workspace-collaboration-v2.1.md` §4/§6 为准。Pi 只读检测和协调，不执行 Git 写操作。
 
 - GitHub branch, commit, and PR are the only hard sync points.
 - Never use `git add .`.

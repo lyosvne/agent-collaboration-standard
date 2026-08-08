@@ -1,5 +1,7 @@
 # 多 Agent 协作操作系统说明书
 
+> 状态：historical。本文记录 2026-07 早期工具协作模型，其中 Trae IDE、Claude Code、Trae SOLO 和 `:ALL/:ONE/:CHECK` 不是当前活动角色或默认入口。当前真源从 `START_HERE.md` 和 `governance/version-manifest.json` 开始。
+
 > 本文是通用协作体系说明。GitHub、Trae IDE、Claude Code、Trae SOLO、Mira、飞书/Lark 等软件和平台名称不脱敏；个人账号、私有仓库地址、生产域名、密钥、token、访问凭据等真实私有资源不写入本文，统一用“GitHub 全局标准仓库”“GitHub 项目仓库”“生产运行面”“工具本地规则层”等通用名指代。
 
 ## 1. 一句话定义

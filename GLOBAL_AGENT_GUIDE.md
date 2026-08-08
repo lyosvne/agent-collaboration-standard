@@ -2,14 +2,14 @@
 
 ## Purpose
 
-Provide a common operating language for Trae IDE, Claude Code, Trae SOLO, Mira, GitHub, and future cloud coding agents.
+Provide a common operating language for Pi, unified Trae, ZCode, Qoder, Kimi, Mira, GitHub, and future cloud agents.
 
 ## Layering
 
 - Global collaboration standard: cross-project rules and protocols.
 - Project entry: project-specific `AGENTS.md`, source-of-truth documents, tool participants, and exceptions.
 - Task record: concrete owner, branch, base commit, intended files, verification, and handoff.
-- Coordination layer: append-only task events, serial/parallel locks, and `:ALL`, `:ONE`, or `:CHECK` command state.
+- Coordination layer: Pi routing, append-only task events, serial/parallel locks and explicit handoff state.
 - GitHub commit / PR: hard synchronization point.
 - Runtime artifacts: logs, screenshots, databases, generated vaults, and local state are not code truth unless explicitly promoted.
 
@@ -27,15 +27,11 @@ Before substantive work, state:
 
 If joining an existing project, first report the collaboration state defined in `protocols/collaboration-state-protocol.md`.
 
-## Shared Commands
+## Legacy Commands
 
-Use `protocols/communication-command-protocol.md` for:
+`:ALL`, `:ONE` and `:CHECK` are historical compatibility commands, not the default task entry. New work starts with natural language grounded in current truth.
 
-- `:ALL`: shared state loading and task-board recommendation for all tools.
-- `:ONE`: continue one owned task or select one owner with other tools read-only.
-- `:CHECK`: self-check for conflicts between local rules, skills, memory, project rules, and GitHub truth.
-- Append-only coordination events.
-- Serial and parallel task locks.
+Use `protocols/communication-command-protocol.md` only when interpreting or maintaining legacy coordination records.
 
 ## Finish Contract
 
@@ -71,7 +67,7 @@ Do not upgrade global rules for one-off project friction. Promote a rule globall
 - First inspect `hosts`, DNS resolution, TCP 443, HTTPS, and `git ls-remote`.
 - Prefer default DNS when it works. Fixed GitHub IPs can become unreachable or reset connections.
 - Edit `hosts` only after explicit human approval, with a backup and rollback path.
-- On the owner's Windows machine, the Zhipu-backed Claude Code launcher is `C:\Users\Admin\.local\bin\claude-zhipu.cmd`.
+- Current local execution uses Mac independent clones. Claude Code and independent Solo launchers are retired.
 
 ## Project Rule Boundary
 
