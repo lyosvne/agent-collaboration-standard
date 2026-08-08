@@ -173,11 +173,23 @@ def read_governance_file(filename):
     return read_governance_github_file(filename)
 
 
+def governance_git_command(*args):
+    """Build a fixed Git command for the root-owned governance mirror."""
+    return [
+        "git",
+        "-c",
+        f"safe.directory={GOVERNANCE_ROOT}",
+        "-C",
+        GOVERNANCE_ROOT,
+        *args,
+    ]
+
+
 def get_mirror_head():
     """Return the governance mirror HEAD without exposing repository paths."""
     try:
         result = subprocess.run(
-            ["git", "-C", GOVERNANCE_ROOT, "rev-parse", "HEAD"],
+            governance_git_command("rev-parse", "HEAD"),
             capture_output=True,
             text=True,
             timeout=5,
@@ -195,7 +207,7 @@ def read_snapshot_file(commit_sha, relative_path):
         return None, "commit-missing"
     try:
         result = subprocess.run(
-            ["git", "-C", GOVERNANCE_ROOT, "show", f"{commit_sha}:{relative_path}"],
+            governance_git_command("show", f"{commit_sha}:{relative_path}"),
             capture_output=True,
             timeout=5,
         )
@@ -212,17 +224,14 @@ def snapshot_file_commit_time(commit_sha, relative_path):
         return None
     try:
         result = subprocess.run(
-            [
-                "git",
-                "-C",
-                GOVERNANCE_ROOT,
+            governance_git_command(
                 "log",
                 "-1",
                 "--format=%cI",
                 commit_sha,
                 "--",
                 relative_path,
-            ],
+            ),
             capture_output=True,
             text=True,
             timeout=5,
