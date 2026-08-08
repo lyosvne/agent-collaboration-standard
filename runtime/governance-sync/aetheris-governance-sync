@@ -66,7 +66,9 @@ def utc_now() -> str:
 
 
 def establish_process_security() -> None:
-    os.umask(0o077)
+    # Git objects and refs must remain readable by the dedicated dispatch
+    # reader in the repository group, while never becoming group-writable.
+    os.umask(0o027)
     if os.geteuid() == 0:
         raise SyncError("root_execution_forbidden", "helper must not run as root")
 
@@ -288,7 +290,11 @@ def _owned_directory(path: Path, *, code: str) -> tuple[Path, os.stat_result]:
         raise SyncError(code, "required directory is unavailable") from exc
     if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISDIR(metadata.st_mode):
         raise SyncError(code, "required path must be a real directory")
-    if metadata.st_uid != os.geteuid() or metadata.st_mode & 0o022:
+    if (
+        metadata.st_uid != os.geteuid()
+        or metadata.st_gid != os.getegid()
+        or metadata.st_mode & 0o022
+    ):
         raise SyncError(code, "directory ownership or mode is unsafe")
     try:
         resolved_metadata = resolved.lstat()
@@ -317,7 +323,11 @@ def _owned_regular_file(
         raise SyncError(code, "required file is unavailable or escapes its directory") from exc
     if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode):
         raise SyncError(code, "required path must be a real regular file")
-    if metadata.st_uid != os.geteuid() or metadata.st_mode & 0o022:
+    if (
+        metadata.st_uid != os.geteuid()
+        or metadata.st_gid != os.getegid()
+        or metadata.st_mode & 0o022
+    ):
         raise SyncError(code, "file ownership or mode is unsafe")
     try:
         resolved_metadata = resolved.lstat()
