@@ -21,7 +21,9 @@
 import os
 import subprocess
 import hashlib
+import hmac
 import json
+import math
 import time
 import urllib.request
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -29,9 +31,30 @@ from urllib.parse import urlparse, parse_qs
 
 # ─── 配置 ──────────────────────────────────────────────
 
+
+def positive_int_env(name, default):
+    value = int(os.environ.get(name, default))
+    if value <= 0:
+        raise ValueError(f"{name} must be a positive integer")
+    return value
+
+
+def positive_float_env(name, default):
+    value = float(os.environ.get(name, default))
+    if not math.isfinite(value) or value <= 0:
+        raise ValueError(f"{name} must be a finite positive number")
+    return value
+
+
 DISPATCH_DIR = os.environ.get("DISPATCH_DIR", "/opt/pi/dispatch")
 PORT = int(os.environ.get("DISPATCH_PORT", "8765"))
 AUTH_KEY = os.environ.get("DISPATCH_KEY", "")
+MODEL_CACHE_TTL_SECONDS = int(os.environ.get("MODEL_CACHE_TTL_SECONDS", "300"))
+MAX_HISTORY_BODY_BYTES = positive_int_env("MAX_HISTORY_BODY_BYTES", "65536")
+HISTORY_BODY_READ_TIMEOUT_SECONDS = positive_float_env(
+    "HISTORY_BODY_READ_TIMEOUT_SECONDS", "5"
+)
+_MODEL_CACHE = {"expires_at": 0.0, "value": None}
 
 # 治理文档源（双源 fallback: governance-mirror 优先, GitHub raw 兜底）
 # 注意: ECS 上治理文档在 governance-mirror/repo/governance/（不是 repo/standards/）
@@ -91,8 +114,18 @@ def read_file(path, default="（文件不存在）"):
             return f.read()
     except FileNotFoundError:
         return default
-    except Exception as e:
-        return f"（读取失败: {e}）"
+    except Exception:
+        return "（读取失败）"
+
+
+def sanitize_history_field(value, limit):
+    """Normalize untrusted history fields to a bounded single Markdown line."""
+    text = str(value).replace("`", "'")
+    text = "".join(
+        character if character >= " " and character != "\x7f" else " "
+        for character in text
+    )
+    return " ".join(text.split())[:limit]
 
 
 def read_governance_file(filename):
@@ -122,8 +155,8 @@ def read_governance_file(filename):
         req.add_header("User-Agent", "dispatch-server")
         with urllib.request.urlopen(req, timeout=10) as resp:
             return resp.read().decode("utf-8"), "github"
-    except Exception as e:
-        return f"（治理文档 {filename} 不可达: mirror 和 github 都失败: {e}）", "missing"
+    except Exception:
+        return f"（治理文档 {filename} 不可达: mirror 和 github 都失败）", "missing"
 
 
 def get_available_models():
@@ -136,8 +169,9 @@ def get_available_models():
         req.add_header("Authorization", f"Bearer {pat}")
         with urllib.request.urlopen(req, timeout=15) as resp:
             return json.loads(resp.read().decode())
-    except Exception as e:
-        return {"error": str(e)}
+    except Exception as exc:
+        log(f"Qoder models upstream unavailable: {type(exc).__name__}")
+        return {"error": "upstream unavailable"}
 
 
 class DispatchHandler(BaseHTTPRequestHandler):
@@ -159,10 +193,41 @@ class DispatchHandler(BaseHTTPRequestHandler):
         header = f"> {title} | 来源: {source}\n\n"
         self._send_text(header + content)
 
+    def _require_auth(self):
+        """Protect runtime and write endpoints with header-only fail-closed auth."""
+        if not AUTH_KEY:
+            self._send_json({"error": "dispatch authentication is not configured"}, 503)
+            return False
+        provided = self.headers.get("X-Dispatch-Key", "")
+        authorization = self.headers.get("Authorization", "")
+        if not provided and authorization.startswith("Bearer "):
+            provided = authorization[7:]
+        if not provided or not hmac.compare_digest(provided, AUTH_KEY):
+            self._send_text("认证失败", 403)
+            return False
+        return True
+
     def do_GET(self):
         parsed = urlparse(self.path)
         path = parsed.path.rstrip("/") or "/"
         parts = [p for p in path.split("/") if p]
+        if "key" in parse_qs(parsed.query, keep_blank_values=True):
+            return self._send_text("query string credentials are not accepted", 400)
+
+        protected = (
+            parts in (
+                ["dispatch", "all"],
+                ["dispatch", "context"],
+                ["dispatch", "fleet"],
+                ["dispatch", "survey"],
+                ["dispatch", "models"],
+                ["dispatch", "health"],
+                ["dispatch", "drift"],
+            )
+            or (len(parts) == 3 and parts[:2] == ["dispatch", "history"])
+        )
+        if protected and not self._require_auth():
+            return
 
         # /dispatch/all
         if parts == ["dispatch", "all"]:
@@ -207,6 +272,8 @@ class DispatchHandler(BaseHTTPRequestHandler):
         # /dispatch/history/<agent>
         if len(parts) == 3 and parts[0] == "dispatch" and parts[1] == "history":
             agent = parts[2]
+            if agent not in VALID_AGENTS:
+                return self._send_text("未知 agent", 404)
             return self._send_text(read_file(f"{DISPATCH_DIR}/{agent}/history.md"))
 
         # /dispatch/models
@@ -285,9 +352,6 @@ class DispatchHandler(BaseHTTPRequestHandler):
         self._send_json({
             "status": "ok",
             "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "dispatch_dir": DISPATCH_DIR,
-            "governance_dir": GOVERNANCE_DIR,
-            "governance_root": GOVERNANCE_ROOT,
             "github_raw_base": GITHUB_RAW_BASE,
             "tiers": list(TIERS.keys()),
             "governance_files": governance_status
@@ -355,40 +419,31 @@ class DispatchHandler(BaseHTTPRequestHandler):
         self._send_json({
             "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "github_raw_base": GITHUB_RAW_BASE,
-            "governance_dir": GOVERNANCE_DIR,
-            "mirror_root": GOVERNANCE_ROOT,
             "documents": versions,
         })
 
     def _handle_drift(self):
         """漂移体检最新报告（drift-cron.sh 每 30min 写入 drift-latest.json）。
 
-        认证（2026-07-27 round3 修复 A 评审阻断 2）:
-        - 公网经 Caddy https://aetherisonline.xyz/dispatch/drift 可达, 必须带 ?key=AUTH_KEY
-        - 复用 _handle_append_history 的 auth 模式（query param, 403 失败）
-        - 依赖 DISPATCH_KEY 环境变量已设非空（否则 AUTH_KEY 空, fallback 开放）
+        认证:
+        - 使用 X-Dispatch-Key 或 Authorization: Bearer
+        - query string key 被拒绝，避免 access-log 泄露
+        - DISPATCH_KEY 缺失时 fail-closed 返回 503
 
         消费者契约（2026-07-27 评审修复后, fail-closed）:
         - HTTP 200 + 合法 JSON: drift 报告正常, 含 timestamp + branches 数组
-        - HTTP 403 "认证失败": ?key 缺失或不匹配（公网未授权访问）
+        - HTTP 403 "认证失败": header key 缺失或不匹配
+        - HTTP 503: DISPATCH_KEY 未配置
         - HTTP 502 + {"error": ...}: drift-latest.json 缺失 / 不可读 / JSON 损坏
           （消费者必须把 502 视为 drift 系统异常, 不是"无漂移"）
         - 正常的零漂移状态也会是 {"timestamp": "...", "branches": [...]}, 而非空 {}
           （空 {} 在修复前被当 200 返回是 fail-open, 已修）
         """
-        # 认证（与 POST /dispatch/history 一致, query param ?key=）
-        if AUTH_KEY:
-            parsed = urlparse(self.path)
-            qs = parse_qs(parsed.query)
-            provided = qs.get("key", [""])[0]
-            if provided != AUTH_KEY:
-                return self._send_text("认证失败", 403)
         raw = read_file(DRIFT_LATEST, None)
         if raw is None or raw == "（文件不存在）" or "（读取失败" in raw:
             self._send_json({
                 "error": "drift report unavailable",
                 "missing": True,
-                "path": DRIFT_LATEST,
                 "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             }, 502)
             return
@@ -397,8 +452,7 @@ class DispatchHandler(BaseHTTPRequestHandler):
         except (ValueError, json.JSONDecodeError) as e:
             self._send_json({
                 "error": "drift report malformed",
-                "detail": str(e),
-                "path": DRIFT_LATEST,
+                "detail": type(e).__name__,
                 "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             }, 502)
             return
@@ -406,7 +460,11 @@ class DispatchHandler(BaseHTTPRequestHandler):
 
     def _handle_models(self):
         """三档当前配置 + 最新可用模型对比"""
-        available = get_available_models()
+        now = time.time()
+        if _MODEL_CACHE["value"] is None or now >= _MODEL_CACHE["expires_at"]:
+            _MODEL_CACHE["value"] = get_available_models()
+            _MODEL_CACHE["expires_at"] = now + MODEL_CACHE_TTL_SECONDS
+        available = _MODEL_CACHE["value"]
         avail_ids = []
         if isinstance(available, dict) and "data" in available:
             avail_ids = [m.get("id", "") for m in available["data"]]
@@ -426,28 +484,68 @@ class DispatchHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urlparse(self.path)
-        qs = parse_qs(parsed.query)
+        if "key" in parse_qs(parsed.query, keep_blank_values=True):
+            return self._send_text("query string credentials are not accepted", 400)
         parts = [p for p in parsed.path.rstrip("/").split("/") if p]
 
         # POST /dispatch/history/<agent>
         if len(parts) == 3 and parts[0] == "dispatch" and parts[1] == "history":
             agent = parts[2]
-            return self._handle_append_history(agent, qs)
+            return self._handle_append_history(agent)
 
         self._send_text(f"未知 POST 端点: {parsed.path}", 404)
 
-    def _handle_append_history(self, agent, qs):
+    def _handle_append_history(self, agent):
         """追加调度记录到 history.md"""
-        # 认证
-        if AUTH_KEY:
-            provided = qs.get("key", [""])[0]
-            if provided != AUTH_KEY:
-                return self._send_text("认证失败", 403)
+        if not self._require_auth():
+            return
+        if agent not in VALID_AGENTS:
+            return self._send_text("未知 agent", 404)
 
-        # 读 body
-        content_length = int(self.headers.get("Content-Length", 0))
-        body = self.rfile.read(content_length).decode("utf-8") if content_length else ""
+        # 读 body。限制大小和读取时间，避免单线程服务被异常客户端阻塞。
+        try:
+            content_length = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            return self._send_text("Content-Length 无效", 400)
+        if content_length < 0:
+            return self._send_text("Content-Length 无效", 400)
+        if content_length > MAX_HISTORY_BODY_BYTES:
+            return self._send_text("请求体过大", 413)
 
+        body_bytes = b""
+        if content_length:
+            previous_timeout = self.connection.gettimeout()
+            deadline = time.monotonic() + HISTORY_BODY_READ_TIMEOUT_SECONDS
+            read_error = None
+            try:
+                chunks = []
+                remaining = content_length
+                while remaining:
+                    timeout = deadline - time.monotonic()
+                    if timeout <= 0:
+                        read_error = ("请求体读取超时", 408)
+                        break
+                    self.connection.settimeout(timeout)
+                    chunk = self.rfile.read1(min(8192, remaining))
+                    if not chunk:
+                        read_error = ("请求体长度不完整", 400)
+                        break
+                    chunks.append(chunk)
+                    remaining -= len(chunk)
+                if read_error is None:
+                    body_bytes = b"".join(chunks)
+            except (TimeoutError, OSError):
+                read_error = ("请求体读取超时", 408)
+            finally:
+                self.connection.settimeout(previous_timeout)
+            if read_error is not None:
+                message, status = read_error
+                return self._send_text(message, status)
+
+        try:
+            body = body_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            return self._send_text("请求体必须是 UTF-8", 400)
         if not body:
             return self._send_text("请求体为空", 400)
 
@@ -455,19 +553,32 @@ class DispatchHandler(BaseHTTPRequestHandler):
         try:
             record = json.loads(body)
         except json.JSONDecodeError:
-            record = {"raw": body}
+            return self._send_text("请求体不是合法 JSON", 400)
+        if not isinstance(record, dict):
+            return self._send_text("请求体必须是 JSON object", 400)
+        for field in ("caller", "task", "status", "session_id", "result"):
+            if field in record and not isinstance(record[field], str):
+                return self._send_text(f"字段 {field} 必须是字符串", 400)
+        if "duration" in record and not isinstance(record["duration"], (str, int, float)):
+            return self._send_text("字段 duration 类型无效", 400)
+
+        caller = sanitize_history_field(record.get("caller", "unknown"), 100)
+        task = sanitize_history_field(record.get("task", ""), 200)
+        status = sanitize_history_field(record.get("status", "unknown"), 50)
+        session_id = sanitize_history_field(record.get("session_id", ""), 100)
+        duration = sanitize_history_field(record.get("duration", ""), 50)
+        result_text = sanitize_history_field(record.get("result", ""), 500)
 
         ts = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        entry = f"\n### [{ts}] 调度者: {record.get('caller', 'unknown')}\n"
-        entry += f"- **任务**: {record.get('task', '')[:200]}\n"
-        entry += f"- **状态**: {record.get('status', 'unknown')}\n"
+        entry = f"\n### [{ts}] 调度者: {caller}\n"
+        entry += f"- **任务**: {task}\n"
+        entry += f"- **状态**: {status}\n"
         if record.get("session_id"):
-            entry += f"- **会话**: {record['session_id']}\n"
+            entry += f"- **会话**: {session_id}\n"
         if record.get("duration"):
-            entry += f"- **耗时**: {record['duration']}s\n"
-        result_text = record.get("result", "")
+            entry += f"- **耗时**: {duration}s\n"
         if result_text:
-            entry += f"- **结果摘要**: {result_text[:500]}\n"
+            entry += f"- **结果摘要**: {result_text}\n"
 
         hist_path = f"{DISPATCH_DIR}/{agent}/history.md"
         hist_dir = os.path.dirname(hist_path)
@@ -478,7 +589,7 @@ class DispatchHandler(BaseHTTPRequestHandler):
         with open(hist_path, "w", encoding="utf-8") as f:
             f.write(existing + entry)
 
-        log(f"追加调度记录: agent={agent} caller={record.get('caller', '?')}")
+        log(f"追加调度记录: agent={agent} caller={caller}")
         self._send_text(f"已追加记录到 {agent}/history.md")
 
     def log_message(self, format, *args):

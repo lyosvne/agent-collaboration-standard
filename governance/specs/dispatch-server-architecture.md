@@ -5,6 +5,10 @@
 > 依据: `archive/dispatch-server-patches/*.py`（5 个 patch 头部说明）+ `archive/ecs-scripts/README.md`（systemd unit + crontab 实证）+ `pi-drift-governance-spec.md §10`（B 层实施状态）
 > 缺口来源: `global-roadmap-v1.1.md` L246「dispatch-server 架构 spec 缺失（生产组件无文档/无职能归属）」
 > 变更前置: 改本文件 → 走 `governance-review-process.md §四` pre-commit 三方评审（spec 属真值层）
+> 源码恢复: 2026-08-08 将生产 `dispatch-server.py` 按 SHA-256 原样回收到
+> `runtime/dispatch-server/dispatch-server.py`；systemd 脱敏模板、endpoint
+> contract 和兼容测试位于同目录。后续功能修改必须
+> 基于该 canonical source，不再以历史 patch 或生产单份文件为基线。
 
 ---
 
@@ -30,9 +34,7 @@
 │  systemd: pi-dispatch-server.service                         │
 │    ExecStart=/usr/bin/python3                                │
 │      /opt/pi-orchestrator/extensions/dispatch-server.py      │
-│    EnvironmentFile=/opt/pi-orchestrator/.env                 │
-│    Environment=DISPATCH_DIR=/opt/pi/dispatch                 │
-│    Environment=DISPATCH_PORT=8765                            │
+│    EnvironmentFile=/opt/pi-orchestrator/config/dispatch.env  │
 │    Restart=always RestartSec=5                               │
 │                                                              │
 │  dispatch-server.py (Python stdlib http.server)              │
@@ -41,11 +43,14 @@
 │         │ Caddy 反代 /dispatch/* → 127.0.0.1:8765            │
 │         ▼                                                    │
 │  公网: https://aetherisonline.xyz/dispatch/*                 │
-│       （Caddy 配置控制公网可达性 + 部分端点 AUTH_KEY）       │
+│       （Caddy 负责 TLS/反代；handler 负责端点鉴权）           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**网络绑定（安全闭环，评审 B/C 共识）**：dispatch-server 仅 bind `127.0.0.1`，公网访问全部经 Caddy 反代，Caddy 层做路由 + AUTH_KEY 鉴权。这闭环了"公网无 auth 可达治理数据"的安全疑虑。
+**网络绑定**：dispatch-server 仅 bind `127.0.0.1`，公网访问经 Caddy
+反代。handler 使用 header key 对运行数据和写入端点做 fail-closed 鉴权。
+Caddy 配置未在本次回收，不能据此断言其是否另有鉴权、限流或日志策略。
+环境变量由专用 `EnvironmentFile` 注入，unit 本身不内联值。
 
 **配套 ECS 脚本**（cron 触发，写文件供 dispatch-server 读取）：
 
@@ -67,6 +72,7 @@
 | `/dispatch/architecture` | GET | 公开 | 架构真值 v1.0 正文 | 同上双源 fallback |
 | `/dispatch/fleet-division` | GET | 公开 | 编队分工 v1.1 正文 | 同上 |
 | `/dispatch/start-here` | GET | 公开 | START_HERE.md 正文 | 同上 |
+| `/dispatch/roadmap` | GET | 公开 | 全局路线图正文 | 当前兼容实现；manifest-aware 修复见后续 PR |
 
 **双源 fallback 语义**：governance-mirror（ECS 本地 git clone）优先；失败则 fallback 到 GitHub raw。这保证 GitHub 网络异常时云端 agent 仍能拿到上下文（本机运行经验印证此必要性）。
 
@@ -79,11 +85,18 @@
 **返回字段**（round2 修复后契约，patch apply-b-layer-fix-20260727.py）：
 ```json
 {
-  "<doc-key>": {
-    "commit_sha": "<git commit hash>",
-    "content_sha12": "<文件内容 sha256 前 12 位>",
-    "mtime": "<ISO8601>",
-    "versioned": true
+  "time": "<ISO8601>",
+  "github_raw_base": "<public source base>",
+  "documents": {
+    "<doc-key>": {
+      "filename": "<stable filename>",
+      "version": "<filename-derived compatibility version>",
+      "versioned": true,
+      "commit_sha": "<mirror HEAD>",
+      "content_sha12": "<sha256 prefix>",
+      "mtime": "<ISO8601>",
+      "source": "mirror|github|missing"
+    }
   }
 }
 ```
@@ -94,40 +107,53 @@
 
 | 端点 | 方法 | 鉴权 | 返回 |
 |------|------|------|------|
-| `/dispatch/drift` | GET | **AUTH_KEY**（query param `?key=$DISPATCH_KEY`，缺失/错误 → 403）| `logs/drift-latest.json` 内容 |
+| `/dispatch/drift` | GET | `X-Dispatch-Key` 或 Bearer；缺失/错误 → 403，key 未配置 → 503 | `logs/drift-latest.json` 内容 |
 
 **fail-closed 语义**（round2 修复）：`drift-latest.json` 缺失 / malformed → 返回 502（不返回空 200，防消费方误判"无漂移"）。
 
-**鉴权原因**（A round2 阻断）：公网 `https://aetherisonline.xyz/dispatch/drift` 经 Caddy 反代无 auth 可达，会暴露编队内部分支漂移细节（分支名/ahead-behind 数）。加 `?key=` 后公网无 key → 403。
+**鉴权原因**：漂移报告包含内部分支状态。query string key 会进入 access log
+和浏览器历史，因此 canonical contract 只允许 header key。
 
 ### 3.4 历史追加端点（AUTH_KEY 鉴权，先于 B 层存在）
 
 | 端点 | 方法 | 鉴权 | 用途 |
 |------|------|------|------|
-| `/dispatch/append-history` | POST | AUTH_KEY | agent 上报执行历史（manual-history-overrides 的对称面）|
+| `/dispatch/history/<agent>` | POST | header key | agent 上报执行历史 |
 
-> ⚠️ **待补完**：本端点先于 B 层存在（apply-b-layer-auth patch 复用它的 auth 模式），但完整契约（字段/消费者/与 manual-overrides 的关系）本 spec 未覆盖——**待 ECS 实测或读到 dispatch-server.py 源码后补 §3.4 字段表**。
+请求体必须是 JSON object。支持 `caller`、`task`、`status`、`session_id`、
+`duration` 和 `result`；未知 agent 返回 404，空体或非法 JSON 返回 400。
 
 ---
 
 ## 4. 鉴权模型
 
 ```
-公开（无 key）:
+公开治理正文:
   /dispatch/north-star
   /dispatch/architecture
   /dispatch/fleet-division
   /dispatch/start-here
-  /dispatch/truth/versions     ← 敏感度低（版本号非正文）
+  /dispatch/roadmap
+  /dispatch/truth/versions
 
-AUTH_KEY（?key=$DISPATCH_KEY，403 失败）:
-  /dispatch/drift              ← 含分支漂移细节
-  /dispatch/append-history     ← 写入面，必须鉴权
+Header key（X-Dispatch-Key 或 Authorization: Bearer）:
+  /dispatch/all
+  /dispatch/context
+  /dispatch/fleet
+  /dispatch/survey
+  /dispatch/history/<agent>
+  /dispatch/models
+  /dispatch/health
+  /dispatch/drift
+  POST /dispatch/history/<agent>
 ```
 
-**AUTH_KEY 来源**：`/opt/pi-orchestrator/.env` 的 `DISPATCH_KEY`（systemd EnvironmentFile 注入）。**红线**：DISPATCH_KEY 明文不进任何 git 文件 / 日志 / commit（AGENTS.md 红线）。
+**AUTH_KEY 来源**：`/opt/pi-orchestrator/config/dispatch.env` 的
+`DISPATCH_KEY`（systemd EnvironmentFile 注入）。**红线**：DISPATCH_KEY
+明文不进任何 git 文件、日志或 commit。
 
-**鉴权判定位置**：dispatch-server.py handler 内（query param 校验），非 Caddy 层。Caddy 只做反代 + 路由，不做鉴权——**这是设计边界，若未来要在 Caddy 层加鉴权需重走评审**。
+**应用鉴权判定位置**：dispatch-server.py handler。`DISPATCH_KEY` 缺失时受保护
+端点返回 503；query string key 被拒绝。Caddy 是否有附加控制待独立取证。
 
 ---
 
@@ -137,7 +163,7 @@ AUTH_KEY（?key=$DISPATCH_KEY，403 失败）:
 |--------|----------|----------|
 | `qoder-bridge.py` | `/dispatch/{north-star,architecture,fleet-division,start-here}` | 启动头注入（FLEET_HEADER：红线 + 编队身份 + WebFetch 指引）|
 | `qoder-bridge.py`（cantus 档） | 同上 | C 评审实测：cantus 能复述红线 5 条 + 北极星 + 路线图 |
-| Pi ECS / governance mirror | `/dispatch/truth/versions` | 对外发布 canonical 逻辑版本 |
+| Pi ECS / governance mirror | `/dispatch/truth/versions` | 当前发布 mirror commit、内容 hash 与文件名兼容版本；manifest 逻辑版本由后续 PR 补齐 |
 | Trae（授权诊断） | `/dispatch/drift` | 集成或部署验证时调用（需授权，不输出 key）|
 
 **待扩展消费方**：Trae、Kimi、ZCode、Mira 应按各自能力读取公开治理端点；需要鉴权的运行诊断只能由获授权的执行角色调用。ZCode 只消费结果，不运行 curl。
@@ -150,25 +176,19 @@ AUTH_KEY（?key=$DISPATCH_KEY，403 失败）:
 
 **已发生的违规教训**（roadmap v1.9 版本历史）：2026-07-27 B 层首批改动未走评审直接改 ECS + push + 重启，事后补审 A/B/C 全 CONDITIONAL 共识 4 阻断。**这是反面案例，不许复现**。
 
-**patch 规范**（已建立的实践）：
-- 每个 ECS 改动写一个 `apply-*.py` patch 脚本，归档 `archive/dispatch-server-patches/`
-- patch 必须幂等（哨兵字符串检测，已应用则跳过）
-- patch 必须先备份（`.bak-<patch-name>-<timestamp>`）
-- patch 头部 docstring 写明：改什么 / 前置依赖 / 幂等标记 / 对应评审阻断
+**部署规范**：后续改动基于 `runtime/dispatch-server/dispatch-server.py`，
+通过 PR/CI 和后续 G3 受限部署 helper 发布。G3 尚未合并前，本目录不提供
+生产 apply/rollback 工具；历史 patch 仅保留作证据，不再作为源码基线。
 
 ---
 
 ## 7. 待补完（本 spec 的已知缺口）
 
-本 spec 是**从 patch + ecs-scripts/README + roadmap 反推**的架构真值，非源码直读。以下字段待读到 dispatch-server.py 源码或 ECS 实测后补完：
+源码与 systemd unit 已完成生产取证。仍需单独确认：
 
-1. **§3.4 `/dispatch/append-history` 完整字段表**（请求体 schema / 消费者 / 与 manual-history-overrides 关系）
-2. **§3.1-3.3 的精确 Content-Type / 缓存头 / 错误响应 body schema**
-3. **Caddy 配置真值**（反代规则 / 是否有 rate limit / TLS）
-4. **DISPATCH_DIR 目录结构**（治理文档 mirror 的实际路径布局）
-5. **健康检查端点**（如有 `/health` 或 `/dispatch/health`，本 spec 未覆盖）
-
-补完方式：下次 ECS 操作时 `cat /opt/pi-orchestrator/extensions/dispatch-server.py` + `cat /etc/caddy/Caddyfile`（或对应路径），回填本 spec。
+1. Caddy 精确路由、access-log 脱敏和 rate limit；
+2. production environment 的变量存在性，但不得读取或记录变量值；
+3. manifest-aware logical version 上线后的最终兼容字段。
 
 ---
 
@@ -187,4 +207,5 @@ AUTH_KEY（?key=$DISPATCH_KEY，403 失败）:
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v0.2（恢复）| 2026-08-08 | 回收 canonical source；修正真实端点结构、header 鉴权、systemd/Caddy 边界和运行数据分级 |
 | v0.1（草案）| 2026-07-28 | ZCode 反推起草（patch + ecs-scripts/README + roadmap）；闭合 roadmap 缺口 #6「dispatch-server 架构 spec 缺失」。待 ECS 实测补完 §7 五项后转 active |

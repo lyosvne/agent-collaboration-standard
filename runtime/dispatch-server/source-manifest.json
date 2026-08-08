@@ -2,7 +2,9 @@
   "schemaVersion": 1,
   "capturedAt": "2026-08-08T10:46:03Z",
   "sourceHost": "[redacted]",
-  "behaviorChange": false,
+  "productionBaselineCommit": "b73e971f2c0edccb461fdbb873efebe7fa8a3821",
+  "behaviorChangeInBaselineCommit": false,
+  "canonicalSourceHardenedAfterRecovery": true,
   "files": [
     {
       "path": "dispatch-server.py",
@@ -17,8 +19,9 @@
     }
   ],
   "notes": [
-    "The Python source is byte-identical to the ECS production capture.",
-    "The systemd unit excludes environment values and contains only the unit contract.",
-    "This recovery commit does not deploy or restart the service."
+    "The Python source at productionBaselineCommit is byte-identical to the ECS production capture.",
+    "The systemd unit at productionBaselineCommit excludes environment values and contains only the recovered unit contract.",
+    "The baseline recovery commit does not deploy or restart the service.",
+    "Later commits harden authentication and runtime-data exposure before deployment."
   ]
 }
