@@ -24,8 +24,10 @@ import hashlib
 import hmac
 import json
 import math
+import re
 import time
 import urllib.request
+from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
@@ -81,6 +83,13 @@ GOVERNANCE_FILES = {
     "start-here": "START_HERE.md",  # 在仓库根, 不在 governance/
 }
 
+GOVERNANCE_MANIFEST_KEYS = {
+    "north-star": "northStar",
+    "architecture": "architecture",
+    "fleet-division": "fleetDivision",
+    "roadmap": "roadmap",
+}
+
 # 三档 agent 配置（和 qoder-bridge.py 保持一致）
 TIERS = {
     "general": {
@@ -128,6 +137,21 @@ def sanitize_history_field(value, limit):
     return " ".join(text.split())[:limit]
 
 
+def read_governance_github_file(filename):
+    """Read a governance document from the public GitHub raw fallback."""
+    try:
+        if filename == "START_HERE.md":
+            url = f"{GITHUB_RAW_BASE}/{filename}"
+        else:
+            url = f"{GITHUB_RAW_BASE}/governance/{filename}"
+        req = urllib.request.Request(url)
+        req.add_header("User-Agent", "dispatch-server")
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return resp.read().decode("utf-8"), "github"
+    except Exception:
+        return f"（治理文档 {filename} 不可达: mirror 和 github 都失败）", "missing"
+
+
 def read_governance_file(filename):
     """读治理文档: 优先 governance-mirror, fallback GitHub raw。
 
@@ -146,17 +170,95 @@ def read_governance_file(filename):
     if content and content != "（文件不存在）" and "（读取失败" not in content:
         return content, "mirror"
     # 2. fallback GitHub raw（START_HERE 在仓库根, 其他在 governance/）
+    return read_governance_github_file(filename)
+
+
+def get_mirror_head():
+    """Return the governance mirror HEAD without exposing repository paths."""
     try:
-        if filename == "START_HERE.md":
-            url = f"{GITHUB_RAW_BASE}/{filename}"
-        else:
-            url = f"{GITHUB_RAW_BASE}/governance/{filename}"
-        req = urllib.request.Request(url)
-        req.add_header("User-Agent", "dispatch-server")
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            return resp.read().decode("utf-8"), "github"
+        result = subprocess.run(
+            ["git", "-C", GOVERNANCE_ROOT, "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
     except Exception:
-        return f"（治理文档 {filename} 不可达: mirror 和 github 都失败）", "missing"
+        return None
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip() or None
+
+
+def read_snapshot_file(commit_sha, relative_path):
+    """Read one file as bytes from an exact governance Git commit."""
+    if not commit_sha:
+        return None, "commit-missing"
+    try:
+        result = subprocess.run(
+            ["git", "-C", GOVERNANCE_ROOT, "show", f"{commit_sha}:{relative_path}"],
+            capture_output=True,
+            timeout=5,
+        )
+    except Exception:
+        return None, "unavailable"
+    if result.returncode != 0:
+        return None, "missing"
+    return result.stdout, "ok"
+
+
+def snapshot_file_commit_time(commit_sha, relative_path):
+    """Return the last commit time for a file within the captured snapshot."""
+    if not commit_sha:
+        return None
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "-C",
+                GOVERNANCE_ROOT,
+                "log",
+                "-1",
+                "--format=%cI",
+                commit_sha,
+                "--",
+                relative_path,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except Exception:
+        return None
+    if result.returncode != 0:
+        return None
+    value = result.stdout.strip()
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return parsed.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def read_version_manifest(commit_sha):
+    """Read the canonical version manifest from the exact mirror HEAD."""
+    raw, status = read_snapshot_file(
+        commit_sha, "governance/version-manifest.json"
+    )
+    if status != "ok":
+        return None, status
+    try:
+        manifest = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None, "malformed"
+    if (
+        not isinstance(manifest, dict)
+        or manifest.get("schemaVersion") != 1
+        or not isinstance(manifest.get("canonicalDocuments"), dict)
+    ):
+        return None, "invalid"
+    return manifest, "ok"
 
 
 def get_available_models():
@@ -365,60 +467,108 @@ class DispatchHandler(BaseHTTPRequestHandler):
         - versioned: False 表示非时序版本文件（如 START_HERE.md）, 跳过版本校验
         - commit_sha: governance-mirror HEAD（全局, 所有文档同源）, mirror 落后 github 时消费者可能误判, 需结合 mtime 判断新鲜度
         - content_sha12: 文件内容 sha256 前 12 位, 同版本号下内容变化可检测
-        - mtime: 文件最后修改时间 ISO, mirror 同步延迟时消费者可据此判断
+        - mtime: 捕获 HEAD 中该文件最后一次 Git 提交时间
         - source: mirror/github/missing, mirror=本地快照, github=raw 兜底, missing=双源失败
+        - logical_version: 同一 HEAD 的 version-manifest 逻辑版本
+        - degraded: manifest、快照或 fallback 不一致时显式告警
 
         对应 archive/governance-review-node1 §5.3 设计（version/updated/commit-hash）。
         """
-        import re
-        # mirror HEAD（所有文档同源一次调用）
-        commit_sha = None
-        try:
-            result = subprocess.run(
-                ["git", "-C", GOVERNANCE_ROOT, "rev-parse", "HEAD"],
-                capture_output=True, text=True, timeout=5,
-            )
-            if result.returncode == 0:
-                commit_sha = result.stdout.strip() or None
-        except Exception:
-            pass
+        # Capture mirror HEAD once; all healthy metadata is read from this object.
+        commit_sha = get_mirror_head()
 
+        manifest, manifest_status = read_version_manifest(commit_sha)
+        manifest_documents = (
+            manifest["canonicalDocuments"] if manifest_status == "ok" else {}
+        )
         versions = {}
         for key, filename in GOVERNANCE_FILES.items():
-            content, source = read_governance_file(filename)
             # 正则放宽: 支持 1-3 段 semver（v1.2 / v1.2.3）
             m = re.search(r"-v(\d+(?:\.\d+){0,2})\.md$", filename)
             version = m.group(1) if m else None
             versioned = m is not None
+            logical_version = None
+            degraded_reasons = []
+            relative_path = (
+                filename
+                if filename == "START_HERE.md"
+                else f"governance/{filename}"
+            )
+            raw, snapshot_status = read_snapshot_file(commit_sha, relative_path)
+            if snapshot_status == "ok":
+                source = "mirror"
+                content_sha12 = hashlib.sha256(raw).hexdigest()[:12]
+                mtime = snapshot_file_commit_time(commit_sha, relative_path)
+                if mtime is None:
+                    degraded_reasons.append("document-time-unavailable")
+            else:
+                fallback_content, source = read_governance_github_file(filename)
+                content_sha12 = (
+                    hashlib.sha256(fallback_content.encode("utf-8")).hexdigest()[:12]
+                    if source == "github"
+                    else None
+                )
+                mtime = None
+                degraded_reasons.append(f"snapshot-{snapshot_status}")
 
-            # 文件级指纹 + mtime（仅 mirror 源可取, github/missing 时为 None）
-            content_sha12 = None
-            mtime = None
-            if source == "mirror":
-                mirror_path = (os.path.join(GOVERNANCE_ROOT, filename)
-                               if filename == "START_HERE.md"
-                               else os.path.join(GOVERNANCE_DIR, filename))
-                try:
-                    with open(mirror_path, "rb") as f:
-                        raw = f.read()
-                    content_sha12 = hashlib.sha256(raw).hexdigest()[:12]
-                    mtime = time.strftime("%Y-%m-%dT%H:%M:%SZ",
-                                          time.gmtime(os.path.getmtime(mirror_path)))
-                except Exception:
-                    pass
+            manifest_key = GOVERNANCE_MANIFEST_KEYS.get(key)
+            if versioned:
+                if manifest_status != "ok":
+                    degraded_reasons.append(f"manifest-{manifest_status}")
+                else:
+                    entry = manifest_documents.get(manifest_key)
+                    expected_path = f"governance/{filename}"
+                    if not isinstance(entry, dict):
+                        degraded_reasons.append("manifest-entry-missing")
+                    elif entry.get("status") != "active":
+                        degraded_reasons.append("manifest-entry-inactive")
+                    elif entry.get("path") != expected_path:
+                        degraded_reasons.append("manifest-path-mismatch")
+                    else:
+                        manifest_version = entry.get("version")
+                        if (
+                            isinstance(manifest_version, str)
+                            and re.fullmatch(
+                                r"v?\d+(?:\.\d+){0,2}", manifest_version
+                            )
+                        ):
+                            logical_version = manifest_version.removeprefix("v")
+                        else:
+                            degraded_reasons.append("manifest-version-invalid")
+            if source != "mirror":
+                degraded_reasons.append(f"document-source-{source}")
 
             versions[key] = {
                 "filename": filename,
                 "version": version,
                 "versioned": versioned,
+                "logical_version": logical_version,
+                "filename_version": version,
+                "version_source": (
+                    "manifest"
+                    if logical_version is not None
+                    else "filename"
+                    if versioned
+                    else "unversioned"
+                ),
+                "degraded": bool(degraded_reasons),
+                "degraded_reasons": degraded_reasons,
+                "missing": source == "missing",
                 "commit_sha": commit_sha,
                 "content_sha12": content_sha12,
                 "mtime": mtime,
                 "source": source,
             }
+        final_head = get_mirror_head()
+        if commit_sha is not None and final_head != commit_sha:
+            for document in versions.values():
+                document["degraded"] = True
+                document["degraded_reasons"].append("mirror-head-changed")
         self._send_json({
             "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "github_raw_base": GITHUB_RAW_BASE,
+            "manifest_status": manifest_status,
+            "degraded": any(document["degraded"] for document in versions.values()),
             "documents": versions,
         })
 
