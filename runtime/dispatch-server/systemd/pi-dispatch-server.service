@@ -1,0 +1,29 @@
+# /etc/systemd/system/pi-dispatch-server.service
+[Unit]
+Description=Pi Dispatch Context Server (fleet shared context HTTP endpoint)
+After=network.target
+
+[Service]
+Type=simple
+User=pi-dispatch
+Group=pi-dispatch
+WorkingDirectory=/opt/pi-orchestrator
+EnvironmentFile=/opt/pi-orchestrator/config/dispatch.env
+ExecStart=/usr/bin/python3 /opt/pi-orchestrator/extensions/dispatch-server.py
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadOnlyPaths=-/opt/pi/governance-mirror/repo
+ReadOnlyPaths=-/opt/pi-orchestrator/logs
+ReadWritePaths=-/opt/pi/dispatch
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
