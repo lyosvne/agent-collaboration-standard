@@ -87,21 +87,29 @@ Caddy 配置未在本次回收，不能据此断言其是否另有鉴权、限�
 {
   "time": "<ISO8601>",
   "github_raw_base": "<public source base>",
+  "manifest_status": "ok|commit-missing|missing|unavailable|malformed|invalid",
+  "degraded": false,
   "documents": {
     "<doc-key>": {
       "filename": "<stable filename>",
       "version": "<filename-derived compatibility version>",
+      "logical_version": "<manifest logical version>",
+      "filename_version": "<stable filename version>",
+      "version_source": "manifest|filename|unversioned",
       "versioned": true,
+      "degraded": false,
+      "degraded_reasons": [],
+      "missing": false,
       "commit_sha": "<mirror HEAD>",
       "content_sha12": "<sha256 prefix>",
-      "mtime": "<ISO8601>",
+      "mtime": "<last Git commit time for this file at mirror HEAD>",
       "source": "mirror|github|missing"
     }
   }
 }
 ```
 
-**用途**：消费方（本机 ZCode / 云端 agent）比对本地版本与 ECS 版本，检测"文档已变但本地没拉"的漂移。`content_sha12` 区分"commit 没动但文件被改"（如 ECS 本地误编辑）。
+**用途**：消费方（本机 ZCode / 云端 agent）比对本地版本与 ECS 版本，检测"文档已变但本地没拉"的漂移。`logical_version`、正文指纹和文件最后提交时间均从一次捕获的 mirror HEAD Git 对象读取；旧 `version` 和 `filename_version` 保留稳定文件名兼容语义。manifest、Git 对象或 fallback 正文源异常时端点显式返回 `degraded`，不把文件名版本伪装为逻辑版本。工作树即使存在未提交修改也不会混入同一响应。
 
 ### 3.3 漂移体检端点（AUTH_KEY 鉴权，B 层 round3，2026-07-27）
 
@@ -163,7 +171,7 @@ Header key（X-Dispatch-Key 或 Authorization: Bearer）:
 |--------|----------|----------|
 | `qoder-bridge.py` | `/dispatch/{north-star,architecture,fleet-division,start-here}` | 启动头注入（FLEET_HEADER：红线 + 编队身份 + WebFetch 指引）|
 | `qoder-bridge.py`（cantus 档） | 同上 | C 评审实测：cantus 能复述红线 5 条 + 北极星 + 路线图 |
-| Pi ECS / governance mirror | `/dispatch/truth/versions` | 当前发布 mirror commit、内容 hash 与文件名兼容版本；manifest 逻辑版本由后续 PR 补齐 |
+| Pi ECS / governance mirror | `/dispatch/truth/versions` | 当前发布 mirror commit、内容 hash、manifest 逻辑版本、文件名兼容版本和 degraded 状态 |
 | Trae（授权诊断） | `/dispatch/drift` | 集成或部署验证时调用（需授权，不输出 key）|
 
 **待扩展消费方**：Trae、Kimi、ZCode、Mira 应按各自能力读取公开治理端点；需要鉴权的运行诊断只能由获授权的执行角色调用。ZCode 只消费结果，不运行 curl。
@@ -188,7 +196,6 @@ Header key（X-Dispatch-Key 或 Authorization: Bearer）:
 
 1. Caddy 精确路由、access-log 脱敏和 rate limit；
 2. production environment 的变量存在性，但不得读取或记录变量值；
-3. manifest-aware logical version 上线后的最终兼容字段。
 
 ---
 
@@ -207,5 +214,6 @@ Header key（X-Dispatch-Key 或 Authorization: Bearer）:
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v0.3（manifest）| 2026-08-08 | `/truth/versions` 从 mirror HEAD manifest 读取逻辑版本，保留文件名兼容字段并显式报告 degraded |
 | v0.2（恢复）| 2026-08-08 | 回收 canonical source；修正真实端点结构、header 鉴权、systemd/Caddy 边界和运行数据分级 |
 | v0.1（草案）| 2026-07-28 | ZCode 反推起草（patch + ecs-scripts/README + roadmap）；闭合 roadmap 缺口 #6「dispatch-server 架构 spec 缺失」。待 ECS 实测补完 §7 五项后转 active |

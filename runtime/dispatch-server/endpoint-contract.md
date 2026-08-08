@@ -24,6 +24,13 @@ sandbox, an empty capability bounding set, and journal logging.
 - `/dispatch/truth/versions`
 
 The versions response does not expose absolute ECS paths.
+For versioned documents, the legacy `version` field remains the compatibility
+filename version. `logical_version` comes from
+`governance/version-manifest.json` at the exact mirror HEAD,
+`filename_version` preserves the stable-path version, and `version_source`
+states which value is authoritative. Missing or invalid manifest state and
+missing/non-mirror document sources set `degraded` with sanitized reason codes
+instead of silently reporting a stale logical version.
 
 Caddy configuration was not recovered in this change. TLS, proxy routing,
 access-log redaction, and rate limiting remain separately verifiable
@@ -61,12 +68,13 @@ for the configured TTL.
   of terminating the process.
 - Governance documents other than `/dispatch/roadmap` prefer the local mirror
   and use GitHub raw only as a read fallback. The roadmap endpoint retains its
-  recovered legacy `DISPATCH_DIR/global-roadmap-v1.1.md` source until the
-  manifest-aware G2 change.
+  recovered legacy `DISPATCH_DIR/global-roadmap-v1.1.md` source. G2 changes the
+  `/dispatch/truth/versions` metadata endpoint only; it does not change the
+  roadmap document source.
 
 ## Recovery boundary
 
 The first canonical source commit is byte-identical to the captured production
 source. A later commit in the recovery PR hardens authentication and runtime
-data exposure before deployment. Manifest-aware logical versions remain a
-separate reviewed change.
+data exposure before deployment. The reviewed G2 follow-up adds manifest-aware
+logical versions without changing document endpoint routing.
