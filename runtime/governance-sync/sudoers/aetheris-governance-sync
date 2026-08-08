@@ -1,0 +1,4 @@
+# Validate with visudo -cf before installation.
+# The CLI itself rejects alternate paths, malformed IDs, and extra arguments.
+Defaults!/usr/local/sbin/aetheris-governance-sync secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+%aetheris-governance-sync ALL=(pi-governance-sync) NOPASSWD: /usr/local/sbin/aetheris-governance-sync
