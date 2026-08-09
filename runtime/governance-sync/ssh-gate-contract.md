@@ -30,18 +30,21 @@ supplementary group is consulted by the gate.
 
 ## Command protocol
 
-Exactly these four canonical commands are accepted:
+Exactly these four canonical command forms are accepted:
 
 ```text
-upload
+upload <decimal_size>
 apply <40 lowercase hex commit> <64 lowercase hex sha256>
 dry-run <40 lowercase hex commit> <64 lowercase hex sha256>
 cleanup
 ```
 
+`decimal_size` is the canonical base-10 byte length: ASCII digits without a
+sign or leading zero, in the inclusive range 1 through 67,108,864 (64 MiB).
 There are no quoting, escaping, environment assignment, wildcard, option, or
 shell semantics. Additional or repeated whitespace, additional arguments,
-uppercase hex, and abbreviated object names are rejected.
+uppercase hex, abbreviated object names, and non-canonical or out-of-range
+upload sizes are rejected.
 
 ## Gate lock
 
@@ -75,10 +78,16 @@ effective UID and GID and uses exact mode `0700`.
 
 ## Upload transaction
 
-`upload` reads the bundle as opaque binary bytes from standard input without
-text decoding, newline conversion, or buffering the complete payload in
-memory. The hard limit is 64 MiB (67,108,864 bytes); the first byte beyond the
-limit fails the operation.
+`upload <decimal_size>` reads the bundle as opaque binary bytes from standard
+input without text decoding, newline conversion, or buffering the complete
+payload in memory. The declared size has a hard inclusive range of 1 byte
+through 64 MiB (67,108,864 bytes). The gate repeatedly reads at most the
+remaining declared byte count, so partial pipe reads are accumulated. EOF
+before all declared bytes arrive fails with `upload_short`; no partial upload
+is published. As soon as exactly the declared byte count has been read, the
+gate completes the transaction without making another read and without
+waiting for EOF. This permits the client to keep the SSH channel open while it
+waits for the gate's response.
 
 The only destination is
 `/var/lib/aetheris-governance-sync/incoming/governance.bundle`. The gate opens

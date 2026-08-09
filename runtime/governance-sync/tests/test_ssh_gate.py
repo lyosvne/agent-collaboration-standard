@@ -31,7 +31,11 @@ class CommandTests(unittest.TestCase):
     def test_accepts_exactly_four_commands(self) -> None:
         commit = "a" * 40
         digest = "b" * 64
-        self.assertEqual(("upload",), gate.parse_command("upload"))
+        self.assertEqual(("upload", "1"), gate.parse_command("upload 1"))
+        self.assertEqual(
+            ("upload", str(64 * 1024 * 1024)),
+            gate.parse_command(f"upload {64 * 1024 * 1024}"),
+        )
         self.assertEqual(("cleanup",), gate.parse_command("cleanup"))
         self.assertEqual(("apply", commit, digest), gate.parse_command(f"apply {commit} {digest}"))
         self.assertEqual(
@@ -45,6 +49,12 @@ class CommandTests(unittest.TestCase):
         rejected = (
             None,
             "",
+            "upload",
+            "upload 0",
+            "upload 01",
+            "upload +1",
+            "upload 1.0",
+            f"upload {64 * 1024 * 1024 + 1}",
             "upload extra",
             "cleanup extra",
             f"apply  {commit} {digest}",
@@ -201,10 +211,18 @@ class UploadTests(unittest.TestCase):
         self.path_patch.stop()
         self.temp.cleanup()
 
-    def upload(self, content) -> None:
+    def upload(self, content, expected_size: int | None = None) -> None:
+        if expected_size is None:
+            expected_size = len(content.getvalue())
         with mock.patch.object(gate, "global_gate_lock", side_effect=nullcontext):
             with gate.incoming_gate(self.uid, self.gid) as directory_fd:
-                gate.upload_bundle(directory_fd, self.uid, self.gid, content)
+                gate.upload_bundle(
+                    directory_fd,
+                    self.uid,
+                    self.gid,
+                    expected_size,
+                    content,
+                )
 
     def cleanup(self) -> list[str]:
         with mock.patch.object(gate, "global_gate_lock", side_effect=nullcontext):
@@ -252,15 +270,39 @@ class UploadTests(unittest.TestCase):
         self.assertEqual(0o600, stat.S_IMODE(metadata.st_mode))
         self.assertFalse((self.incoming / gate.UPLOAD_NAME).exists())
 
-    def test_upload_enforces_size_limit_and_cleans_temporary_file(self) -> None:
-        with (
-            mock.patch.object(gate, "MAX_BUNDLE_BYTES", 8),
-            self.assertRaises(gate.GateError) as caught,
-        ):
-            self.upload(io.BytesIO(b"123456789"))
-        self.assertEqual("bundle_too_large", caught.exception.code)
+    def test_upload_short_fails_and_cleans_temporary_file(self) -> None:
+        with self.assertRaises(gate.GateError) as caught:
+            self.upload(io.BytesIO(b"1234567"), expected_size=8)
+        self.assertEqual("upload_short", caught.exception.code)
         self.assertFalse((self.incoming / gate.BUNDLE_NAME).exists())
         self.assertFalse((self.incoming / gate.UPLOAD_NAME).exists())
+
+    def test_upload_reads_exact_declared_size_without_waiting_for_eof(self) -> None:
+        class PartialNonEofInput:
+            def __init__(self) -> None:
+                self.blocks = [b"12", b"345", b"6789"]
+                self.read_sizes: list[int] = []
+
+            def read(self, size: int) -> bytes:
+                self.read_sizes.append(size)
+                if len(self.read_sizes) > 3:
+                    raise AssertionError("upload waited for EOF after reading declared size")
+                block = self.blocks.pop(0)
+                self.assert_block_fits(block, size)
+                return block
+
+            @staticmethod
+            def assert_block_fits(block: bytes, size: int) -> None:
+                if len(block) > size:
+                    raise AssertionError("test input returned more bytes than requested")
+
+        source = PartialNonEofInput()
+        self.upload(source, expected_size=9)
+        self.assertEqual([9, 7, 4], source.read_sizes)
+        self.assertEqual(
+            b"123456789",
+            (self.incoming / gate.BUNDLE_NAME).read_bytes(),
+        )
 
     def test_upload_failure_does_not_replace_existing_bundle_and_cleans(self) -> None:
         destination = self.incoming / gate.BUNDLE_NAME
@@ -272,7 +314,7 @@ class UploadTests(unittest.TestCase):
                 raise OSError("injected read failure")
 
         with self.assertRaises(gate.GateError) as caught:
-            self.upload(BrokenInput())
+            self.upload(BrokenInput(), expected_size=1)
         self.assertEqual("upload_failed", caught.exception.code)
         self.assertEqual(b"trusted", destination.read_bytes())
         self.assertFalse((self.incoming / gate.UPLOAD_NAME).exists())

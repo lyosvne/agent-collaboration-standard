@@ -198,20 +198,26 @@ Verify upload, dry-run, apply, and cleanup from the client without a shell:
 git bundle create governance.bundle master
 sha256=$(sha256sum governance.bundle | cut -d' ' -f1)
 commit=$(git rev-parse master)
-# stdin remains a binary byte stream through SSH and the sudo gate.
-ssh GOVERNANCE_HOST upload < governance.bundle
+# stdin remains a binary byte stream through SSH and the sudo gate. The gate
+# reads exactly the declared byte count and does not wait for channel EOF.
+size=$(wc -c < governance.bundle | tr -d '[:space:]')
+ssh GOVERNANCE_HOST "upload $size" < governance.bundle
 ssh GOVERNANCE_HOST "dry-run $commit $sha256"
 ssh GOVERNANCE_HOST "apply $commit $sha256"
 ssh GOVERNANCE_HOST cleanup
 ```
 
-Also verify rejection of a fifth command, malformed hashes, a payload larger
-than 64 MiB, and a login shell request. After each rejected upload, the
-incoming directory must contain no `.upload` file and any previous
-`governance.bundle` must remain unchanged. Create symlink, FIFO, and directory
-fixtures at each fixed target name in a disposable deployment and verify both
-upload and cleanup reject them without deleting the inode. Hold an exclusive
-flock on `/run/aetheris-governance-sync/gate.lock` from one invocation
-and verify each of the other four commands returns `already_running`. Also
-verify `aetheris-sync-deploy` cannot create,
+Also verify rejection of a fifth command, malformed hashes, upload sizes of
+zero and more than 64 MiB, non-canonical decimal sizes, and a login shell
+request. Declare one byte more than the supplied stream and verify
+`upload_short`; declare the exact stream size while keeping the client side of
+the SSH channel open and verify the gate responds without waiting for EOF.
+After each rejected upload, the incoming directory must contain no `.upload`
+file and any previous `governance.bundle` must remain unchanged. Create
+symlink, FIFO, and directory fixtures at each fixed target name in a disposable
+deployment and verify both upload and cleanup reject them without deleting the
+inode. Hold an exclusive flock on
+`/run/aetheris-governance-sync/gate.lock` from one invocation and verify each
+of the other four commands returns `already_running`. Also verify
+`aetheris-sync-deploy` cannot create,
 replace, or unlink either fixed incoming name.
