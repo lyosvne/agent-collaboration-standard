@@ -94,16 +94,20 @@ particular, `pi-dispatch` must be able to read `.git/HEAD` and governance
 documents through its supplementary group, but must not be able to create,
 overwrite, or rename content in the work tree, `.git/refs`, or `.git/config`.
 
-The sudoers command grant is exactly:
+The sudoers command policy is exactly:
 
 ```sudoers
+Defaults!/usr/local/sbin/aetheris-governance-sync-ssh secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, env_keep += "SSH_ORIGINAL_COMMAND", !use_pty
 aetheris-sync-deploy ALL=(pi-governance-sync) NOPASSWD: /usr/local/sbin/aetheris-governance-sync-ssh ""
 ```
 
 The deploy account cannot sudo the helper. No `%aetheris-governance-sync`
 sudo authorization exists. The gate requires the `pi-governance-sync`
 effective UID and GID, then directly executes the helper without a nested
-sudo. This no-argument gate is the deploy account's only sudo grant.
+sudo. This no-argument gate is the deploy account's only sudo grant. The
+`!use_pty` exception is scoped to that exact gate executable so its binary
+stdin upload stream uses ordinary pipes; all other sudo commands retain the
+host's default PTY policy.
 
 ## CLI
 

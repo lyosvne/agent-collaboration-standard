@@ -15,6 +15,13 @@ The gate accepts no process arguments and reads only the sudoers-preserved
 that no-argument gate as `pi-governance-sync`; it does not permit the deploy
 account to run the helper.
 
+The `upload` payload is a binary stream from the SSH channel through sudo to
+the gate's standard input. The command-specific
+`Defaults!/usr/local/sbin/aetheris-governance-sync-ssh !use_pty` setting keeps
+that stream on ordinary pipes instead of sudo's PTY relay. This exception
+applies only to the gate executable; `use_pty` and every other sudo default
+remain unchanged for all other commands.
+
 Every invocation resolves `pi-governance-sync` through `pwd.getpwnam` and
 requires both its effective UID and effective GID. The incoming directory,
 bundle, and `.upload` must use those same primary IDs. There is no caller-group
@@ -68,8 +75,10 @@ effective UID and GID and uses exact mode `0700`.
 
 ## Upload transaction
 
-`upload` reads the bundle from standard input. The hard limit is 64 MiB
-(67,108,864 bytes); the first byte beyond the limit fails the operation.
+`upload` reads the bundle as opaque binary bytes from standard input without
+text decoding, newline conversion, or buffering the complete payload in
+memory. The hard limit is 64 MiB (67,108,864 bytes); the first byte beyond the
+limit fails the operation.
 
 The only destination is
 `/var/lib/aetheris-governance-sync/incoming/governance.bundle`. The gate opens

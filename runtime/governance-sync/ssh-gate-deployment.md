@@ -156,6 +156,13 @@ sudo -u aetheris-sync-deploy sudo -n -u pi-governance-sync \
   /usr/local/sbin/aetheris-governance-sync --help
 ```
 
+The drop-in sets `!use_pty` with a command-specific `Defaults!` entry for
+`/usr/local/sbin/aetheris-governance-sync-ssh` only. Do not set `!use_pty`
+globally or for the deploy account: all other sudo commands retain the host's
+default PTY policy. The exception is required because `upload` carries an
+opaque binary bundle from the SSH channel through sudo's stdin to the gate;
+ordinary pipes must carry that stream without a sudo PTY relay.
+
 The first sudo probe must reach the gate (and fail only because
 `SSH_ORIGINAL_COMMAND` is absent). The helper probe must be denied. No
 wildcard, alternate arguments, shell, or direct helper command is granted.
@@ -191,6 +198,7 @@ Verify upload, dry-run, apply, and cleanup from the client without a shell:
 git bundle create governance.bundle master
 sha256=$(sha256sum governance.bundle | cut -d' ' -f1)
 commit=$(git rev-parse master)
+# stdin remains a binary byte stream through SSH and the sudo gate.
 ssh GOVERNANCE_HOST upload < governance.bundle
 ssh GOVERNANCE_HOST "dry-run $commit $sha256"
 ssh GOVERNANCE_HOST "apply $commit $sha256"
