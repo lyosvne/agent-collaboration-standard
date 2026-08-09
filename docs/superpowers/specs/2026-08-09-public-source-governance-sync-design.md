@@ -8,20 +8,23 @@
 
 Runner 直接向 ECS 传输 bundle 的通道不稳定；ECS 直接对 Git 仓执行 fetch
 又扩大了 Git 协议、配置与对象导入实现面。采用已批准的“GitHub Release API
-+ 完整 bundle”方案：治理仓负责发布不可覆盖的 commit-bound Release，ECS
-仅从固定匿名 API 端点下载 manifest 和 bundle，再复用已经审计的 bundle
-helper 完成 dry-run/apply。
++ 增量 bundle”方案：治理仓负责发布不可覆盖的 commit-bound Release。ECS
+从固定匿名 API 端点下载增量 bundle，在本地临时 bare 仓中以固定 mirror
+objects 作为 alternates 重建完整 bundle，再复用已经审计的旧 helper。
 
 ## 目标
 
-- `master` push 与手动指定 target 都发布完整 bundle。
-- tag 固定为 `governance-sync-<40hex commit>`。
-- target 必须是 commit 且可达 canonical `master`。
+- `master` push 与手动指定 target 都发布相对固定 baseline 的增量 bundle。
+- baseline 固定为 `bef402ae2c2518961c6abe0d90a1838346e9afb9`。
+- tag 固定为 `governance-sync-v2-<40hex commit>`。
+- target 必须是 commit、可达 canonical `master`，且 baseline 必须是 target 祖先。
 - Release 与既有 tag 不可覆盖、更新或删除。
 - ECS 不持有 token、PAT、deploy key、netrc 或 credential helper。
 - ECS 只信任 Release metadata 的 tag、target、asset name/id/size。
 - manifest 与 bundle 的 commit、size、SHA-256 必须精确一致。
-- bundle 只原子发布到固定 incoming 路径，使用现有 bundle helper 固定 argv。
+- 增量 bundle 只允许从本地 file 路径读取；禁止 Git 网络协议。
+- public helper 在不可输入覆盖的临时 bare 仓中重建完整 target 历史。
+- 只有重建后的完整 bundle 原子发布到固定 incoming 路径，再用旧 helper 固定 argv。
 - 无论成功或失败都清理本次发布的 incoming bundle。
 - forced-command gate 继续只接受 `sync-public <commit> dry-run|apply`。
 
@@ -46,8 +49,9 @@ Workflow 使用固定 SHA 的 `actions/checkout`，checkout canonical `master`�
 git merge-base --is-ancestor <target> refs/remotes/origin/master
 ```
 
-随后将本地 `refs/heads/master` 精确指向 target，创建包含该 ref 全部可达历史的
-完整 `governance.bundle`，并执行 `git bundle verify`。
+随后验证 baseline 是 target 祖先，将本地 `refs/heads/master` 精确指向 target。
+当 target 等于 baseline 时排除 `target^`；否则排除 baseline。由此创建增量
+`governance.bundle` 并执行 `git bundle verify`。
 
 Manifest 文件名固定为 `governance-sync-manifest.json`，是 sorted-key、
 compact-separator、末尾单换行的 canonical JSON：
@@ -59,8 +63,10 @@ compact-separator、末尾单换行的 canonical JSON：
     "sha256": "<64 lowercase hex>",
     "size": 123
   },
+  "base_commit": "bef402ae2c2518961c6abe0d90a1838346e9afb9",
+  "bundle_kind": "incremental",
   "commit": "<40 lowercase hex>",
-  "schema_version": 1
+  "schema_version": 2
 }
 ```
 
@@ -84,7 +90,8 @@ PATCH；禁止修改 tag、target、asset、名称，禁止 DELETE、clobber、�
 | 资源 | 值 |
 |---|---|
 | Release API base | `https://api.github.com/repos/lyosvne/agent-collaboration-standard` |
-| Release tag prefix | `governance-sync-` |
+| Release tag prefix | `governance-sync-v2-` |
+| Baseline | `bef402ae2c2518961c6abe0d90a1838346e9afb9` |
 | Manifest asset | `governance-sync-manifest.json` |
 | Bundle asset | `governance.bundle` |
 | Incoming bundle | `/var/lib/aetheris-governance-sync/incoming/governance.bundle` |
@@ -105,7 +112,7 @@ effective root，并只输出稳定 JSON。
 Release metadata 只能来自：
 
 ```text
-https://api.github.com/repos/lyosvne/agent-collaboration-standard/releases/tags/governance-sync-<commit>
+https://api.github.com/repos/lyosvne/agent-collaboration-standard/releases/tags/governance-sync-v2-<commit>
 ```
 
 Metadata 中仅提取：
@@ -122,8 +129,8 @@ https://api.github.com/repos/lyosvne/agent-collaboration-standard/releases/asset
 ```
 
 Manifest 与 bundle 必须各恰好出现一次。JSON 拒绝 duplicate key。Manifest
-只接受上述 exact schema；额外、缺失、错误类型、布尔伪装整数、错误 commit、
-name、size 或 SHA 均失败。
+只接受 schema 2、固定 `base_commit`、`bundle_kind=incremental`、请求 commit
+及精确 bundle name/size/SHA；额外、缺失、错误类型或值均失败。
 
 `curl` 使用绝对路径、`--disable`、空 config、sanitized allowlist 环境、
 禁用 proxy、HTTPS-only 原协议和重定向、TLS 1.2 下限、连接/总超时、重定向
@@ -138,6 +145,20 @@ name、size 或 SHA 均失败。
 4. 实际 SHA-256 等于 manifest SHA-256；
 5. manifest commit 等于请求 commit。
 
+## 本地完整 bundle 重建
+
+Public helper 在固定 incoming 目录下创建 owner-only 临时目录和 bare 仓；名称
+由 helper 生成，不接受路径或环境覆盖。它只把固定
+`/opt/pi/governance-mirror/repo/.git/objects` 写入 alternates，并验证该目录由
+effective UID/GID 所有且不可被 group/world 写入。Git 使用 allowlist 环境，
+清除 ambient `GIT_*` 配置，`protocol.allow=never` 且只开放 `file`。
+
+helper 在带 alternates 的 bare 仓中 verify 增量 bundle，要求唯一
+`refs/heads/master` 精确指向请求 target，只从下载的本地 bundle fetch 该 ref，
+再验证 commit 与对象连通性。随后创建包含 target 完整历史的本地 full bundle，
+并在不带 alternates 的空 bare 仓中 verify。旧 helper 接收的是 full bundle
+及重新计算的 full SHA-256，而不是 manifest 中的增量 SHA。
+
 ## 原子发布与 relay
 
 Public helper 验证 effective-ID-owned exact-mode `0700` incoming 目录和已有
@@ -151,7 +172,7 @@ Public helper 验证 effective-ID-owned exact-mode `0700` incoming 目录和已�
 /usr/local/sbin/aetheris-governance-sync \
   --bundle /var/lib/aetheris-governance-sync/incoming/governance.bundle \
   --commit <commit> \
-  --sha256 <manifest sha256> \
+  --sha256 <rebuilt full bundle sha256> \
   [--dry-run]
 ```
 
@@ -159,7 +180,8 @@ stdin 关闭、`shell=False`、环境固定。Public helper 对旧 helper 的 su
 error JSON 执行 exact schema 检查后原样 relay；traceback、额外 JSON、额外
 字段、错误 commit/hash、非法 receipt 或 backup ref 均不转发。
 
-`finally` 按发布时记录的 device/inode 验证固定 bundle 后 unlink 并 fsync。
+`finally` 按发布时记录的 device/inode 验证固定 bundle 后 unlink 并 fsync；
+下载文件、临时 bare、alternates 和 full bundle 同时清理。
 如果名字已被替换，绝不删除替换 inode，而报告 cleanup state unknown。
 
 ## Gate 与部署
@@ -182,11 +204,13 @@ sudoers、tmpfiles 与治理正文不变。安装后验证任意命令拒绝、�
 
 ## 测试与完成标准
 
-- Publisher 静态测试覆盖 trigger、contents write、pinned checkout、
-  canonical target、完整 bundle、canonical manifest 和不可覆盖 Release。
+- Publisher 静态测试覆盖 trigger、contents write、pinned checkout、baseline
+  ancestry、baseline no-op 排除规则、增量 bundle、schema 2 和不可覆盖 Release。
 - Helper 测试覆盖 metadata URL 注入、duplicate asset/key、类型混淆、大小/
   hash/commit 错配、curl timeout/oversize、symlink/inode replacement。
 - Fault/cleanup 测试覆盖 staging 清理、成功/失败 finally、替换 inode保护。
-- Relay 测试覆盖固定 argv、关闭 stdin、exact JSON 与错误内容收敛。
+- 重建测试覆盖 109 KiB 级增量、missing prerequisite、恶意 target、完整历史、
+  full bundle SHA，以及 ambient Git/temp 输入不能覆盖 alternates 或临时仓。
+- Relay 测试覆盖固定 argv、full SHA、关闭 stdin、exact JSON 与错误内容收敛。
 - Contract/deploy 测试确认固定端点、固定资源、无凭据和旧工件不变。
 - 全套 unittest、governance truth scanner 和 `git diff --check` 通过。

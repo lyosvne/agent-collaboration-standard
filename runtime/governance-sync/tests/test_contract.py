@@ -30,6 +30,8 @@ EXPECTED_PATHS = {
 
 EXPECTED_PUBLIC_PATHS = {
     "INCOMING": "/var/lib/aetheris-governance-sync/incoming",
+    "MIRROR_OBJECTS": "/opt/pi/governance-mirror/repo/.git/objects",
+    "LOCK": "/run/lock/aetheris-governance-sync.lock",
 }
 
 
@@ -64,6 +66,9 @@ class DeploymentContractTests(unittest.TestCase):
             "RELEASE_TAG_PREFIX",
             "MANIFEST_NAME",
             "BUNDLE_NAME",
+            "BASE_COMMIT",
+            "BASE_PARENT",
+            "BUNDLE_KIND",
         }
         for node in tree.body:
             if not isinstance(node, ast.Assign) or len(node.targets) != 1:
@@ -82,9 +87,12 @@ class DeploymentContractTests(unittest.TestCase):
                 "RELEASE_API_BASE":
                     "https://api.github.com/repos/lyosvne/"
                     "agent-collaboration-standard",
-                "RELEASE_TAG_PREFIX": "governance-sync-",
+                "RELEASE_TAG_PREFIX": "governance-sync-v2-",
                 "MANIFEST_NAME": "governance-sync-manifest.json",
                 "BUNDLE_NAME": "governance.bundle",
+                "BASE_COMMIT": "bef402ae2c2518961c6abe0d90a1838346e9afb9",
+                "BASE_PARENT": "9679be2a8ec1c2e4afffd74f9a1924f4588b39f6",
+                "BUNDLE_KIND": "incremental",
             },
             assigned,
         )
@@ -92,9 +100,21 @@ class DeploymentContractTests(unittest.TestCase):
         for requirement in (
             "`/usr/local/sbin/aetheris-governance-sync-public`",
             "`https://api.github.com/repos/lyosvne/agent-collaboration-standard`",
-            "`governance-sync-<40 lowercase hex commit>`",
+            "`governance-sync-v2-<40 lowercase hex commit>`",
             "`governance-sync-manifest.json`",
             "`/var/lib/aetheris-governance-sync/incoming/governance.bundle`",
+            "`/opt/pi/governance-mirror/repo/.git/objects`",
+            "`base_commit = bef402ae2c2518961c6abe0d90a1838346e9afb9`",
+            "`9679be2a8ec1c2e4afffd74f9a1924f4588b39f6`",
+            "`bundle_kind = incremental`",
+            "manifest exact schema is version 2",
+            "binary header itself",
+            "limited to 64 KiB",
+            "Only Git\nbundle v2 and v3 are accepted",
+            "duplicate prerequisites",
+            "nonblockingly acquires the same fixed helper lock",
+            "Only after the\nlock is released may the old helper be called",
+            "old helper receives this full bundle and its recomputed SHA-256",
             "`target_commitish`",
             "`O_EXCL|O_NOFOLLOW`",
             "`bundle_cleanup_state_unknown`",
@@ -508,6 +528,11 @@ class DeploymentContractTests(unittest.TestCase):
             "`bundle_cleanup_pending`",
             "`bundle_cleanup_state_unknown`",
             "`receipt_state_uncertain`",
+            "wrong prerequisite that already\nexists in the mirror",
+            "extra and duplicate prerequisites",
+            "over-64-KiB headers",
+            "immediate `already_running`",
+            "released before the old helper starts",
         ):
             self.assertIn(requirement, deployment)
         for command in (

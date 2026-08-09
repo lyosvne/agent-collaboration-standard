@@ -278,12 +278,25 @@ artifacts with `sha256sum` and syntax-check both with `/usr/bin/python3 -m
 py_compile` before atomic `root:root:0755` installation. Release locks only
 after all postconditions pass.
 
-Verify the fixed Release API is anonymously reachable as the sync identity,
-without printing environment or credential material. Use a real published
-`governance-sync-<commit>` tag:
+Before enabling the public helper, strictly verify the existing helper lock as
+the sync identity. It is a shared serialization boundary, not a new public
+helper lock:
 
 ```sh
-tag=governance-sync-<40-lowercase-hex-commit>
+test -f /run/lock/aetheris-governance-sync.lock
+test ! -L /run/lock/aetheris-governance-sync.lock
+test "$(stat -c '%U:%G:%a' /run/lock/aetheris-governance-sync.lock)" = \
+  "pi-governance-sync:pi-governance-sync:600"
+```
+
+Verify the fixed Release API is anonymously reachable as the sync identity,
+without printing environment or credential material. Use a real published
+`governance-sync-v2-<commit>` tag whose schema 2 manifest fixes
+`base_commit=bef402ae2c2518961c6abe0d90a1838346e9afb9` and
+`bundle_kind=incremental`:
+
+```sh
+tag=governance-sync-v2-<40-lowercase-hex-commit>
 sudo -u pi-governance-sync env -i \
   HOME=/nonexistent CURL_HOME=/nonexistent XDG_CONFIG_HOME=/nonexistent \
   PATH=/usr/bin:/bin LANG=C LC_ALL=C \
@@ -297,8 +310,21 @@ sudo -u pi-governance-sync env -i \
 Confirm the deploy identity still cannot execute either helper directly and
 that arbitrary commands, URL/branch/path inputs, uppercase or short commits,
 extra arguments, and shell metacharacters return only `command_rejected`.
-The gate itself does not open incoming; the public helper requires the existing
-effective-ID-owned exact-mode `0700` incoming directory, publishes only
+The gate itself does not open incoming. The public helper requires the existing
+effective-ID-owned exact-mode `0700` incoming directory and the fixed
+effective-ID-owned, non-group/world-writable mirror `.git/objects`. It creates
+its temporary bare repository only under incoming, uses that fixed objects
+directory as its sole alternate, disables ambient Git configuration and all
+network protocols, and reads the downloaded incremental bundle only through
+`file`. Before Git verification it parses no more than 64 KiB of binary bundle
+header, accepts only Git v2/v3, and requires exactly the fixed baseline
+prerequisite (or fixed baseline parent for a baseline target), rejecting
+malformed, duplicate, or extra prerequisites even if the mirror has the
+object. It nonblockingly holds the fixed helper lock across mirror-object
+identity validation, verify, fetch, full-bundle build, and self-contained
+verification, revalidates the mirror objects inode, then releases that lock
+before invoking the old helper. It rebuilds and verifies a full history bundle,
+computes the full SHA-256, publishes only that full bundle as
 `governance.bundle`, and unlinks only the inode it published. A valid existing
 bundle or any existing `.public-release` returns `incoming_busy` and must retain
 the original inode. Hold
@@ -318,7 +344,18 @@ Require dry-run `would_change=false`, apply `status=no-op`, and both responses
 to contain `source_cleanup=clean`. Master, HEAD, work tree, endpoint documents,
 backup count, and receipt count must remain unchanged. After each clean
 response, both `governance.bundle` and `.public-release` must be absent from
-incoming. Inject staging-create, copy, replace, unlink, and directory-fsync
+incoming; no `.public-rebuild-*` directory, temporary bare, alternates file, or
+rebuilt full bundle may remain. Before production, also exercise the baseline
+no-op v2 bundle, a 109 KiB-class v3 increment, a wrong prerequisite that already
+exists in the mirror, extra and duplicate prerequisites, malformed and
+over-64-KiB headers, missing prerequisites, a bundle whose advertised master
+does not equal the request, and full-bundle hash verification. Hold the helper
+lock from a separate process and require immediate `already_running`; verify
+wrong type, symlink, owner, group, or mode is rejected, and prove the lock is
+released before the old helper starts.
+Set ambient `GIT_DIR`, object-directory, alternate-object, config, and `TMPDIR`
+values to hostile paths and verify none is read or modified. Inject
+staging-create, copy, replace, unlink, and directory-fsync
 faults in pre-production and verify only this invocation's matching inode is
 removed. Verify unlink failure reports `source_cleanup=pending` after a
 successful old-helper result, while an identity or fsync uncertainty reports

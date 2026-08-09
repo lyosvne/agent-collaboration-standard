@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import fcntl
 import hashlib
 import json
 import os
@@ -12,22 +13,29 @@ import stat
 import subprocess
 import sys
 import tempfile
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
+from typing import Iterator, Sequence
 
 INCOMING = Path("/var/lib/aetheris-governance-sync/incoming")
 BUNDLE = INCOMING / "governance.bundle"
 STAGING_NAME = ".public-release"
 HELPER = "/usr/local/sbin/aetheris-governance-sync"
+MIRROR_OBJECTS = Path("/opt/pi/governance-mirror/repo/.git/objects")
+LOCK = Path("/run/lock/aetheris-governance-sync.lock")
+GIT = "/usr/bin/git"
 
 RELEASE_API_BASE = (
     "https://api.github.com/repos/lyosvne/"
     "agent-collaboration-standard"
 )
-RELEASE_TAG_PREFIX = "governance-sync-"
+RELEASE_TAG_PREFIX = "governance-sync-v2-"
 MANIFEST_NAME = "governance-sync-manifest.json"
 BUNDLE_NAME = "governance.bundle"
+BASE_COMMIT = "bef402ae2c2518961c6abe0d90a1838346e9afb9"
+BASE_PARENT = "9679be2a8ec1c2e4afffd74f9a1924f4588b39f6"
+BUNDLE_KIND = "incremental"
 
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -40,10 +48,11 @@ SOURCE_CLEANUP_VALUES = {"clean", "pending", "state-unknown"}
 MAX_METADATA_BYTES = 1024 * 1024
 MAX_MANIFEST_BYTES = 16 * 1024
 MAX_BUNDLE_BYTES = 64 * 1024 * 1024
+MAX_BUNDLE_HEADER_BYTES = 64 * 1024
 MAX_HELPER_OUTPUT_BYTES = 16 * 1024
 CURL_CONNECT_TIMEOUT_SECONDS = 10
 CURL_TIMEOUT_SECONDS = 180
-MANIFEST_SCHEMA_VERSION = 1
+MANIFEST_SCHEMA_VERSION = 2
 
 
 class SyncError(RuntimeError):
@@ -243,6 +252,8 @@ def parse_manifest(payload: object, commit: str) -> Manifest:
     if not isinstance(payload, dict) or set(payload) != {
         "schema_version",
         "commit",
+        "base_commit",
+        "bundle_kind",
         "bundle",
     }:
         raise SyncError("manifest_schema_invalid")
@@ -250,6 +261,8 @@ def parse_manifest(payload: object, commit: str) -> Manifest:
     if (
         payload.get("schema_version") != MANIFEST_SCHEMA_VERSION
         or payload.get("commit") != commit
+        or payload.get("base_commit") != BASE_COMMIT
+        or payload.get("bundle_kind") != BUNDLE_KIND
         or not isinstance(bundle, dict)
         or set(bundle) != {"name", "size", "sha256"}
         or bundle.get("name") != BUNDLE_NAME
@@ -289,6 +302,306 @@ def validate_downloaded_asset(path: Path, expected_size: int, expected_sha: str)
         raise SyncError("bundle_size_mismatch")
     if sha256_file(path) != expected_sha:
         raise SyncError("bundle_sha256_mismatch")
+
+
+def validate_bundle_header(path: Path, commit: str) -> None:
+    """Parse the bounded binary bundle header and enforce its sole prerequisite."""
+    prerequisites: list[str] = []
+    advertised: dict[str, str] = {}
+    capabilities: set[bytes] = set()
+    consumed = 0
+    try:
+        with path.open("rb") as stream:
+            signature = stream.readline(MAX_BUNDLE_HEADER_BYTES + 1)
+            consumed += len(signature)
+            if signature not in {b"# v2 git bundle\n", b"# v3 git bundle\n"}:
+                raise ValueError("unsupported signature")
+            version = 2 if signature[3:4] == b"2" else 3
+            saw_record = False
+            while True:
+                remaining = MAX_BUNDLE_HEADER_BYTES - consumed
+                if remaining <= 0:
+                    raise ValueError("header too large")
+                line = stream.readline(remaining + 1)
+                consumed += len(line)
+                if not line or len(line) > remaining or not line.endswith(b"\n"):
+                    raise ValueError("unterminated or oversized header")
+                if line == b"\n":
+                    break
+                body = line[:-1]
+                if (
+                    not body
+                    or b"\x00" in body
+                    or any(value < 0x20 or value > 0x7E for value in body)
+                ):
+                    raise ValueError("non-printable header record")
+                if body.startswith(b"@"):
+                    if version != 3 or saw_record or body in capabilities:
+                        raise ValueError("invalid capability")
+                    if body != b"@object-format=sha1":
+                        raise ValueError("unsupported capability")
+                    capabilities.add(body)
+                    continue
+                saw_record = True
+                if body.startswith(b"-"):
+                    match = re.fullmatch(rb"-([0-9a-f]{40}) ([ -~]+)", body)
+                    if match is None:
+                        raise ValueError("malformed prerequisite")
+                    prerequisite = match.group(1).decode("ascii")
+                    if prerequisite in prerequisites:
+                        raise ValueError("duplicate prerequisite")
+                    prerequisites.append(prerequisite)
+                    continue
+                match = re.fullmatch(
+                    rb"([0-9a-f]{40}) (refs/[A-Za-z0-9._/-]+)", body
+                )
+                if match is None:
+                    raise ValueError("malformed reference")
+                reference = match.group(2).decode("ascii")
+                if (
+                    reference in advertised
+                    or reference.endswith(("/", "."))
+                    or ".." in reference
+                    or "//" in reference
+                    or "@{" in reference
+                    or reference.startswith("refs/.")
+                    or reference.endswith(".lock")
+                ):
+                    raise ValueError("unsafe or duplicate reference")
+                advertised[reference] = match.group(1).decode("ascii")
+            if version == 3 and capabilities != {b"@object-format=sha1"}:
+                raise ValueError("missing object format")
+            if advertised != {"refs/heads/master": commit}:
+                raise ValueError("unexpected advertised reference")
+    except (OSError, ValueError) as exc:
+        raise SyncError("bundle_header_invalid") from exc
+
+    expected = BASE_PARENT if commit == BASE_COMMIT else BASE_COMMIT
+    if prerequisites != [expected]:
+        raise SyncError("bundle_prerequisites_invalid")
+
+
+def _git_environment() -> dict[str, str]:
+    return {
+        "PATH": "/usr/bin:/bin",
+        "HOME": "/nonexistent",
+        "LANG": "C",
+        "LC_ALL": "C",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_TERMINAL_PROMPT": "0",
+        "GIT_ALLOW_PROTOCOL": "file",
+    }
+
+
+def _run_git(
+    arguments: list[str],
+    *,
+    cwd: Path,
+    error_code: str,
+    capture_stdout: bool = False,
+) -> str:
+    argv = [
+        GIT,
+        "-c",
+        "protocol.allow=never",
+        "-c",
+        "protocol.file.allow=always",
+        *arguments,
+    ]
+    try:
+        result = subprocess.run(
+            argv,
+            cwd=cwd,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE if capture_stdout else subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            shell=False,
+            check=False,
+            timeout=CURL_TIMEOUT_SECONDS,
+            env=_git_environment(),
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise SyncError(error_code) from exc
+    if result.returncode != 0:
+        raise SyncError(error_code)
+    output = result.stdout if capture_stdout else ""
+    if len(output.encode("utf-8")) > MAX_HELPER_OUTPUT_BYTES:
+        raise SyncError(error_code)
+    return output
+
+
+@contextmanager
+def exclusive_helper_lock() -> Iterator[None]:
+    flags = (
+        os.O_RDWR
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    fd: int | None = None
+    try:
+        fd = os.open(LOCK, flags)
+        metadata = os.fstat(fd)
+    except OSError as exc:
+        if fd is not None:
+            os.close(fd)
+        raise SyncError("lock_unavailable") from exc
+    if (
+        not stat.S_ISREG(metadata.st_mode)
+        or metadata.st_uid != os.geteuid()
+        or metadata.st_gid != os.getegid()
+        or stat.S_IMODE(metadata.st_mode) != 0o600
+    ):
+        os.close(fd)
+        raise SyncError("lock_unsafe")
+    try:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as exc:
+            raise SyncError("already_running") from exc
+        try:
+            named = os.stat(LOCK, follow_symlinks=False)
+        except OSError as exc:
+            raise SyncError("lock_unsafe") from exc
+        if (
+            not stat.S_ISREG(named.st_mode)
+            or (named.st_dev, named.st_ino) != (metadata.st_dev, metadata.st_ino)
+            or named.st_uid != os.geteuid()
+            or named.st_gid != os.getegid()
+            or stat.S_IMODE(named.st_mode) != 0o600
+        ):
+            raise SyncError("lock_unsafe")
+        yield
+    finally:
+        os.close(fd)
+
+
+def _open_mirror_objects() -> tuple[int, tuple[int, int]]:
+    flags = (
+        os.O_RDONLY
+        | getattr(os, "O_DIRECTORY", 0)
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    fd: int | None = None
+    try:
+        fd = os.open(MIRROR_OBJECTS, flags)
+        metadata = os.fstat(fd)
+    except OSError as exc:
+        if fd is not None:
+            os.close(fd)
+        raise SyncError("mirror_objects_unsafe") from exc
+    if (
+        not stat.S_ISDIR(metadata.st_mode)
+        or metadata.st_uid != os.geteuid()
+        or metadata.st_gid != os.getegid()
+        or stat.S_IMODE(metadata.st_mode) & 0o022
+    ):
+        os.close(fd)
+        raise SyncError("mirror_objects_unsafe")
+    return fd, (metadata.st_dev, metadata.st_ino)
+
+
+def _revalidate_mirror_objects(fd: int, identity: tuple[int, int]) -> None:
+    try:
+        opened = os.fstat(fd)
+        named = os.stat(MIRROR_OBJECTS, follow_symlinks=False)
+    except OSError as exc:
+        raise SyncError("mirror_objects_unsafe") from exc
+    if (
+        not stat.S_ISDIR(opened.st_mode)
+        or not stat.S_ISDIR(named.st_mode)
+        or (opened.st_dev, opened.st_ino) != identity
+        or (named.st_dev, named.st_ino) != identity
+        or opened.st_uid != os.geteuid()
+        or opened.st_gid != os.getegid()
+        or named.st_uid != os.geteuid()
+        or named.st_gid != os.getegid()
+        or stat.S_IMODE(opened.st_mode) & 0o022
+        or stat.S_IMODE(named.st_mode) & 0o022
+    ):
+        raise SyncError("mirror_objects_unsafe")
+
+
+def rebuild_full_bundle(incremental: Path, root: Path, commit: str) -> tuple[Path, str]:
+    with exclusive_helper_lock():
+        validate_bundle_header(incremental, commit)
+        mirror_fd, mirror_identity = _open_mirror_objects()
+        try:
+            repository = root / "repository.git"
+            verifier = root / "verifier.git"
+            full_bundle = root / "full-governance.bundle"
+            _run_git(
+                ["init", "--bare", str(repository)],
+                cwd=root,
+                error_code="bundle_rebuild_failed",
+            )
+
+            alternates = repository / "objects" / "info" / "alternates"
+            try:
+                alternates.write_text(f"{MIRROR_OBJECTS}\n", encoding="utf-8")
+                alternates.chmod(0o600)
+            except OSError as exc:
+                raise SyncError("bundle_rebuild_failed") from exc
+
+            _run_git(
+                ["bundle", "verify", str(incremental)],
+                cwd=repository,
+                error_code="bundle_prerequisite_missing",
+            )
+            advertised = _run_git(
+                ["bundle", "list-heads", str(incremental), "refs/heads/master"],
+                cwd=repository,
+                error_code="bundle_target_invalid",
+                capture_stdout=True,
+            )
+            if advertised != f"{commit} refs/heads/master\n":
+                raise SyncError("bundle_target_invalid")
+            _run_git(
+                [
+                    "fetch",
+                    "--no-tags",
+                    "--no-write-fetch-head",
+                    str(incremental),
+                    "refs/heads/master:refs/heads/master",
+                ],
+                cwd=repository,
+                error_code="bundle_fetch_failed",
+            )
+            resolved = _run_git(
+                ["rev-parse", "refs/heads/master^{commit}"],
+                cwd=repository,
+                error_code="bundle_target_invalid",
+                capture_stdout=True,
+            )
+            if resolved != f"{commit}\n":
+                raise SyncError("bundle_target_invalid")
+            _run_git(
+                ["fsck", "--connectivity-only", "--no-dangling", commit],
+                cwd=repository,
+                error_code="bundle_prerequisite_missing",
+            )
+
+            _run_git(
+                ["bundle", "create", str(full_bundle), "refs/heads/master"],
+                cwd=repository,
+                error_code="bundle_rebuild_failed",
+            )
+            _run_git(
+                ["init", "--bare", str(verifier)],
+                cwd=root,
+                error_code="bundle_rebuild_failed",
+            )
+            _run_git(
+                ["bundle", "verify", str(full_bundle)],
+                cwd=verifier,
+                error_code="bundle_rebuild_failed",
+            )
+            _revalidate_mirror_objects(mirror_fd, mirror_identity)
+            return full_bundle, sha256_file(full_bundle)
+        finally:
+            os.close(mirror_fd)
 
 
 def _open_incoming() -> int:
@@ -626,33 +939,41 @@ def synchronize(request: Request) -> tuple[int, dict[str, object]]:
         validate_downloaded_asset(
             bundle_path, manifest.bundle_size, manifest.bundle_sha256
         )
-        directory_fd, identity = publish_bundle(bundle_path)
-        try:
-            returncode, payload = run_bundle_helper(request, manifest.bundle_sha256)
-        except BaseException as exc:
+        incoming_fd = _open_incoming()
+        os.close(incoming_fd)
+        with tempfile.TemporaryDirectory(
+            prefix=".public-rebuild-", dir=INCOMING
+        ) as rebuild_temporary:
+            full_bundle, full_digest = rebuild_full_bundle(
+                bundle_path, Path(rebuild_temporary), request.commit
+            )
+            directory_fd, identity = publish_bundle(full_bundle)
+            try:
+                returncode, payload = run_bundle_helper(request, full_digest)
+            except BaseException as exc:
+                cleanup = _cleanup_outcome(directory_fd, identity)
+                if cleanup != "clean":
+                    raise SyncError(
+                        "bundle_cleanup_pending"
+                        if cleanup == "pending"
+                        else "bundle_cleanup_state_unknown"
+                    ) from exc
+                raise
             cleanup = _cleanup_outcome(directory_fd, identity)
-            if cleanup != "clean":
-                raise SyncError(
+            if returncode == 0:
+                result = dict(payload)
+                result["source_cleanup"] = cleanup
+                return 0, result
+            if cleanup == "clean":
+                return returncode, payload
+            return 1, {
+                "status": "error",
+                "error_code": (
                     "bundle_cleanup_pending"
                     if cleanup == "pending"
                     else "bundle_cleanup_state_unknown"
-                ) from exc
-            raise
-        cleanup = _cleanup_outcome(directory_fd, identity)
-        if returncode == 0:
-            result = dict(payload)
-            result["source_cleanup"] = cleanup
-            return 0, result
-        if cleanup == "clean":
-            return returncode, payload
-        return 1, {
-            "status": "error",
-            "error_code": (
-                "bundle_cleanup_pending"
-                if cleanup == "pending"
-                else "bundle_cleanup_state_unknown"
-            ),
-        }
+                ),
+            }
 
 
 def main(argv: Sequence[str] | None = None) -> int:

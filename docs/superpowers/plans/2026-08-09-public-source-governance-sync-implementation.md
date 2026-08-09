@@ -5,13 +5,13 @@
 
 ## 完成标准
 
-- push `master` 与 manual target 都产生 commit-bound 完整 bundle 和 canonical
-  manifest。
-- tag 为 `governance-sync-<commit>`，目标可达 canonical master，Release
-  不可覆盖。
+- push `master` 与 manual target 都产生相对固定 baseline 的 commit-bound
+  增量 bundle 和 schema 2 canonical manifest。
+- tag 为 `governance-sync-v2-<commit>`；baseline 固定为
+  `bef402ae2c2518961c6abe0d90a1838346e9afb9`，且必须是目标祖先。
 - ECS 匿名访问固定 `api.github.com` release/tag 与 asset-ID endpoint。
-- Public helper 校验 metadata、exact manifest、size、SHA-256 后原子发布固定
-  incoming bundle。
+- Public helper 校验 metadata、schema 2、size、增量 SHA-256 后，以固定 mirror
+  objects alternates 离线重建 full bundle，再原子发布固定 incoming bundle。
 - Public helper 使用固定 argv 调用旧 bundle helper并在 finally 清理。
 - `sync-public` gate、legacy bundle 通道、sudoers、tmpfiles 和治理正文不变。
 - publisher、攻击、故障、cleanup、relay、contract/deploy 测试全部通过。
@@ -26,12 +26,13 @@
 3. 使用完整 40-hex SHA pin `actions/checkout`，checkout master、全历史、
    `persist-credentials: false`。
 4. push 选择 `github.sha`，manual 选择输入；验证精确小写 commit。
-5. 验证 target 是 commit 且 `merge-base --is-ancestor target origin/master`。
-6. 将本地 master ref 指向 target，创建完整 `governance.bundle` 并 verify。
-7. 生成 sorted/compact canonical manifest，包含 exact schema version、
-   commit、bundle name/size/SHA-256。
+5. 验证 target 是 commit、可达 origin/master，且固定 baseline 是 target 祖先。
+6. 将本地 master ref 指向 target；target 等于 baseline 时排除 `target^`，
+   否则排除 baseline；创建增量 `governance.bundle` 并 verify。
+7. 生成 sorted/compact schema 2 manifest，包含固定 `base_commit`、
+   `bundle_kind=incremental`、commit 与增量 bundle name/size/SHA-256。
 8. GET release-by-tag；只有 404 才创建。
-9. 创建 target-bound `governance-sync-<commit>` draft Release。
+9. 创建 target-bound `governance-sync-v2-<commit>` draft Release。
 10. 只上传并验证 `governance-sync-manifest.json` 与 `governance.bundle`。
 11. 只允许一次 draft→published PATCH；发布后验证 `immutable=true` 和锁定后的
     tag ref。禁止修改 tag/target/assets/name，禁止 DELETE、clobber、复用或覆盖。
@@ -56,9 +57,18 @@ bundle、manifest、tag、404 create-only 和 asset allowlist。
 3. JSON duplicate-key rejection。
 4. 只提取并验证 `tag_name`、`target_commitish` 和 asset name/id/size。
 5. 忽略 metadata URL，自行用 asset ID 构造固定 API URL。
-6. 先下载 manifest，验证 exact schema 与 commit。
+6. 先下载 manifest，验证 schema 2、固定 baseline、incremental kind 与 commit。
 7. 校验 manifest size 等于 metadata size。
-8. 下载 bundle，并校验 metadata size、actual size 和 SHA-256 三者一致。
+8. 下载增量 bundle，并校验 metadata size、actual size 和 SHA-256 三者一致。
+
+### Full bundle 重建
+
+1. 在固定 incoming 下创建 helper-owned 临时目录与 bare 仓，不接受路径输入。
+2. 验证固定 mirror `.git/objects` owner/group/mode，并写入 bare alternates。
+3. 清除 ambient Git 配置和对象目录变量，禁止所有协议，仅开放本地 `file`。
+4. verify 增量 bundle，要求 `refs/heads/master` 精确指向请求 target。
+5. 只从本地 bundle fetch exact master，检查 commit 与对象连通性。
+6. 创建 full bundle，在无 alternates 的空 bare 中 verify，并计算 full SHA-256。
 
 ### Incoming 发布
 
@@ -77,7 +87,7 @@ bundle、manifest、tag、404 create-only 和 asset allowlist。
 /usr/local/sbin/aetheris-governance-sync
 --bundle /var/lib/aetheris-governance-sync/incoming/governance.bundle
 --commit <commit>
---sha256 <sha256>
+--sha256 <rebuilt-full-sha256>
 [--dry-run]
 ```
 
@@ -88,7 +98,8 @@ schema；所有其他 stdout/stderr 收敛为稳定 public helper error。
 
 成功、helper failure、JSON failure 和中断路径都进入 finally。只有固定 bundle
 仍对应 published device/inode 时才 unlink 并 fsync；替换 inode 不删除并报告
-不确定状态。TemporaryDirectory 自动清理 metadata、manifest 与下载 bundle。
+不确定状态。TemporaryDirectory 自动清理 metadata、manifest、增量 bundle、
+临时 bare、alternates 与 full bundle。
 
 ## 阶段三：Gate、contract 与 deployment
 
@@ -122,9 +133,9 @@ existing helper relay。
 - 仅 push master/manual target。
 - contents write。
 - checkout 固定 commit SHA。
-- target commit 与 master reachability。
-- 完整 master bundle与 verify。
-- canonical exact manifest。
+- target commit、master reachability 与 baseline ancestry。
+- baseline no-op 的 `target^` 排除分支和增量 master bundle verify。
+- schema 2 canonical exact manifest。
 - tag/target 绑定、404-only create。
 - 无 overwrite/delete/clobber。
 
@@ -136,6 +147,8 @@ existing helper relay。
 - duplicate JSON key、extra manifest key。
 - wrong commit/name/size/hash。
 - curl 非固定 URL、timeout、oversize、ambient token/proxy/config。
+- 109 KiB 级增量、missing prerequisite、恶意 target/ref。
+- ambient Git/object/config/temp 输入不能覆盖固定 alternates 或临时仓。
 - incoming symlink、unsafe mode、staging collision、inode replacement。
 - helper traceback、multiple JSON、extra fields、非法 receipt/ref。
 
@@ -145,6 +158,7 @@ existing helper relay。
 - helper success/failure 后 fixed bundle 均清理。
 - replaced bundle inode 不被 unlink。
 - fixed helper argv、closed stdin、no shell。
+- full bundle 包含 target 完整历史，且 helper 接收重建后的 full SHA。
 - dry-run/no-op/applied/error exact relay。
 - Gate public 与 legacy command 共享 lock，public gate 本身不打开 incoming。
 
