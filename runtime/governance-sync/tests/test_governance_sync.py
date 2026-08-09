@@ -13,6 +13,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
@@ -26,6 +27,14 @@ REAL_READER_TEST = (
 )
 REAL_READER_METHOD = REAL_READER_TEST.split(".", 1)[1]
 REAL_READER_SUDO_ENV = "GOVERNANCE_SYNC_READER_TEST_UNDER_SUDO"
+GIT_TEST_CONFIG = (
+    "-c",
+    "maintenance.auto=false",
+    "-c",
+    "gc.auto=0",
+)
+TEMP_CLEANUP_ATTEMPTS = 5
+TEMP_CLEANUP_RETRY_SECONDS = 0.05
 SPEC = importlib.util.spec_from_loader(
     "governance_sync",
     SourceFileLoader("governance_sync", str(MODULE_PATH)),
@@ -47,7 +56,7 @@ def run_git(cwd: Path, *args: str) -> str:
         }
     )
     result = subprocess.run(
-        ["git", *args],
+        ["git", *GIT_TEST_CONFIG, *args],
         cwd=cwd,
         env=env,
         check=True,
@@ -56,6 +65,18 @@ def run_git(cwd: Path, *args: str) -> str:
         stderr=subprocess.PIPE,
     )
     return result.stdout.strip()
+
+
+def cleanup_temporary_directory(temp: tempfile.TemporaryDirectory[str]) -> None:
+    for attempt in range(TEMP_CLEANUP_ATTEMPTS):
+        try:
+            temp.cleanup()
+            return
+        except OSError as exc:
+            retryable = sys.platform.startswith("linux") and exc.errno == errno.ENOTEMPTY
+            if not retryable or attempt == TEMP_CLEANUP_ATTEMPTS - 1:
+                raise
+            time.sleep(TEMP_CLEANUP_RETRY_SECONDS)
 
 
 class CliValidationTests(unittest.TestCase):
@@ -186,6 +207,33 @@ class CliValidationTests(unittest.TestCase):
         ):
             getattr(test, REAL_READER_METHOD)()
 
+    def test_linux_enotempty_cleanup_retries_with_a_strict_bound(self) -> None:
+        failure = OSError(errno.ENOTEMPTY, "directory not empty")
+        temp = mock.Mock()
+        temp.cleanup.side_effect = [failure] * TEMP_CLEANUP_ATTEMPTS
+        with (
+            mock.patch.object(sys, "platform", "linux"),
+            mock.patch.object(time, "sleep") as sleep,
+            self.assertRaises(OSError) as caught,
+        ):
+            cleanup_temporary_directory(temp)
+        self.assertIs(failure, caught.exception)
+        self.assertEqual(TEMP_CLEANUP_ATTEMPTS, temp.cleanup.call_count)
+        self.assertEqual(TEMP_CLEANUP_ATTEMPTS - 1, sleep.call_count)
+
+    def test_cleanup_does_not_retry_other_errors(self) -> None:
+        failure = OSError(errno.EACCES, "permission denied")
+        temp = mock.Mock()
+        temp.cleanup.side_effect = failure
+        with (
+            mock.patch.object(time, "sleep") as sleep,
+            self.assertRaises(OSError) as caught,
+        ):
+            cleanup_temporary_directory(temp)
+        self.assertIs(failure, caught.exception)
+        temp.cleanup.assert_called_once_with()
+        sleep.assert_not_called()
+
 
 class BundleSafetyTests(unittest.TestCase):
     def test_hash_rejects_symlink(self) -> None:
@@ -218,11 +266,15 @@ class IntegrationTests(unittest.TestCase):
         self.source.mkdir()
         self.bundle.parent.mkdir()
         run_git(self.source, "init", "-q", "-b", "master")
+        run_git(self.source, "config", "maintenance.auto", "false")
+        run_git(self.source, "config", "gc.auto", "0")
         (self.source / "truth.txt").write_text("old\n", encoding="utf-8")
         run_git(self.source, "add", "truth.txt")
         run_git(self.source, "commit", "-q", "-m", "old")
         self.old_commit = run_git(self.source, "rev-parse", "HEAD")
         run_git(self.source, "clone", "-q", str(self.source), str(self.mirror))
+        run_git(self.mirror, "config", "maintenance.auto", "false")
+        run_git(self.mirror, "config", "gc.auto", "0")
         (self.source / "truth.txt").write_text("new\n", encoding="utf-8")
         run_git(self.source, "commit", "-q", "-am", "new")
         self.new_commit = run_git(self.source, "rev-parse", "HEAD")
@@ -241,7 +293,7 @@ class IntegrationTests(unittest.TestCase):
         self.paths.start()
     def tearDown(self) -> None:
         self.paths.stop()
-        self.temp.cleanup()
+        cleanup_temporary_directory(self.temp)
 
     def test_dry_run_validates_without_persistent_artifacts(self) -> None:
         request = sync.Request(self.bundle, self.new_commit, self.digest, True)
@@ -691,6 +743,7 @@ class IntegrationTests(unittest.TestCase):
                     object_type = subprocess.run(
                         [
                             "git",
+                            *GIT_TEST_CONFIG,
                             "-c",
                             f"safe.directory={self.mirror}",
                             "cat-file",
