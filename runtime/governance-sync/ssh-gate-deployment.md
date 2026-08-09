@@ -278,23 +278,30 @@ artifacts with `sha256sum` and syntax-check both with `/usr/bin/python3 -m
 py_compile` before atomic `root:root:0755` installation. Release locks only
 after all postconditions pass.
 
-Verify the fixed public source is anonymously reachable as the sync identity,
-without printing environment or credential material:
+Verify the fixed Release API is anonymously reachable as the sync identity,
+without printing environment or credential material. Use a real published
+`governance-sync-<commit>` tag:
 
 ```sh
+tag=governance-sync-<40-lowercase-hex-commit>
 sudo -u pi-governance-sync env -i \
-  HOME=/nonexistent PATH=/usr/bin:/bin GIT_CONFIG_NOSYSTEM=1 \
-  GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0 \
-  /usr/bin/git -c credential.helper= -c http.extraHeader= \
-  ls-remote --exit-code \
-  https://github.com/lyosvne/agent-collaboration-standard.git \
-  refs/heads/master >/dev/null
+  HOME=/nonexistent CURL_HOME=/nonexistent XDG_CONFIG_HOME=/nonexistent \
+  PATH=/usr/bin:/bin LANG=C LC_ALL=C \
+  /usr/bin/curl --disable --config /dev/null --fail --silent --show-error \
+  --proto '=https' --proto-redir '=https' --tlsv1.2 \
+  --connect-timeout 10 --max-time 30 --proxy '' \
+  "https://api.github.com/repos/lyosvne/agent-collaboration-standard/releases/tags/$tag" \
+  >/dev/null
 ```
 
 Confirm the deploy identity still cannot execute either helper directly and
 that arbitrary commands, URL/branch/path inputs, uppercase or short commits,
 extra arguments, and shell metacharacters return only `command_rejected`.
-Neither public command may open or require incoming. Hold
+The gate itself does not open incoming; the public helper requires the existing
+effective-ID-owned exact-mode `0700` incoming directory, publishes only
+`governance.bundle`, and unlinks only the inode it published. A valid existing
+bundle or any existing `.public-release` returns `incoming_busy` and must retain
+the original inode. Hold
 `/run/aetheris-governance-sync/gate.lock` and verify public and legacy
 commands both return `already_running`.
 
@@ -307,13 +314,20 @@ ssh GOVERNANCE_HOST "sync-public $current dry-run"
 ssh GOVERNANCE_HOST "sync-public $current apply"
 ```
 
-Require dry-run `would_change=false` and apply `status=no-op`. Master, HEAD,
-work tree, endpoint documents, backup count, and receipt count must remain
-unchanged; `refs/aetheris-governance-sync/operations/` must be empty. Re-run a
-legacy gate smoke test under the same lock contract. On any failure before the
-workflow migration, reacquire gate then helper lock, verify installed hashes
-against the deployment record, atomically restore the old gate/public helper,
-and repeat forced-command rejection and legacy smoke checks. Never retry an
-apply after `receipt_state_uncertain`; isolate the service and inspect mirror,
-receipt, and immutable backup state. A `rollback_failed` also requires
-isolation and manual expected-old CAS recovery from the recorded backup ref.
+Require dry-run `would_change=false`, apply `status=no-op`, and both responses
+to contain `source_cleanup=clean`. Master, HEAD, work tree, endpoint documents,
+backup count, and receipt count must remain unchanged. After each clean
+response, both `governance.bundle` and `.public-release` must be absent from
+incoming. Inject staging-create, copy, replace, unlink, and directory-fsync
+faults in pre-production and verify only this invocation's matching inode is
+removed. Verify unlink failure reports `source_cleanup=pending` after a
+successful old-helper result, while an identity or fsync uncertainty reports
+`source_cleanup=state-unknown`; the three successful gate schemas must reject
+missing or non-enum values. Re-run a legacy gate smoke test under the same lock
+contract. On any failure before workflow migration, reacquire gate then helper
+lock, verify installed hashes against the deployment record, atomically restore
+the old gate/public helper, and repeat forced-command rejection and legacy
+smoke checks. `bundle_cleanup_pending`, `bundle_cleanup_state_unknown`,
+`receipt_state_uncertain`, and `rollback_failed` prohibit automatic apply
+retry; isolate the service and inspect incoming, mirror, receipt, and immutable
+backup state.

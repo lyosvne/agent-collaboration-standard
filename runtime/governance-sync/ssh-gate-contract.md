@@ -89,8 +89,12 @@ For the five legacy commands, while holding that lock, the gate opens the fixed
 incoming directory with
 `O_DIRECTORY|O_NOFOLLOW` and validates that it is owned by the gate's
 effective UID and GID and uses exact mode `0700`.
-The two `sync-public` forms hold the same root-owned gate lock but never open,
-validate, read, or modify incoming.
+The two `sync-public` forms hold the same root-owned gate lock. The gate itself
+does not open incoming; the fixed public helper atomically publishes the
+verified Release bundle there. A valid existing bundle or any existing
+`.public-release` staging name returns `incoming_busy` without changing that
+inode. The helper cleanup unlinks only its recorded published inode and reports
+the outcome in `source_cleanup`.
 
 ## Upload transaction
 
@@ -229,9 +233,17 @@ It again closes stdin, uses `shell=False`, and supplies no SSH command text or
 ambient URL, branch, path, or credential value. The public helper's error JSON
 must contain exactly `status=error` and a stable `error_code`. Successful
 dry-run JSON must contain exactly `status`, `before_commit`, `commit`,
-`remote_master`, and boolean `would_change`, with `would_change` agreeing with
-the two commits. No-op additionally requires equal requested/before commits
-and a null backup. Applied JSON requires the requested commit, a full remote
-master, a receipt basename, and a backup in the fixed namespace. Unexpected
-fields, malformed values, mixed output streams, multiple JSON values, raw
-stderr, URLs, or tracebacks are replaced by a stable gate error.
+the manifest `sha256`, boolean `would_change`, and `source_cleanup`, with
+`would_change` agreeing with the two commits. No-op requires exactly `status`,
+`commit`, `before_commit`, `backup_ref`, and `source_cleanup`, with equal
+requested/before commits and a null backup. Applied requires exactly `status`,
+`commit`, `receipt`, `backup_ref`, and `source_cleanup`, with a receipt basename
+and backup in the fixed namespace. For all three schemas `source_cleanup` must
+be exactly one of `clean`, `pending`, or `state-unknown`; a missing, additional,
+or other value is rejected. The public helper adds that field to a validated
+zero-exit one of the three unchanged bundle helper schemas. A validated
+nonzero old-helper error
+is unchanged only after `clean`; otherwise the public helper emits
+`bundle_cleanup_pending` or `bundle_cleanup_state_unknown`. Unexpected fields,
+malformed values, mixed output streams, multiple JSON values, raw stderr, URLs,
+or tracebacks are replaced by a stable gate error.

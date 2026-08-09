@@ -1,11 +1,10 @@
 #!/usr/bin/python3 -I
-"""Fail-closed fixed-public-source installer for the ECS governance mirror."""
+"""Install a governance bundle from one fixed anonymous GitHub Release."""
 
 from __future__ import annotations
 
 import argparse
-import datetime as dt
-import fcntl
+import hashlib
 import json
 import os
 import re
@@ -13,42 +12,51 @@ import stat
 import subprocess
 import sys
 import tempfile
-import uuid
-from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator, Sequence
+from typing import Sequence
 
-MIRROR = Path("/opt/pi/governance-mirror/repo")
-LOCK = Path("/run/lock/aetheris-governance-sync.lock")
-RECEIPTS = Path("/var/lib/aetheris-governance-sync/receipts")
+INCOMING = Path("/var/lib/aetheris-governance-sync/incoming")
+BUNDLE = INCOMING / "governance.bundle"
+STAGING_NAME = ".public-release"
+HELPER = "/usr/local/sbin/aetheris-governance-sync"
 
-PUBLIC_REMOTE = "https://github.com/lyosvne/agent-collaboration-standard.git"
-PUBLIC_PROTOCOL = "https"
-REMOTE_URL_ID = "governance-public-origin-v1"
-MASTER_REF = "refs/heads/master"
-BACKUP_NAMESPACE = "refs/aetheris-governance-sync/backups"
-OPERATION_NAMESPACE = "refs/aetheris-governance-sync/operations"
-FETCH_NAMESPACE = "refs/aetheris-governance-sync/fetch"
-ZERO_OID = "0" * 40
+RELEASE_API_BASE = (
+    "https://api.github.com/repos/lyosvne/"
+    "agent-collaboration-standard"
+)
+RELEASE_TAG_PREFIX = "governance-sync-"
+MANIFEST_NAME = "governance-sync-manifest.json"
+BUNDLE_NAME = "governance.bundle"
+
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
-GIT_TIMEOUT_SECONDS = 120
-RECEIPT_VERSION = 1
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+ERROR_CODE_RE = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
+RECEIPT_RE = re.compile(r"^[A-Za-z0-9._-]{1,255}\.receipt\.json$")
+BACKUP_REF_RE = re.compile(
+    r"^refs/aetheris-governance-sync/backups/[A-Za-z0-9._-]{1,255}$"
+)
+SOURCE_CLEANUP_VALUES = {"clean", "pending", "state-unknown"}
+MAX_METADATA_BYTES = 1024 * 1024
+MAX_MANIFEST_BYTES = 16 * 1024
+MAX_BUNDLE_BYTES = 64 * 1024 * 1024
+MAX_HELPER_OUTPUT_BYTES = 16 * 1024
+CURL_CONNECT_TIMEOUT_SECONDS = 10
+CURL_TIMEOUT_SECONDS = 180
+MANIFEST_SCHEMA_VERSION = 1
 
 
 class SyncError(RuntimeError):
-    """Expected, sanitized failure."""
+    """Expected sanitized failure."""
 
-    def __init__(self, code: str, message: str):
-        super().__init__(message)
+    def __init__(self, code: str):
+        super().__init__(code)
         self.code = code
 
 
 class JsonArgumentParser(argparse.ArgumentParser):
-    """Turn every CLI contract failure into the helper's single JSON error."""
-
     def error(self, message: str) -> None:
-        raise SyncError("invalid_arguments", "command line does not match the contract")
+        raise SyncError("invalid_arguments")
 
 
 @dataclass(frozen=True)
@@ -58,22 +66,17 @@ class Request:
 
 
 @dataclass(frozen=True)
-class MirrorState:
+class Asset:
+    name: str
+    asset_id: int
+    size: int
+
+
+@dataclass(frozen=True)
+class Manifest:
     commit: str
-    branch: str
-    mirror_identity: tuple[int, int]
-    git_identity: tuple[int, int]
-    config_identity: tuple[int, int]
-
-
-def utc_now() -> str:
-    return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
-
-
-def establish_process_security() -> None:
-    os.umask(0o027)
-    if os.geteuid() == 0:
-        raise SyncError("root_execution_forbidden", "helper must not run as root")
+    bundle_size: int
+    bundle_sha256: str
 
 
 def parse_args(argv: Sequence[str] | None = None) -> Request:
@@ -81,481 +84,257 @@ def parse_args(argv: Sequence[str] | None = None) -> Request:
         prog="aetheris-governance-sync-public",
         allow_abbrev=False,
         add_help=False,
-        description="Update the fixed governance mirror from its fixed public source.",
     )
-    parser.add_argument("--commit", required=True, metavar="40_HEX")
+    parser.add_argument("--commit", required=True)
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--dry-run", action="store_true")
     mode.add_argument("--apply", action="store_true")
     ns = parser.parse_args(argv)
     if not COMMIT_RE.fullmatch(ns.commit):
-        parser.error("--commit must be exactly 40 lowercase hexadecimal characters")
-    return Request(commit=ns.commit, dry_run=ns.dry_run)
+        parser.error("invalid commit")
+    return Request(ns.commit, ns.dry_run)
 
 
-def git(
-    *args: str,
-    cwd: Path,
-    check: bool = True,
-    timeout: int = GIT_TIMEOUT_SECONDS,
-) -> subprocess.CompletedProcess[str]:
-    """Run a fixed Git executable without ambient credentials or configuration."""
-    env = {
-        "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+def establish_process_security() -> None:
+    os.umask(0o027)
+    if os.geteuid() == 0:
+        raise SyncError("root_execution_forbidden")
+
+
+def _curl_environment() -> dict[str, str]:
+    return {
+        "PATH": "/usr/bin:/bin",
         "HOME": "/nonexistent",
+        "CURL_HOME": "/nonexistent",
+        "XDG_CONFIG_HOME": "/nonexistent",
         "LANG": "C",
         "LC_ALL": "C",
-        "GIT_CONFIG_NOSYSTEM": "1",
-        "GIT_CONFIG_GLOBAL": "/dev/null",
-        "GIT_TERMINAL_PROMPT": "0",
-        "GIT_ASKPASS": "/bin/false",
-        "SSH_ASKPASS": "/bin/false",
     }
-    fixed_config = (
-        "-c",
-        "core.hooksPath=/dev/null",
-        "-c",
-        "init.templateDir=",
-        "-c",
-        "maintenance.auto=false",
-        "-c",
-        "credential.helper=",
-        "-c",
-        "http.extraHeader=",
-        "-c",
-        "protocol.allow=never",
-    )
+
+
+def download(url: str, destination: Path, maximum: int, *, asset: bool) -> None:
+    if not url.startswith(f"{RELEASE_API_BASE}/"):
+        raise SyncError("download_url_invalid")
+    argv = [
+        "/usr/bin/curl",
+        "--disable",
+        "--config",
+        "/dev/null",
+        "--fail",
+        "--silent",
+        "--show-error",
+        "--location",
+        "--max-redirs",
+        "3",
+        "--proto",
+        "=https",
+        "--proto-redir",
+        "=https",
+        "--tlsv1.2",
+        "--connect-timeout",
+        str(CURL_CONNECT_TIMEOUT_SECONDS),
+        "--max-time",
+        str(CURL_TIMEOUT_SECONDS),
+        "--max-filesize",
+        str(maximum),
+        "--proxy",
+        "",
+        "--header",
+        "Accept: application/octet-stream" if asset else "Accept: application/vnd.github+json",
+        "--header",
+        "X-GitHub-Api-Version: 2022-11-28",
+        "--user-agent",
+        "aetheris-governance-sync-public/1",
+        "--output",
+        str(destination),
+        url,
+    ]
     try:
         result = subprocess.run(
-            ["/usr/bin/git", *fixed_config, *args],
-            cwd=cwd,
-            env=env,
+            argv,
             stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
-            text=True,
-            timeout=timeout,
-            check=False,
+            text=False,
             shell=False,
+            check=False,
+            timeout=CURL_TIMEOUT_SECONDS + 5,
+            env=_curl_environment(),
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
-        raise SyncError("git_execution_failed", "git command could not complete") from exc
-    if check and result.returncode != 0:
-        raise SyncError("git_validation_failed", "git rejected the repository or operation")
+        raise SyncError("download_failed") from exc
+    if result.returncode != 0:
+        raise SyncError("download_failed")
+    try:
+        metadata = destination.lstat()
+    except OSError as exc:
+        raise SyncError("download_failed") from exc
+    if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > maximum:
+        raise SyncError("download_size_invalid")
+
+
+def _unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON key")
+        result[key] = value
     return result
 
 
-def _owned_directory(path: Path, *, code: str) -> tuple[Path, os.stat_result]:
+def read_json(path: Path, maximum: int, error_code: str) -> object:
+    try:
+        raw = path.read_bytes()
+        if not raw or len(raw) > maximum:
+            raise ValueError("invalid size")
+        return json.loads(raw, object_pairs_hook=_unique_object)
+    except (OSError, UnicodeError, ValueError, json.JSONDecodeError) as exc:
+        raise SyncError(error_code) from exc
+
+
+def parse_release_metadata(payload: object, commit: str) -> dict[str, Asset]:
+    tag = f"{RELEASE_TAG_PREFIX}{commit}"
+    if not isinstance(payload, dict):
+        raise SyncError("release_metadata_invalid")
+    if (
+        payload.get("tag_name") != tag
+        or payload.get("target_commitish") != commit
+        or payload.get("draft") is not False
+        or payload.get("prerelease") is not False
+        or payload.get("immutable") is not True
+    ):
+        raise SyncError("release_identity_mismatch")
+    raw_assets = payload.get("assets")
+    if not isinstance(raw_assets, list):
+        raise SyncError("release_metadata_invalid")
+    selected: dict[str, Asset] = {}
+    for raw in raw_assets:
+        if not isinstance(raw, dict):
+            raise SyncError("release_metadata_invalid")
+        name = raw.get("name")
+        asset_id = raw.get("id")
+        size = raw.get("size")
+        if name not in {MANIFEST_NAME, BUNDLE_NAME}:
+            continue
+        if (
+            name in selected
+            or isinstance(asset_id, bool)
+            or not isinstance(asset_id, int)
+            or asset_id <= 0
+            or isinstance(size, bool)
+            or not isinstance(size, int)
+            or size <= 0
+        ):
+            raise SyncError("release_metadata_invalid")
+        limit = MAX_MANIFEST_BYTES if name == MANIFEST_NAME else MAX_BUNDLE_BYTES
+        if size > limit:
+            raise SyncError("release_asset_size_invalid")
+        selected[name] = Asset(name, asset_id, size)
+    if set(selected) != {MANIFEST_NAME, BUNDLE_NAME}:
+        raise SyncError("release_assets_missing")
+    return selected
+
+
+def asset_api_url(asset: Asset) -> str:
+    return f"{RELEASE_API_BASE}/releases/assets/{asset.asset_id}"
+
+
+def parse_manifest(payload: object, commit: str) -> Manifest:
+    if not isinstance(payload, dict) or set(payload) != {
+        "schema_version",
+        "commit",
+        "bundle",
+    }:
+        raise SyncError("manifest_schema_invalid")
+    bundle = payload.get("bundle")
+    if (
+        payload.get("schema_version") != MANIFEST_SCHEMA_VERSION
+        or payload.get("commit") != commit
+        or not isinstance(bundle, dict)
+        or set(bundle) != {"name", "size", "sha256"}
+        or bundle.get("name") != BUNDLE_NAME
+    ):
+        raise SyncError("manifest_schema_invalid")
+    size = bundle.get("size")
+    digest = bundle.get("sha256")
+    if (
+        isinstance(size, bool)
+        or not isinstance(size, int)
+        or size <= 0
+        or size > MAX_BUNDLE_BYTES
+        or not isinstance(digest, str)
+        or SHA256_RE.fullmatch(digest) is None
+    ):
+        raise SyncError("manifest_schema_invalid")
+    return Manifest(commit, size, digest)
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    try:
+        with path.open("rb") as stream:
+            while block := stream.read(1024 * 1024):
+                digest.update(block)
+    except OSError as exc:
+        raise SyncError("bundle_read_failed") from exc
+    return digest.hexdigest()
+
+
+def validate_downloaded_asset(path: Path, expected_size: int, expected_sha: str) -> None:
     try:
         metadata = path.lstat()
-        resolved = path.resolve(strict=True)
-        resolved_metadata = resolved.lstat()
     except OSError as exc:
-        raise SyncError(code, "required directory is unavailable") from exc
-    if (
-        stat.S_ISLNK(metadata.st_mode)
-        or not stat.S_ISDIR(metadata.st_mode)
-        or metadata.st_uid != os.geteuid()
-        or metadata.st_gid != os.getegid()
-        or metadata.st_mode & 0o022
-        or not stat.S_ISDIR(resolved_metadata.st_mode)
-        or (metadata.st_dev, metadata.st_ino)
-        != (resolved_metadata.st_dev, resolved_metadata.st_ino)
-    ):
-        raise SyncError(code, "directory ownership, mode, or identity is unsafe")
-    return resolved, metadata
+        raise SyncError("bundle_read_failed") from exc
+    if not stat.S_ISREG(metadata.st_mode) or metadata.st_size != expected_size:
+        raise SyncError("bundle_size_mismatch")
+    if sha256_file(path) != expected_sha:
+        raise SyncError("bundle_sha256_mismatch")
 
 
-def _owned_regular_file(
-    path: Path,
-    *,
-    parent: Path,
-    code: str,
-) -> os.stat_result:
-    try:
-        metadata = path.lstat()
-        resolved = path.resolve(strict=True)
-        resolved.relative_to(parent)
-        resolved_metadata = resolved.lstat()
-    except (OSError, ValueError) as exc:
-        raise SyncError(code, "required file is unavailable or escapes its directory") from exc
-    if (
-        stat.S_ISLNK(metadata.st_mode)
-        or not stat.S_ISREG(metadata.st_mode)
-        or metadata.st_uid != os.geteuid()
-        or metadata.st_gid != os.getegid()
-        or metadata.st_mode & 0o022
-        or not stat.S_ISREG(resolved_metadata.st_mode)
-        or (metadata.st_dev, metadata.st_ino)
-        != (resolved_metadata.st_dev, resolved_metadata.st_ino)
-    ):
-        raise SyncError(code, "file ownership, mode, or identity is unsafe")
-    return metadata
-
-
-def validate_mirror() -> MirrorState:
-    mirror_real, mirror_metadata = _owned_directory(MIRROR, code="mirror_unsafe")
-    git_path = MIRROR / ".git"
-    git_real, git_metadata = _owned_directory(git_path, code="mirror_gitdir_invalid")
-    try:
-        git_real.relative_to(mirror_real)
-    except ValueError as exc:
-        raise SyncError("mirror_gitdir_escape", "mirror git directory escapes mirror") from exc
-    config_metadata = _owned_regular_file(
-        git_path / "config",
-        parent=git_real,
-        code="mirror_config_unsafe",
-    )
-    if git("rev-parse", "--is-inside-work-tree", cwd=MIRROR).stdout.strip() != "true":
-        raise SyncError("mirror_not_repository", "fixed mirror is not a Git work tree")
-    reported = git(
-        "rev-parse", "--path-format=absolute", "--git-dir", cwd=MIRROR
-    ).stdout.strip()
-    try:
-        reported_git_dir = Path(reported).resolve(strict=True)
-    except OSError as exc:
-        raise SyncError("mirror_gitdir_invalid", "mirror git directory is invalid") from exc
-    if reported_git_dir != git_real:
-        raise SyncError("mirror_gitdir_escape", "Git selected a directory outside the mirror")
-    if git(
-        "status", "--porcelain=v1", "--untracked-files=all", cwd=MIRROR
-    ).stdout:
-        raise SyncError("mirror_dirty", "mirror work tree must be completely clean")
-    commit = git("rev-parse", "--verify", "HEAD^{commit}", cwd=MIRROR).stdout.strip()
-    if not COMMIT_RE.fullmatch(commit):
-        raise SyncError("mirror_head_invalid", "mirror HEAD is not a full commit")
-    branch_result = git(
-        "symbolic-ref", "--quiet", "--short", "HEAD", cwd=MIRROR, check=False
-    )
-    branch = branch_result.stdout.strip() if branch_result.returncode == 0 else ""
-    if branch != "master":
-        raise SyncError(
-            "mirror_not_attached_master",
-            "mirror HEAD must be attached to the master branch",
-        )
-
-    mirror_after, mirror_after_metadata = _owned_directory(MIRROR, code="mirror_changed")
-    git_after, git_after_metadata = _owned_directory(git_path, code="mirror_changed")
-    config_after_metadata = _owned_regular_file(
-        git_path / "config",
-        parent=git_after,
-        code="mirror_changed",
-    )
-    before_identities = (
-        (mirror_metadata.st_dev, mirror_metadata.st_ino),
-        (git_metadata.st_dev, git_metadata.st_ino),
-        (config_metadata.st_dev, config_metadata.st_ino),
-    )
-    after_identities = (
-        (mirror_after_metadata.st_dev, mirror_after_metadata.st_ino),
-        (git_after_metadata.st_dev, git_after_metadata.st_ino),
-        (config_after_metadata.st_dev, config_after_metadata.st_ino),
-    )
-    if mirror_after != mirror_real or git_after != git_real or after_identities != before_identities:
-        raise SyncError("mirror_changed", "mirror changed during validation")
-    return MirrorState(
-        commit=commit,
-        branch=branch,
-        mirror_identity=before_identities[0],
-        git_identity=before_identities[1],
-        config_identity=before_identities[2],
-    )
-
-
-@contextmanager
-def exclusive_lock() -> Iterator[None]:
+def _open_incoming() -> int:
     flags = (
-        os.O_RDWR
-        | os.O_CREAT
+        os.O_RDONLY
+        | getattr(os, "O_DIRECTORY", 0)
         | getattr(os, "O_CLOEXEC", 0)
         | getattr(os, "O_NOFOLLOW", 0)
     )
     try:
-        fd = os.open(LOCK, flags, 0o600)
+        fd = os.open(INCOMING, flags)
         metadata = os.fstat(fd)
-        if not stat.S_ISREG(metadata.st_mode):
-            os.close(fd)
-            raise SyncError("lock_not_regular", "lock must be a regular file")
-        if (
-            metadata.st_uid != os.geteuid()
-            or metadata.st_gid != os.getegid()
-            or stat.S_IMODE(metadata.st_mode) != 0o600
-        ):
-            os.close(fd)
-            raise SyncError("lock_unsafe", "lock ownership, group, or mode is unsafe")
-    except SyncError:
-        raise
     except OSError as exc:
-        raise SyncError("lock_unavailable", "lock file cannot be opened safely") from exc
-    try:
-        try:
-            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError as exc:
-            raise SyncError("already_running", "another governance sync is running") from exc
-        yield
-    finally:
+        raise SyncError("incoming_unavailable") from exc
+    if (
+        not stat.S_ISDIR(metadata.st_mode)
+        or metadata.st_uid != os.geteuid()
+        or metadata.st_gid != os.getegid()
+        or stat.S_IMODE(metadata.st_mode) != 0o700
+    ):
         os.close(fd)
+        raise SyncError("incoming_unsafe")
+    return fd
 
 
-def ensure_receipts_dir() -> None:
+def _validate_fixed_bundle(directory_fd: int, *, missing_ok: bool) -> os.stat_result | None:
     try:
-        RECEIPTS.mkdir(mode=0o700, exist_ok=True)
-        metadata = RECEIPTS.lstat()
-        resolved = RECEIPTS.resolve(strict=True)
-        resolved_metadata = resolved.lstat()
-        if (
-            stat.S_ISLNK(metadata.st_mode)
-            or not stat.S_ISDIR(metadata.st_mode)
-            or metadata.st_uid != os.geteuid()
-            or metadata.st_gid != os.getegid()
-            or stat.S_IMODE(metadata.st_mode) != 0o700
-            or not stat.S_ISDIR(resolved_metadata.st_mode)
-            or (metadata.st_dev, metadata.st_ino)
-            != (resolved_metadata.st_dev, resolved_metadata.st_ino)
-        ):
-            raise OSError("unsafe receipts directory")
+        metadata = os.stat(BUNDLE_NAME, dir_fd=directory_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        if missing_ok:
+            return None
+        raise SyncError("bundle_unsafe")
     except OSError as exc:
-        raise SyncError("receipts_unavailable", "receipts directory is unsafe") from exc
+        raise SyncError("bundle_unsafe") from exc
+    if (
+        not stat.S_ISREG(metadata.st_mode)
+        or metadata.st_uid != os.geteuid()
+        or metadata.st_gid != os.getegid()
+        or stat.S_IMODE(metadata.st_mode) != 0o600
+    ):
+        raise SyncError("bundle_unsafe")
+    return metadata
 
 
-def list_operation_refs() -> list[str]:
-    result = git(
-        "for-each-ref",
-        "--format=%(refname)",
-        f"{OPERATION_NAMESPACE}/",
-        cwd=MIRROR,
-    )
-    refs = [line for line in result.stdout.splitlines() if line]
-    if any(not ref.startswith(f"{OPERATION_NAMESPACE}/") for ref in refs):
-        raise SyncError("operation_ref_invalid", "operation ref escaped its namespace")
-    return refs
-
-
-def delete_operation_ref(ref: str) -> None:
-    if not ref.startswith(f"{OPERATION_NAMESPACE}/"):
-        raise SyncError("operation_ref_invalid", "operation ref escaped its namespace")
-    result = git("update-ref", "-d", ref, cwd=MIRROR, check=False)
-    if result.returncode != 0:
-        raise SyncError("operation_ref_cleanup_failed", "operation ref could not be deleted")
-
-
-def cleanup_stale_operation_refs() -> None:
-    for ref in list_operation_refs():
-        delete_operation_ref(ref)
-    if list_operation_refs():
-        raise SyncError("operation_ref_cleanup_failed", "operation refs remain after cleanup")
-
-
-@contextmanager
-def fetched_remote(operation_ref: str) -> Iterator[tuple[Path, str]]:
-    """Fetch HTTPS in an isolated bare repo, then file-import into the mirror."""
-    with tempfile.TemporaryDirectory(prefix="governance-sync-public-") as tmp:
-        bare = Path(tmp)
-        git("init", "--bare", cwd=bare)
-        canonical_ref = f"{FETCH_NAMESPACE}/canonical-master"
-        result = git(
-            "-c",
-            f"protocol.{PUBLIC_PROTOCOL}.allow=always",
-            "fetch",
-            "--quiet",
-            "--no-tags",
-            "--no-write-fetch-head",
-            PUBLIC_REMOTE,
-            f"+{MASTER_REF}:{canonical_ref}",
-            cwd=bare,
-            check=False,
-        )
-        if result.returncode != 0:
-            raise SyncError("remote_fetch_failed", "fixed public remote could not be fetched")
-        kind = git("cat-file", "-t", canonical_ref, cwd=bare, check=False)
-        if kind.returncode != 0 or kind.stdout.strip() != "commit":
-            raise SyncError("remote_master_not_commit", "fixed remote master is not a commit")
-        remote_master = git(
-            "rev-parse", "--verify", f"{canonical_ref}^{{commit}}", cwd=bare
-        ).stdout.strip()
-        if not COMMIT_RE.fullmatch(remote_master):
-            raise SyncError("remote_master_invalid", "fixed remote master is invalid")
-        yield bare, remote_master
-
-        imported = git(
-            "-c",
-            "protocol.file.allow=always",
-            "-c",
-            f"url.{bare}.insteadOf={bare}",
-            "fetch",
-            "--quiet",
-            "--no-tags",
-            "--no-write-fetch-head",
-            str(bare),
-            f"+{canonical_ref}:{operation_ref}",
-            cwd=MIRROR,
-            check=False,
-        )
-        if imported.returncode != 0:
-            raise SyncError("object_import_failed", "validated objects could not be imported")
-
-
-def validate_remote_target(target: str, remote_master: str, bare: Path) -> None:
-    kind = git("cat-file", "-t", target, cwd=bare, check=False)
-    if kind.returncode != 0 or kind.stdout.strip() != "commit":
-        mirror_kind = git("cat-file", "-t", target, cwd=MIRROR, check=False)
-        if mirror_kind.returncode == 0 and mirror_kind.stdout.strip() == "commit":
-            raise SyncError(
-                "target_not_canonical",
-                "requested commit is not on remote master",
-            )
-        raise SyncError("target_not_commit", "requested object is not a commit")
-    canonical = git(
-        "merge-base",
-        "--is-ancestor",
-        target,
-        remote_master,
-        cwd=bare,
-        check=False,
-    )
-    if canonical.returncode != 0:
-        raise SyncError("target_not_canonical", "requested commit is not on remote master")
-
-
-def validate_mirror_fast_forward(target: str, state: MirrorState) -> None:
-    fast_forward = git(
-        "merge-base",
-        "--is-ancestor",
-        state.commit,
-        target,
-        cwd=MIRROR,
-        check=False,
-    )
-    if fast_forward.returncode != 0:
-        raise SyncError("non_fast_forward", "requested commit is not a fast-forward")
-
-
-def create_backup_ref(state: MirrorState, operation_id: str) -> str:
-    backup_ref = f"{BACKUP_NAMESPACE}/{operation_id}"
-    try:
-        git(
-            "update-ref",
-            backup_ref,
-            state.commit,
-            ZERO_OID,
-            cwd=MIRROR,
-            check=False,
-        )
-    except Exception:
-        pass
-    observed = inspect_ref(
-        backup_ref,
-        uncertain_code="backup_ref_state_uncertain",
-    )
-    if observed == state.commit:
-        return backup_ref
-    if observed is None:
-        raise SyncError("backup_ref_failed", "backup ref could not be created")
-    raise SyncError(
-        "backup_ref_state_uncertain",
-        "backup ref has an unexpected value",
-    )
-
-
-def advance_master(state: MirrorState, target: str) -> None:
-    try:
-        git(
-            "update-ref",
-            MASTER_REF,
-            target,
-            state.commit,
-            cwd=MIRROR,
-            check=False,
-        )
-    except Exception:
-        pass
-    observed = inspect_ref(
-        MASTER_REF,
-        uncertain_code="master_ref_state_uncertain",
-    )
-    if observed == target:
-        return
-    if observed == state.commit:
-        raise SyncError("master_cas_failed", "master changed before it could be advanced")
-    raise SyncError(
-        "master_ref_state_uncertain",
-        "master has an unexpected value",
-    )
-
-
-def inspect_ref(ref: str, *, uncertain_code: str) -> str | None:
-    """Return a real ref value, absent, or a dedicated uncertain-state error."""
-    try:
-        result = git("show-ref", "--verify", "--hash", ref, cwd=MIRROR, check=False)
-    except Exception as exc:
-        raise SyncError(uncertain_code, "ref state could not be inspected") from exc
-    if result.returncode == 1 and not result.stdout:
-        return None
-    value = result.stdout.strip()
-    if result.returncode != 0 or not COMMIT_RE.fullmatch(value):
-        raise SyncError(uncertain_code, "ref state could not be proven")
-    return value
-
-
-def reset_and_verify(expected: str) -> None:
-    git("reset", "--quiet", "--hard", expected, cwd=MIRROR)
-    current = validate_mirror()
-    if current.commit != expected:
-        raise SyncError("postcondition_failed", "mirror HEAD does not match requested commit")
-
-
-def rollback_master(state: MirrorState, failed_target: str) -> None:
-    result = git(
-        "update-ref",
-        MASTER_REF,
-        state.commit,
-        failed_target,
-        cwd=MIRROR,
-        check=False,
-    )
-    if result.returncode != 0:
-        raise SyncError("rollback_cas_failed", "master changed before rollback")
-    try:
-        git("reset", "--quiet", "--hard", state.commit, cwd=MIRROR)
-        restored = validate_mirror()
-    except Exception as exc:
-        raise SyncError(
-            "rollback_worktree_failed",
-            "master was restored but its work tree could not be reset",
-        ) from exc
-    if restored.commit != state.commit:
-        raise SyncError("rollback_verification_failed", "rollback did not restore previous HEAD")
-
-
-def write_receipt(
-    *,
-    operation_id: str,
-    started_at: str,
-    finished_at: str,
-    before: str,
-    after: str,
-    remote_master: str,
-    target: str,
-    backup_ref: str,
-) -> Path:
-    """Atomically write an allowlist-only receipt."""
-    ensure_receipts_dir()
-    receipt = {
-        "schema_version": RECEIPT_VERSION,
-        "source_mode": "public-fixed-remote",
-        "remote_url_id": REMOTE_URL_ID,
-        "remote_master": remote_master,
-        "target_commit": target,
-        "before_commit": before,
-        "after_commit": after,
-        "backup_ref": backup_ref,
-        "operation_id": operation_id,
-        "started_at": started_at,
-        "finished_at": finished_at,
-        "status": "applied",
-    }
-    destination = RECEIPTS / f"{operation_id}.receipt.json"
-    temporary = RECEIPTS / f".{operation_id}.receipt.tmp"
+def publish_bundle(source: Path) -> tuple[int, tuple[int, int]]:
+    directory_fd = _open_incoming()
     flags = (
         os.O_WRONLY
         | os.O_CREAT
@@ -563,147 +342,341 @@ def write_receipt(
         | getattr(os, "O_CLOEXEC", 0)
         | getattr(os, "O_NOFOLLOW", 0)
     )
-    published = False
+    staging_fd: int | None = None
+    staging_identity: tuple[int, int] | None = None
+    identity: tuple[int, int] | None = None
+    renamed = False
     try:
-        if destination.exists() or destination.is_symlink():
-            raise OSError("receipt destination already exists")
-        fd = os.open(temporary, flags, 0o600)
-        with os.fdopen(fd, "w", encoding="utf-8") as stream:
-            json.dump(receipt, stream, sort_keys=True, separators=(",", ":"))
-            stream.write("\n")
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.replace(temporary, destination)
-        published = True
-        directory_fd = os.open(RECEIPTS, os.O_RDONLY)
+        if _validate_fixed_bundle(directory_fd, missing_ok=True) is not None:
+            raise SyncError("incoming_busy")
+        try:
+            staging_fd = os.open(STAGING_NAME, flags, 0o600, dir_fd=directory_fd)
+        except FileExistsError as exc:
+            raise SyncError("incoming_busy") from exc
+        staging_metadata = os.fstat(staging_fd)
+        staging_identity = (staging_metadata.st_dev, staging_metadata.st_ino)
+        os.fchown(staging_fd, os.geteuid(), os.getegid())
+        os.fchmod(staging_fd, 0o600)
+        with source.open("rb") as stream:
+            while block := stream.read(1024 * 1024):
+                view = memoryview(block)
+                while view:
+                    written = os.write(staging_fd, view)
+                    if written <= 0:
+                        raise OSError("short write")
+                    view = view[written:]
+        os.fsync(staging_fd)
+        metadata = os.fstat(staging_fd)
+        identity = (metadata.st_dev, metadata.st_ino)
+        named = os.stat(STAGING_NAME, dir_fd=directory_fd, follow_symlinks=False)
+        if (
+            not stat.S_ISREG(named.st_mode)
+            or (named.st_dev, named.st_ino) != identity
+            or named.st_uid != os.geteuid()
+            or named.st_gid != os.getegid()
+            or stat.S_IMODE(named.st_mode) != 0o600
+        ):
+            raise SyncError("bundle_publish_unsafe")
+        os.close(staging_fd)
+        staging_fd = None
+        os.replace(
+            STAGING_NAME,
+            BUNDLE_NAME,
+            src_dir_fd=directory_fd,
+            dst_dir_fd=directory_fd,
+        )
+        renamed = True
+        os.fsync(directory_fd)
+        published = _validate_fixed_bundle(directory_fd, missing_ok=False)
+        if (published.st_dev, published.st_ino) != identity:
+            raise SyncError("bundle_publish_unsafe")
+        return directory_fd, identity
+    except BaseException as exc:
+        if staging_fd is not None:
+            try:
+                os.close(staging_fd)
+            except OSError:
+                pass
+            staging_fd = None
+        if staging_identity is not None:
+            try:
+                owned_names: list[str] = []
+                for name in (STAGING_NAME, BUNDLE_NAME):
+                    try:
+                        current = os.stat(
+                            name, dir_fd=directory_fd, follow_symlinks=False
+                        )
+                    except FileNotFoundError:
+                        continue
+                    if (
+                        not stat.S_ISREG(current.st_mode)
+                        or (current.st_dev, current.st_ino) != staging_identity
+                    ):
+                        if name == STAGING_NAME or renamed:
+                            raise OSError("published inode changed")
+                        continue
+                    owned_names.append(name)
+                if not owned_names:
+                    raise OSError("created inode location unknown")
+                for name in owned_names:
+                    os.unlink(name, dir_fd=directory_fd)
+                os.fsync(directory_fd)
+            except OSError as cleanup_exc:
+                os.close(directory_fd)
+                raise SyncError("bundle_publish_state_unknown") from cleanup_exc
+        os.close(directory_fd)
+        if isinstance(exc, SyncError):
+            raise
+        if isinstance(exc, (SystemExit, KeyboardInterrupt)):
+            raise
+        raise SyncError("bundle_publish_failed") from exc
+    finally:
+        if staging_fd is not None:
+            try:
+                os.close(staging_fd)
+            except OSError:
+                pass
+
+
+def cleanup_published_bundle(
+    directory_fd: int, identity: tuple[int, int]
+) -> str:
+    try:
+        try:
+            current = os.stat(
+                BUNDLE_NAME, dir_fd=directory_fd, follow_symlinks=False
+            )
+        except OSError:
+            return "state-unknown"
+        if (
+            not stat.S_ISREG(current.st_mode)
+            or (current.st_dev, current.st_ino) != identity
+        ):
+            return "state-unknown"
+        try:
+            os.unlink(BUNDLE_NAME, dir_fd=directory_fd)
+        except OSError:
+            try:
+                remaining = os.stat(
+                    BUNDLE_NAME, dir_fd=directory_fd, follow_symlinks=False
+                )
+            except OSError:
+                return "state-unknown"
+            if (
+                stat.S_ISREG(remaining.st_mode)
+                and (remaining.st_dev, remaining.st_ino) == identity
+            ):
+                return "pending"
+            return "state-unknown"
         try:
             os.fsync(directory_fd)
-        finally:
-            os.close(directory_fd)
-    except OSError as exc:
+        except OSError:
+            return "state-unknown"
+        return "clean"
+    except Exception:
+        return "state-unknown"
+    finally:
         try:
-            temporary.unlink(missing_ok=True)
+            os.close(directory_fd)
         except OSError:
             pass
-        if published:
-            try:
-                destination.unlink(missing_ok=True)
-                directory_fd = os.open(RECEIPTS, os.O_RDONLY)
-                try:
-                    os.fsync(directory_fd)
-                finally:
-                    os.close(directory_fd)
-            except OSError as cleanup_exc:
-                raise SyncError(
-                    "receipt_state_uncertain",
-                    "receipt publication state could not be proven",
-                ) from cleanup_exc
-        raise SyncError("receipt_write_failed", "receipt could not be committed") from exc
-    return destination
 
 
-def synchronize(request: Request) -> dict[str, object]:
-    started_at = utc_now()
-    operation_id = f"{dt.datetime.now(dt.timezone.utc):%Y%m%dT%H%M%SZ}-{uuid.uuid4().hex}"
-    operation_ref = f"{OPERATION_NAMESPACE}/{operation_id}"
+def _cleanup_outcome(directory_fd: int, identity: tuple[int, int]) -> str:
+    try:
+        outcome = cleanup_published_bundle(directory_fd, identity)
+    except Exception:
+        return "state-unknown"
+    return outcome if outcome in SOURCE_CLEANUP_VALUES else "state-unknown"
 
-    with exclusive_lock():
-        state = validate_mirror()
-        cleanup_stale_operation_refs()
+
+def _single_json(raw: str) -> dict[str, object] | None:
+    if not raw or len(raw.encode("utf-8")) > MAX_HELPER_OUTPUT_BYTES:
+        return None
+    try:
+        payload = json.loads(raw, object_pairs_hook=_unique_object)
+    except (UnicodeError, ValueError, json.JSONDecodeError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _valid_commit(value: object) -> bool:
+    return isinstance(value, str) and COMMIT_RE.fullmatch(value) is not None
+
+
+def validate_helper_response(
+    request: Request,
+    digest: str,
+    returncode: int,
+    stdout: str,
+    stderr: str,
+) -> dict[str, object]:
+    if returncode != 0:
+        payload = _single_json(stderr) if not stdout else None
+        if (
+            payload is None
+            or set(payload) != {"status", "error_code"}
+            or payload.get("status") != "error"
+            or not isinstance(payload.get("error_code"), str)
+            or ERROR_CODE_RE.fullmatch(payload["error_code"]) is None
+        ):
+            raise SyncError("bundle_helper_failed")
+        return payload
+    payload = _single_json(stdout) if not stderr else None
+    if payload is None:
+        raise SyncError("bundle_helper_invalid_response")
+    status = payload.get("status")
+    if request.dry_run:
+        if (
+            set(payload) != {"status", "commit", "sha256", "before_commit", "would_change"}
+            or status != "dry-run"
+            or payload.get("commit") != request.commit
+            or payload.get("sha256") != digest
+            or not _valid_commit(payload.get("before_commit"))
+            or not isinstance(payload.get("would_change"), bool)
+        ):
+            raise SyncError("bundle_helper_invalid_response")
+        return payload
+    if status == "no-op":
+        if (
+            set(payload) != {"status", "commit", "before_commit", "backup_ref"}
+            or payload.get("commit") != request.commit
+            or payload.get("before_commit") != request.commit
+            or payload.get("backup_ref") is not None
+        ):
+            raise SyncError("bundle_helper_invalid_response")
+        return payload
+    if status == "applied":
+        if (
+            set(payload) != {"status", "commit", "receipt", "backup_ref"}
+            or payload.get("commit") != request.commit
+            or not isinstance(payload.get("receipt"), str)
+            or RECEIPT_RE.fullmatch(payload["receipt"]) is None
+            or not isinstance(payload.get("backup_ref"), str)
+            or BACKUP_REF_RE.fullmatch(payload["backup_ref"]) is None
+        ):
+            raise SyncError("bundle_helper_invalid_response")
+        return payload
+    raise SyncError("bundle_helper_invalid_response")
+
+
+def run_bundle_helper(request: Request, digest: str) -> tuple[int, dict[str, object]]:
+    argv = [
+        HELPER,
+        "--bundle",
+        str(BUNDLE),
+        "--commit",
+        request.commit,
+        "--sha256",
+        digest,
+    ]
+    if request.dry_run:
+        argv.append("--dry-run")
+    try:
+        result = subprocess.run(
+            argv,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            shell=False,
+            check=False,
+            env={"PATH": "/usr/bin:/bin", "HOME": "/nonexistent", "LANG": "C", "LC_ALL": "C"},
+        )
+    except OSError as exc:
+        raise SyncError("bundle_helper_execution_failed") from exc
+    return result.returncode, validate_helper_response(
+        request, digest, result.returncode, result.stdout, result.stderr
+    )
+
+
+def synchronize(request: Request) -> tuple[int, dict[str, object]]:
+    tag = f"{RELEASE_TAG_PREFIX}{request.commit}"
+    release_url = f"{RELEASE_API_BASE}/releases/tags/{tag}"
+    with tempfile.TemporaryDirectory(prefix="governance-sync-release-") as temporary:
+        root = Path(temporary)
+        metadata_path = root / "release.json"
+        manifest_path = root / MANIFEST_NAME
+        bundle_path = root / BUNDLE_NAME
+        download(release_url, metadata_path, MAX_METADATA_BYTES, asset=False)
+        assets = parse_release_metadata(
+            read_json(metadata_path, MAX_METADATA_BYTES, "release_metadata_invalid"),
+            request.commit,
+        )
+        download(
+            asset_api_url(assets[MANIFEST_NAME]),
+            manifest_path,
+            MAX_MANIFEST_BYTES,
+            asset=True,
+        )
+        if manifest_path.stat().st_size != assets[MANIFEST_NAME].size:
+            raise SyncError("manifest_size_mismatch")
+        manifest = parse_manifest(
+            read_json(manifest_path, MAX_MANIFEST_BYTES, "manifest_schema_invalid"),
+            request.commit,
+        )
+        if manifest.bundle_size != assets[BUNDLE_NAME].size:
+            raise SyncError("bundle_size_mismatch")
+        download(
+            asset_api_url(assets[BUNDLE_NAME]),
+            bundle_path,
+            MAX_BUNDLE_BYTES,
+            asset=True,
+        )
+        validate_downloaded_asset(
+            bundle_path, manifest.bundle_size, manifest.bundle_sha256
+        )
+        directory_fd, identity = publish_bundle(bundle_path)
         try:
-            with fetched_remote(operation_ref) as (bare, remote_master):
-                validate_remote_target(request.commit, remote_master, bare)
-            validate_mirror_fast_forward(request.commit, state)
-            if request.dry_run:
-                delete_operation_ref(operation_ref)
-                return {
-                    "status": "dry-run",
-                    "before_commit": state.commit,
-                    "commit": request.commit,
-                    "remote_master": remote_master,
-                    "would_change": state.commit != request.commit,
-                }
-            if state.commit == request.commit:
-                delete_operation_ref(operation_ref)
-                return {
-                    "status": "no-op",
-                    "commit": state.commit,
-                    "before_commit": state.commit,
-                    "remote_master": remote_master,
-                    "backup_ref": None,
-                }
-
-            backup_ref = create_backup_ref(state, operation_id)
-            master_moved = False
-            try:
-                advance_master(state, request.commit)
-                master_moved = True
-                reset_and_verify(request.commit)
-                after = validate_mirror().commit
-                delete_operation_ref(operation_ref)
-                receipt = write_receipt(
-                    operation_id=operation_id,
-                    started_at=started_at,
-                    finished_at=utc_now(),
-                    before=state.commit,
-                    after=after,
-                    remote_master=remote_master,
-                    target=request.commit,
-                    backup_ref=backup_ref,
-                )
-            except Exception as exc:
-                if not master_moved:
-                    if isinstance(exc, SyncError):
-                        raise
-                    raise SyncError("update_failed", "master update failed") from exc
-                if isinstance(exc, SyncError) and exc.code == "receipt_state_uncertain":
-                    raise
-                try:
-                    rollback_master(state, request.commit)
-                except SyncError as rollback:
-                    raise SyncError(
-                        "rollback_failed",
-                        "transaction failed and master/work tree were not restored",
-                    ) from rollback
-                if isinstance(exc, SyncError):
-                    raise
-                raise SyncError("update_failed", "update failed and was rolled back") from exc
-            return {
-                "status": "applied",
-                "commit": after,
-                "remote_master": remote_master,
-                "receipt": receipt.name,
-                "backup_ref": backup_ref,
-            }
-        except BaseException as primary:
-            try:
-                delete_operation_ref(operation_ref)
-            except SyncError as cleanup:
-                if (
-                    isinstance(primary, SyncError)
-                    and primary.code == "receipt_state_uncertain"
-                ):
-                    raise primary
-                raise cleanup from primary
+            returncode, payload = run_bundle_helper(request, manifest.bundle_sha256)
+        except BaseException as exc:
+            cleanup = _cleanup_outcome(directory_fd, identity)
+            if cleanup != "clean":
+                raise SyncError(
+                    "bundle_cleanup_pending"
+                    if cleanup == "pending"
+                    else "bundle_cleanup_state_unknown"
+                ) from exc
             raise
+        cleanup = _cleanup_outcome(directory_fd, identity)
+        if returncode == 0:
+            result = dict(payload)
+            result["source_cleanup"] = cleanup
+            return 0, result
+        if cleanup == "clean":
+            return returncode, payload
+        return 1, {
+            "status": "error",
+            "error_code": (
+                "bundle_cleanup_pending"
+                if cleanup == "pending"
+                else "bundle_cleanup_state_unknown"
+            ),
+        }
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     try:
         request = parse_args(argv)
         establish_process_security()
-        result = synchronize(request)
+        returncode, payload = synchronize(request)
     except SyncError as exc:
-        print(json.dumps({"status": "error", "error_code": exc.code}), file=sys.stderr)
-        return 1
-    except Exception:
         print(
-            json.dumps({"status": "error", "error_code": "internal_error"}),
+            json.dumps({"status": "error", "error_code": exc.code}, separators=(",", ":")),
             file=sys.stderr,
         )
         return 1
-    print(json.dumps(result, sort_keys=True))
-    return 0
+    except Exception:
+        print(
+            json.dumps({"status": "error", "error_code": "internal_error"}, separators=(",", ":")),
+            file=sys.stderr,
+        )
+        return 1
+    print(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")),
+        file=sys.stderr if returncode else sys.stdout,
+    )
+    return returncode
 
 
 if __name__ == "__main__":
