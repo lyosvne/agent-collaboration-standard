@@ -1,0 +1,522 @@
+#!/usr/bin/python3 -I
+"""Restricted SSH forced-command gate for governance bundle synchronization."""
+
+from __future__ import annotations
+
+import fcntl
+import json
+import os
+import pwd
+import re
+import stat
+import subprocess
+import sys
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Iterator, Sequence
+
+INCOMING = Path("/var/lib/aetheris-governance-sync/incoming")
+BUNDLE_NAME = "governance.bundle"
+BUNDLE = INCOMING / BUNDLE_NAME
+UPLOAD_NAME = ".upload"
+HELPER_USER = "pi-governance-sync"
+HELPER = "/usr/local/sbin/aetheris-governance-sync"
+GATE_LOCK = Path("/run/lock/aetheris-governance-sync-ssh-gate.lock")
+MAX_BUNDLE_BYTES = 64 * 1024 * 1024
+MAX_HELPER_OUTPUT_BYTES = 16 * 1024
+COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+ERROR_CODE_RE = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
+RECEIPT_RE = re.compile(r"^[A-Za-z0-9._-]{1,255}\.receipt\.json$")
+BACKUP_REF_RE = re.compile(
+    r"^refs/aetheris-governance-sync/backups/[A-Za-z0-9._-]{1,255}$"
+)
+
+
+class GateError(RuntimeError):
+    """Expected failure with a stable public code."""
+
+    def __init__(self, code: str):
+        super().__init__(code)
+        self.code = code
+
+
+def runtime_identity() -> tuple[int, int]:
+    try:
+        account = pwd.getpwnam(HELPER_USER)
+    except KeyError as exc:
+        raise GateError("sync_user_unavailable") from exc
+    if os.geteuid() != account.pw_uid or os.getegid() != account.pw_gid:
+        raise GateError("sync_identity_required")
+    return account.pw_uid, account.pw_gid
+
+
+def parse_command(command: str | None) -> tuple[str, ...]:
+    if command in {"upload", "cleanup"}:
+        return (command,)
+    if command is None:
+        raise GateError("command_rejected")
+    parts = command.split(" ")
+    if (
+        len(parts) == 3
+        and parts[0] in {"apply", "dry-run"}
+        and COMMIT_RE.fullmatch(parts[1])
+        and SHA256_RE.fullmatch(parts[2])
+    ):
+        return tuple(parts)
+    raise GateError("command_rejected")
+
+
+def _open_incoming(uid: int, gid: int) -> int:
+    flags = (
+        os.O_RDONLY
+        | getattr(os, "O_DIRECTORY", 0)
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    fd: int | None = None
+    try:
+        fd = os.open(INCOMING, flags)
+        metadata = os.fstat(fd)
+    except OSError as exc:
+        if fd is not None:
+            os.close(fd)
+        raise GateError("incoming_unavailable") from exc
+    if (
+        not stat.S_ISDIR(metadata.st_mode)
+        or metadata.st_uid != uid
+        or metadata.st_gid != gid
+        or stat.S_IMODE(metadata.st_mode) != 0o700
+    ):
+        os.close(fd)
+        raise GateError("incoming_unsafe")
+    return fd
+
+
+def _fsync_directory(directory_fd: int) -> None:
+    try:
+        os.fsync(directory_fd)
+    except OSError as exc:
+        raise GateError("incoming_fsync_failed") from exc
+
+
+def _fixed_file_metadata(
+    directory_fd: int,
+    name: str,
+    uid: int,
+    gid: int,
+    *,
+    missing_ok: bool,
+    unsafe_code: str,
+) -> os.stat_result | None:
+    try:
+        metadata = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        if missing_ok:
+            return None
+        raise GateError(unsafe_code)
+    except OSError as exc:
+        raise GateError(unsafe_code) from exc
+    if (
+        not stat.S_ISREG(metadata.st_mode)
+        or metadata.st_uid != uid
+        or metadata.st_gid != gid
+        or stat.S_IMODE(metadata.st_mode) != 0o600
+    ):
+        raise GateError(unsafe_code)
+    return metadata
+
+
+@contextmanager
+def global_gate_lock(gid: int) -> Iterator[None]:
+    """Lock the fixed root-owned inode, which the sync identity cannot replace."""
+    parent = GATE_LOCK.parent
+    try:
+        parent_metadata = parent.lstat()
+        parent_resolved = parent.resolve(strict=True)
+        resolved_metadata = parent_resolved.lstat()
+    except OSError as exc:
+        raise GateError("gate_lock_unavailable") from exc
+    if (
+        stat.S_ISLNK(parent_metadata.st_mode)
+        or not stat.S_ISDIR(parent_metadata.st_mode)
+        or parent_metadata.st_uid != 0
+        or parent_metadata.st_mode & 0o002
+        or (
+            parent_metadata.st_mode & 0o020
+            and parent_metadata.st_gid == gid
+        )
+        or not stat.S_ISDIR(resolved_metadata.st_mode)
+        or (parent_metadata.st_dev, parent_metadata.st_ino)
+        != (resolved_metadata.st_dev, resolved_metadata.st_ino)
+    ):
+        raise GateError("gate_lock_directory_unsafe")
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        fd = os.open(GATE_LOCK, flags)
+        metadata = os.fstat(fd)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_uid != 0
+            or metadata.st_gid != gid
+            or stat.S_IMODE(metadata.st_mode) != 0o640
+        ):
+            raise GateError("gate_lock_unsafe")
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as exc:
+            raise GateError("already_running") from exc
+        yield
+    except GateError:
+        raise
+    except OSError as exc:
+        raise GateError("gate_lock_unavailable") from exc
+    finally:
+        if "fd" in locals():
+            os.close(fd)
+
+
+@contextmanager
+def incoming_gate(uid: int, gid: int) -> Iterator[int]:
+    """Hold the independent gate lock and pin the incoming directory."""
+    with global_gate_lock(gid):
+        directory_fd = _open_incoming(uid, gid)
+        try:
+            yield directory_fd
+        finally:
+            try:
+                os.close(directory_fd)
+            except OSError:
+                pass
+
+
+def upload_bundle(directory_fd: int, uid: int, gid: int, source=None) -> None:
+    if source is None:
+        source = sys.stdin.buffer
+    flags = (
+        os.O_WRONLY
+        | os.O_CREAT
+        | os.O_EXCL
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    fd: int | None = None
+    published = False
+    upload_identity: tuple[int, int] | None = None
+    try:
+        _fixed_file_metadata(
+            directory_fd,
+            BUNDLE_NAME,
+            uid,
+            gid,
+            missing_ok=True,
+            unsafe_code="bundle_unsafe",
+        )
+        try:
+            fd = os.open(UPLOAD_NAME, flags, 0o600, dir_fd=directory_fd)
+        except FileExistsError as exc:
+            _fixed_file_metadata(
+                directory_fd,
+                UPLOAD_NAME,
+                uid,
+                gid,
+                missing_ok=False,
+                unsafe_code="upload_unsafe",
+            )
+            raise GateError("upload_pending") from exc
+        opened = os.fstat(fd)
+        upload_identity = (opened.st_dev, opened.st_ino)
+        os.fchown(fd, uid, gid)
+        os.fchmod(fd, 0o600)
+        total = 0
+        while True:
+            block = source.read(min(1024 * 1024, MAX_BUNDLE_BYTES - total + 1))
+            if not block:
+                break
+            total += len(block)
+            if total > MAX_BUNDLE_BYTES:
+                raise GateError("bundle_too_large")
+            view = memoryview(block)
+            while view:
+                written = os.write(fd, view)
+                if written <= 0:
+                    raise OSError("short write")
+                view = view[written:]
+        metadata = os.fstat(fd)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_uid != uid
+            or metadata.st_gid != gid
+            or stat.S_IMODE(metadata.st_mode) != 0o600
+        ):
+            raise GateError("upload_unsafe")
+        upload_identity = (metadata.st_dev, metadata.st_ino)
+        os.fsync(fd)
+        os.close(fd)
+        fd = None
+        _fixed_file_metadata(
+            directory_fd,
+            BUNDLE_NAME,
+            uid,
+            gid,
+            missing_ok=True,
+            unsafe_code="bundle_unsafe",
+        )
+        current_upload = _fixed_file_metadata(
+            directory_fd,
+            UPLOAD_NAME,
+            uid,
+            gid,
+            missing_ok=False,
+            unsafe_code="upload_unsafe",
+        )
+        if (current_upload.st_dev, current_upload.st_ino) != upload_identity:
+            raise GateError("upload_unsafe")
+        os.replace(
+            UPLOAD_NAME,
+            BUNDLE_NAME,
+            src_dir_fd=directory_fd,
+            dst_dir_fd=directory_fd,
+        )
+        published = True
+        try:
+            _fsync_directory(directory_fd)
+        except GateError as exc:
+            raise GateError("upload_state_unknown") from exc
+    except GateError:
+        raise
+    except OSError as exc:
+        raise GateError("upload_failed") from exc
+    finally:
+        if fd is not None:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+        if not published:
+            try:
+                current = os.stat(
+                    UPLOAD_NAME,
+                    dir_fd=directory_fd,
+                    follow_symlinks=False,
+                )
+                if (
+                    upload_identity is not None
+                    and stat.S_ISREG(current.st_mode)
+                    and (current.st_dev, current.st_ino) == upload_identity
+                ):
+                    os.unlink(UPLOAD_NAME, dir_fd=directory_fd)
+                    _fsync_directory(directory_fd)
+            except FileNotFoundError:
+                pass
+            except GateError:
+                raise
+            except OSError:
+                pass
+
+
+def cleanup_bundle(directory_fd: int, uid: int, gid: int) -> list[str]:
+    existing: list[str] = []
+    for name, code in (
+        (BUNDLE_NAME, "bundle_unsafe"),
+        (UPLOAD_NAME, "upload_unsafe"),
+    ):
+        if (
+            _fixed_file_metadata(
+                directory_fd,
+                name,
+                uid,
+                gid,
+                missing_ok=True,
+                unsafe_code=code,
+            )
+            is not None
+        ):
+            existing.append(name)
+    removed: list[str] = []
+    failure: OSError | None = None
+    try:
+        for name in existing:
+            try:
+                os.unlink(name, dir_fd=directory_fd)
+                removed.append(name)
+            except OSError as exc:
+                failure = exc
+                break
+    finally:
+        if removed:
+            try:
+                _fsync_directory(directory_fd)
+            except GateError as exc:
+                raise GateError("cleanup_state_unknown") from exc
+    if failure is not None:
+        if removed:
+            raise GateError("cleanup_partial") from failure
+        raise GateError("cleanup_failed") from failure
+    return removed
+
+
+def _parse_single_json(raw: str) -> dict[str, object] | None:
+    if not raw or len(raw.encode("utf-8")) > MAX_HELPER_OUTPUT_BYTES:
+        return None
+    try:
+        payload = json.loads(raw)
+    except (json.JSONDecodeError, UnicodeError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _valid_commit(value: object) -> bool:
+    return isinstance(value, str) and COMMIT_RE.fullmatch(value) is not None
+
+
+def _validated_helper_payload(
+    action: str,
+    commit: str,
+    sha256: str,
+    returncode: int,
+    stdout: str,
+    stderr: str,
+) -> dict[str, object]:
+    if returncode != 0:
+        payload = _parse_single_json(stderr) if not stdout else None
+        if (
+            payload is None
+            or set(payload) != {"status", "error_code"}
+            or payload.get("status") != "error"
+            or not isinstance(payload.get("error_code"), str)
+            or ERROR_CODE_RE.fullmatch(payload["error_code"]) is None
+        ):
+            raise GateError("helper_failed")
+        return payload
+
+    payload = _parse_single_json(stdout) if not stderr else None
+    if payload is None:
+        raise GateError("helper_invalid_response")
+    status = payload.get("status")
+    if action == "dry-run":
+        if (
+            set(payload)
+            != {
+                "status",
+                "commit",
+                "sha256",
+                "before_commit",
+                "would_change",
+            }
+            or status != "dry-run"
+            or payload.get("commit") != commit
+            or payload.get("sha256") != sha256
+            or not _valid_commit(payload.get("before_commit"))
+            or not isinstance(payload.get("would_change"), bool)
+        ):
+            raise GateError("helper_invalid_response")
+        return payload
+    if status == "no-op":
+        if (
+            set(payload) != {"status", "commit", "before_commit", "backup_ref"}
+            or payload.get("commit") != commit
+            or payload.get("before_commit") != commit
+            or payload.get("backup_ref") is not None
+        ):
+            raise GateError("helper_invalid_response")
+        return payload
+    if status == "applied":
+        backup_ref = payload.get("backup_ref")
+        receipt = payload.get("receipt")
+        if (
+            set(payload) != {"status", "commit", "receipt", "backup_ref"}
+            or payload.get("commit") != commit
+            or not isinstance(backup_ref, str)
+            or BACKUP_REF_RE.fullmatch(backup_ref) is None
+            or not isinstance(receipt, str)
+            or RECEIPT_RE.fullmatch(receipt) is None
+        ):
+            raise GateError("helper_invalid_response")
+        return payload
+    raise GateError("helper_invalid_response")
+
+
+def run_helper(
+    action: str,
+    commit: str,
+    sha256: str,
+) -> tuple[int, dict[str, object]]:
+    argv = [
+        HELPER,
+        "--bundle",
+        str(BUNDLE),
+        "--commit",
+        commit,
+        "--sha256",
+        sha256,
+    ]
+    if action == "dry-run":
+        argv.append("--dry-run")
+    try:
+        result = subprocess.run(
+            argv,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            shell=False,
+            check=False,
+            env={
+                "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG": "C",
+                "LC_ALL": "C",
+            },
+        )
+    except OSError as exc:
+        raise GateError("helper_execution_failed") from exc
+    payload = _validated_helper_payload(
+        action,
+        commit,
+        sha256,
+        result.returncode,
+        result.stdout,
+        result.stderr,
+    )
+    return (result.returncode if result.returncode != 0 else 0), payload
+
+
+def _emit(payload: dict[str, object], *, error: bool = False) -> None:
+    print(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")),
+        file=sys.stderr if error else sys.stdout,
+    )
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    if argv is None:
+        argv = sys.argv[1:]
+    if argv:
+        error = {"status": "error", "error_code": "argv_rejected"}
+        _emit(error, error=True)
+        return 2
+    try:
+        uid, gid = runtime_identity()
+        command = parse_command(os.environ.get("SSH_ORIGINAL_COMMAND"))
+        with incoming_gate(uid, gid) as directory_fd:
+            if command[0] == "upload":
+                upload_bundle(directory_fd, uid, gid)
+                _emit({"status": "uploaded"})
+                return 0
+            if command[0] == "cleanup":
+                removed = cleanup_bundle(directory_fd, uid, gid)
+                _emit({"status": "cleaned", "removed": removed})
+                return 0
+            returncode, payload = run_helper(command[0], command[1], command[2])
+            _emit(payload, error=returncode != 0)
+            return returncode
+    except GateError as exc:
+        _emit({"status": "error", "error_code": exc.code}, error=True)
+        return 1
+    except Exception:
+        _emit({"status": "error", "error_code": "internal_error"}, error=True)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

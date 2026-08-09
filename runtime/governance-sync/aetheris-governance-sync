@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import fcntl
-import grp
 import hashlib
 import json
 import os
@@ -30,7 +29,6 @@ COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GIT_TIMEOUT_SECONDS = 120
 RECEIPT_VERSION = 2
-SYNC_GROUP = "aetheris-governance-sync"
 MASTER_REF = "refs/heads/master"
 BACKUP_NAMESPACE = "refs/aetheris-governance-sync/backups"
 ZERO_OID = "0" * 40
@@ -130,6 +128,7 @@ def git(
 def _open_regular_nofollow(
     path: Path,
     *,
+    expected_uid: int | None = None,
     expected_gid: int | None = None,
     expected_mode: int | None = None,
     expected_identity: tuple[int, int] | None = None,
@@ -144,7 +143,8 @@ def _open_regular_nofollow(
         os.close(fd)
         raise SyncError("bundle_not_regular", "bundle must be a regular file")
     if (
-        (expected_gid is not None and metadata.st_gid != expected_gid)
+        (expected_uid is not None and metadata.st_uid != expected_uid)
+        or (expected_gid is not None and metadata.st_gid != expected_gid)
         or (expected_mode is not None and stat.S_IMODE(metadata.st_mode) != expected_mode)
         or (
             expected_identity is not None
@@ -156,15 +156,9 @@ def _open_regular_nofollow(
     return fd
 
 
-def governance_group_id() -> int:
-    try:
-        return grp.getgrnam(SYNC_GROUP).gr_gid
-    except KeyError as exc:
-        raise SyncError("sync_group_unavailable", "governance sync group is unavailable") from exc
-
-
 def validate_incoming_bundle(path: Path) -> tuple[int, tuple[int, int]]:
-    expected_gid = governance_group_id()
+    expected_uid = os.geteuid()
+    expected_gid = os.getegid()
     incoming = path.parent
     try:
         directory_metadata = incoming.lstat()
@@ -178,9 +172,9 @@ def validate_incoming_bundle(path: Path) -> tuple[int, tuple[int, int]]:
     if (
         stat.S_ISLNK(directory_metadata.st_mode)
         or not stat.S_ISDIR(directory_metadata.st_mode)
-        or directory_metadata.st_uid != os.geteuid()
+        or directory_metadata.st_uid != expected_uid
         or directory_metadata.st_gid != expected_gid
-        or stat.S_IMODE(directory_metadata.st_mode) != 0o730
+        or stat.S_IMODE(directory_metadata.st_mode) != 0o700
         or not stat.S_ISDIR(resolved_metadata.st_mode)
         or (directory_metadata.st_dev, directory_metadata.st_ino)
         != (resolved_metadata.st_dev, resolved_metadata.st_ino)
@@ -192,10 +186,11 @@ def validate_incoming_bundle(path: Path) -> tuple[int, tuple[int, int]]:
     if (
         stat.S_ISLNK(bundle_metadata.st_mode)
         or not stat.S_ISREG(bundle_metadata.st_mode)
+        or bundle_metadata.st_uid != expected_uid
         or bundle_metadata.st_gid != expected_gid
-        or stat.S_IMODE(bundle_metadata.st_mode) != 0o640
+        or stat.S_IMODE(bundle_metadata.st_mode) != 0o600
     ):
-        raise SyncError("bundle_unsafe", "bundle group, mode, or type is unsafe")
+        raise SyncError("bundle_unsafe", "bundle ownership, mode, or type is unsafe")
     return expected_gid, (bundle_metadata.st_dev, bundle_metadata.st_ino)
 
 
@@ -231,8 +226,9 @@ def verified_bundle_snapshot(request: Request) -> Iterator[Path]:
     expected_gid, expected_identity = validate_incoming_bundle(request.bundle)
     fd = _open_regular_nofollow(
         request.bundle,
+        expected_uid=os.geteuid(),
         expected_gid=expected_gid,
-        expected_mode=0o640,
+        expected_mode=0o600,
         expected_identity=expected_identity,
     )
     with tempfile.TemporaryDirectory(prefix="governance-sync-input-") as tmp:

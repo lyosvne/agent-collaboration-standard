@@ -16,40 +16,45 @@ environment:
 
 ## Identities, ownership, and modes
 
-The model/caller identity is a member of `aetheris-governance-sync`. It may only
-deposit an atomically completed bundle at the fixed incoming path and invoke
-the fixed helper through sudo. It has no write access to the mirror, receipts,
-lock, helper, or sudoers rule. The dedicated `pi-governance-sync` account is
-also a member of that group so it can read the deposited `0640` bundle, and is
-the exclusive writer of the mirror and runtime state. It is not root and the
-helper rejects effective UID 0 even if it is invoked outside sudoers.
+The SSH caller is the dedicated `aetheris-sync-deploy` identity. It is not a
+member of `aetheris-governance-sync`, cannot write the incoming directory, and
+may use sudo only to run the no-argument SSH gate as `pi-governance-sync`.
+The gate, not the deploy account, deposits an atomically completed bundle at
+the fixed incoming path. The deploy account has no sudo grant for the helper
+and no write access to the mirror, incoming files, receipts, either lock,
+helper, or sudoers rule. The dedicated `pi-governance-sync` account and its
+primary group exclusively own the `0700` incoming directory and `0600`
+bundle. It is the exclusive writer of incoming, the mirror, and runtime state.
+It is not root and the helper rejects effective UID 0 even if it is invoked
+outside sudoers.
 
 The deployment contract is:
 
 | Object | Owner:group | Mode / constraint |
 |---|---|---|
 | Installed helper | `root:root` | `0755`, not writable by the caller |
+| Installed SSH gate | `root:root` | `0755`, not writable by the caller |
 | Sudoers drop-in | `root:root` | `0440` |
 | Mirror directory | `pi-governance-sync:pi-governance-sync` | owner UID and group ID must equal the helper effective IDs; no group/world write |
 | Mirror `.git` directory | `pi-governance-sync:pi-governance-sync` | real in-mirror directory; owner UID and group ID must equal the helper effective IDs; no group/world write |
 | Mirror `.git/config` | `pi-governance-sync:pi-governance-sync` | real regular file, group ID must equal the helper effective GID, no group/world write |
-| Incoming directory | `pi-governance-sync:aetheris-governance-sync` | `0730`; caller group may only traverse and deposit/replace the fixed bundle |
-| Incoming bundle | depositor:`aetheris-governance-sync` | `0640`, regular non-symlink file, published by atomic rename |
+| Incoming directory | `pi-governance-sync:pi-governance-sync` | `0700`; only the trusted writer/root can modify fixed names; deploy cannot write |
+| Incoming bundle and `.upload` | `pi-governance-sync:pi-governance-sync` | `0600`, regular non-symlink files; bundle published by atomic rename |
 | Receipts directory | `pi-governance-sync:pi-governance-sync` | `0700` |
 | Receipt files | `pi-governance-sync:pi-governance-sync` | `0600` |
-| Lock file | `pi-governance-sync:pi-governance-sync` | `0600`, regular non-symlink file |
+| Helper lock | `pi-governance-sync:pi-governance-sync` | `/run/lock/aetheris-governance-sync.lock`, `0600`, regular non-symlink file |
+| SSH gate lock | `root:pi-governance-sync` | `/run/lock/aetheris-governance-sync-ssh-gate.lock`, `0640`, regular non-symlink file created at boot by the canonical `tmpfiles/aetheris-governance-sync.conf` |
 
 The helper starts with umask `027`: repository files remain readable by the
 `pi-governance-sync` group but are never group-writable. `pi-dispatch` uses
 `pi-governance-sync` only as a supplementary read group; its primary group
 remains `pi-dispatch`, and it receives no mirror ownership or write access.
-Only `pi-governance-sync` owns and writes the mirror. The helper resolves the fixed
-`aetheris-governance-sync` group through the system group database on every
-invocation. It requires the incoming directory to be a real directory owned by
-its effective UID, assigned to that fixed group, and exactly mode `0730`. The
-bundle must be a real non-symlink regular file assigned to the fixed group and
-exactly mode `0640`; the opened file descriptor must retain the validated inode,
-group, and mode. It also rejects a symlink, gitfile, escaped Git directory,
+Only `pi-governance-sync` owns and writes the mirror. The helper requires the
+incoming directory to be a real directory owned by its effective UID and GID
+and exactly mode `0700`. The bundle must be a real non-symlink regular file
+owned by those same effective IDs and exactly mode `0600`; the opened file
+descriptor must retain the validated inode, owner, group, and mode. It also
+rejects a symlink, gitfile, escaped Git directory,
 wrong owner/group, or group/world-writable mirror, `.git`, or `.git/config`. It
 verifies inode identity again after Git inspection to fail closed on replacement
 races.
@@ -88,11 +93,16 @@ particular, `pi-dispatch` must be able to read `.git/HEAD` and governance
 documents through its supplementary group, but must not be able to create,
 overwrite, or rename content in the work tree, `.git/refs`, or `.git/config`.
 
-The sudoers grant is exactly:
+The sudoers command grant is exactly:
 
 ```sudoers
-%aetheris-governance-sync ALL=(pi-governance-sync) NOPASSWD: /usr/local/sbin/aetheris-governance-sync
+aetheris-sync-deploy ALL=(pi-governance-sync) NOPASSWD: /usr/local/sbin/aetheris-governance-sync-ssh ""
 ```
+
+The deploy account cannot sudo the helper. No `%aetheris-governance-sync`
+sudo authorization exists. The gate requires the `pi-governance-sync`
+effective UID and GID, then directly executes the helper without a nested
+sudo. This no-argument gate is the deploy account's only sudo grant.
 
 ## CLI
 
@@ -118,10 +128,10 @@ The helper fails closed and performs these phases in order:
 
 1. Acquire the fixed non-symlink, owner-only `0600` regular-file lock without
    waiting.
-2. Resolve the fixed group, validate the effective-UID-owned `0730` incoming
-   directory and fixed-group `0640` regular non-symlink bundle, then open the
-   validated inode and copy it to an owner-only snapshot while hashing; reject
-   inode metadata changes or a SHA-256 mismatch.
+2. Validate the effective-ID-owned `0700` incoming directory and
+   effective-ID-owned `0600` regular non-symlink bundle, then open the
+   validated inode and copy it to an owner-only snapshot while hashing;
+   reject inode metadata changes or a SHA-256 mismatch.
 3. Verify only that pinned snapshot in an isolated bare repository, fetch the
    exact requested object, require it to be a commit, and run strict object
    validation.
