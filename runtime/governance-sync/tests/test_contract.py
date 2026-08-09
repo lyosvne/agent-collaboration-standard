@@ -356,7 +356,11 @@ class DeploymentContractTests(unittest.TestCase):
             "Raw helper stderr",
             "tracebacks are never forwarded",
             "opaque binary bytes",
-            "without\ntext decoding",
+            "input without text decoding",
+            "`upload <decimal_size>`",
+            "1 byte\nthrough 64 MiB",
+            "`upload_short`",
+            "without\nwaiting for EOF",
             "`Defaults!/usr/local/sbin/aetheris-governance-sync-ssh !use_pty`",
             "all other commands",
         ):
@@ -392,10 +396,13 @@ class DeploymentContractTests(unittest.TestCase):
             "Do not set `!use_pty`\nglobally",
             "opaque binary bundle",
             "sudo's stdin",
+            "size=$(wc -c < governance.bundle",
+            "`upload_short`",
+            "without waiting for EOF",
         ):
             self.assertIn(requirement, deployment)
         for command in (
-            "ssh GOVERNANCE_HOST upload",
+            'ssh GOVERNANCE_HOST "upload $size"',
             '"dry-run $commit $sha256"',
             '"apply $commit $sha256"',
             "ssh GOVERNANCE_HOST cleanup",

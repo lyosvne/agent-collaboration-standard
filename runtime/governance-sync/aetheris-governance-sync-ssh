@@ -52,11 +52,18 @@ def runtime_identity() -> tuple[int, int]:
 
 
 def parse_command(command: str | None) -> tuple[str, ...]:
-    if command in {"upload", "cleanup"}:
+    if command == "cleanup":
         return (command,)
     if command is None:
         raise GateError("command_rejected")
     parts = command.split(" ")
+    if (
+        len(parts) == 2
+        and parts[0] == "upload"
+        and re.fullmatch(r"[1-9][0-9]{0,7}", parts[1])
+        and int(parts[1]) <= MAX_BUNDLE_BYTES
+    ):
+        return (parts[0], parts[1])
     if (
         len(parts) == 3
         and parts[0] in {"apply", "dry-run"}
@@ -187,7 +194,13 @@ def incoming_gate(uid: int, gid: int) -> Iterator[int]:
                 pass
 
 
-def upload_bundle(directory_fd: int, uid: int, gid: int, source=None) -> None:
+def upload_bundle(
+    directory_fd: int,
+    uid: int,
+    gid: int,
+    expected_size: int,
+    source=None,
+) -> None:
     if source is None:
         source = sys.stdin.buffer
     flags = (
@@ -225,14 +238,12 @@ def upload_bundle(directory_fd: int, uid: int, gid: int, source=None) -> None:
         upload_identity = (opened.st_dev, opened.st_ino)
         os.fchown(fd, uid, gid)
         os.fchmod(fd, 0o600)
-        total = 0
-        while True:
-            block = source.read(min(1024 * 1024, MAX_BUNDLE_BYTES - total + 1))
+        remaining = expected_size
+        while remaining:
+            block = source.read(min(1024 * 1024, remaining))
             if not block:
-                break
-            total += len(block)
-            if total > MAX_BUNDLE_BYTES:
-                raise GateError("bundle_too_large")
+                raise GateError("upload_short")
+            remaining -= len(block)
             view = memoryview(block)
             while view:
                 written = os.write(fd, view)
@@ -497,7 +508,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         command = parse_command(os.environ.get("SSH_ORIGINAL_COMMAND"))
         with incoming_gate(uid, gid) as directory_fd:
             if command[0] == "upload":
-                upload_bundle(directory_fd, uid, gid)
+                upload_bundle(directory_fd, uid, gid, int(command[1]))
                 _emit({"status": "uploaded"})
                 return 0
             if command[0] == "cleanup":
