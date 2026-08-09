@@ -106,7 +106,7 @@ test "$(grep -cEv '^[[:space:]]*(#|$)' \
 ```
 
 Do not grant an unrestricted or second key to this account. The gate accepts
-no local argv and only the four commands documented in
+no local argv and only the five commands documented in
 `ssh-gate-contract.md`.
 
 ## sshd restrictions
@@ -192,7 +192,8 @@ uses the pre-created fixed root-owned lock inode inside its dedicated exact-mode
 of the gate trust boundary; its conventional `1777` mode does not affect gate
 validation.
 
-Verify upload, dry-run, apply, and cleanup from the client without a shell:
+Verify legacy upload, chunked upload, dry-run, apply, and cleanup from the
+client without a remote shell:
 
 ```sh
 git bundle create governance.bundle master
@@ -202,22 +203,53 @@ commit=$(git rev-parse master)
 # reads exactly the declared byte count and does not wait for channel EOF.
 size=$(wc -c < governance.bundle | tr -d '[:space:]')
 ssh GOVERNANCE_HOST "upload $size" < governance.bundle
+# Resumable alternative: send canonical sequential chunks. Each successful
+# non-final call returns chunk_uploaded with the next offset; retry a short
+# block at the same offset. This example uses 1 MiB blocks.
+chunk_size=$((1024 * 1024))
+upload_id=$(openssl rand -hex 16)
+offset=0
+while test "$offset" -lt "$size"; do
+  length=$chunk_size
+  test $((offset + length)) -le "$size" || length=$((size - offset))
+  response=$(
+    dd if=governance.bundle bs=1 skip="$offset" count="$length" status=none |
+      ssh GOVERNANCE_HOST "upload-chunk $upload_id $size $offset $length"
+  ) || exit 1
+  printf '%s\n' "$response" | python3 -c 'import json,sys; assert json.load(sys.stdin)["status"] in {"chunk_uploaded","uploaded"}'
+  offset=$((offset + length))
+done
 ssh GOVERNANCE_HOST "dry-run $commit $sha256"
 ssh GOVERNANCE_HOST "apply $commit $sha256"
 ssh GOVERNANCE_HOST cleanup
 ```
 
-Also verify rejection of a fifth command, malformed hashes, upload sizes of
-zero and more than 64 MiB, non-canonical decimal sizes, and a login shell
-request. Declare one byte more than the supplied stream and verify
-`upload_short`; declare the exact stream size while keeping the client side of
-the SSH channel open and verify the gate responds without waiting for EOF.
-After each rejected upload, the incoming directory must contain no `.upload`
-file and any previous `governance.bundle` must remain unchanged. Create
+Also verify rejection of a sixth command, malformed hashes, upload totals or
+sizes of zero and more than 64 MiB, malformed 32-character lowercase
+hexadecimal upload IDs, non-canonical decimal values, chunk ranges
+where `offset >= total` or `offset + length > total`, and a login shell
+request. Declare one byte more than the supplied stream for both upload forms
+and verify `upload_short`; declare the exact stream size while keeping the
+client side of the SSH channel open and verify the gate responds without
+waiting for EOF. For chunked upload, verify it responds without waiting for EOF
+and that a short later block rolls `.upload`
+back to that block's starting offset while preserving all earlier complete
+blocks; then retry that offset successfully. Verify an `offset 0` replay while
+safe transaction state exists returns `upload_pending`, while overlapping,
+skipped, out-of-order, and positive replayed offsets return
+`upload_offset_mismatch` without mutation. Interleave a different ID and change
+`total` at the correct offset; both must return
+`upload_transaction_mismatch`. Verify every successful block
+fsyncs `.upload`; the first block also fsyncs `.upload.meta` and the directory
+before success. Only the final block may atomically publish
+`governance.bundle`; it must remove `.upload.meta` and fsync the directory.
+After each rejected first upload, the incoming directory must contain neither
+`.upload` nor `.upload.meta`, and any previous `governance.bundle` must remain
+unchanged. Create
 symlink, FIFO, and directory fixtures at each fixed target name in a disposable
 deployment and verify both upload and cleanup reject them without deleting the
 inode. Hold an exclusive flock on
 `/run/aetheris-governance-sync/gate.lock` from one invocation and verify each
-of the other four commands returns `already_running`. Also verify
-`aetheris-sync-deploy` cannot create,
-replace, or unlink either fixed incoming name.
+of the five commands returns `already_running`. Also verify
+`aetheris-sync-deploy` cannot create, replace, or unlink any fixed incoming
+name.
