@@ -29,9 +29,7 @@ EXPECTED_PATHS = {
 }
 
 EXPECTED_PUBLIC_PATHS = {
-    "MIRROR": "/opt/pi/governance-mirror/repo",
-    "LOCK": "/run/lock/aetheris-governance-sync.lock",
-    "RECEIPTS": "/var/lib/aetheris-governance-sync/receipts",
+    "INCOMING": "/var/lib/aetheris-governance-sync/incoming",
 }
 
 
@@ -61,11 +59,11 @@ class DeploymentContractTests(unittest.TestCase):
         tree = ast.parse(PUBLIC_SOURCE.read_text(encoding="utf-8"))
         assigned: dict[str, str] = {}
         names = {
-            "PUBLIC_REMOTE",
-            "REMOTE_URL_ID",
-            "MASTER_REF",
-            "BACKUP_NAMESPACE",
-            "OPERATION_NAMESPACE",
+            "HELPER",
+            "RELEASE_API_BASE",
+            "RELEASE_TAG_PREFIX",
+            "MANIFEST_NAME",
+            "BUNDLE_NAME",
         }
         for node in tree.body:
             if not isinstance(node, ast.Assign) or len(node.targets) != 1:
@@ -80,38 +78,42 @@ class DeploymentContractTests(unittest.TestCase):
         self.assertEqual(
             {
                 **EXPECTED_PUBLIC_PATHS,
-                "PUBLIC_REMOTE":
-                    "https://github.com/lyosvne/agent-collaboration-standard.git",
-                "REMOTE_URL_ID": "governance-public-origin-v1",
-                "MASTER_REF": "refs/heads/master",
-                "BACKUP_NAMESPACE":
-                    "refs/aetheris-governance-sync/backups",
-                "OPERATION_NAMESPACE":
-                    "refs/aetheris-governance-sync/operations",
+                "HELPER": "/usr/local/sbin/aetheris-governance-sync",
+                "RELEASE_API_BASE":
+                    "https://api.github.com/repos/lyosvne/"
+                    "agent-collaboration-standard",
+                "RELEASE_TAG_PREFIX": "governance-sync-",
+                "MANIFEST_NAME": "governance-sync-manifest.json",
+                "BUNDLE_NAME": "governance.bundle",
             },
             assigned,
         )
         contract = CONTRACT.read_text(encoding="utf-8")
         for requirement in (
             "`/usr/local/sbin/aetheris-governance-sync-public`",
-            "`https://github.com/lyosvne/agent-collaboration-standard.git`",
-            "`refs/heads/master`",
-            "`refs/aetheris-governance-sync/operations/<operation-id>`",
-            "`source_mode = public-fixed-remote`",
-            "`remote_url_id = governance-public-origin-v1`",
-            "never reuses a dry-run",
-            "`receipt_state_uncertain` deliberately does **not** roll back",
-            "does not accept or inspect the incoming bundle",
-            "temporary bare repository",
-            "all protocols denied except HTTPS",
-            "all protocols denied except `file`",
-            "`url.*.insteadOf`",
-            "mirror object database",
-            "`backup_ref_state_uncertain`",
-            "`master_ref_state_uncertain`",
+            "`https://api.github.com/repos/lyosvne/agent-collaboration-standard`",
+            "`governance-sync-<40 lowercase hex commit>`",
+            "`governance-sync-manifest.json`",
+            "`/var/lib/aetheris-governance-sync/incoming/governance.bundle`",
+            "`target_commitish`",
+            "`O_EXCL|O_NOFOLLOW`",
+            "`bundle_cleanup_state_unknown`",
+            "`bundle_cleanup_pending`",
+            "`incoming_busy`",
+            "`source_cleanup`",
+            "`clean`",
+            "`pending`",
+            "`state-unknown`",
+            "It constructs every asset URL itself",
+            "HTTPS-only original and redirect protocols",
+            "Metadata, manifest, and",
+            "actual\nSHA-256 must agree exactly",
+            "unchanged bundle helper",
+            "pre-existing staging name is never removed",
             "CLI contract failures use `invalid_arguments`",
         ):
             self.assertIn(requirement, contract)
+        self.assertEqual(0o100755, PUBLIC_SOURCE.stat().st_mode)
 
     def test_sudoers_allows_deploy_to_run_only_no_argument_gate(self) -> None:
         active = [
@@ -442,9 +444,13 @@ class DeploymentContractTests(unittest.TestCase):
             "all other commands",
             "sync-public <40 lowercase hex commit> dry-run",
             "sync-public <40 lowercase hex commit> apply",
-            "never open,\nvalidate, read, or modify incoming",
+            "gate itself\ndoes not open incoming",
+            "reports\nthe outcome in `source_cleanup`",
             "/usr/local/sbin/aetheris-governance-sync-public",
             "ambient URL, branch, path, or credential value",
+            "manifest `sha256`",
+            "unchanged bundle helper schemas",
+            "`source_cleanup` must\nbe exactly one of `clean`, `pending`, or `state-unknown`",
         ):
             self.assertIn(required, contract)
 
@@ -494,8 +500,14 @@ class DeploymentContractTests(unittest.TestCase):
             "must not receive a GitHub token, PAT, deploy key, netrc",
             'ssh GOVERNANCE_HOST "sync-public $current dry-run"',
             'ssh GOVERNANCE_HOST "sync-public $current apply"',
-            "`refs/aetheris-governance-sync/operations/` must be empty",
-            "Never retry an\napply after `receipt_state_uncertain`",
+            "https://api.github.com/repos/lyosvne/agent-collaboration-standard/releases/tags/$tag",
+            "both `governance.bundle` and `.public-release`",
+            "`source_cleanup=clean`",
+            "`source_cleanup=pending`",
+            "`source_cleanup=state-unknown`",
+            "`bundle_cleanup_pending`",
+            "`bundle_cleanup_state_unknown`",
+            "`receipt_state_uncertain`",
         ):
             self.assertIn(requirement, deployment)
         for command in (

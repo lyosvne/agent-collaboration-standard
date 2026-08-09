@@ -1,0 +1,89 @@
+name: Publish Governance Sync Release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      target_commit:
+        description: Exact 40-character commit reachable from master
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: governance-sync-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout pinned canonical repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: master
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Select and validate target
+        id: target
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PUSH_COMMIT: ${{ github.sha }}
+          MANUAL_COMMIT: ${{ inputs.target_commit }}
+        run: |
+          set -euo pipefail
+          if test "$EVENT_NAME" = workflow_dispatch; then
+            target=$MANUAL_COMMIT
+          else
+            target=$PUSH_COMMIT
+          fi
+          test "$(printf '%s' "$target" | wc -c)" -eq 40
+          case "$target" in *[!0-9a-f]*) exit 1 ;; esac
+          git cat-file -e "$target^{commit}"
+          master=$(git rev-parse refs/remotes/origin/master)
+          git merge-base --is-ancestor "$target" "$master"
+          printf 'commit=%s\n' "$target" >>"$GITHUB_OUTPUT"
+          printf 'tag=governance-sync-%s\n' "$target" >>"$GITHUB_OUTPUT"
+
+      - name: Build complete bundle and canonical manifest
+        env:
+          TARGET_COMMIT: ${{ steps.target.outputs.commit }}
+        run: |
+          set -euo pipefail
+          git update-ref refs/heads/master "$TARGET_COMMIT"
+          git bundle create governance.bundle refs/heads/master
+          git bundle verify governance.bundle
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          bundle = Path("governance.bundle")
+          payload = {
+              "bundle": {
+                  "name": "governance.bundle",
+                  "sha256": hashlib.sha256(bundle.read_bytes()).hexdigest(),
+                  "size": bundle.stat().st_size,
+              },
+              "commit": os.environ["TARGET_COMMIT"],
+              "schema_version": 1,
+          }
+          Path("governance-sync-manifest.json").write_text(
+              json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Create and verify immutable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_COMMIT: ${{ steps.target.outputs.commit }}
+          RELEASE_TAG: ${{ steps.target.outputs.tag }}
+        run: python3 scripts/publish-governance-release.py

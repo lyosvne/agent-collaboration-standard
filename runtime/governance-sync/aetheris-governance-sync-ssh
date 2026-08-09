@@ -34,6 +34,7 @@ RECEIPT_RE = re.compile(r"^[A-Za-z0-9._-]{1,255}\.receipt\.json$")
 BACKUP_REF_RE = re.compile(
     r"^refs/aetheris-governance-sync/backups/[A-Za-z0-9._-]{1,255}$"
 )
+SOURCE_CLEANUP_VALUES = {"clean", "pending", "state-unknown"}
 
 
 class GateError(RuntimeError):
@@ -905,25 +906,26 @@ def _validated_public_helper_payload(
     if payload is None:
         raise GateError("public_helper_invalid_response")
     status = payload.get("status")
-    remote_master = payload.get("remote_master")
-    if not _valid_commit(remote_master):
-        raise GateError("public_helper_invalid_response")
     if action == "dry-run":
         if (
             set(payload)
             != {
                 "status",
-                "before_commit",
                 "commit",
-                "remote_master",
+                "sha256",
+                "before_commit",
                 "would_change",
+                "source_cleanup",
             }
             or status != "dry-run"
             or payload.get("commit") != commit
+            or not isinstance(payload.get("sha256"), str)
+            or SHA256_RE.fullmatch(payload["sha256"]) is None
             or not _valid_commit(payload.get("before_commit"))
             or not isinstance(payload.get("would_change"), bool)
             or payload["would_change"]
             != (payload.get("before_commit") != payload.get("commit"))
+            or payload.get("source_cleanup") not in SOURCE_CLEANUP_VALUES
         ):
             raise GateError("public_helper_invalid_response")
         return payload
@@ -934,12 +936,13 @@ def _validated_public_helper_payload(
                 "status",
                 "commit",
                 "before_commit",
-                "remote_master",
                 "backup_ref",
+                "source_cleanup",
             }
             or payload.get("commit") != commit
             or payload.get("before_commit") != commit
             or payload.get("backup_ref") is not None
+            or payload.get("source_cleanup") not in SOURCE_CLEANUP_VALUES
         ):
             raise GateError("public_helper_invalid_response")
         return payload
@@ -951,15 +954,16 @@ def _validated_public_helper_payload(
             != {
                 "status",
                 "commit",
-                "remote_master",
                 "receipt",
                 "backup_ref",
+                "source_cleanup",
             }
             or payload.get("commit") != commit
             or not isinstance(backup_ref, str)
             or BACKUP_REF_RE.fullmatch(backup_ref) is None
             or not isinstance(receipt, str)
             or RECEIPT_RE.fullmatch(receipt) is None
+            or payload.get("source_cleanup") not in SOURCE_CLEANUP_VALUES
         ):
             raise GateError("public_helper_invalid_response")
         return payload

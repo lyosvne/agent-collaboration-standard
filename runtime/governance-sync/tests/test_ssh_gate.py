@@ -221,8 +221,9 @@ class CommandTests(unittest.TestCase):
             "status": "dry-run",
             "before_commit": "b" * 40,
             "commit": commit,
-            "remote_master": "c" * 40,
+            "sha256": "c" * 64,
             "would_change": True,
+            "source_cleanup": "clean",
         }
         completed = subprocess.CompletedProcess([], 0, json.dumps(payload), "")
         with mock.patch.object(
@@ -246,7 +247,6 @@ class CommandTests(unittest.TestCase):
 
     def test_public_helper_accepts_only_exact_json_schemas(self) -> None:
         commit = "a" * 40
-        remote = "b" * 40
         valid = (
             (
                 "dry-run",
@@ -254,8 +254,9 @@ class CommandTests(unittest.TestCase):
                     "status": "dry-run",
                     "before_commit": "c" * 40,
                     "commit": commit,
-                    "remote_master": remote,
+                    "sha256": "b" * 64,
                     "would_change": True,
+                    "source_cleanup": "clean",
                 },
             ),
             (
@@ -264,8 +265,8 @@ class CommandTests(unittest.TestCase):
                     "status": "no-op",
                     "commit": commit,
                     "before_commit": commit,
-                    "remote_master": remote,
                     "backup_ref": None,
+                    "source_cleanup": "pending",
                 },
             ),
             (
@@ -273,10 +274,10 @@ class CommandTests(unittest.TestCase):
                 {
                     "status": "applied",
                     "commit": commit,
-                    "remote_master": remote,
                     "receipt": "operation.receipt.json",
                     "backup_ref":
                         "refs/aetheris-governance-sync/backups/operation",
+                    "source_cleanup": "state-unknown",
                 },
             ),
         )
@@ -296,25 +297,33 @@ class CommandTests(unittest.TestCase):
         invalid_payloads = (
             {
                 "status": "dry-run",
+                "before_commit": "b" * 40,
+                "commit": commit,
+                "sha256": "b" * 64,
+                "would_change": True,
+            },
+            {
+                "status": "dry-run",
                 "before_commit": commit,
                 "commit": commit,
-                "remote_master": remote,
+                "sha256": "b" * 64,
                 "would_change": True,
+                "source_cleanup": "invalid",
             },
             {
                 "status": "no-op",
                 "commit": commit,
                 "before_commit": commit,
-                "remote_master": remote,
                 "backup_ref": None,
                 "url": "secret",
+                "source_cleanup": "clean",
             },
             {
                 "status": "applied",
                 "commit": commit,
-                "remote_master": "not-a-commit",
                 "receipt": "../escape",
                 "backup_ref": "refs/heads/master",
+                "source_cleanup": "clean",
             },
         )
         for payload in invalid_payloads:
@@ -370,8 +379,8 @@ class CommandTests(unittest.TestCase):
             "status": "no-op",
             "commit": commit,
             "before_commit": commit,
-            "remote_master": "b" * 40,
             "backup_ref": None,
+            "source_cleanup": "clean",
         }
         stdout = io.StringIO()
         with (
