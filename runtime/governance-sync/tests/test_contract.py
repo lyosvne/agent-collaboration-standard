@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import ast
+import json
+import os
 import platform
+import pwd
 import shutil
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -56,7 +60,7 @@ class DeploymentContractTests(unittest.TestCase):
         self.assertEqual(
             "Defaults!/usr/local/sbin/aetheris-governance-sync-ssh "
             'secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin, '
-            'env_keep += "SSH_ORIGINAL_COMMAND"',
+            'env_keep += "SSH_ORIGINAL_COMMAND", !use_pty',
             active[0],
         )
         self.assertEqual(
@@ -68,6 +72,14 @@ class DeploymentContractTests(unittest.TestCase):
         self.assertNotIn("SETENV", "\n".join(active))
         self.assertNotIn("*", "\n".join(active))
         self.assertNotIn("%aetheris-governance-sync", "\n".join(active))
+        self.assertEqual(1, "\n".join(active).count("!use_pty"))
+        self.assertTrue(active[0].startswith(
+            "Defaults!/usr/local/sbin/aetheris-governance-sync-ssh "
+        ))
+        self.assertFalse(any(
+            line.startswith("Defaults ") and "!use_pty" in line
+            for line in active
+        ))
         self.assertNotEqual(
             "/usr/local/sbin/aetheris-governance-sync",
             active[1].split()[-1].strip('"'),
@@ -155,6 +167,100 @@ class DeploymentContractTests(unittest.TestCase):
             stderr=subprocess.PIPE,
         )
         self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_linux_sudo_gate_streams_more_than_5_mib_without_a_pty(self) -> None:
+        sudo = shutil.which("sudo")
+        visudo = shutil.which("visudo")
+        if platform.system() != "Linux" or sudo is None or visudo is None:
+            self.skipTest("Linux sudo and visudo are required")
+        sudo_probe = subprocess.run(
+            [sudo, "-n", "true"],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        if sudo_probe.returncode != 0:
+            self.skipTest("passwordless sudo is not available")
+
+        username = pwd.getpwuid(os.getuid()).pw_name
+        payload = os.urandom(5 * 1024 * 1024 + 4097)
+        drop_in = Path(
+            f"/etc/sudoers.d/aetheris-governance-sync-stream-test-{os.getpid()}"
+        )
+        with tempfile.TemporaryDirectory(prefix="governance-sudo-gate-") as tmp:
+            root = Path(tmp)
+            gate = root / "stdin-gate"
+            gate.write_text(
+                "#!/usr/bin/python3 -I\n"
+                "import json, os\n"
+                "total = 0\n"
+                "while True:\n"
+                "    chunk = os.read(0, 65536)\n"
+                "    if not chunk:\n"
+                "        break\n"
+                "    total += len(chunk)\n"
+                "print(json.dumps({'bytes': total, 'stdin_isatty': os.isatty(0)}))\n",
+                encoding="utf-8",
+            )
+            gate.chmod(0o755)
+            candidate = root / "sudoers"
+            candidate.write_text(
+                f"Defaults:{username} use_pty\n"
+                f"Defaults!{gate} !use_pty\n"
+                f"{username} ALL=({username}) NOPASSWD: {gate} \"\"\n",
+                encoding="utf-8",
+            )
+            syntax = subprocess.run(
+                [visudo, "-cf", str(candidate)],
+                check=False,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            self.assertEqual(0, syntax.returncode, syntax.stderr)
+
+            try:
+                install = subprocess.run(
+                    [
+                        sudo, "-n", "install", "-o", "root", "-g", "root",
+                        "-m", "0440", str(candidate), str(drop_in),
+                    ],
+                    check=False,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                self.assertEqual(0, install.returncode, install.stderr)
+                installed_syntax = subprocess.run(
+                    [sudo, "-n", visudo, "-cf", str(drop_in)],
+                    check=False,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                self.assertEqual(
+                    0, installed_syntax.returncode, installed_syntax.stderr
+                )
+                result = subprocess.run(
+                    [sudo, "-n", "-u", username, str(gate)],
+                    input=payload,
+                    check=False,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=20,
+                )
+                self.assertEqual(0, result.returncode, result.stderr.decode())
+                self.assertEqual(
+                    {"bytes": len(payload), "stdin_isatty": False},
+                    json.loads(result.stdout),
+                )
+            finally:
+                subprocess.run(
+                    [sudo, "-n", "rm", "-f", str(drop_in)],
+                    check=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
 
     def test_contract_documents_security_transaction_and_orphan_policy(self) -> None:
         contract = CONTRACT.read_text(encoding="utf-8")
@@ -249,6 +355,10 @@ class DeploymentContractTests(unittest.TestCase):
             "`shell=False`",
             "Raw helper stderr",
             "tracebacks are never forwarded",
+            "opaque binary bytes",
+            "without\ntext decoding",
+            "`Defaults!/usr/local/sbin/aetheris-governance-sync-ssh !use_pty`",
+            "all other commands",
         ):
             self.assertIn(required, contract)
 
@@ -278,6 +388,10 @@ class DeploymentContractTests(unittest.TestCase):
             "helper probe must be denied",
             "No\nwildcard, alternate arguments, shell, or direct helper command is granted",
             "fixed root-owned lock inode",
+            "command-specific `Defaults!`",
+            "Do not set `!use_pty`\nglobally",
+            "opaque binary bundle",
+            "sudo's stdin",
         ):
             self.assertIn(requirement, deployment)
         for command in (

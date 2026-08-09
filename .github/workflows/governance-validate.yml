@@ -32,6 +32,9 @@ jobs:
       - name: Scanner tests
         run: python3 -m unittest scripts/check_governance_truth_test.py
 
+      - name: Governance sync runtime, sudoers, and stdin streaming tests
+        run: python3 -m unittest discover -s runtime/governance-sync/tests -p 'test_*.py'
+
       - name: Validate review JSON
         run: |
           python3 - <<'PY'
