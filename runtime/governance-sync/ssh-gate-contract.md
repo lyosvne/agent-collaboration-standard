@@ -90,8 +90,12 @@ incoming directory with
 `O_DIRECTORY|O_NOFOLLOW` and validates that it is owned by the gate's
 effective UID and GID and uses exact mode `0700`.
 The two `sync-public` forms hold the same root-owned gate lock. The gate itself
-does not open incoming; the fixed public helper atomically publishes the
-verified Release bundle there. A valid existing bundle or any existing
+does not open incoming. The fixed public helper accepts only immutable
+`governance-sync-v2-<commit>` metadata and the exact schema 2 incremental
+manifest. It verifies the increment against fixed mirror-object alternates in
+a helper-created temporary bare repository, permits only local `file` bundle
+reads, then atomically publishes the rebuilt full-history bundle there. A valid
+existing bundle or any existing
 `.public-release` staging name returns `incoming_busy` without changing that
 inode. The helper cleanup unlinks only its recorded published inode and reports
 the outcome in `source_cleanup`.

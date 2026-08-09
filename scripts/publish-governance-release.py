@@ -18,6 +18,7 @@ REPOSITORY = "lyosvne/agent-collaboration-standard"
 API_ROOT = f"https://api.github.com/repos/{REPOSITORY}"
 UPLOADS_ROOT = f"https://uploads.github.com/repos/{REPOSITORY}"
 API_VERSION = "2022-11-28"
+RELEASE_TAG_PREFIX = "governance-sync-v2-"
 ASSET_PATHS = (
     Path("governance-sync-manifest.json"),
     Path("governance.bundle"),
@@ -137,8 +138,12 @@ def require_release(
         raise PublishError("release tag does not match requested tag")
     if release.get("target_commitish") != target:
         raise PublishError("release target does not match requested commit")
+    if release.get("name") != tag:
+        raise PublishError("release name does not match requested tag")
     if release.get("draft") is not draft:
         raise PublishError(f"release draft state is not {draft}")
+    if release.get("prerelease") is not False:
+        raise PublishError("release must not be a prerelease")
     if immutable is not None and release.get("immutable") is not immutable:
         raise PublishError(f"release immutable state is not {immutable}")
     require_assets(release.get("assets"), assets)
@@ -157,7 +162,7 @@ def publish(token: str, target: str, tag: str) -> None:
         raise PublishError("GH_TOKEN is required")
     if re.fullmatch(r"[0-9a-f]{40}", target) is None:
         raise PublishError("TARGET_COMMIT must be exactly 40 lowercase hexadecimal characters")
-    expected_tag = f"governance-sync-{target}"
+    expected_tag = f"{RELEASE_TAG_PREFIX}{target}"
     if tag != expected_tag:
         raise PublishError(f"RELEASE_TAG must equal {expected_tag}")
 

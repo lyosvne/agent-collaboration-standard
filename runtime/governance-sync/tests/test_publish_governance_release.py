@@ -18,7 +18,7 @@ publisher = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(publisher)
 
 TARGET = "a" * 40
-TAG = f"governance-sync-{TARGET}"
+TAG = f"governance-sync-v2-{TARGET}"
 
 
 class Response:
@@ -58,7 +58,7 @@ class PublishGovernanceReleaseTests(unittest.TestCase):
         self.previous_cwd = os.getcwd()
         os.chdir(self.temp_dir.name)
         self.contents = {
-            "governance-sync-manifest.json": b'{"schema_version":1}\n',
+            "governance-sync-manifest.json": b'{"schema_version":2}\n',
             "governance.bundle": b"test bundle bytes",
         }
         for name, content in self.contents.items():
@@ -85,7 +85,9 @@ class PublishGovernanceReleaseTests(unittest.TestCase):
             "id": 7,
             "tag_name": TAG,
             "target_commitish": TARGET,
+            "name": TAG,
             "draft": draft,
+            "prerelease": False,
             "assets": [
                 self.asset("governance-sync-manifest.json"),
                 self.asset("governance.bundle"),
@@ -179,7 +181,7 @@ class PublishGovernanceReleaseTests(unittest.TestCase):
         api = SequencedAPI([])
         with mock.patch.object(publisher.urllib.request, "urlopen", api):
             with self.assertRaisesRegex(publisher.PublishError, "RELEASE_TAG must equal"):
-                publisher.publish("token", TARGET, "governance-sync-wrong")
+                publisher.publish("token", TARGET, "governance-sync-v2-wrong")
         self.assertEqual([], api.requests)
 
     def test_partial_upload_failure_leaves_draft_and_never_patches(self) -> None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import importlib.util
 from importlib.machinery import SourceFileLoader
@@ -90,7 +91,7 @@ class ArgumentsAndTransportTests(unittest.TestCase):
                 ) as run,
             ):
                 public.download(
-                    f"{public.RELEASE_API_BASE}/releases/tags/governance-sync-{'a' * 40}",
+                    f"{public.RELEASE_API_BASE}/releases/tags/governance-sync-v2-{'a' * 40}",
                     destination,
                     public.MAX_METADATA_BYTES,
                     asset=False,
@@ -164,7 +165,7 @@ class MetadataAndManifestTests(unittest.TestCase):
 
     def release(self) -> dict[str, object]:
         return {
-            "tag_name": f"governance-sync-{self.COMMIT}",
+            "tag_name": f"governance-sync-v2-{self.COMMIT}",
             "target_commitish": self.COMMIT,
             "draft": False,
             "prerelease": False,
@@ -245,7 +246,9 @@ class MetadataAndManifestTests(unittest.TestCase):
                 "size": 123,
             },
             "commit": self.COMMIT,
-            "schema_version": 1,
+            "base_commit": public.BASE_COMMIT,
+            "bundle_kind": "incremental",
+            "schema_version": 2,
         }
         self.assertEqual(
             public.Manifest(self.COMMIT, 123, digest),
@@ -254,7 +257,9 @@ class MetadataAndManifestTests(unittest.TestCase):
         invalid = (
             {**valid, "extra": True},
             {**valid, "commit": "c" * 40},
-            {**valid, "schema_version": 2},
+            {**valid, "schema_version": 1},
+            {**valid, "base_commit": "c" * 40},
+            {**valid, "bundle_kind": "full"},
             {**valid, "bundle": {**valid["bundle"], "name": "../bundle"}},
             {**valid, "bundle": {**valid["bundle"], "size": True}},
             {**valid, "bundle": {**valid["bundle"], "sha256": "B" * 64}},
@@ -496,7 +501,7 @@ class PublishCleanupAndRelayTests(unittest.TestCase):
         content = b"complete bundle"
         digest = hashlib.sha256(content).hexdigest()
         release = {
-            "tag_name": f"governance-sync-{commit}",
+            "tag_name": f"governance-sync-v2-{commit}",
             "target_commitish": commit,
             "draft": False,
             "prerelease": False,
@@ -513,7 +518,9 @@ class PublishCleanupAndRelayTests(unittest.TestCase):
                 "sha256": digest,
             },
             "commit": commit,
-            "schema_version": 1,
+            "base_commit": public.BASE_COMMIT,
+            "bundle_kind": "incremental",
+            "schema_version": 2,
         }
         manifest_bytes = (
             json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n"
@@ -542,6 +549,11 @@ class PublishCleanupAndRelayTests(unittest.TestCase):
         with (
             mock.patch.object(public, "download", side_effect=fake_download),
             mock.patch.object(
+                public,
+                "rebuild_full_bundle",
+                side_effect=lambda incremental, root, requested: (incremental, digest),
+            ),
+            mock.patch.object(
                 public, "run_bundle_helper", return_value=(0, relay)
             ) as helper,
         ):
@@ -550,7 +562,7 @@ class PublishCleanupAndRelayTests(unittest.TestCase):
             )
         self.assertEqual(
             [
-                f"{public.RELEASE_API_BASE}/releases/tags/governance-sync-{commit}",
+                f"{public.RELEASE_API_BASE}/releases/tags/governance-sync-v2-{commit}",
                 f"{public.RELEASE_API_BASE}/releases/assets/11",
                 f"{public.RELEASE_API_BASE}/releases/assets/22",
             ],
@@ -596,6 +608,11 @@ class PublishCleanupAndRelayTests(unittest.TestCase):
                 return_value=public.Manifest(self.COMMIT, 1, "b" * 64),
             ),
             mock.patch.object(public, "validate_downloaded_asset"),
+            mock.patch.object(
+                public,
+                "rebuild_full_bundle",
+                return_value=(Path("/unused"), "c" * 64),
+            ),
             mock.patch.object(Path, "stat", return_value=mock.Mock(st_size=1)),
         ):
             self.assertEqual(
@@ -638,6 +655,11 @@ class PublishCleanupAndRelayTests(unittest.TestCase):
                     return_value=public.Manifest(self.COMMIT, 1, "b" * 64),
                 ),
                 mock.patch.object(public, "validate_downloaded_asset"),
+                mock.patch.object(
+                    public,
+                    "rebuild_full_bundle",
+                    return_value=(Path("/unused"), "c" * 64),
+                ),
                 mock.patch.object(Path, "stat", return_value=mock.Mock(st_size=1)),
             ):
                 return public.synchronize(request)
@@ -693,6 +715,11 @@ class PublishCleanupAndRelayTests(unittest.TestCase):
             ),
             mock.patch.object(
                 public,
+                "rebuild_full_bundle",
+                side_effect=lambda incremental, root, requested: (incremental, digest),
+            ),
+            mock.patch.object(
+                public,
                 "run_bundle_helper",
                 side_effect=public.SyncError("injected"),
             ),
@@ -701,6 +728,336 @@ class PublishCleanupAndRelayTests(unittest.TestCase):
                 public.synchronize(request)
         self.assertFalse((self.incoming / public.BUNDLE_NAME).exists())
         self.assertFalse((self.incoming / public.STAGING_NAME).exists())
+
+
+class IncrementalBundleRebuildTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary.name)
+        self.source = self.root / "source"
+        self.mirror = self.root / "mirror"
+        self._git(self.root, "init", "-b", "master", str(self.source))
+        self._git(self.source, "config", "user.name", "Test")
+        self._git(self.source, "config", "user.email", "test@example.invalid")
+        (self.source / "seed").write_text("seed\n", encoding="utf-8")
+        self._git(self.source, "add", "seed")
+        self._git(self.source, "commit", "-m", "seed")
+        self.base_parent = self._git_output(self.source, "rev-parse", "HEAD")
+        (self.source / "base").write_text("baseline\n", encoding="utf-8")
+        self._git(self.source, "add", "base")
+        self._git(self.source, "commit", "-m", "baseline")
+        self.base = self._git_output(self.source, "rev-parse", "HEAD")
+        self._git(self.root, "clone", str(self.source), str(self.mirror))
+        (self.source / "increment.bin").write_bytes(os.urandom(109 * 1024))
+        self._git(self.source, "add", "increment.bin")
+        self._git(self.source, "commit", "-m", "target")
+        self.target = self._git_output(self.source, "rev-parse", "HEAD")
+        self.incremental = self.root / "incremental.bundle"
+        self.lock = self.root / "helper.lock"
+        self.lock.write_bytes(b"")
+        self.lock.chmod(0o600)
+        self._git(
+            self.source,
+            "bundle",
+            "create",
+            "--version=3",
+            str(self.incremental),
+            "refs/heads/master",
+            f"^{self.base}",
+        )
+
+    def tearDown(self) -> None:
+        self.temporary.cleanup()
+
+    @staticmethod
+    def _git(cwd: Path, *arguments: str) -> None:
+        subprocess.run(
+            ["/usr/bin/git", *arguments],
+            cwd=cwd,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            check=True,
+            env={"PATH": "/usr/bin:/bin", "HOME": "/nonexistent", "LANG": "C", "LC_ALL": "C"},
+        )
+
+    @staticmethod
+    def _git_output(cwd: Path, *arguments: str) -> str:
+        return subprocess.run(
+            ["/usr/bin/git", *arguments],
+            cwd=cwd,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            text=True,
+            env={"PATH": "/usr/bin:/bin", "HOME": "/nonexistent", "LANG": "C", "LC_ALL": "C"},
+        ).stdout.strip()
+
+    def rebuild(self, bundle: Path, commit: str) -> tuple[Path, str, tempfile.TemporaryDirectory]:
+        output = tempfile.TemporaryDirectory(dir=self.root)
+        self.addCleanup(output.cleanup)
+        with mock.patch.multiple(
+            public,
+            MIRROR_OBJECTS=self.mirror / ".git" / "objects",
+            LOCK=self.lock,
+            BASE_COMMIT=self.base,
+            BASE_PARENT=self.base_parent,
+        ):
+            full, digest = public.rebuild_full_bundle(bundle, Path(output.name), commit)
+        return full, digest, output
+
+    def test_rebuilds_109kb_increment_and_reports_full_bundle_hash(self) -> None:
+        self.assertEqual(
+            b"# v3 git bundle\n", self.incremental.read_bytes().splitlines(keepends=True)[0]
+        )
+        self.assertGreater(self.incremental.stat().st_size, 100 * 1024)
+        self.assertLess(self.incremental.stat().st_size, 130 * 1024)
+        full, digest, _ = self.rebuild(self.incremental, self.target)
+        self.assertEqual(hashlib.sha256(full.read_bytes()).hexdigest(), digest)
+        clone = self.root / "full-clone"
+        self._git(self.root, "clone", "-b", "master", str(full), str(clone))
+        self.assertEqual(self.target, self._git_output(clone, "rev-parse", "HEAD"))
+        self.assertEqual(
+            self._git_output(self.source, "rev-list", "--count", self.target),
+            self._git_output(clone, "rev-list", "--count", "HEAD"),
+        )
+
+    def test_baseline_bundle_rebuilds_to_existing_mirror_commit_for_no_op(self) -> None:
+        baseline_bundle = self.root / "baseline.bundle"
+        self._git(self.source, "update-ref", "refs/heads/master", self.base)
+        self._git(
+            self.source,
+            "bundle",
+            "create",
+            "--version=2",
+            str(baseline_bundle),
+            "refs/heads/master",
+            f"^{self.base}^",
+        )
+        self._git(self.source, "update-ref", "refs/heads/master", self.target)
+        self.assertEqual(
+            b"# v2 git bundle\n", baseline_bundle.read_bytes().splitlines(keepends=True)[0]
+        )
+        full, _, _ = self.rebuild(baseline_bundle, self.base)
+        heads = self._git_output(self.root, "bundle", "list-heads", str(full))
+        self.assertEqual(f"{self.base} refs/heads/master", heads)
+        self.assertEqual(self.base, self._git_output(self.mirror, "rev-parse", "HEAD"))
+
+    def test_missing_prerequisite_fails_closed(self) -> None:
+        empty = self.root / "empty.git"
+        self._git(self.root, "init", "--bare", str(empty))
+        output = self.root / "missing-output"
+        output.mkdir()
+        with (
+            mock.patch.multiple(
+                public,
+                MIRROR_OBJECTS=empty / "objects",
+                LOCK=self.lock,
+                BASE_COMMIT=self.base,
+                BASE_PARENT=self.base_parent,
+            ),
+            self.assertRaises(public.SyncError) as caught,
+        ):
+            public.rebuild_full_bundle(self.incremental, output, self.target)
+        self.assertEqual("bundle_prerequisite_missing", caught.exception.code)
+
+    def test_malicious_wrong_target_bundle_is_rejected(self) -> None:
+        wrong_target = self.root / "wrong-target.bundle"
+        self._git(
+            self.source,
+            "bundle",
+            "create",
+            "--version=2",
+            str(wrong_target),
+            "refs/heads/master",
+            f"^{self.base_parent}",
+        )
+        output = self.root / "malicious-output"
+        output.mkdir()
+        with (
+            mock.patch.multiple(
+                public,
+                MIRROR_OBJECTS=self.mirror / ".git" / "objects",
+                LOCK=self.lock,
+                BASE_COMMIT=self.base,
+                BASE_PARENT=self.base_parent,
+            ),
+            self.assertRaises(public.SyncError) as caught,
+        ):
+            public.rebuild_full_bundle(wrong_target, output, self.base)
+        self.assertEqual("bundle_header_invalid", caught.exception.code)
+
+    def test_rejects_wrong_prerequisite_even_when_mirror_has_it(self) -> None:
+        wrong = self.root / "wrong-prerequisite.bundle"
+        self._git(
+            self.source,
+            "bundle",
+            "create",
+            "--version=3",
+            str(wrong),
+            "refs/heads/master",
+            f"^{self.base_parent}",
+        )
+        self.assertEqual(
+            "commit", self._git_output(self.mirror, "cat-file", "-t", self.base_parent)
+        )
+        output = self.root / "wrong-prerequisite-output"
+        output.mkdir()
+        with (
+            mock.patch.multiple(
+                public,
+                MIRROR_OBJECTS=self.mirror / ".git" / "objects",
+                LOCK=self.lock,
+                BASE_COMMIT=self.base,
+                BASE_PARENT=self.base_parent,
+            ),
+            self.assertRaises(public.SyncError) as caught,
+        ):
+            public.rebuild_full_bundle(wrong, output, self.target)
+        self.assertEqual("bundle_prerequisites_invalid", caught.exception.code)
+
+    def test_rejects_extra_duplicate_and_malformed_real_bundle_headers(self) -> None:
+        raw = self.incremental.read_bytes()
+        header, pack = raw.split(b"\n\n", 1)
+        prerequisite = f"-{self.base} baseline".encode()
+        self.assertIn(prerequisite, header)
+        fixtures = {
+            "extra": (
+                header.replace(
+                prerequisite,
+                prerequisite + f"\n-{self.base_parent} extra".encode(),
+            )
+                + b"\n\n"
+                + pack,
+                "bundle_prerequisites_invalid",
+            ),
+            "duplicate": (
+                header.replace(prerequisite, prerequisite + b"\n" + prerequisite)
+                + b"\n\n"
+                + pack,
+                "bundle_header_invalid",
+            ),
+            "malformed": (
+                header.replace(prerequisite, b"-not-an-object malformed")
+                + b"\n\n"
+                + pack,
+                "bundle_header_invalid",
+            ),
+            "oversized": (
+                b"# v2 git bundle\n-" + self.base.encode() + b" " + b"x" * 65536,
+                "bundle_header_invalid",
+            ),
+        }
+        for name, (content, error_code) in fixtures.items():
+            candidate = self.root / f"{name}.bundle"
+            candidate.write_bytes(content)
+            with self.subTest(name=name), self.assertRaises(public.SyncError) as caught:
+                public.validate_bundle_header(candidate, self.target)
+            self.assertEqual(error_code, caught.exception.code)
+
+    def test_helper_lock_is_nonblocking_strict_and_released_after_rebuild(self) -> None:
+        held = os.open(self.lock, os.O_RDWR)
+        try:
+            fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            output = self.root / "contended-output"
+            output.mkdir()
+            with (
+                mock.patch.multiple(
+                    public,
+                    MIRROR_OBJECTS=self.mirror / ".git" / "objects",
+                    LOCK=self.lock,
+                    BASE_COMMIT=self.base,
+                    BASE_PARENT=self.base_parent,
+                ),
+                self.assertRaises(public.SyncError) as caught,
+            ):
+                public.rebuild_full_bundle(self.incremental, output, self.target)
+            self.assertEqual("already_running", caught.exception.code)
+        finally:
+            os.close(held)
+
+        self.rebuild(self.incremental, self.target)
+        probe = os.open(self.lock, os.O_RDWR)
+        try:
+            fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        finally:
+            os.close(probe)
+
+        opened = self.lock.stat()
+        wrong_group = mock.Mock(
+            st_mode=stat.S_IFREG | 0o600,
+            st_uid=os.geteuid(),
+            st_gid=os.getegid() + 1,
+            st_dev=opened.st_dev,
+            st_ino=opened.st_ino,
+        )
+        with (
+            mock.patch.object(public, "LOCK", self.lock),
+            mock.patch.object(public.os, "fstat", return_value=wrong_group),
+            self.assertRaises(public.SyncError) as caught,
+        ):
+            with public.exclusive_helper_lock():
+                self.fail("wrong-group lock was acquired")
+        self.assertEqual("lock_unsafe", caught.exception.code)
+
+        self.lock.chmod(0o640)
+        with (
+            mock.patch.object(public, "LOCK", self.lock),
+            self.assertRaises(public.SyncError) as caught,
+        ):
+            with public.exclusive_helper_lock():
+                self.fail("unsafe lock was acquired")
+        self.assertEqual("lock_unsafe", caught.exception.code)
+
+        self.lock.unlink()
+        target = self.root / "lock-target"
+        target.write_bytes(b"")
+        target.chmod(0o600)
+        self.lock.symlink_to(target)
+        with (
+            mock.patch.object(public, "LOCK", self.lock),
+            self.assertRaises(public.SyncError) as caught,
+        ):
+            with public.exclusive_helper_lock():
+                self.fail("symlink lock was acquired")
+        self.assertEqual("lock_unavailable", caught.exception.code)
+
+    def test_git_inputs_cannot_override_fixed_alternates_or_temporary_repository(self) -> None:
+        attacker = self.root / "attacker"
+        attacker.mkdir()
+        with mock.patch.dict(
+            os.environ,
+            {
+                "GIT_DIR": str(attacker),
+                "GIT_OBJECT_DIRECTORY": str(attacker),
+                "GIT_ALTERNATE_OBJECT_DIRECTORIES": str(attacker),
+                "GIT_CONFIG_GLOBAL": str(attacker / "config"),
+                "TMPDIR": str(attacker),
+            },
+            clear=False,
+        ):
+            full, digest, output = self.rebuild(self.incremental, self.target)
+        self.assertTrue(full.is_relative_to(Path(output.name)))
+        self.assertEqual(hashlib.sha256(full.read_bytes()).hexdigest(), digest)
+        self.assertEqual(
+            {
+                "GIT_CONFIG_NOSYSTEM": "1",
+                "GIT_CONFIG_GLOBAL": "/dev/null",
+                "GIT_TERMINAL_PROMPT": "0",
+                "GIT_ALLOW_PROTOCOL": "file",
+            },
+            {
+                key: public._git_environment()[key]
+                for key in (
+                    "GIT_CONFIG_NOSYSTEM",
+                    "GIT_CONFIG_GLOBAL",
+                    "GIT_TERMINAL_PROMPT",
+                    "GIT_ALLOW_PROTOCOL",
+                )
+            },
+        )
+        self.assertEqual([], list(attacker.iterdir()))
 
 
 if __name__ == "__main__":

@@ -36,6 +36,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           PUSH_COMMIT: ${{ github.sha }}
           MANUAL_COMMIT: ${{ inputs.target_commit }}
+          BASE_COMMIT: bef402ae2c2518961c6abe0d90a1838346e9afb9
         run: |
           set -euo pipefail
           if test "$EVENT_NAME" = workflow_dispatch; then
@@ -48,16 +49,24 @@ jobs:
           git cat-file -e "$target^{commit}"
           master=$(git rev-parse refs/remotes/origin/master)
           git merge-base --is-ancestor "$target" "$master"
+          git cat-file -e "$BASE_COMMIT^{commit}"
+          git merge-base --is-ancestor "$BASE_COMMIT" "$target"
           printf 'commit=%s\n' "$target" >>"$GITHUB_OUTPUT"
-          printf 'tag=governance-sync-%s\n' "$target" >>"$GITHUB_OUTPUT"
+          printf 'tag=governance-sync-v2-%s\n' "$target" >>"$GITHUB_OUTPUT"
 
-      - name: Build complete bundle and canonical manifest
+      - name: Build incremental bundle and canonical schema-2 manifest
         env:
           TARGET_COMMIT: ${{ steps.target.outputs.commit }}
+          BASE_COMMIT: bef402ae2c2518961c6abe0d90a1838346e9afb9
         run: |
           set -euo pipefail
           git update-ref refs/heads/master "$TARGET_COMMIT"
-          git bundle create governance.bundle refs/heads/master
+          if test "$TARGET_COMMIT" = "$BASE_COMMIT"; then
+            exclude="$TARGET_COMMIT^"
+          else
+            exclude="$BASE_COMMIT"
+          fi
+          git bundle create governance.bundle refs/heads/master "^$exclude"
           git bundle verify governance.bundle
           python3 - <<'PY'
           import hashlib
@@ -72,8 +81,10 @@ jobs:
                   "sha256": hashlib.sha256(bundle.read_bytes()).hexdigest(),
                   "size": bundle.stat().st_size,
               },
+              "base_commit": os.environ["BASE_COMMIT"],
+              "bundle_kind": "incremental",
               "commit": os.environ["TARGET_COMMIT"],
-              "schema_version": 1,
+              "schema_version": 2,
           }
           Path("governance-sync-manifest.json").write_text(
               json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n",

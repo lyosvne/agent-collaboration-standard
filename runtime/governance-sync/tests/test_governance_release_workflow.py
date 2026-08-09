@@ -31,22 +31,30 @@ class GovernanceReleaseWorkflowTests(unittest.TestCase):
         self.assertIn("fetch-depth: 0", self.source)
         self.assertIn("persist-credentials: false", self.source)
 
-    def test_target_is_exact_commit_reachable_from_origin_master(self) -> None:
+    def test_target_is_exact_commit_reachable_from_origin_master_and_after_baseline(self) -> None:
         for required in (
             "test \"$(printf '%s' \"$target\" | wc -c)\" -eq 40",
             "*[!0-9a-f]*",
             'git cat-file -e "$target^{commit}"',
             "git rev-parse refs/remotes/origin/master",
             'git merge-base --is-ancestor "$target" "$master"',
+            "BASE_COMMIT: bef402ae2c2518961c6abe0d90a1838346e9afb9",
+            'git merge-base --is-ancestor "$BASE_COMMIT" "$target"',
         ):
             self.assertIn(required, self.source)
 
-    def test_builds_complete_master_bundle_and_exact_canonical_manifest(self) -> None:
+    def test_builds_incremental_bundle_and_exact_schema2_manifest(self) -> None:
+        self.assertIn('if test "$TARGET_COMMIT" = "$BASE_COMMIT"', self.source)
+        self.assertIn('exclude="$TARGET_COMMIT^"', self.source)
+        self.assertIn('exclude="$BASE_COMMIT"', self.source)
         self.assertIn(
-            "git bundle create governance.bundle refs/heads/master", self.source
+            'git bundle create governance.bundle refs/heads/master "^$exclude"',
+            self.source,
         )
         self.assertIn("git bundle verify governance.bundle", self.source)
-        self.assertIn('"schema_version": 1', self.source)
+        self.assertIn('"schema_version": 2', self.source)
+        self.assertIn('"base_commit": os.environ["BASE_COMMIT"]', self.source)
+        self.assertIn('"bundle_kind": "incremental"', self.source)
         self.assertIn('"commit": os.environ["TARGET_COMMIT"]', self.source)
         self.assertIn('"name": "governance.bundle"', self.source)
         self.assertIn('"sha256": hashlib.sha256(bundle.read_bytes()).hexdigest()', self.source)
@@ -57,7 +65,7 @@ class GovernanceReleaseWorkflowTests(unittest.TestCase):
         )
 
     def test_release_tag_is_commit_bound(self) -> None:
-        self.assertIn("tag=governance-sync-%s", self.source)
+        self.assertIn("tag=governance-sync-v2-%s", self.source)
         self.assertIn("TARGET_COMMIT: ${{ steps.target.outputs.commit }}", self.source)
         self.assertIn("RELEASE_TAG: ${{ steps.target.outputs.tag }}", self.source)
 

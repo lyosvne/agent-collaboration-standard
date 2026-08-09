@@ -147,9 +147,13 @@ helper. Its compiled resources cannot be overridden by arguments or environment:
 | Resource | Fixed value |
 |---|---|
 | Release API | `https://api.github.com/repos/lyosvne/agent-collaboration-standard` |
-| Release tag | `governance-sync-<40 lowercase hex commit>` |
+| Release tag | `governance-sync-v2-<40 lowercase hex commit>` |
+| Baseline commit | `bef402ae2c2518961c6abe0d90a1838346e9afb9` |
+| Baseline parent | `9679be2a8ec1c2e4afffd74f9a1924f4588b39f6` |
 | Manifest asset | `governance-sync-manifest.json` |
 | Bundle asset | `governance.bundle` |
+| Mirror objects alternate | `/opt/pi/governance-mirror/repo/.git/objects` |
+| Helper lock | `/run/lock/aetheris-governance-sync.lock` |
 | Fixed incoming bundle | `/var/lib/aetheris-governance-sync/incoming/governance.bundle` |
 | Existing helper | `/usr/local/sbin/aetheris-governance-sync` |
 
@@ -188,14 +192,51 @@ bundle are capped at 1 MiB, 16 KiB, and 64 MiB. It never inherits or sends a
 GitHub token, proxy, netrc location, curl config, credential helper, or
 execution-affecting environment variable.
 
-JSON duplicate keys are rejected. The manifest exact schema is version 1,
-exact requested commit, and a `bundle` object containing only
+JSON duplicate keys are rejected. The manifest exact schema is version 2,
+the exact requested commit, fixed
+`base_commit = bef402ae2c2518961c6abe0d90a1838346e9afb9`,
+`bundle_kind = incremental`, and a `bundle` object containing only
 `name = governance.bundle`, positive bounded `size`, and 64-character lowercase
 `sha256`. Extra or missing fields and bool-as-integer values fail closed.
 Metadata bundle size, manifest size, actual regular-file size, and actual
 SHA-256 must agree exactly.
 
-After validation, the helper opens the effective-ID-owned exact-mode `0700`
+After validating the downloaded incremental bundle, and before invoking
+`git bundle verify`, the helper parses its binary header itself. The complete
+header, including the terminating blank line, is limited to 64 KiB. Only Git
+bundle v2 and v3 are accepted; v3 must declare exactly
+`@object-format=sha1`. Non-ASCII/control bytes, unterminated or malformed
+records, unsafe or duplicate refs, duplicate prerequisites, unsupported
+capabilities, and oversized headers fail closed. When the requested target is
+the baseline, the prerequisite list must be exactly
+`{9679be2a8ec1c2e4afffd74f9a1924f4588b39f6}`; for every other target it must
+be exactly `{bef402ae2c2518961c6abe0d90a1838346e9afb9}`. A prerequisite is
+rejected even when that object already exists in the mirror.
+
+The reconstruction stage nonblockingly acquires the same fixed helper lock
+`/run/lock/aetheris-governance-sync.lock`. It opens the existing inode with
+`O_NOFOLLOW` and requires a regular non-symlink file owned by the effective
+UID and GID with exact mode `0600`; contention returns `already_running`.
+While holding that lock, the helper creates an owner-only temporary directory
+under fixed incoming and initializes a bare repository there. Neither location
+can be supplied by arguments or ambient temporary-directory variables. The
+only alternate is fixed
+`/opt/pi/governance-mirror/repo/.git/objects`; it must be a real directory owned
+by the effective UID/GID and not group/world writable.
+
+Git receives an allowlist environment that excludes ambient repository,
+object-directory, alternate-object, and configuration variables. System/global
+configuration is disabled, all protocols default to forbidden, and only `file`
+is enabled for the downloaded local bundle. The helper verifies prerequisites,
+requires exact `refs/heads/master` to equal the requested commit, fetches only
+that ref, and checks object connectivity. It creates a full bundle containing
+all target history and verifies it in a separate empty bare repository without
+alternates. Before releasing the lock it revalidates the opened mirror objects
+inode against the fixed path, effective owner/group, and mode. Only after the
+lock is released may the old helper be called, preventing nested acquisition.
+The old helper receives this full bundle and its recomputed SHA-256.
+
+After reconstruction, the helper opens the effective-ID-owned exact-mode `0700`
 incoming directory without following a symlink. If a valid fixed bundle
 already exists, it returns `incoming_busy` immediately without changing that
 inode. It creates fixed `.public-release` staging with
@@ -213,7 +254,7 @@ It then invokes the unchanged bundle helper directly, with closed stdin,
 /usr/local/sbin/aetheris-governance-sync \
   --bundle /var/lib/aetheris-governance-sync/incoming/governance.bundle \
   --commit <requested commit> \
-  --sha256 <manifest sha256> \
+  --sha256 <rebuilt full bundle sha256> \
   [--dry-run]
 ```
 
@@ -233,8 +274,9 @@ with that enum, so a successful old-helper result is not overwritten by a
 cleanup exception. A validated nonzero old-helper result is relayed unchanged
 only when cleanup is `clean`; otherwise the helper returns the stable
 `bundle_cleanup_pending` or `bundle_cleanup_state_unknown` error. Temporary
-metadata, manifest, and downloaded bundle files are owner-only and
-automatically removed.
+metadata, manifest, downloaded incremental bundle, bare repositories,
+alternates file, and rebuilt full bundle are owner-only and automatically
+removed.
 
 ## Apply transaction
 
