@@ -210,7 +210,6 @@ def publish(token: str, target: str, tag: str) -> None:
         immutable=None,
         assets=expected_assets,
     )
-    require_lightweight_ref(github.request("GET", tag_ref_url, expected=200), target)
 
     github.request(
         "PATCH",

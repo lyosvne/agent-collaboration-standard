@@ -105,10 +105,6 @@ class PublishGovernanceReleaseTests(unittest.TestCase):
             Response(201, self.asset("governance-sync-manifest.json")),
             Response(201, self.asset("governance.bundle")),
             Response(200, self.release(draft=True)),
-            Response(
-                200,
-                {"object": {"type": "commit", "sha": TARGET}},
-            ),
             Response(200, self.release(draft=False)),
             Response(
                 200,
@@ -133,7 +129,7 @@ class PublishGovernanceReleaseTests(unittest.TestCase):
         self.assertEqual(
             [
                 "GET", "GET", "POST", "POST", "POST",
-                "GET", "GET", "PATCH", "GET", "GET",
+                "GET", "PATCH", "GET", "GET",
             ],
             api.methods,
         )
@@ -155,7 +151,7 @@ class PublishGovernanceReleaseTests(unittest.TestCase):
         self.assertIs(create_payload["draft"], True)
         self.assertEqual(TARGET, create_payload["target_commitish"])
         self.assertEqual(TAG, create_payload["tag_name"])
-        self.assertEqual({"draft": False}, json.loads(api.requests[7].data))
+        self.assertEqual({"draft": False}, json.loads(api.requests[6].data))
 
     def test_unexpected_http_status_fails_before_create(self) -> None:
         api = SequencedAPI([Response(500, {"message": "failure"})])
