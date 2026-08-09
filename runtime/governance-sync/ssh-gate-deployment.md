@@ -47,10 +47,14 @@ install -o root -g root -m 0644 \
   runtime/governance-sync/tmpfiles/aetheris-governance-sync.conf \
   "$tmpfiles_dir/aetheris-governance-sync.conf"
 systemd-tmpfiles --create "$tmpfiles_dir/aetheris-governance-sync.conf"
-test -f /run/lock/aetheris-governance-sync-ssh-gate.lock
-test ! -L /run/lock/aetheris-governance-sync-ssh-gate.lock
+test -d /run/aetheris-governance-sync
+test ! -L /run/aetheris-governance-sync
+test "$(stat -c '%U:%G:%a' /run/aetheris-governance-sync)" = \
+  "root:pi-governance-sync:750"
+test -f /run/aetheris-governance-sync/gate.lock
+test ! -L /run/aetheris-governance-sync/gate.lock
 test "$(stat -c '%U:%G:%a' \
-  /run/lock/aetheris-governance-sync-ssh-gate.lock)" = \
+  /run/aetheris-governance-sync/gate.lock)" = \
   "root:pi-governance-sync:640"
 ```
 
@@ -64,9 +68,11 @@ sudo -u pi-governance-sync /usr/bin/python3 -I -c \
   'import os,pwd; u=pwd.getpwnam("pi-governance-sync"); assert (os.geteuid(),os.getegid()) == (u.pw_uid,u.pw_gid)'
 test "$(stat -c '%U:%G:%a' /var/lib/aetheris-governance-sync/incoming)" = \
   "pi-governance-sync:pi-governance-sync:700"
-test "$(stat -c '%U:%G:%a' /run/lock/aetheris-governance-sync-ssh-gate.lock)" = \
+test "$(stat -c '%U:%G:%a' /run/aetheris-governance-sync)" = \
+  "root:pi-governance-sync:750"
+test "$(stat -c '%U:%G:%a' /run/aetheris-governance-sync/gate.lock)" = \
   "root:pi-governance-sync:640"
-! sudo -u pi-governance-sync test -w /run/lock
+! sudo -u pi-governance-sync test -w /run/aetheris-governance-sync
 test "$(stat -c '%U:%G:%a' /var/lib/aetheris-sync-deploy)" = "root:root:755"
 test "$(stat -c '%U:%G:%a' /var/lib/aetheris-sync-deploy/.ssh)" = \
   "aetheris-sync-deploy:aetheris-sync-deploy:700"
@@ -173,8 +179,11 @@ sudo -l -U aetheris-sync-deploy | grep -F \
 ```
 
 Remove any legacy `.gate.lock` or abstract-socket assumptions. The gate now
-uses the pre-created fixed root-owned lock inode. Do not let
-`pi-governance-sync` create or replace files in `/run/lock`.
+uses the pre-created fixed root-owned lock inode inside its dedicated exact-mode
+`0750` directory. Do not let `pi-governance-sync` create or replace files in
+`/run/aetheris-governance-sync`. The standard `/run/lock` directory is not part
+of the gate trust boundary; its conventional `1777` mode does not affect gate
+validation.
 
 Verify upload, dry-run, apply, and cleanup from the client without a shell:
 
@@ -194,7 +203,7 @@ incoming directory must contain no `.upload` file and any previous
 `governance.bundle` must remain unchanged. Create symlink, FIFO, and directory
 fixtures at each fixed target name in a disposable deployment and verify both
 upload and cleanup reject them without deleting the inode. Hold an exclusive
-flock on `/run/lock/aetheris-governance-sync-ssh-gate.lock` from one invocation
+flock on `/run/aetheris-governance-sync/gate.lock` from one invocation
 and verify each of the other four commands returns `already_running`. Also
 verify `aetheris-sync-deploy` cannot create,
 replace, or unlink either fixed incoming name.

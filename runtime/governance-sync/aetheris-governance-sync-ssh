@@ -21,7 +21,7 @@ BUNDLE = INCOMING / BUNDLE_NAME
 UPLOAD_NAME = ".upload"
 HELPER_USER = "pi-governance-sync"
 HELPER = "/usr/local/sbin/aetheris-governance-sync"
-GATE_LOCK = Path("/run/lock/aetheris-governance-sync-ssh-gate.lock")
+GATE_LOCK = Path("/run/aetheris-governance-sync/gate.lock")
 MAX_BUNDLE_BYTES = 64 * 1024 * 1024
 MAX_HELPER_OUTPUT_BYTES = 16 * 1024
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -141,11 +141,8 @@ def global_gate_lock(gid: int) -> Iterator[None]:
         stat.S_ISLNK(parent_metadata.st_mode)
         or not stat.S_ISDIR(parent_metadata.st_mode)
         or parent_metadata.st_uid != 0
-        or parent_metadata.st_mode & 0o002
-        or (
-            parent_metadata.st_mode & 0o020
-            and parent_metadata.st_gid == gid
-        )
+        or parent_metadata.st_gid != gid
+        or stat.S_IMODE(parent_metadata.st_mode) != 0o750
         or not stat.S_ISDIR(resolved_metadata.st_mode)
         or (parent_metadata.st_dev, parent_metadata.st_ino)
         != (resolved_metadata.st_dev, resolved_metadata.st_ino)

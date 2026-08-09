@@ -500,9 +500,9 @@ class UploadTests(unittest.TestCase):
 
     def _safe_lock_metadata(self) -> tuple[SimpleNamespace, SimpleNamespace]:
         directory = SimpleNamespace(
-            st_mode=stat.S_IFDIR | 0o755,
+            st_mode=stat.S_IFDIR | 0o750,
             st_uid=0,
-            st_gid=0,
+            st_gid=self.gid,
             st_dev=1,
             st_ino=2,
         )
@@ -531,6 +531,108 @@ class UploadTests(unittest.TestCase):
         )
         flock.assert_called_once_with(99, fcntl.LOCK_EX | fcntl.LOCK_NB)
         close.assert_called_once_with(99)
+
+    def test_gate_lock_uses_dedicated_directory_not_standard_run_lock(self) -> None:
+        self.assertEqual(
+            Path("/run/aetheris-governance-sync/gate.lock"),
+            gate.GATE_LOCK,
+        )
+        self.assertNotEqual(Path("/run/lock"), gate.GATE_LOCK.parent)
+
+    def test_rejects_unsafe_dedicated_gate_lock_directory(self) -> None:
+        safe_directory, _ = self._safe_lock_metadata()
+        unsafe_directories = {
+            "symlink": SimpleNamespace(
+                **{
+                    **safe_directory.__dict__,
+                    "st_mode": stat.S_IFLNK | 0o750,
+                }
+            ),
+            "wrong_owner": SimpleNamespace(
+                **{**safe_directory.__dict__, "st_uid": 1}
+            ),
+            "wrong_group": SimpleNamespace(
+                **{**safe_directory.__dict__, "st_gid": self.gid + 1}
+            ),
+            "dedicated_directory_1777": SimpleNamespace(
+                **{
+                    **safe_directory.__dict__,
+                    "st_mode": stat.S_IFDIR | 0o1777,
+                }
+            ),
+            "permissive_0755": SimpleNamespace(
+                **{
+                    **safe_directory.__dict__,
+                    "st_mode": stat.S_IFDIR | 0o755,
+                }
+            ),
+            "different_resolved_inode": SimpleNamespace(
+                **{**safe_directory.__dict__, "st_ino": safe_directory.st_ino + 1}
+            ),
+        }
+        for case, unsafe in unsafe_directories.items():
+            with self.subTest(case=case):
+                resolved = (
+                    unsafe
+                    if case != "different_resolved_inode"
+                    else safe_directory
+                )
+                with (
+                    mock.patch.object(
+                        Path,
+                        "lstat",
+                        side_effect=[unsafe, resolved],
+                    ),
+                    mock.patch.object(
+                        Path,
+                        "resolve",
+                        return_value=gate.GATE_LOCK.parent,
+                    ),
+                    mock.patch.object(gate.os, "open") as open_file,
+                    self.assertRaises(gate.GateError) as caught,
+                ):
+                    with gate.global_gate_lock(self.gid):
+                        pass
+                self.assertEqual(
+                    "gate_lock_directory_unsafe",
+                    caught.exception.code,
+                )
+                open_file.assert_not_called()
+
+    def test_rejects_unsafe_gate_lock_inode(self) -> None:
+        directory, safe_lock = self._safe_lock_metadata()
+        unsafe_locks = {
+            "not_regular": SimpleNamespace(
+                **{**safe_lock.__dict__, "st_mode": stat.S_IFIFO | 0o640}
+            ),
+            "wrong_owner": SimpleNamespace(
+                **{**safe_lock.__dict__, "st_uid": 1}
+            ),
+            "wrong_group": SimpleNamespace(
+                **{**safe_lock.__dict__, "st_gid": self.gid + 1}
+            ),
+            "wrong_mode": SimpleNamespace(
+                **{**safe_lock.__dict__, "st_mode": stat.S_IFREG | 0o660}
+            ),
+        }
+        for case, unsafe_lock in unsafe_locks.items():
+            with self.subTest(case=case):
+                with (
+                    mock.patch.object(Path, "lstat", return_value=directory),
+                    mock.patch.object(
+                        Path,
+                        "resolve",
+                        return_value=gate.GATE_LOCK.parent,
+                    ),
+                    mock.patch.object(gate.os, "open", return_value=99),
+                    mock.patch.object(gate.os, "fstat", return_value=unsafe_lock),
+                    mock.patch.object(gate.os, "close") as close,
+                    self.assertRaises(gate.GateError) as caught,
+                ):
+                    with gate.global_gate_lock(self.gid):
+                        pass
+                self.assertEqual("gate_lock_unsafe", caught.exception.code)
+                close.assert_called_once_with(99)
 
     def test_flock_contention_fails_without_waiting(self) -> None:
         directory, lock = self._safe_lock_metadata()

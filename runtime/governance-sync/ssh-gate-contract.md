@@ -39,20 +39,24 @@ uppercase hex, and abbreviated object names are rejected.
 ## Gate lock
 
 Every `upload`, `dry-run`, `apply`, and `cleanup` invocation opens the fixed
-`/run/lock/aetheris-governance-sync-ssh-gate.lock` inode with `O_NOFOLLOW` and
+`/run/aetheris-governance-sync/gate.lock` inode with `O_NOFOLLOW` and
 takes a nonblocking `flock`. The inode must be a `root:pi-governance-sync`
-`0640` regular file. `/run/lock` must resolve to a stable root-owned directory
-that is neither world-writable nor writable by the sync group, so the
-unprivileged `pi-governance-sync` gate cannot replace the lock. Contention
+`0640` regular file. Its dedicated `/run/aetheris-governance-sync` parent must
+be a real, non-symlink `root:pi-governance-sync` directory with exact mode
+`0750`, and resolving it must preserve the same device and inode. These exact
+requirements prevent the unprivileged `pi-governance-sync` gate from replacing
+the lock. The ownership or mode of the separate standard `/run/lock` directory,
+including the normal `1777` mode on some systems, is irrelevant. Contention
 fails immediately with `already_running`.
 
-The repository's canonical
-`tmpfiles/aetheris-governance-sync.conf` declares that inode with systemd
-tmpfiles type `f`, mode `0640`, owner `root`, and group
-`pi-governance-sync`. Deployment installs that file under
+The repository's canonical `tmpfiles/aetheris-governance-sync.conf` first
+declares the dedicated directory with systemd tmpfiles type `d`, mode `0750`,
+owner `root`, and group `pi-governance-sync`, then declares the lock inode with
+type `f`, mode `0640`, and the same owner and group. Deployment installs it under
 `/usr/lib/tmpfiles.d` or `/etc/tmpfiles.d`, invokes `systemd-tmpfiles --create`,
-and verifies the resulting metadata with `stat`. The tmpfiles boot service
-therefore creates the lock after each boot before the gate is used.
+and verifies both objects' type, non-symlink status, ownership, and exact mode.
+The tmpfiles boot service therefore creates the directory before the lock after
+each boot and before the gate is used.
 
 This lock is independent from the helper's
 `/run/lock/aetheris-governance-sync.lock`; the gate lock serializes protocol
