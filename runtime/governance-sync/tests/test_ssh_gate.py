@@ -283,9 +283,10 @@ class UploadTests(unittest.TestCase):
 
         def replace_before_publish(directory_fd, name, uid, gid, **kwargs):
             if name == gate.UPLOAD_NAME and not kwargs["missing_ok"]:
-                upload.unlink()
-                upload.write_bytes(b"trusted replacement")
-                upload.chmod(0o600)
+                replacement = self.incoming / "replacement"
+                replacement.write_bytes(b"trusted replacement")
+                replacement.chmod(0o600)
+                os.replace(replacement, upload)
             return real_metadata(directory_fd, name, uid, gid, **kwargs)
 
         with (
