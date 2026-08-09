@@ -28,7 +28,7 @@ SPEC.loader.exec_module(gate)
 
 
 class CommandTests(unittest.TestCase):
-    def test_accepts_exactly_five_commands(self) -> None:
+    def test_accepts_legacy_commands_and_two_public_commands(self) -> None:
         commit = "a" * 40
         digest = "b" * 64
         upload_id = "c" * 32
@@ -52,6 +52,14 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(
             ("dry-run", commit, digest),
             gate.parse_command(f"dry-run {commit} {digest}"),
+        )
+        self.assertEqual(
+            ("sync-public", commit, "dry-run"),
+            gate.parse_command(f"sync-public {commit} dry-run"),
+        )
+        self.assertEqual(
+            ("sync-public", commit, "apply"),
+            gate.parse_command(f"sync-public {commit} apply"),
         )
 
     def test_rejects_shell_syntax_whitespace_and_malformed_values(self) -> None:
@@ -87,6 +95,15 @@ class CommandTests(unittest.TestCase):
             f"apply {'A' * 40} {digest}",
             f"dry-run {commit} {'b' * 63}",
             f"sync {commit} {digest}",
+            f"sync-public {'A' * 40} apply",
+            f"sync-public {commit} dry",
+            f"sync-public {commit} master",
+            f"sync-public {commit} apply extra",
+            f"sync-public {commit} apply;id",
+            f"sync-public https://example.invalid/repo apply",
+            f"sync-public {commit} refs/heads/master",
+            f"sync-public  {commit} apply",
+            f"sync-public {commit}\tapply",
         )
         for command in rejected:
             with self.subTest(command=command):
@@ -197,6 +214,191 @@ class CommandTests(unittest.TestCase):
                 caught.exception.code,
                 {"helper_failed", "helper_invalid_response"},
             )
+
+    def test_public_helper_uses_fixed_direct_argv_and_closed_stdin(self) -> None:
+        commit = "a" * 40
+        payload = {
+            "status": "dry-run",
+            "before_commit": "b" * 40,
+            "commit": commit,
+            "remote_master": "c" * 40,
+            "would_change": True,
+        }
+        completed = subprocess.CompletedProcess([], 0, json.dumps(payload), "")
+        with mock.patch.object(
+            gate.subprocess, "run", return_value=completed
+        ) as run:
+            result = gate.run_public_helper("dry-run", commit)
+        self.assertEqual((0, payload), result)
+        self.assertEqual(
+            [
+                "/usr/local/sbin/aetheris-governance-sync-public",
+                "--commit",
+                commit,
+                "--dry-run",
+            ],
+            run.call_args.args[0],
+        )
+        self.assertIs(run.call_args.kwargs["stdin"], subprocess.DEVNULL)
+        self.assertIs(run.call_args.kwargs["stdout"], subprocess.PIPE)
+        self.assertIs(run.call_args.kwargs["stderr"], subprocess.PIPE)
+        self.assertFalse(run.call_args.kwargs["shell"])
+
+    def test_public_helper_accepts_only_exact_json_schemas(self) -> None:
+        commit = "a" * 40
+        remote = "b" * 40
+        valid = (
+            (
+                "dry-run",
+                {
+                    "status": "dry-run",
+                    "before_commit": "c" * 40,
+                    "commit": commit,
+                    "remote_master": remote,
+                    "would_change": True,
+                },
+            ),
+            (
+                "apply",
+                {
+                    "status": "no-op",
+                    "commit": commit,
+                    "before_commit": commit,
+                    "remote_master": remote,
+                    "backup_ref": None,
+                },
+            ),
+            (
+                "apply",
+                {
+                    "status": "applied",
+                    "commit": commit,
+                    "remote_master": remote,
+                    "receipt": "operation.receipt.json",
+                    "backup_ref":
+                        "refs/aetheris-governance-sync/backups/operation",
+                },
+            ),
+        )
+        for action, payload in valid:
+            with self.subTest(action=action, status=payload["status"]):
+                completed = subprocess.CompletedProcess(
+                    [], 0, json.dumps(payload), ""
+                )
+                with mock.patch.object(
+                    gate.subprocess, "run", return_value=completed
+                ):
+                    self.assertEqual(
+                        (0, payload),
+                        gate.run_public_helper(action, commit),
+                    )
+
+        invalid_payloads = (
+            {
+                "status": "dry-run",
+                "before_commit": commit,
+                "commit": commit,
+                "remote_master": remote,
+                "would_change": True,
+            },
+            {
+                "status": "no-op",
+                "commit": commit,
+                "before_commit": commit,
+                "remote_master": remote,
+                "backup_ref": None,
+                "url": "secret",
+            },
+            {
+                "status": "applied",
+                "commit": commit,
+                "remote_master": "not-a-commit",
+                "receipt": "../escape",
+                "backup_ref": "refs/heads/master",
+            },
+        )
+        for payload in invalid_payloads:
+            with (
+                self.subTest(payload=payload),
+                mock.patch.object(
+                    gate.subprocess,
+                    "run",
+                    return_value=subprocess.CompletedProcess(
+                        [], 0, json.dumps(payload), ""
+                    ),
+                ),
+                self.assertRaises(gate.GateError) as caught,
+            ):
+                gate.run_public_helper(
+                    "dry-run" if payload["status"] == "dry-run" else "apply",
+                    commit,
+                )
+            self.assertEqual(
+                "public_helper_invalid_response",
+                caught.exception.code,
+            )
+
+    def test_public_helper_error_is_sanitized(self) -> None:
+        error = {"status": "error", "error_code": "remote_fetch_failed"}
+        with mock.patch.object(
+            gate.subprocess,
+            "run",
+            return_value=subprocess.CompletedProcess(
+                [], 1, "", json.dumps(error)
+            ),
+        ):
+            self.assertEqual(
+                (1, error),
+                gate.run_public_helper("apply", "a" * 40),
+            )
+        with (
+            mock.patch.object(
+                gate.subprocess,
+                "run",
+                return_value=subprocess.CompletedProcess(
+                    [], 1, "", "fatal: leaked URL"
+                ),
+            ),
+            self.assertRaises(gate.GateError) as caught,
+        ):
+            gate.run_public_helper("apply", "a" * 40)
+        self.assertEqual("public_helper_failed", caught.exception.code)
+
+    def test_public_main_uses_shared_lock_without_opening_incoming(self) -> None:
+        commit = "a" * 40
+        payload = {
+            "status": "no-op",
+            "commit": commit,
+            "before_commit": commit,
+            "remote_master": "b" * 40,
+            "backup_ref": None,
+        }
+        stdout = io.StringIO()
+        with (
+            mock.patch.object(gate, "runtime_identity", return_value=(10, 20)),
+            mock.patch.object(
+                gate,
+                "global_gate_lock",
+                return_value=nullcontext(),
+            ) as lock,
+            mock.patch.object(gate, "_open_incoming") as open_incoming,
+            mock.patch.object(
+                gate,
+                "run_public_helper",
+                return_value=(0, payload),
+            ) as helper,
+            mock.patch.dict(
+                os.environ,
+                {"SSH_ORIGINAL_COMMAND": f"sync-public {commit} apply"},
+                clear=False,
+            ),
+            redirect_stdout(stdout),
+        ):
+            self.assertEqual(0, gate.main([]))
+        lock.assert_called_once_with(20)
+        open_incoming.assert_not_called()
+        helper.assert_called_once_with("apply", commit)
+        self.assertEqual(payload, json.loads(stdout.getvalue()))
 
     def test_unexpected_failure_emits_stable_json_without_traceback(self) -> None:
         stderr = io.StringIO()

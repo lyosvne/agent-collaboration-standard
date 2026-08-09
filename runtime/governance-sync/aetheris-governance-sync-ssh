@@ -22,6 +22,7 @@ UPLOAD_NAME = ".upload"
 UPLOAD_META_NAME = ".upload.meta"
 HELPER_USER = "pi-governance-sync"
 HELPER = "/usr/local/sbin/aetheris-governance-sync"
+PUBLIC_HELPER = "/usr/local/sbin/aetheris-governance-sync-public"
 GATE_LOCK = Path("/run/aetheris-governance-sync/gate.lock")
 MAX_BUNDLE_BYTES = 64 * 1024 * 1024
 MAX_HELPER_OUTPUT_BYTES = 16 * 1024
@@ -82,6 +83,13 @@ def parse_command(command: str | None) -> tuple[str, ...]:
         and parts[0] in {"apply", "dry-run"}
         and COMMIT_RE.fullmatch(parts[1])
         and SHA256_RE.fullmatch(parts[2])
+    ):
+        return tuple(parts)
+    if (
+        len(parts) == 3
+        and parts[0] == "sync-public"
+        and COMMIT_RE.fullmatch(parts[1])
+        and parts[2] in {"dry-run", "apply"}
     ):
         return tuple(parts)
     raise GateError("command_rejected")
@@ -874,6 +882,122 @@ def run_helper(
     return (result.returncode if result.returncode != 0 else 0), payload
 
 
+def _validated_public_helper_payload(
+    action: str,
+    commit: str,
+    returncode: int,
+    stdout: str,
+    stderr: str,
+) -> dict[str, object]:
+    if returncode != 0:
+        payload = _parse_single_json(stderr) if not stdout else None
+        if (
+            payload is None
+            or set(payload) != {"status", "error_code"}
+            or payload.get("status") != "error"
+            or not isinstance(payload.get("error_code"), str)
+            or ERROR_CODE_RE.fullmatch(payload["error_code"]) is None
+        ):
+            raise GateError("public_helper_failed")
+        return payload
+
+    payload = _parse_single_json(stdout) if not stderr else None
+    if payload is None:
+        raise GateError("public_helper_invalid_response")
+    status = payload.get("status")
+    remote_master = payload.get("remote_master")
+    if not _valid_commit(remote_master):
+        raise GateError("public_helper_invalid_response")
+    if action == "dry-run":
+        if (
+            set(payload)
+            != {
+                "status",
+                "before_commit",
+                "commit",
+                "remote_master",
+                "would_change",
+            }
+            or status != "dry-run"
+            or payload.get("commit") != commit
+            or not _valid_commit(payload.get("before_commit"))
+            or not isinstance(payload.get("would_change"), bool)
+            or payload["would_change"]
+            != (payload.get("before_commit") != payload.get("commit"))
+        ):
+            raise GateError("public_helper_invalid_response")
+        return payload
+    if status == "no-op":
+        if (
+            set(payload)
+            != {
+                "status",
+                "commit",
+                "before_commit",
+                "remote_master",
+                "backup_ref",
+            }
+            or payload.get("commit") != commit
+            or payload.get("before_commit") != commit
+            or payload.get("backup_ref") is not None
+        ):
+            raise GateError("public_helper_invalid_response")
+        return payload
+    if status == "applied":
+        backup_ref = payload.get("backup_ref")
+        receipt = payload.get("receipt")
+        if (
+            set(payload)
+            != {
+                "status",
+                "commit",
+                "remote_master",
+                "receipt",
+                "backup_ref",
+            }
+            or payload.get("commit") != commit
+            or not isinstance(backup_ref, str)
+            or BACKUP_REF_RE.fullmatch(backup_ref) is None
+            or not isinstance(receipt, str)
+            or RECEIPT_RE.fullmatch(receipt) is None
+        ):
+            raise GateError("public_helper_invalid_response")
+        return payload
+    raise GateError("public_helper_invalid_response")
+
+
+def run_public_helper(
+    action: str,
+    commit: str,
+) -> tuple[int, dict[str, object]]:
+    argv = [PUBLIC_HELPER, "--commit", commit, f"--{action}"]
+    try:
+        result = subprocess.run(
+            argv,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            shell=False,
+            check=False,
+            env={
+                "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG": "C",
+                "LC_ALL": "C",
+            },
+        )
+    except OSError as exc:
+        raise GateError("public_helper_execution_failed") from exc
+    payload = _validated_public_helper_payload(
+        action,
+        commit,
+        result.returncode,
+        result.stdout,
+        result.stderr,
+    )
+    return (result.returncode if result.returncode != 0 else 0), payload
+
+
 def _emit(payload: dict[str, object], *, error: bool = False) -> None:
     print(
         json.dumps(payload, sort_keys=True, separators=(",", ":")),
@@ -891,6 +1015,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         uid, gid = runtime_identity()
         command = parse_command(os.environ.get("SSH_ORIGINAL_COMMAND"))
+        if command[0] == "sync-public":
+            with global_gate_lock(gid):
+                returncode, payload = run_public_helper(command[2], command[1])
+            _emit(payload, error=returncode != 0)
+            return returncode
         with incoming_gate(uid, gid) as directory_fd:
             if command[0] == "upload":
                 upload_bundle(directory_fd, uid, gid, int(command[1]))

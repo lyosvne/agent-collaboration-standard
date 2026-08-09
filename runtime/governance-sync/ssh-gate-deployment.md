@@ -19,6 +19,9 @@ passwd --lock aetheris-sync-deploy
 gpasswd -d aetheris-sync-deploy aetheris-governance-sync 2>/dev/null || true
 
 install -o root -g root -m 0755 \
+  runtime/governance-sync/aetheris-governance-sync-public \
+  /usr/local/sbin/aetheris-governance-sync-public
+install -o root -g root -m 0755 \
   runtime/governance-sync/aetheris-governance-sync-ssh \
   /usr/local/sbin/aetheris-governance-sync-ssh
 
@@ -106,7 +109,7 @@ test "$(grep -cEv '^[[:space:]]*(#|$)' \
 ```
 
 Do not grant an unrestricted or second key to this account. The gate accepts
-no local argv and only the five commands documented in
+no local argv and only the five legacy plus two public commands documented in
 `ssh-gate-contract.md`.
 
 ## sshd restrictions
@@ -154,6 +157,8 @@ sudo -u aetheris-sync-deploy sudo -n -u pi-governance-sync \
   /usr/local/sbin/aetheris-governance-sync-ssh </dev/null
 ! sudo -u aetheris-sync-deploy sudo -n -u pi-governance-sync \
   /usr/local/sbin/aetheris-governance-sync --help
+! sudo -u aetheris-sync-deploy sudo -n -u pi-governance-sync \
+  /usr/local/sbin/aetheris-governance-sync-public --help
 ```
 
 The drop-in sets `!use_pty` with a command-specific `Defaults!` entry for
@@ -164,8 +169,9 @@ opaque binary bundle from the SSH channel through sudo's stdin to the gate;
 ordinary pipes must carry that stream without a sudo PTY relay.
 
 The first sudo probe must reach the gate (and fail only because
-`SSH_ORIGINAL_COMMAND` is absent). The helper probe must be denied. No
-wildcard, alternate arguments, shell, or direct helper command is granted.
+`SSH_ORIGINAL_COMMAND` is absent). Both helper probes must be denied. No
+wildcard, alternate arguments, shell, or direct bundle/public helper command
+is granted.
 
 ## Migration from the direct gate
 
@@ -253,3 +259,61 @@ inode. Hold an exclusive flock on
 of the five commands returns `already_running`. Also verify
 `aetheris-sync-deploy` cannot create, replace, or unlink any fixed incoming
 name.
+
+## Public-source helper rollout and smoke test
+
+The public helper and changed gate are the only new production artifacts.
+Do not change the existing bundle helper, sudoers drop-in, tmpfiles
+configuration, authorized-key command, incoming directory, or mirror
+ownership. The host must not receive a GitHub token, PAT, deploy key, netrc,
+credential helper, or new sudo authorization.
+
+Before replacement, record the current commit, attached/clean state, endpoint
+document commits, backup/receipt/operation-ref counts, and owner/group/mode and
+SHA-256 of the installed gate and bundle helper. Acquire the root-owned gate
+lock first and the helper lock second. In a root-only recovery directory,
+preserve the current gate, any previous public helper, bundle-helper metadata,
+sudoers/tmpfiles/authorized-key metadata, and their hashes. Verify staged
+artifacts with `sha256sum` and syntax-check both with `/usr/bin/python3 -m
+py_compile` before atomic `root:root:0755` installation. Release locks only
+after all postconditions pass.
+
+Verify the fixed public source is anonymously reachable as the sync identity,
+without printing environment or credential material:
+
+```sh
+sudo -u pi-governance-sync env -i \
+  HOME=/nonexistent PATH=/usr/bin:/bin GIT_CONFIG_NOSYSTEM=1 \
+  GIT_CONFIG_GLOBAL=/dev/null GIT_TERMINAL_PROMPT=0 \
+  /usr/bin/git -c credential.helper= -c http.extraHeader= \
+  ls-remote --exit-code \
+  https://github.com/lyosvne/agent-collaboration-standard.git \
+  refs/heads/master >/dev/null
+```
+
+Confirm the deploy identity still cannot execute either helper directly and
+that arbitrary commands, URL/branch/path inputs, uppercase or short commits,
+extra arguments, and shell metacharacters return only `command_rejected`.
+Neither public command may open or require incoming. Hold
+`/run/aetheris-governance-sync/gate.lock` and verify public and legacy
+commands both return `already_running`.
+
+For the current attached mirror commit, run:
+
+```sh
+current=$(sudo -u pi-governance-sync \
+  /usr/bin/git -C /opt/pi/governance-mirror/repo rev-parse HEAD)
+ssh GOVERNANCE_HOST "sync-public $current dry-run"
+ssh GOVERNANCE_HOST "sync-public $current apply"
+```
+
+Require dry-run `would_change=false` and apply `status=no-op`. Master, HEAD,
+work tree, endpoint documents, backup count, and receipt count must remain
+unchanged; `refs/aetheris-governance-sync/operations/` must be empty. Re-run a
+legacy gate smoke test under the same lock contract. On any failure before the
+workflow migration, reacquire gate then helper lock, verify installed hashes
+against the deployment record, atomically restore the old gate/public helper,
+and repeat forced-command rejection and legacy smoke checks. Never retry an
+apply after `receipt_state_uncertain`; isolate the service and inspect mirror,
+receipt, and immutable backup state. A `rollback_failed` also requires
+isolation and manual expected-old CAS recovery from the recorded backup ref.

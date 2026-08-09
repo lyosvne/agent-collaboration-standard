@@ -136,6 +136,100 @@ SHA-256 values are rejected before any filesystem mutation.
 apply operation. It does not update the mirror or create backups or receipts.
 Its JSON output includes `would_change`.
 
+## Fixed public-source helper
+
+The separately installed
+`/usr/local/sbin/aetheris-governance-sync-public` helper shares the mirror,
+helper lock, receipts directory, and immutable backup namespace above, but it
+does not accept or inspect the incoming bundle. Its additional compiled
+resources cannot be overridden by arguments or environment:
+
+| Resource | Fixed value |
+|---|---|
+| Public remote | `https://github.com/lyosvne/agent-collaboration-standard.git` |
+| Remote identity in receipts | `governance-public-origin-v1` |
+| Canonical ref | `refs/heads/master` |
+| Operation refs | `refs/aetheris-governance-sync/operations/<operation-id>` |
+
+Its complete CLI is exactly:
+
+```text
+aetheris-governance-sync-public --commit <40 lowercase hex> --dry-run
+aetheris-governance-sync-public --commit <40 lowercase hex> --apply
+```
+
+Exactly one mode is mandatory. Abbreviations, extra arguments, uppercase or
+short object names, URL, branch, path, and remote-name inputs are rejected.
+The helper uses the fixed isolated interpreter `#!/usr/bin/python3 -I`.
+Argument validation precedes the execution-identity check: malformed arguments
+return `invalid_arguments`, while a syntactically valid request executed as
+root returns `root_execution_forbidden`.
+Like the bundle helper, it sets umask `027`, rejects effective UID 0, requires
+the mirror and helper lock ownership/modes in this contract, and emits only
+stable JSON errors without Git stderr. Every invocation, including malformed
+arguments and `--help`, emits exactly one JSON object on exactly one output
+stream; CLI contract failures use `invalid_arguments`.
+
+The public helper invokes absolute `/usr/bin/git` with a complete fixed
+environment, closed stdin, `shell=False`, and a timeout. It uses an empty
+nonexistent `HOME`, disables system and global Git configuration, terminal and
+askpass prompts, credential helpers, hooks, automatic maintenance, and HTTP
+extra headers. It never reads `.git/config` remote URL as a network target and
+does not inherit tokens, netrc location, credential-helper settings, or
+execution-affecting environment variables. The only network target is the
+literal public HTTPS URL above.
+
+Under the helper lock, each invocation validates the attached, clean `master`
+mirror and its ownership boundary, removes every stale ref in the fixed
+operation namespace, and creates an owner-only temporary bare repository. The
+network fetch occurs only in that bare repository with all protocols denied except HTTPS.
+The helper validates the requested commit against the fetched canonical master
+there, then imports the validated canonical history into the mirror using a
+second fetch with all protocols denied except `file`. The
+mirror's local config therefore cannot redirect the HTTPS URL with
+`url.*.insteadOf`, enable another network transport, or become the network
+fetch repository. It requires both the fetched object and requested target to
+be commits, the target to be an ancestor of that invocation's fetched
+canonical master, and the current mirror master to be an ancestor of the
+target. Thus an unmerged side branch, rollback, or divergent target fails
+closed. Apply performs a fresh isolated fetch and repeats these checks; it
+never reuses a dry-run result.
+
+Dry-run deletes its operation ref and returns `status`, `before_commit`,
+`commit`, `remote_master`, and `would_change`. It creates no backup or receipt.
+Apply of the current commit also deletes the operation ref and returns `no-op`
+without a backup or receipt. A changing apply creates an immutable backup,
+uses expected-old `update-ref` CAS for master, hard-resets and verifies the
+work tree, deletes the operation ref, and only then atomically publishes and
+fsyncs a receipt. Operation-ref cleanup failure is a transaction failure.
+
+The public helper's bounded side effects are explicit: it creates and removes
+an owner-only temporary bare repository, may download Git objects there, may
+import validated objects into the mirror object database, and removes stale
+and current operation refs. Deleting the operation ref does not remove imported
+unreachable objects immediately; normal Git object retention/garbage
+collection applies. Dry-run and no-op may therefore change the mirror object
+database while leaving `master`, the work tree, backup refs, and receipts
+unchanged. They never modify incoming.
+
+Public receipts use their own schema and contain only schema version,
+`source_mode = public-fixed-remote`,
+`remote_url_id = governance-public-origin-v1`, remote master, target/before/
+after commits, backup ref, operation ID, UTC start/finish timestamps, and
+`status = applied`. They never contain the URL itself, credentials,
+environment, Git output, governance document content, or temporary ref.
+Failures after master CAS use the same verified rollback rules as the bundle
+helper. `receipt_state_uncertain` deliberately does **not** roll back; all
+other post-CAS failures must restore and verify the old master or report
+`rollback_failed`. After backup creation or master CAS returns or raises, the
+helper reads the real ref before deciding the next state. A backup at the
+expected old commit and master at the expected target are treated as completed
+mutations even if the invocation raised after mutation. An absent unchanged ref
+uses the ordinary operation error. An unreadable, malformed, or unexpected
+backup/master value fails closed as `backup_ref_state_uncertain` or
+`master_ref_state_uncertain`, respectively. A failed or unverifiable rollback
+continues to use `rollback_failed`.
+
 ## Apply transaction
 
 The helper fails closed and performs these phases in order:
@@ -206,3 +300,8 @@ only a stable `error_code` JSON object to stderr and exit `1`. `argparse`
 contract failures exit `2`. In particular, uncertain receipt publication emits
 exactly the stable code `receipt_state_uncertain`, without exception or cleanup
 details. The helper never prints Git stderr.
+
+The public helper overrides `argparse` termination and formatting: every CLI
+contract failure, including `--help`, prints exactly
+`{"status":"error","error_code":"invalid_arguments"}` to stderr and exits `1`;
+it emits no usage text and nothing on stdout.

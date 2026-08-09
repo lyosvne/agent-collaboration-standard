@@ -13,6 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "aetheris-governance-sync"
+PUBLIC_SOURCE = ROOT / "aetheris-governance-sync-public"
 CONTRACT = ROOT / "contract.md"
 SUDOERS = ROOT / "sudoers" / "aetheris-governance-sync"
 SSH_GATE = ROOT / "aetheris-governance-sync-ssh"
@@ -23,6 +24,12 @@ TMPFILES = ROOT / "tmpfiles" / "aetheris-governance-sync.conf"
 EXPECTED_PATHS = {
     "MIRROR": "/opt/pi/governance-mirror/repo",
     "BUNDLE": "/var/lib/aetheris-governance-sync/incoming/governance.bundle",
+    "LOCK": "/run/lock/aetheris-governance-sync.lock",
+    "RECEIPTS": "/var/lib/aetheris-governance-sync/receipts",
+}
+
+EXPECTED_PUBLIC_PATHS = {
+    "MIRROR": "/opt/pi/governance-mirror/repo",
     "LOCK": "/run/lock/aetheris-governance-sync.lock",
     "RECEIPTS": "/var/lib/aetheris-governance-sync/receipts",
 }
@@ -49,6 +56,62 @@ class DeploymentContractTests(unittest.TestCase):
         contract = CONTRACT.read_text(encoding="utf-8")
         for path in EXPECTED_PATHS.values():
             self.assertIn(f"`{path}`", contract)
+
+    def test_public_helper_fixed_resources_and_contract(self) -> None:
+        tree = ast.parse(PUBLIC_SOURCE.read_text(encoding="utf-8"))
+        assigned: dict[str, str] = {}
+        names = {
+            "PUBLIC_REMOTE",
+            "REMOTE_URL_ID",
+            "MASTER_REF",
+            "BACKUP_NAMESPACE",
+            "OPERATION_NAMESPACE",
+        }
+        for node in tree.body:
+            if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+                continue
+            target = node.targets[0]
+            if not isinstance(target, ast.Name):
+                continue
+            if target.id in EXPECTED_PUBLIC_PATHS:
+                assigned[target.id] = ast.literal_eval(node.value.args[0])
+            elif target.id in names:
+                assigned[target.id] = ast.literal_eval(node.value)
+        self.assertEqual(
+            {
+                **EXPECTED_PUBLIC_PATHS,
+                "PUBLIC_REMOTE":
+                    "https://github.com/lyosvne/agent-collaboration-standard.git",
+                "REMOTE_URL_ID": "governance-public-origin-v1",
+                "MASTER_REF": "refs/heads/master",
+                "BACKUP_NAMESPACE":
+                    "refs/aetheris-governance-sync/backups",
+                "OPERATION_NAMESPACE":
+                    "refs/aetheris-governance-sync/operations",
+            },
+            assigned,
+        )
+        contract = CONTRACT.read_text(encoding="utf-8")
+        for requirement in (
+            "`/usr/local/sbin/aetheris-governance-sync-public`",
+            "`https://github.com/lyosvne/agent-collaboration-standard.git`",
+            "`refs/heads/master`",
+            "`refs/aetheris-governance-sync/operations/<operation-id>`",
+            "`source_mode = public-fixed-remote`",
+            "`remote_url_id = governance-public-origin-v1`",
+            "never reuses a dry-run",
+            "`receipt_state_uncertain` deliberately does **not** roll back",
+            "does not accept or inspect the incoming bundle",
+            "temporary bare repository",
+            "all protocols denied except HTTPS",
+            "all protocols denied except `file`",
+            "`url.*.insteadOf`",
+            "mirror object database",
+            "`backup_ref_state_uncertain`",
+            "`master_ref_state_uncertain`",
+            "CLI contract failures use `invalid_arguments`",
+        ):
+            self.assertIn(requirement, contract)
 
     def test_sudoers_allows_deploy_to_run_only_no_argument_gate(self) -> None:
         active = [
@@ -310,7 +373,7 @@ class DeploymentContractTests(unittest.TestCase):
             target = node.targets[0]
             if not isinstance(target, ast.Name):
                 continue
-            if target.id in {"HELPER_USER", "HELPER"}:
+            if target.id in {"HELPER_USER", "HELPER", "PUBLIC_HELPER"}:
                 assigned[target.id] = ast.literal_eval(node.value)
             elif target.id == "GATE_LOCK":
                 assigned[target.id] = ast.literal_eval(node.value.args[0])
@@ -321,6 +384,8 @@ class DeploymentContractTests(unittest.TestCase):
             {
                 "HELPER_USER": "pi-governance-sync",
                 "HELPER": "/usr/local/sbin/aetheris-governance-sync",
+                "PUBLIC_HELPER":
+                    "/usr/local/sbin/aetheris-governance-sync-public",
                 "GATE_LOCK": "/run/aetheris-governance-sync/gate.lock",
                 "MAX_BUNDLE_BYTES": 64 * 1024 * 1024,
             },
@@ -375,6 +440,11 @@ class DeploymentContractTests(unittest.TestCase):
             "without\nwaiting for EOF",
             "`Defaults!/usr/local/sbin/aetheris-governance-sync-ssh !use_pty`",
             "all other commands",
+            "sync-public <40 lowercase hex commit> dry-run",
+            "sync-public <40 lowercase hex commit> apply",
+            "never open,\nvalidate, read, or modify incoming",
+            "/usr/local/sbin/aetheris-governance-sync-public",
+            "ambient URL, branch, path, or credential value",
         ):
             self.assertIn(required, contract)
 
@@ -401,8 +471,8 @@ class DeploymentContractTests(unittest.TestCase):
             "`PYTHONPATH`",
             "`LD_*`",
             "cannot create, replace, or unlink any fixed incoming\nname",
-            "helper probe must be denied",
-            "No\nwildcard, alternate arguments, shell, or direct helper command is granted",
+            "Both helper probes must be denied",
+            "No\nwildcard, alternate arguments, shell, or direct bundle/public helper command",
             "fixed root-owned lock inode",
             "command-specific `Defaults!`",
             "Do not set `!use_pty`\nglobally",
@@ -419,6 +489,13 @@ class DeploymentContractTests(unittest.TestCase):
             "first block also fsyncs `.upload.meta` and the directory",
             "Only the final block may atomically publish",
             "without waiting for EOF",
+            "runtime/governance-sync/aetheris-governance-sync-public",
+            "only new production artifacts",
+            "must not receive a GitHub token, PAT, deploy key, netrc",
+            'ssh GOVERNANCE_HOST "sync-public $current dry-run"',
+            'ssh GOVERNANCE_HOST "sync-public $current apply"',
+            "`refs/aetheris-governance-sync/operations/` must be empty",
+            "Never retry an\napply after `receipt_state_uncertain`",
         ):
             self.assertIn(requirement, deployment)
         for command in (

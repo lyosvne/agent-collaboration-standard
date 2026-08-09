@@ -30,7 +30,8 @@ supplementary group is consulted by the gate.
 
 ## Command protocol
 
-Exactly these five canonical command forms are accepted:
+Exactly the five legacy bundle command forms and these two public-source forms
+are accepted:
 
 ```text
 upload <decimal_size>
@@ -38,6 +39,8 @@ upload-chunk <32 lowercase hex upload_id> <total> <offset> <length>
 apply <40 lowercase hex commit> <64 lowercase hex sha256>
 dry-run <40 lowercase hex commit> <64 lowercase hex sha256>
 cleanup
+sync-public <40 lowercase hex commit> dry-run
+sync-public <40 lowercase hex commit> apply
 ```
 
 `decimal_size` is the canonical base-10 byte length: ASCII digits without a
@@ -51,10 +54,13 @@ There are no quoting, escaping, environment assignment, wildcard, option, or
 shell semantics. Additional or repeated whitespace, additional arguments,
 uppercase hex, abbreviated object names, and non-canonical or out-of-range
 upload sizes are rejected.
+The public-source forms accept no URL, branch, path, remote name, SHA-256,
+environment assignment, or fourth argument.
 
 ## Gate lock
 
-Every `upload`, `upload-chunk`, `dry-run`, `apply`, and `cleanup` invocation
+Every `upload`, `upload-chunk`, `dry-run`, `apply`, `cleanup`, and
+`sync-public` invocation
 opens the same fixed
 `/run/aetheris-governance-sync/gate.lock` inode with `O_NOFOLLOW` and
 takes a nonblocking `flock`. The inode must be a `root:pi-governance-sync`
@@ -79,9 +85,12 @@ This lock is independent from the helper's
 `/run/lock/aetheris-governance-sync.lock`; the gate lock serializes protocol
 operations, while the helper lock continues to protect mirror transactions.
 
-While holding that lock, the gate opens the fixed incoming directory with
+For the five legacy commands, while holding that lock, the gate opens the fixed
+incoming directory with
 `O_DIRECTORY|O_NOFOLLOW` and validates that it is owned by the gate's
 effective UID and GID and uses exact mode `0700`.
+The two `sync-public` forms hold the same root-owned gate lock but never open,
+validate, read, or modify incoming.
 
 ## Upload transaction
 
@@ -206,3 +215,23 @@ or values that do not match the requested commit and SHA fail with a stable
 gate error. Raw helper stderr, sudo diagnostics, exception text, and
 tracebacks are never forwarded. The gate preserves a validated helper exit
 status and converts all other failures to a stable JSON `error_code`.
+
+For `sync-public`, the gate instead uses exactly this direct argv:
+
+```text
+/usr/local/sbin/aetheris-governance-sync-public \
+  --commit <commit> --dry-run
+/usr/local/sbin/aetheris-governance-sync-public \
+  --commit <commit> --apply
+```
+
+It again closes stdin, uses `shell=False`, and supplies no SSH command text or
+ambient URL, branch, path, or credential value. The public helper's error JSON
+must contain exactly `status=error` and a stable `error_code`. Successful
+dry-run JSON must contain exactly `status`, `before_commit`, `commit`,
+`remote_master`, and boolean `would_change`, with `would_change` agreeing with
+the two commits. No-op additionally requires equal requested/before commits
+and a null backup. Applied JSON requires the requested commit, a full remote
+master, a receipt basename, and a backup in the fixed namespace. Unexpected
+fields, malformed values, mixed output streams, multiple JSON values, raw
+stderr, URLs, or tracebacks are replaced by a stable gate error.
