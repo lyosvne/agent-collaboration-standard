@@ -227,8 +227,8 @@ class IntegrationTests(unittest.TestCase):
         run_git(self.source, "commit", "-q", "-am", "new")
         self.new_commit = run_git(self.source, "rev-parse", "HEAD")
         run_git(self.source, "bundle", "create", str(self.bundle), "--all")
-        self.bundle.chmod(0o640)
-        self.bundle.parent.chmod(0o730)
+        self.bundle.chmod(0o600)
+        self.bundle.parent.chmod(0o700)
         self.digest = hashlib.sha256(self.bundle.read_bytes()).hexdigest()
         self.request = sync.Request(self.bundle, self.new_commit, self.digest, False)
         self.paths = mock.patch.multiple(
@@ -239,15 +239,7 @@ class IntegrationTests(unittest.TestCase):
             RECEIPTS=self.receipts,
         )
         self.paths.start()
-        self.group = mock.patch.object(
-            sync.grp,
-            "getgrnam",
-            return_value=SimpleNamespace(gr_gid=os.getgid()),
-        )
-        self.group.start()
-
     def tearDown(self) -> None:
-        self.group.stop()
         self.paths.stop()
         self.temp.cleanup()
 
@@ -468,7 +460,7 @@ class IntegrationTests(unittest.TestCase):
         divergent = run_git(self.source, "rev-parse", "HEAD")
         divergent_bundle = self.bundle.parent / "divergent.bundle"
         run_git(self.source, "bundle", "create", str(divergent_bundle), "--all")
-        divergent_bundle.chmod(0o640)
+        divergent_bundle.chmod(0o600)
         request = sync.Request(
             divergent_bundle,
             divergent,
@@ -812,7 +804,7 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual("commit", after["object_type"])
         self.assertTrue(all(after["denied"].values()))
 
-    def test_incoming_contract_accepts_patched_fixed_group_id(self) -> None:
+    def test_incoming_contract_accepts_effective_owner_and_group(self) -> None:
         expected_gid, identity = sync.validate_incoming_bundle(self.bundle)
         self.assertEqual(os.getgid(), expected_gid)
         metadata = self.bundle.stat()
@@ -830,18 +822,14 @@ class IntegrationTests(unittest.TestCase):
                 sync.validate_incoming_bundle(self.bundle)
         self.assertEqual("incoming_directory_unsafe", caught.exception.code)
 
-    def test_incoming_contract_rejects_wrong_fixed_group(self) -> None:
-        with mock.patch.object(
-            sync.grp,
-            "getgrnam",
-            return_value=SimpleNamespace(gr_gid=os.getgid() + 1),
-        ):
+    def test_incoming_contract_rejects_wrong_effective_group(self) -> None:
+        with mock.patch.object(sync.os, "getegid", return_value=os.getgid() + 1):
             with self.assertRaises(sync.SyncError) as caught:
                 sync.validate_incoming_bundle(self.bundle)
         self.assertEqual("incoming_directory_unsafe", caught.exception.code)
 
     def test_incoming_contract_rejects_wrong_bundle_mode(self) -> None:
-        self.bundle.chmod(0o600)
+        self.bundle.chmod(0o640)
         with self.assertRaises(sync.SyncError) as caught:
             sync.validate_incoming_bundle(self.bundle)
         self.assertEqual("bundle_unsafe", caught.exception.code)
@@ -870,11 +858,21 @@ class IntegrationTests(unittest.TestCase):
             sync.validate_incoming_bundle(self.bundle)
         self.assertEqual("bundle_unsafe", caught.exception.code)
 
-    def test_incoming_contract_rejects_missing_fixed_group(self) -> None:
-        with mock.patch.object(sync.grp, "getgrnam", side_effect=KeyError(sync.SYNC_GROUP)):
+    def test_incoming_contract_rejects_wrong_bundle_owner(self) -> None:
+        real_lstat = Path.lstat
+
+        def lstat_with_wrong_bundle_uid(path: Path) -> os.stat_result:
+            metadata = real_lstat(path)
+            if path == self.bundle:
+                fields = list(metadata)
+                fields[4] = os.geteuid() + 1
+                return os.stat_result(fields)
+            return metadata
+
+        with mock.patch.object(Path, "lstat", lstat_with_wrong_bundle_uid):
             with self.assertRaises(sync.SyncError) as caught:
                 sync.validate_incoming_bundle(self.bundle)
-        self.assertEqual("sync_group_unavailable", caught.exception.code)
+        self.assertEqual("bundle_unsafe", caught.exception.code)
 
     def test_rejects_gitfile_and_symlink_git_directory(self) -> None:
         git_dir = self.mirror / ".git"
