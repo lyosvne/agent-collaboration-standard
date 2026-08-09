@@ -106,8 +106,17 @@ sudo authorization exists. The gate requires the `pi-governance-sync`
 effective UID and GID, then directly executes the helper without a nested
 sudo. This no-argument gate is the deploy account's only sudo grant. The
 `!use_pty` exception is scoped to that exact gate executable so its binary
-stdin upload stream uses ordinary pipes; all other sudo commands retain the
-host's default PTY policy.
+stdin `upload` and
+`upload-chunk <32hex_upload_id> <total> <offset> <length>` streams use
+ordinary pipes; all other sudo commands retain the host's default PTY policy.
+The compatible one-shot upload and resumable chunk protocol share the same
+fixed gate lock, `.upload` staging inode, and `.upload.meta` transaction
+record. Every complete chunk is fsynced; the first response additionally
+requires metadata and directory fsync. A short chunk is truncated back to its
+starting offset without discarding earlier complete chunks, and only the final
+chunk atomically publishes `governance.bundle`, removes `.upload.meta`, and
+fsyncs the directory. The full command and error contract is defined in
+`ssh-gate-contract.md`.
 
 ## CLI
 

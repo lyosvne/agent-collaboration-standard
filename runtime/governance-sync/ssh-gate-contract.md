@@ -15,7 +15,7 @@ The gate accepts no process arguments and reads only the sudoers-preserved
 that no-argument gate as `pi-governance-sync`; it does not permit the deploy
 account to run the helper.
 
-The `upload` payload is a binary stream from the SSH channel through sudo to
+The `upload` and `upload-chunk` payloads are binary streams from the SSH channel through sudo to
 the gate's standard input. The command-specific
 `Defaults!/usr/local/sbin/aetheris-governance-sync-ssh !use_pty` setting keeps
 that stream on ordinary pipes instead of sudo's PTY relay. This exception
@@ -24,16 +24,17 @@ remain unchanged for all other commands.
 
 Every invocation resolves `pi-governance-sync` through `pwd.getpwnam` and
 requires both its effective UID and effective GID. The incoming directory,
-bundle, and `.upload` must use those same primary IDs. There is no caller-group
+bundle, `.upload`, and `.upload.meta` must use those same primary IDs. There is no caller-group
 delivery semantics: `aetheris-sync-deploy` is not given incoming access, and no
 supplementary group is consulted by the gate.
 
 ## Command protocol
 
-Exactly these four canonical command forms are accepted:
+Exactly these five canonical command forms are accepted:
 
 ```text
 upload <decimal_size>
+upload-chunk <32 lowercase hex upload_id> <total> <offset> <length>
 apply <40 lowercase hex commit> <64 lowercase hex sha256>
 dry-run <40 lowercase hex commit> <64 lowercase hex sha256>
 cleanup
@@ -41,6 +42,11 @@ cleanup
 
 `decimal_size` is the canonical base-10 byte length: ASCII digits without a
 sign or leading zero, in the inclusive range 1 through 67,108,864 (64 MiB).
+The `upload_id` is exactly 32 lowercase hexadecimal characters. The chunk
+`total` and `length` use the same nonzero canonical decimal form;
+`total` is at most 64 MiB. `offset` is canonical decimal zero or a positive
+integer without a leading zero. A chunk is accepted syntactically only when
+`offset < total` and `length <= total - offset`.
 There are no quoting, escaping, environment assignment, wildcard, option, or
 shell semantics. Additional or repeated whitespace, additional arguments,
 uppercase hex, abbreviated object names, and non-canonical or out-of-range
@@ -48,7 +54,8 @@ upload sizes are rejected.
 
 ## Gate lock
 
-Every `upload`, `dry-run`, `apply`, and `cleanup` invocation opens the fixed
+Every `upload`, `upload-chunk`, `dry-run`, `apply`, and `cleanup` invocation
+opens the same fixed
 `/run/aetheris-governance-sync/gate.lock` inode with `O_NOFOLLOW` and
 takes a nonblocking `flock`. The inode must be a `root:pi-governance-sync`
 `0640` regular file. Its dedicated `/run/aetheris-governance-sync` parent must
@@ -103,6 +110,46 @@ already be an effective-ID-owned `0600` regular file; symlinks, FIFOs, and direc
 are rejected. After rename, the incoming directory is fsynced. No partial
 upload is published.
 
+`upload-chunk <upload_id> <total> <offset> <length>` is the resumable
+counterpart to `upload`. It uses the same incoming directory, the fixed
+`.upload` staging name, fixed `.upload.meta` transaction name, effective-ID
+ownership and mode checks, fixed shared gate lock, binary length-bounded reads,
+and 64 MiB total limit. `offset 0` exclusively creates both files as
+effective-ID-owned `0600` regular files. `.upload.meta` contains canonical JSON
+recording the exact `upload_id` and `total`. The first chunk is acknowledged
+only after `.upload` and `.upload.meta` are fsynced and the incoming directory
+is fsynced, making the two fixed transaction names durable. Existing safe state
+fails with `upload_pending`.
+
+A positive offset opens `.upload` with `O_APPEND` and requires both fixed files
+to exist. Their open inodes must still be the fixed-name inodes with exact
+ownership and mode; `.upload` must have exact size `offset`; and the metadata
+must exactly match the command's `upload_id` and `total`. A different ID or
+total fails with `upload_transaction_mismatch`. Missing state or any
+nonsequential, overlapping, gapped, or replayed offset fails with
+`upload_offset_mismatch`. Rejected interleaved and replayed requests do not
+mutate either transaction file.
+
+Each invocation reads exactly `length` bytes without waiting for EOF and
+appends them at `offset`. A complete non-final chunk is fsynced before success
+and remains as `.upload`; the response is
+`{"status":"chunk_uploaded","offset":<next_offset>,"total":<total>}`. If EOF
+or a read/write failure occurs after part of the current chunk, the gate
+truncates the same open inode back to `offset` and fsyncs it. Thus a short read
+returns `upload_short`, rolls back only that block, and preserves every
+previously completed block. A failed first block identity-checks and unlinks
+each new fixed transaction inode, then makes both removals durable with a
+directory fsync. Any required truncate, unlink, file fsync, or directory fsync
+failure returns `upload_state_unknown`.
+
+Only a chunk satisfying `offset + length == total` is final. After fsyncing
+that block, the gate revalidates the exact staging size, inode, destination,
+ownership, and mode, closes the descriptors, atomically renames `.upload` to
+`governance.bundle`, unlinks `.upload.meta`, and fsyncs the incoming directory.
+Only then does it return the legacy-compatible `{"status":"uploaded"}`
+response. No intermediate block is published. A post-rename metadata unlink
+or directory fsync failure returns `upload_state_unknown`.
+
 If the rename succeeds but the following directory fsync fails, the gate
 returns only the stable `upload_state_unknown` error. The bundle may already be published,
 so the gate does not claim failure or attempt to remove the renamed
@@ -118,7 +165,7 @@ untouched.
 ## Cleanup transaction
 
 `cleanup` accepts no arguments. Under the gate lock it considers
-only the fixed `governance.bundle` and `.upload` names. Each existing target
+only the fixed `governance.bundle`, `.upload`, and `.upload.meta` names. Each existing target
 must be an effective-ID-owned `0600` regular file. If either name is a symlink, FIFO,
 directory, or otherwise unsafe inode, cleanup fails before deleting anything.
 The fixed-name metadata is collected before any deletion, which is sufficient

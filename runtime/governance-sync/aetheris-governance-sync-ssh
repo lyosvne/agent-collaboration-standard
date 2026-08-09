@@ -19,6 +19,7 @@ INCOMING = Path("/var/lib/aetheris-governance-sync/incoming")
 BUNDLE_NAME = "governance.bundle"
 BUNDLE = INCOMING / BUNDLE_NAME
 UPLOAD_NAME = ".upload"
+UPLOAD_META_NAME = ".upload.meta"
 HELPER_USER = "pi-governance-sync"
 HELPER = "/usr/local/sbin/aetheris-governance-sync"
 GATE_LOCK = Path("/run/aetheris-governance-sync/gate.lock")
@@ -26,6 +27,7 @@ MAX_BUNDLE_BYTES = 64 * 1024 * 1024
 MAX_HELPER_OUTPUT_BYTES = 16 * 1024
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+UPLOAD_ID_RE = re.compile(r"^[0-9a-f]{32}$")
 ERROR_CODE_RE = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 RECEIPT_RE = re.compile(r"^[A-Za-z0-9._-]{1,255}\.receipt\.json$")
 BACKUP_REF_RE = re.compile(
@@ -64,6 +66,17 @@ def parse_command(command: str | None) -> tuple[str, ...]:
         and int(parts[1]) <= MAX_BUNDLE_BYTES
     ):
         return (parts[0], parts[1])
+    if (
+        len(parts) == 5
+        and parts[0] == "upload-chunk"
+        and UPLOAD_ID_RE.fullmatch(parts[1])
+        and re.fullmatch(r"[1-9][0-9]{0,7}", parts[2])
+        and re.fullmatch(r"(?:0|[1-9][0-9]{0,7})", parts[3])
+        and re.fullmatch(r"[1-9][0-9]{0,7}", parts[4])
+    ):
+        total, offset, length = map(int, parts[2:])
+        if total <= MAX_BUNDLE_BYTES and offset < total and length <= total - offset:
+            return tuple(parts)
     if (
         len(parts) == 3
         and parts[0] in {"apply", "dry-run"}
@@ -222,6 +235,18 @@ def upload_bundle(
             missing_ok=True,
             unsafe_code="bundle_unsafe",
         )
+        if (
+            _fixed_file_metadata(
+                directory_fd,
+                UPLOAD_META_NAME,
+                uid,
+                gid,
+                missing_ok=True,
+                unsafe_code="upload_unsafe",
+            )
+            is not None
+        ):
+            raise GateError("upload_pending")
         try:
             fd = os.open(UPLOAD_NAME, flags, 0o600, dir_fd=directory_fd)
         except FileExistsError as exc:
@@ -323,11 +348,371 @@ def upload_bundle(
                 pass
 
 
+def _safe_opened_file(
+    fd: int,
+    uid: int,
+    gid: int,
+    identity: tuple[int, int] | None = None,
+) -> os.stat_result:
+    metadata = os.fstat(fd)
+    if (
+        not stat.S_ISREG(metadata.st_mode)
+        or metadata.st_uid != uid
+        or metadata.st_gid != gid
+        or stat.S_IMODE(metadata.st_mode) != 0o600
+        or (
+            identity is not None
+            and (metadata.st_dev, metadata.st_ino) != identity
+        )
+    ):
+        raise GateError("upload_unsafe")
+    return metadata
+
+
+def _create_owned_fixed_file(
+    directory_fd: int,
+    name: str,
+    flags: int,
+    uid: int,
+    gid: int,
+    created: dict[str, tuple[int, int]],
+) -> int:
+    fd = os.open(name, flags, 0o600, dir_fd=directory_fd)
+    try:
+        try:
+            metadata = os.fstat(fd)
+        except BaseException:
+            try:
+                metadata = os.fstat(fd)
+            except BaseException as recovery_exc:
+                raise GateError("upload_state_unknown") from recovery_exc
+            created[name] = (metadata.st_dev, metadata.st_ino)
+            raise
+        identity = metadata.st_dev, metadata.st_ino
+        created[name] = identity
+        os.fchown(fd, uid, gid)
+        os.fchmod(fd, 0o600)
+        _safe_opened_file(fd, uid, gid, identity)
+        return fd
+    except BaseException:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+        raise
+
+
+def _named_identity(
+    directory_fd: int,
+    name: str,
+    uid: int,
+    gid: int,
+) -> tuple[int, int]:
+    metadata = _fixed_file_metadata(
+        directory_fd,
+        name,
+        uid,
+        gid,
+        missing_ok=False,
+        unsafe_code="upload_unsafe",
+    )
+    return metadata.st_dev, metadata.st_ino
+
+
+def _meta_bytes(upload_id: str, total: int) -> bytes:
+    return json.dumps(
+        {"id": upload_id, "total": total},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("ascii") + b"\n"
+
+
+def _read_exact_meta(fd: int, upload_id: str, total: int) -> None:
+    expected = _meta_bytes(upload_id, total)
+    try:
+        os.lseek(fd, 0, os.SEEK_SET)
+        actual = os.read(fd, len(expected) + 1)
+    except OSError as exc:
+        raise GateError("upload_failed") from exc
+    if actual != expected:
+        raise GateError("upload_transaction_mismatch")
+
+
+def _recover_failed_chunk(
+    directory_fd: int,
+    uid: int,
+    gid: int,
+    offset: int,
+    fd: int | None,
+    upload_identity: tuple[int, int] | None,
+    created: dict[str, tuple[int, int]],
+) -> None:
+    try:
+        if offset:
+            if fd is not None and upload_identity is not None:
+                _safe_opened_file(fd, uid, gid, upload_identity)
+                os.ftruncate(fd, offset)
+                os.fsync(fd)
+            return
+        for name, identity in created.items():
+            metadata = os.stat(
+                name,
+                dir_fd=directory_fd,
+                follow_symlinks=False,
+            )
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or (metadata.st_dev, metadata.st_ino) != identity
+            ):
+                raise GateError("upload_state_unknown")
+        failure: BaseException | None = None
+        for name in created:
+            try:
+                os.unlink(name, dir_fd=directory_fd)
+            except BaseException as exc:
+                if failure is None:
+                    failure = exc
+        if created:
+            try:
+                os.fsync(directory_fd)
+            except BaseException as exc:
+                if failure is None:
+                    failure = exc
+        if failure is not None:
+            raise failure
+    except BaseException as exc:
+        raise GateError("upload_state_unknown") from exc
+
+
+def upload_chunk(
+    directory_fd: int,
+    uid: int,
+    gid: int,
+    upload_id: str,
+    total: int,
+    offset: int,
+    length: int,
+    source=None,
+) -> bool:
+    """Append one exact chunk and publish atomically when it completes the bundle."""
+    if source is None:
+        source = sys.stdin.buffer
+    create_upload_flags = (
+        os.O_WRONLY
+        | os.O_CREAT
+        | os.O_EXCL
+        | os.O_APPEND
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    create_meta_flags = (
+        os.O_RDWR
+        | os.O_CREAT
+        | os.O_EXCL
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    append_flags = (
+        os.O_WRONLY
+        | os.O_APPEND
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    meta_flags = (
+        os.O_RDONLY
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    fd: int | None = None
+    meta_fd: int | None = None
+    block_complete = False
+    block_started = False
+    upload_identity: tuple[int, int] | None = None
+    meta_identity: tuple[int, int] | None = None
+    created: dict[str, tuple[int, int]] = {}
+    try:
+        _fixed_file_metadata(
+            directory_fd,
+            BUNDLE_NAME,
+            uid,
+            gid,
+            missing_ok=True,
+            unsafe_code="bundle_unsafe",
+        )
+        if offset == 0:
+            transaction_exists = False
+            for name in (UPLOAD_NAME, UPLOAD_META_NAME):
+                if (
+                    _fixed_file_metadata(
+                        directory_fd,
+                        name,
+                        uid,
+                        gid,
+                        missing_ok=True,
+                        unsafe_code="upload_unsafe",
+                    )
+                    is not None
+                ):
+                    transaction_exists = True
+            if transaction_exists:
+                raise GateError("upload_pending")
+            fd = _create_owned_fixed_file(
+                directory_fd,
+                UPLOAD_NAME,
+                create_upload_flags,
+                uid,
+                gid,
+                created,
+            )
+            upload_identity = created[UPLOAD_NAME]
+            meta_fd = _create_owned_fixed_file(
+                directory_fd,
+                UPLOAD_META_NAME,
+                create_meta_flags,
+                uid,
+                gid,
+                created,
+            )
+            meta_identity = created[UPLOAD_META_NAME]
+            meta_view = memoryview(_meta_bytes(upload_id, total))
+            while meta_view:
+                written = os.write(meta_fd, meta_view)
+                if written <= 0:
+                    raise OSError("short meta write")
+                meta_view = meta_view[written:]
+        else:
+            upload_named = _fixed_file_metadata(
+                directory_fd,
+                UPLOAD_NAME,
+                uid,
+                gid,
+                missing_ok=True,
+                unsafe_code="upload_unsafe",
+            )
+            meta_named = _fixed_file_metadata(
+                directory_fd,
+                UPLOAD_META_NAME,
+                uid,
+                gid,
+                missing_ok=True,
+                unsafe_code="upload_unsafe",
+            )
+            if upload_named is None and meta_named is None:
+                raise GateError("upload_offset_mismatch")
+            if upload_named is None or meta_named is None:
+                raise GateError("upload_unsafe")
+            try:
+                fd = os.open(UPLOAD_NAME, append_flags, dir_fd=directory_fd)
+                meta_fd = os.open(UPLOAD_META_NAME, meta_flags, dir_fd=directory_fd)
+            except FileNotFoundError as exc:
+                raise GateError("upload_unsafe") from exc
+
+        opened = _safe_opened_file(fd, uid, gid)
+        opened_meta = _safe_opened_file(meta_fd, uid, gid)
+        upload_identity = (opened.st_dev, opened.st_ino)
+        meta_identity = (opened_meta.st_dev, opened_meta.st_ino)
+        if (
+            _named_identity(directory_fd, UPLOAD_NAME, uid, gid) != upload_identity
+            or _named_identity(directory_fd, UPLOAD_META_NAME, uid, gid) != meta_identity
+        ):
+            raise GateError("upload_unsafe")
+        _read_exact_meta(meta_fd, upload_id, total)
+        if opened.st_size != offset:
+            raise GateError("upload_offset_mismatch")
+
+        block_started = True
+        remaining = length
+        while remaining:
+            block = source.read(min(1024 * 1024, remaining))
+            if not block:
+                raise GateError("upload_short")
+            remaining -= len(block)
+            view = memoryview(block)
+            while view:
+                written = os.write(fd, view)
+                if written <= 0:
+                    raise OSError("short write")
+                view = view[written:]
+        metadata = _safe_opened_file(fd, uid, gid, upload_identity)
+        if metadata.st_size != offset + length:
+            raise GateError("upload_state_unknown")
+        os.fsync(fd)
+        if offset == 0:
+            os.fsync(meta_fd)
+            os.fsync(directory_fd)
+        block_complete = True
+
+        if offset + length < total:
+            return False
+
+        metadata = _safe_opened_file(fd, uid, gid, upload_identity)
+        if metadata.st_size != total:
+            raise GateError("upload_state_unknown")
+        os.close(fd)
+        fd = None
+        os.close(meta_fd)
+        meta_fd = None
+        if _named_identity(directory_fd, UPLOAD_NAME, uid, gid) != upload_identity:
+            raise GateError("upload_unsafe")
+        if _named_identity(directory_fd, UPLOAD_META_NAME, uid, gid) != meta_identity:
+            raise GateError("upload_unsafe")
+        _fixed_file_metadata(
+            directory_fd,
+            BUNDLE_NAME,
+            uid,
+            gid,
+            missing_ok=True,
+            unsafe_code="bundle_unsafe",
+        )
+        os.replace(
+            UPLOAD_NAME,
+            BUNDLE_NAME,
+            src_dir_fd=directory_fd,
+            dst_dir_fd=directory_fd,
+        )
+        try:
+            os.unlink(UPLOAD_META_NAME, dir_fd=directory_fd)
+            os.fsync(directory_fd)
+        except OSError as exc:
+            raise GateError("upload_state_unknown") from exc
+        return True
+    except BaseException as exc:
+        if not block_complete:
+            _recover_failed_chunk(
+                directory_fd,
+                uid,
+                gid,
+                offset,
+                fd if block_started else None,
+                upload_identity,
+                created,
+            )
+        if isinstance(exc, GateError):
+            raise
+        if isinstance(exc, (SystemExit, KeyboardInterrupt)):
+            raise
+        if isinstance(exc, Exception):
+            raise GateError("upload_failed") from exc
+        raise
+    finally:
+        if fd is not None:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+        if meta_fd is not None:
+            try:
+                os.close(meta_fd)
+            except OSError:
+                pass
+
+
 def cleanup_bundle(directory_fd: int, uid: int, gid: int) -> list[str]:
     existing: list[str] = []
     for name, code in (
         (BUNDLE_NAME, "bundle_unsafe"),
         (UPLOAD_NAME, "upload_unsafe"),
+        (UPLOAD_META_NAME, "upload_unsafe"),
     ):
         if (
             _fixed_file_metadata(
@@ -510,6 +895,28 @@ def main(argv: Sequence[str] | None = None) -> int:
             if command[0] == "upload":
                 upload_bundle(directory_fd, uid, gid, int(command[1]))
                 _emit({"status": "uploaded"})
+                return 0
+            if command[0] == "upload-chunk":
+                upload_id = command[1]
+                total, offset, length = map(int, command[2:])
+                published = upload_chunk(
+                    directory_fd,
+                    uid,
+                    gid,
+                    upload_id,
+                    total,
+                    offset,
+                    length,
+                )
+                _emit(
+                    {"status": "uploaded"}
+                    if published
+                    else {
+                        "status": "chunk_uploaded",
+                        "offset": offset + length,
+                        "total": total,
+                    }
+                )
                 return 0
             if command[0] == "cleanup":
                 removed = cleanup_bundle(directory_fd, uid, gid)

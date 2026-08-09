@@ -11,7 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from contextlib import nullcontext, redirect_stderr
+from contextlib import nullcontext, redirect_stderr, redirect_stdout
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -28,13 +28,24 @@ SPEC.loader.exec_module(gate)
 
 
 class CommandTests(unittest.TestCase):
-    def test_accepts_exactly_four_commands(self) -> None:
+    def test_accepts_exactly_five_commands(self) -> None:
         commit = "a" * 40
         digest = "b" * 64
+        upload_id = "c" * 32
         self.assertEqual(("upload", "1"), gate.parse_command("upload 1"))
         self.assertEqual(
             ("upload", str(64 * 1024 * 1024)),
             gate.parse_command(f"upload {64 * 1024 * 1024}"),
+        )
+        self.assertEqual(
+            ("upload-chunk", upload_id, "9", "0", "4"),
+            gate.parse_command(f"upload-chunk {upload_id} 9 0 4"),
+        )
+        self.assertEqual(
+            ("upload-chunk", upload_id, str(64 * 1024 * 1024), "1", "1"),
+            gate.parse_command(
+                f"upload-chunk {upload_id} {64 * 1024 * 1024} 1 1"
+            ),
         )
         self.assertEqual(("cleanup",), gate.parse_command("cleanup"))
         self.assertEqual(("apply", commit, digest), gate.parse_command(f"apply {commit} {digest}"))
@@ -46,6 +57,7 @@ class CommandTests(unittest.TestCase):
     def test_rejects_shell_syntax_whitespace_and_malformed_values(self) -> None:
         commit = "a" * 40
         digest = "b" * 64
+        upload_id = "c" * 32
         rejected = (
             None,
             "",
@@ -56,6 +68,19 @@ class CommandTests(unittest.TestCase):
             "upload 1.0",
             f"upload {64 * 1024 * 1024 + 1}",
             "upload extra",
+            "upload-chunk",
+            "upload-chunk abc 8 0 1",
+            f"upload-chunk {'C' * 32} 8 0 1",
+            f"upload-chunk {upload_id} 0 0 1",
+            f"upload-chunk {upload_id} 01 0 1",
+            f"upload-chunk {upload_id} 8 00 1",
+            f"upload-chunk {upload_id} 8 +0 1",
+            f"upload-chunk {upload_id} 8 0 0",
+            f"upload-chunk {upload_id} 8 0 01",
+            f"upload-chunk {upload_id} 8 8 1",
+            f"upload-chunk {upload_id} 8 7 2",
+            f"upload-chunk {upload_id} {64 * 1024 * 1024 + 1} 0 1",
+            f"upload-chunk {upload_id} 8 0 1 extra",
             "cleanup extra",
             f"apply  {commit} {digest}",
             f"apply {commit} {digest};id",
@@ -191,8 +216,89 @@ class CommandTests(unittest.TestCase):
         self.assertNotIn("secret", stderr.getvalue())
         self.assertNotIn("Traceback", stderr.getvalue())
 
+    def test_main_emits_chunk_and_final_json_with_upload_id_protocol(self) -> None:
+        upload_id = "d" * 32
+        for published, expected in (
+            (
+                False,
+                {"status": "chunk_uploaded", "offset": 4, "total": 8},
+            ),
+            (True, {"status": "uploaded"}),
+        ):
+            stdout = io.StringIO()
+            with (
+                self.subTest(published=published),
+                mock.patch.object(gate, "runtime_identity", return_value=(10, 20)),
+                mock.patch.object(
+                    gate,
+                    "incoming_gate",
+                    return_value=nullcontext(99),
+                ),
+                mock.patch.object(
+                    gate,
+                    "upload_chunk",
+                    return_value=published,
+                ) as upload_chunk,
+                mock.patch.dict(
+                    os.environ,
+                    {
+                        "SSH_ORIGINAL_COMMAND":
+                            f"upload-chunk {upload_id} 8 0 4"
+                    },
+                    clear=False,
+                ),
+                redirect_stdout(stdout),
+            ):
+                self.assertEqual(0, gate.main([]))
+            self.assertEqual(expected, json.loads(stdout.getvalue()))
+            upload_chunk.assert_called_once_with(
+                99,
+                10,
+                20,
+                upload_id,
+                8,
+                0,
+                4,
+            )
+
+    def test_main_emits_stable_json_for_chunk_transaction_mismatch(self) -> None:
+        upload_id = "e" * 32
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(gate, "runtime_identity", return_value=(10, 20)),
+            mock.patch.object(
+                gate,
+                "incoming_gate",
+                return_value=nullcontext(99),
+            ),
+            mock.patch.object(
+                gate,
+                "upload_chunk",
+                side_effect=gate.GateError("upload_transaction_mismatch"),
+            ),
+            mock.patch.dict(
+                os.environ,
+                {
+                    "SSH_ORIGINAL_COMMAND":
+                        f"upload-chunk {upload_id} 8 4 4"
+                },
+                clear=False,
+            ),
+            redirect_stderr(stderr),
+        ):
+            self.assertEqual(1, gate.main([]))
+        self.assertEqual(
+            {
+                "status": "error",
+                "error_code": "upload_transaction_mismatch",
+            },
+            json.loads(stderr.getvalue()),
+        )
+
 
 class UploadTests(unittest.TestCase):
+    UPLOAD_ID = "a" * 32
+
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.incoming = Path(self.temp.name) / "incoming"
@@ -221,6 +327,32 @@ class UploadTests(unittest.TestCase):
                     self.uid,
                     self.gid,
                     expected_size,
+                    content,
+                )
+
+    def upload_chunk(
+        self,
+        content,
+        *,
+        total: int,
+        offset: int,
+        length: int | None = None,
+        upload_id: str | None = None,
+    ) -> bool:
+        if length is None:
+            length = len(content.getvalue())
+        if upload_id is None:
+            upload_id = self.UPLOAD_ID
+        with mock.patch.object(gate, "global_gate_lock", side_effect=nullcontext):
+            with gate.incoming_gate(self.uid, self.gid) as directory_fd:
+                return gate.upload_chunk(
+                    directory_fd,
+                    self.uid,
+                    self.gid,
+                    upload_id,
+                    total,
+                    offset,
+                    length,
                     content,
                 )
 
@@ -276,6 +408,404 @@ class UploadTests(unittest.TestCase):
         self.assertEqual("upload_short", caught.exception.code)
         self.assertFalse((self.incoming / gate.BUNDLE_NAME).exists())
         self.assertFalse((self.incoming / gate.UPLOAD_NAME).exists())
+
+    def test_upload_chunk_preserves_complete_chunks_and_publishes_only_last(self) -> None:
+        bundle = self.incoming / gate.BUNDLE_NAME
+        upload = self.incoming / gate.UPLOAD_NAME
+        meta = self.incoming / gate.UPLOAD_META_NAME
+
+        self.assertFalse(
+            self.upload_chunk(io.BytesIO(b"1234"), total=9, offset=0)
+        )
+        self.assertFalse(bundle.exists())
+        self.assertEqual(b"1234", upload.read_bytes())
+        self.assertEqual(
+            {"id": self.UPLOAD_ID, "total": 9},
+            json.loads(meta.read_text(encoding="ascii")),
+        )
+        self.assertEqual(0o600, stat.S_IMODE(meta.stat().st_mode))
+
+        self.assertFalse(
+            self.upload_chunk(io.BytesIO(b"567"), total=9, offset=4)
+        )
+        self.assertFalse(bundle.exists())
+        self.assertEqual(b"1234567", upload.read_bytes())
+
+        self.assertTrue(
+            self.upload_chunk(io.BytesIO(b"89"), total=9, offset=7)
+        )
+        self.assertEqual(b"123456789", bundle.read_bytes())
+        self.assertFalse(upload.exists())
+        self.assertFalse(meta.exists())
+
+    def test_upload_chunk_rejects_cross_total_and_interleaved_id(self) -> None:
+        upload = self.incoming / gate.UPLOAD_NAME
+        self.assertFalse(
+            self.upload_chunk(io.BytesIO(b"1234"), total=8, offset=0)
+        )
+        for upload_id, total in (("b" * 32, 8), (self.UPLOAD_ID, 9)):
+            with (
+                self.subTest(upload_id=upload_id, total=total),
+                self.assertRaises(gate.GateError) as caught,
+            ):
+                self.upload_chunk(
+                    io.BytesIO(b"56"),
+                    upload_id=upload_id,
+                    total=total,
+                    offset=4,
+                )
+            self.assertEqual("upload_transaction_mismatch", caught.exception.code)
+            self.assertEqual(b"1234", upload.read_bytes())
+        self.assertTrue(
+            self.upload_chunk(io.BytesIO(b"5678"), total=8, offset=4)
+        )
+
+    def test_upload_chunk_replay_is_rejected_without_mutation(self) -> None:
+        upload = self.incoming / gate.UPLOAD_NAME
+        self.assertFalse(
+            self.upload_chunk(io.BytesIO(b"1234"), total=8, offset=0)
+        )
+        for offset, expected_code in (
+            (0, "upload_pending"),
+            (2, "upload_offset_mismatch"),
+        ):
+            with (
+                self.subTest(offset=offset),
+                self.assertRaises(gate.GateError) as caught,
+            ):
+                self.upload_chunk(
+                    io.BytesIO(b"xx"),
+                    total=8,
+                    offset=offset,
+                )
+            self.assertEqual(expected_code, caught.exception.code)
+            self.assertEqual(b"1234", upload.read_bytes())
+
+    def test_upload_chunk_short_read_rolls_back_only_current_chunk(self) -> None:
+        upload = self.incoming / gate.UPLOAD_NAME
+        self.assertFalse(
+            self.upload_chunk(io.BytesIO(b"complete"), total=12, offset=0)
+        )
+
+        with self.assertRaises(gate.GateError) as caught:
+            self.upload_chunk(
+                io.BytesIO(b"xy"),
+                total=12,
+                offset=8,
+                length=4,
+            )
+        self.assertEqual("upload_short", caught.exception.code)
+        self.assertEqual(b"complete", upload.read_bytes())
+        self.assertFalse((self.incoming / gate.BUNDLE_NAME).exists())
+
+        self.assertTrue(
+            self.upload_chunk(io.BytesIO(b"done"), total=12, offset=8)
+        )
+        self.assertEqual(
+            b"completedone",
+            (self.incoming / gate.BUNDLE_NAME).read_bytes(),
+        )
+
+    def test_upload_chunk_rejects_nonsequential_offset_without_mutation(self) -> None:
+        upload = self.incoming / gate.UPLOAD_NAME
+        self.assertFalse(
+            self.upload_chunk(io.BytesIO(b"1234"), total=8, offset=0)
+        )
+        with self.assertRaises(gate.GateError) as caught:
+            self.upload_chunk(io.BytesIO(b"xx"), total=8, offset=3)
+        self.assertEqual("upload_offset_mismatch", caught.exception.code)
+        self.assertEqual(b"1234", upload.read_bytes())
+
+    def test_upload_chunk_first_short_read_removes_empty_transaction(self) -> None:
+        with self.assertRaises(gate.GateError) as caught:
+            self.upload_chunk(
+                io.BytesIO(b"x"),
+                total=4,
+                offset=0,
+                length=2,
+            )
+        self.assertEqual("upload_short", caught.exception.code)
+        self.assertFalse((self.incoming / gate.UPLOAD_NAME).exists())
+        self.assertFalse((self.incoming / gate.UPLOAD_META_NAME).exists())
+
+    def test_upload_chunk_recovers_source_runtime_and_type_errors(self) -> None:
+        class BrokenInput:
+            def __init__(self, failure: Exception) -> None:
+                self.failure = failure
+
+            def read(self, size: int) -> bytes:
+                raise self.failure
+
+        for failure_type in (RuntimeError, TypeError):
+            for offset in (0, 4):
+                with self.subTest(failure_type=failure_type, offset=offset):
+                    if offset:
+                        self.assertFalse(
+                            self.upload_chunk(
+                                io.BytesIO(b"safe"),
+                                total=8,
+                                offset=0,
+                            )
+                        )
+                    with self.assertRaises(gate.GateError) as caught:
+                        self.upload_chunk(
+                            BrokenInput(failure_type("injected read failure")),
+                            total=8,
+                            offset=offset,
+                            length=2,
+                        )
+                    self.assertEqual("upload_failed", caught.exception.code)
+                    upload = self.incoming / gate.UPLOAD_NAME
+                    meta = self.incoming / gate.UPLOAD_META_NAME
+                    if offset:
+                        self.assertEqual(b"safe", upload.read_bytes())
+                        self.assertTrue(meta.exists())
+                        upload.unlink()
+                        meta.unlink()
+                    else:
+                        self.assertFalse(upload.exists())
+                        self.assertFalse(meta.exists())
+
+    def test_upload_chunk_recovers_before_reraising_interrupts(self) -> None:
+        class InterruptedInput:
+            def __init__(self, failure: BaseException) -> None:
+                self.failure = failure
+
+            def read(self, size: int) -> bytes:
+                raise self.failure
+
+        for failure_type in (SystemExit, KeyboardInterrupt):
+            for offset in (0, 4):
+                with self.subTest(failure_type=failure_type, offset=offset):
+                    if offset:
+                        self.assertFalse(
+                            self.upload_chunk(
+                                io.BytesIO(b"safe"),
+                                total=8,
+                                offset=0,
+                            )
+                        )
+                    with self.assertRaises(failure_type):
+                        self.upload_chunk(
+                            InterruptedInput(failure_type()),
+                            total=8,
+                            offset=offset,
+                            length=2,
+                        )
+                    upload = self.incoming / gate.UPLOAD_NAME
+                    meta = self.incoming / gate.UPLOAD_META_NAME
+                    if offset:
+                        self.assertEqual(b"safe", upload.read_bytes())
+                        upload.unlink()
+                        meta.unlink()
+                    else:
+                        self.assertFalse(upload.exists())
+                        self.assertFalse(meta.exists())
+
+    def test_upload_chunk_first_creation_faults_clean_created_identities(self) -> None:
+        real_operations = {
+            "open": gate.os.open,
+            "fstat": gate.os.fstat,
+            "fchown": gate.os.fchown,
+            "fchmod": gate.os.fchmod,
+            "validate": gate._safe_opened_file,
+        }
+        cases = (
+            ("upload-open", "open", 1),
+            ("meta-open", "open", 2),
+            ("upload-fstat", "fstat", 1),
+            ("meta-fstat", "fstat", 3),
+            ("upload-fchown", "fchown", 1),
+            ("meta-fchown", "fchown", 2),
+            ("upload-fchmod", "fchmod", 1),
+            ("meta-fchmod", "fchmod", 2),
+            ("upload-validate", "validate", 1),
+            ("meta-validate", "validate", 2),
+        )
+
+        for label, operation, fail_at in cases:
+            with self.subTest(stage=label):
+                calls = 0
+                real_operation = real_operations[operation]
+
+                def fail_nth(*args, **kwargs):
+                    nonlocal calls
+                    calls += 1
+                    if calls == fail_at:
+                        if operation == "validate":
+                            raise gate.GateError("upload_unsafe")
+                        raise OSError(f"injected {label} failure")
+                    return real_operation(*args, **kwargs)
+
+                target = gate if operation == "validate" else gate.os
+                attribute = (
+                    "_safe_opened_file" if operation == "validate" else operation
+                )
+                with (
+                    mock.patch.object(
+                        gate,
+                        "global_gate_lock",
+                        side_effect=nullcontext,
+                    ),
+                    gate.incoming_gate(self.uid, self.gid) as directory_fd,
+                    mock.patch.object(target, attribute, side_effect=fail_nth),
+                    self.assertRaises(gate.GateError) as caught,
+                ):
+                    gate.upload_chunk(
+                        directory_fd,
+                        self.uid,
+                        self.gid,
+                        self.UPLOAD_ID,
+                        8,
+                        0,
+                        4,
+                        io.BytesIO(b"data"),
+                    )
+                self.assertEqual(
+                    "upload_unsafe" if operation == "validate" else "upload_failed",
+                    caught.exception.code,
+                )
+                self.assertFalse((self.incoming / gate.UPLOAD_NAME).exists())
+                self.assertFalse((self.incoming / gate.UPLOAD_META_NAME).exists())
+
+    def test_upload_chunk_rollback_failure_reports_unknown_and_keeps_staging(self) -> None:
+        upload = self.incoming / gate.UPLOAD_NAME
+        self.assertFalse(
+            self.upload_chunk(io.BytesIO(b"safe"), total=8, offset=0)
+        )
+        with (
+            mock.patch.object(
+                gate.os,
+                "ftruncate",
+                side_effect=OSError("injected rollback failure"),
+            ),
+            self.assertRaises(gate.GateError) as caught,
+        ):
+            self.upload_chunk(
+                io.BytesIO(b"x"),
+                total=8,
+                offset=4,
+                length=2,
+            )
+        self.assertEqual("upload_state_unknown", caught.exception.code)
+        self.assertTrue(upload.exists())
+        self.assertFalse((self.incoming / gate.BUNDLE_NAME).exists())
+
+    def test_upload_chunk_rollback_fsync_failure_reports_unknown(self) -> None:
+        self.assertFalse(
+            self.upload_chunk(io.BytesIO(b"safe"), total=8, offset=0)
+        )
+        with (
+            mock.patch.object(
+                gate.os,
+                "fsync",
+                side_effect=OSError("injected rollback fsync failure"),
+            ),
+            self.assertRaises(gate.GateError) as caught,
+        ):
+            self.upload_chunk(
+                io.BytesIO(b"x"),
+                total=8,
+                offset=4,
+                length=2,
+            )
+        self.assertEqual("upload_state_unknown", caught.exception.code)
+
+    def test_upload_chunk_first_rollback_unlink_failure_reports_unknown(self) -> None:
+        with (
+            mock.patch.object(
+                gate.os,
+                "unlink",
+                side_effect=OSError("injected rollback unlink failure"),
+            ),
+            self.assertRaises(gate.GateError) as caught,
+        ):
+            self.upload_chunk(
+                io.BytesIO(b"x"),
+                total=4,
+                offset=0,
+                length=2,
+            )
+        self.assertEqual("upload_state_unknown", caught.exception.code)
+
+    def test_upload_chunk_fsyncs_every_complete_block_and_publish_directory(self) -> None:
+        real_fsync = os.fsync
+        fsync_types: list[str] = []
+
+        def record_fsync(fd: int) -> None:
+            fsync_types.append(
+                "directory" if stat.S_ISDIR(os.fstat(fd).st_mode) else "file"
+            )
+            real_fsync(fd)
+
+        with mock.patch.object(gate.os, "fsync", side_effect=record_fsync):
+            self.assertFalse(
+                self.upload_chunk(io.BytesIO(b"first"), total=10, offset=0)
+            )
+            self.assertTrue(
+                self.upload_chunk(io.BytesIO(b"final"), total=10, offset=5)
+            )
+        self.assertEqual(
+            ["file", "file", "directory", "file", "directory"],
+            fsync_types,
+        )
+
+    def test_upload_chunk_first_success_fsyncs_both_files_then_directory(self) -> None:
+        real_fsync = os.fsync
+        fsync_names: list[str] = []
+
+        def record_fsync(fd: int) -> None:
+            metadata = os.fstat(fd)
+            if stat.S_ISDIR(metadata.st_mode):
+                fsync_names.append("directory")
+            else:
+                upload_inode = (self.incoming / gate.UPLOAD_NAME).stat().st_ino
+                fsync_names.append(
+                    "upload" if metadata.st_ino == upload_inode else "meta"
+                )
+            real_fsync(fd)
+
+        with mock.patch.object(gate.os, "fsync", side_effect=record_fsync):
+            self.assertFalse(
+                self.upload_chunk(io.BytesIO(b"first"), total=10, offset=0)
+            )
+        self.assertEqual(["upload", "meta", "directory"], fsync_names)
+
+    def test_upload_chunk_first_directory_fsync_failure_reports_unknown(self) -> None:
+        real_fsync = os.fsync
+
+        def fail_directory_fsync(fd: int) -> None:
+            if stat.S_ISDIR(os.fstat(fd).st_mode):
+                raise OSError("injected first directory fsync failure")
+            real_fsync(fd)
+
+        with (
+            mock.patch.object(gate.os, "fsync", side_effect=fail_directory_fsync),
+            self.assertRaises(gate.GateError) as caught,
+        ):
+            self.upload_chunk(io.BytesIO(b"first"), total=10, offset=0)
+        self.assertEqual("upload_state_unknown", caught.exception.code)
+        self.assertFalse((self.incoming / gate.UPLOAD_NAME).exists())
+        self.assertFalse((self.incoming / gate.UPLOAD_META_NAME).exists())
+
+    def test_upload_chunk_subsequent_write_opens_upload_with_append(self) -> None:
+        self.assertFalse(
+            self.upload_chunk(io.BytesIO(b"1234"), total=8, offset=0)
+        )
+        real_open = os.open
+        observed_flags: list[int] = []
+
+        def record_open(path, flags, *args, **kwargs):
+            if path == gate.UPLOAD_NAME:
+                observed_flags.append(flags)
+            return real_open(path, flags, *args, **kwargs)
+
+        with mock.patch.object(gate.os, "open", side_effect=record_open):
+            self.assertTrue(
+                self.upload_chunk(io.BytesIO(b"5678"), total=8, offset=4)
+            )
+        self.assertTrue(observed_flags)
+        self.assertTrue(observed_flags[0] & os.O_APPEND)
 
     def test_upload_reads_exact_declared_size_without_waiting_for_eof(self) -> None:
         class PartialNonEofInput:
@@ -369,7 +899,11 @@ class UploadTests(unittest.TestCase):
     def test_upload_and_cleanup_reject_symlink_fifo_and_directory_targets(self) -> None:
         outside = Path(self.temp.name) / "outside"
         outside.write_bytes(b"outside")
-        for name in (gate.BUNDLE_NAME, gate.UPLOAD_NAME):
+        for name in (
+            gate.BUNDLE_NAME,
+            gate.UPLOAD_NAME,
+            gate.UPLOAD_META_NAME,
+        ):
             target = self.incoming / name
             for kind in ("symlink", "fifo", "directory"):
                 with self.subTest(name=name, kind=kind):
@@ -392,11 +926,35 @@ class UploadTests(unittest.TestCase):
                     else:
                         target.unlink()
 
+    def test_upload_chunk_final_meta_unlink_failure_reports_unknown(self) -> None:
+        self.assertFalse(
+            self.upload_chunk(io.BytesIO(b"1234"), total=8, offset=0)
+        )
+        real_unlink = os.unlink
+
+        def fail_meta_unlink(path, **kwargs) -> None:
+            if path == gate.UPLOAD_META_NAME:
+                raise OSError("injected final meta unlink failure")
+            real_unlink(path, **kwargs)
+
+        with (
+            mock.patch.object(gate.os, "unlink", side_effect=fail_meta_unlink),
+            self.assertRaises(gate.GateError) as caught,
+        ):
+            self.upload_chunk(io.BytesIO(b"5678"), total=8, offset=4)
+        self.assertEqual("upload_state_unknown", caught.exception.code)
+        self.assertEqual(
+            b"12345678",
+            (self.incoming / gate.BUNDLE_NAME).read_bytes(),
+        )
+        self.assertTrue((self.incoming / gate.UPLOAD_META_NAME).exists())
+
     def test_cleanup_removes_only_fixed_regular_files_and_fsyncs_directory(self) -> None:
         bundle = self.incoming / gate.BUNDLE_NAME
         upload = self.incoming / gate.UPLOAD_NAME
+        meta = self.incoming / gate.UPLOAD_META_NAME
         unrelated = self.incoming / "keep"
-        for path in (bundle, upload):
+        for path in (bundle, upload, meta):
             path.write_bytes(path.name.encode())
             path.chmod(0o600)
         unrelated.write_bytes(b"keep")
@@ -411,9 +969,13 @@ class UploadTests(unittest.TestCase):
 
         with mock.patch.object(gate.os, "fsync", side_effect=record_fsync):
             removed = self.cleanup()
-        self.assertEqual([gate.BUNDLE_NAME, gate.UPLOAD_NAME], removed)
+        self.assertEqual(
+            [gate.BUNDLE_NAME, gate.UPLOAD_NAME, gate.UPLOAD_META_NAME],
+            removed,
+        )
         self.assertFalse(bundle.exists())
         self.assertFalse(upload.exists())
+        self.assertFalse(meta.exists())
         self.assertEqual(b"keep", unrelated.read_bytes())
         self.assertEqual(1, directory_fsyncs)
 

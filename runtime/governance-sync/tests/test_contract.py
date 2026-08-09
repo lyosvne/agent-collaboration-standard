@@ -358,15 +358,27 @@ class DeploymentContractTests(unittest.TestCase):
             "opaque binary bytes",
             "input without text decoding",
             "`upload <decimal_size>`",
+            "`upload-chunk <upload_id> <total> <offset> <length>`",
+            "exactly 32 lowercase hexadecimal characters",
+            "`.upload.meta`",
+            "`O_APPEND`",
+            "`upload_transaction_mismatch`",
             "1 byte\nthrough 64 MiB",
             "`upload_short`",
+            "`upload_offset_mismatch`",
+            "rolls back only that block",
+            "preserves every\npreviously completed block",
+            "A failed first block identity-checks and unlinks\neach new fixed transaction inode",
+            "Each invocation reads exactly `length` bytes",
+            "complete non-final chunk is fsynced",
+            "Only a chunk satisfying `offset + length == total` is final",
             "without\nwaiting for EOF",
             "`Defaults!/usr/local/sbin/aetheris-governance-sync-ssh !use_pty`",
             "all other commands",
         ):
             self.assertIn(required, contract)
 
-    def test_ssh_deployment_documents_hardened_account_and_all_four_commands(self) -> None:
+    def test_ssh_deployment_documents_hardened_account_and_all_five_commands(self) -> None:
         deployment = SSH_DEPLOYMENT.read_text(encoding="utf-8")
         self.assertIn(
             'restrict,command="sudo -n -u pi-governance-sync '
@@ -388,7 +400,7 @@ class DeploymentContractTests(unittest.TestCase):
             "removed globally",
             "`PYTHONPATH`",
             "`LD_*`",
-            "cannot create,\nreplace, or unlink either fixed incoming name",
+            "cannot create, replace, or unlink any fixed incoming\nname",
             "helper probe must be denied",
             "No\nwildcard, alternate arguments, shell, or direct helper command is granted",
             "fixed root-owned lock inode",
@@ -398,11 +410,20 @@ class DeploymentContractTests(unittest.TestCase):
             "sudo's stdin",
             "size=$(wc -c < governance.bundle",
             "`upload_short`",
+            "`upload_offset_mismatch`",
+            "`upload_transaction_mismatch`",
+            "`offset 0` replay while\nsafe transaction state exists returns `upload_pending`",
+            "short later block rolls `.upload`",
+            "preserving all earlier complete\nblocks",
+            "Verify every successful block\nfsyncs `.upload`",
+            "first block also fsyncs `.upload.meta` and the directory",
+            "Only the final block may atomically publish",
             "without waiting for EOF",
         ):
             self.assertIn(requirement, deployment)
         for command in (
             'ssh GOVERNANCE_HOST "upload $size"',
+            'ssh GOVERNANCE_HOST "upload-chunk $upload_id $size $offset $length"',
             '"dry-run $commit $sha256"',
             '"apply $commit $sha256"',
             "ssh GOVERNANCE_HOST cleanup",
