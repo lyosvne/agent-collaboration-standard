@@ -43,7 +43,8 @@ The deployment contract is:
 | Receipts directory | `pi-governance-sync:pi-governance-sync` | `0700` |
 | Receipt files | `pi-governance-sync:pi-governance-sync` | `0600` |
 | Helper lock | `pi-governance-sync:pi-governance-sync` | `/run/lock/aetheris-governance-sync.lock`, `0600`, regular non-symlink file |
-| SSH gate lock | `root:pi-governance-sync` | `/run/lock/aetheris-governance-sync-ssh-gate.lock`, `0640`, regular non-symlink file created at boot by the canonical `tmpfiles/aetheris-governance-sync.conf` |
+| SSH gate lock directory | `root:pi-governance-sync` | `/run/aetheris-governance-sync`, exact mode `0750`, real non-symlink directory created at boot by the canonical `tmpfiles/aetheris-governance-sync.conf` |
+| SSH gate lock | `root:pi-governance-sync` | `/run/aetheris-governance-sync/gate.lock`, `0640`, regular non-symlink file created after its dedicated directory by the canonical tmpfiles configuration |
 
 The helper starts with umask `027`: repository files remain readable by the
 `pi-governance-sync` group but are never group-writable. `pi-dispatch` uses

@@ -97,7 +97,9 @@ class DeploymentContractTests(unittest.TestCase):
 
     def test_canonical_tmpfiles_creates_root_owned_gate_lock_at_boot(self) -> None:
         self.assertEqual(
-            "f /run/lock/aetheris-governance-sync-ssh-gate.lock "
+            "d /run/aetheris-governance-sync "
+            "0750 root pi-governance-sync -\n"
+            "f /run/aetheris-governance-sync/gate.lock "
             "0640 root pi-governance-sync -\n",
             TMPFILES.read_text(encoding="utf-8"),
         )
@@ -108,15 +110,18 @@ class DeploymentContractTests(unittest.TestCase):
             "/usr/lib/tmpfiles.d",
             "/etc/tmpfiles.d",
             "systemd-tmpfiles --create",
-            "test -f /run/lock/aetheris-governance-sync-ssh-gate.lock",
-            "test ! -L /run/lock/aetheris-governance-sync-ssh-gate.lock",
+            "test -d /run/aetheris-governance-sync",
+            "test ! -L /run/aetheris-governance-sync",
+            "test -f /run/aetheris-governance-sync/gate.lock",
+            "test ! -L /run/aetheris-governance-sync/gate.lock",
             "stat -c '%U:%G:%a'",
+            "root:pi-governance-sync:750",
             "root:pi-governance-sync:640",
             "recreates it during boot",
         ):
             self.assertIn(requirement, deployment)
         self.assertNotIn(
-            "/dev/null /run/lock/aetheris-governance-sync-ssh-gate.lock",
+            "/dev/null /run/aetheris-governance-sync/gate.lock",
             deployment,
         )
 
@@ -128,13 +133,13 @@ class DeploymentContractTests(unittest.TestCase):
         )
         for requirement in (
             "`tmpfiles/aetheris-governance-sync.conf`",
-            "systemd\n"
-            "tmpfiles type `f`, mode `0640`, owner `root`, and group\n"
-            "`pi-governance-sync`",
+            "systemd tmpfiles type `d`, mode `0750`",
+            "type `f`, mode `0640`",
             "`/usr/lib/tmpfiles.d` or `/etc/tmpfiles.d`",
             "`systemd-tmpfiles --create`",
-            "with `stat`",
-            "after each boot",
+            "type, non-symlink status, ownership, and exact mode",
+            "directory before the lock",
+            "each boot",
         ):
             self.assertIn(requirement, gate_contract)
 
@@ -210,7 +215,7 @@ class DeploymentContractTests(unittest.TestCase):
             {
                 "HELPER_USER": "pi-governance-sync",
                 "HELPER": "/usr/local/sbin/aetheris-governance-sync",
-                "GATE_LOCK": "/run/lock/aetheris-governance-sync-ssh-gate.lock",
+                "GATE_LOCK": "/run/aetheris-governance-sync/gate.lock",
                 "MAX_BUNDLE_BYTES": 64 * 1024 * 1024,
             },
             assigned,
@@ -223,9 +228,13 @@ class DeploymentContractTests(unittest.TestCase):
             "`fchown(fd, sync_uid, sync_gid)`",
             "`O_NOFOLLOW`",
             "nonblocking `flock`",
-            "`/run/lock/aetheris-governance-sync-ssh-gate.lock`",
+            "`/run/aetheris-governance-sync/gate.lock`",
+            "`/run/aetheris-governance-sync`",
             "`root:pi-governance-sync`",
+            "`0750`",
             "`0640`",
+            "standard `/run/lock` directory",
+            "`1777` mode",
             "`.upload`",
             "regular file",
             "atomically",
