@@ -7,13 +7,14 @@
 
 | 文件 | 层级 | 状态 |
 |------|------|------|
-| `north-star-v1.2.md` | 北极星（canonical 稳定路径，逻辑版本见 frontmatter） | v1.4 用户定稿生效 2026-08-08 |
+| `north-star-v1.2.md` | 北极星（canonical 稳定路径，逻辑版本见 frontmatter） | v1.5 用户定稿生效 2026-08-12 |
 | `global-roadmap-v1.1.md` | 全局路线图（canonical 稳定路径，逻辑版本见 frontmatter） | v1.18 用户定稿生效 2026-08-08 |
 | `version-manifest.json` | canonical 路径与逻辑版本契约 | 生效 |
 | `../specs/pi-cognitive-plane-and-self-evolution-v1.0.md` | Pi 认知平面与自进化质量门 | v1.0 用户定稿生效 2026-08-08 |
-| `workspace-collaboration-v2.1.md` | 协作协议（canonical 稳定路径） | v2.2 用户裁定生效 2026-08-08 |
-| `agent-matrix-architecture-v1.0.md` | 架构真值（canonical 稳定路径） | v1.1 用户裁定生效 2026-08-08 |
-| `fleet-division-v1.1.md` | G+M 双环分工 + 真值/工具链注册表 | v1.2 用户裁定生效 2026-08-08 |
+| `workspace-collaboration-v2.1.md` | 协作协议（canonical 稳定路径） | v2.3 用户裁定生效 2026-08-12 |
+| `agent-matrix-architecture-v1.0.md` | 架构真值（canonical 稳定路径） | v1.2 用户裁定生效 2026-08-12 |
+| `fleet-division-v1.1.md` | G+M 双环分工 + 真值/工具链注册表 | v1.3 用户裁定生效 2026-08-12 |
+| `specs/zcode-execution-capability-decision.md` | ZCode 评审执行能力裁定 | 用户裁定生效 2026-08-12 |
 | `specs/qoder-sse-consumer-design.md` | 实施规格：Pi 侧 Qoder SSE 消费器 | 待 ZCode review |
 | `specs/pi-feishu-bridge-design.md` | 实施规格：飞书移动端桥接 | 待 ZCode review |
 | `specs/pi-drift-governance-spec.md` | 实施规格：漂移治理（push 授权已签发） | 待 ZCode review |
