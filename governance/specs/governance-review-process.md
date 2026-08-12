@@ -193,9 +193,9 @@ CURRENT_REVIEW_PROJECT=<项目名> CURRENT_REVIEW_ROUND=<N> mira -p "评审方 A
 5. **PASS 后**才允许写 patch 脚本（`apply-<对象>-<date>.py`）+ scp 到 ECS + 重启服务
 6. 在 `governance/specs/pre-commit-review-gate-log.md` 追加一行（对象 / commit SHA / 触发类 / 评审目录 / PASS 轮次 / 状态=PASS）
 
-**当前强制机制（2026-08-08）**：
+**当前强制机制（2026-08-12）**：
 - Pi 负责触发评审和收敛状态，不执行代码或部署。
-- ZCode 负责非终端风险评审，不运行 hook、shell、SSH 或 Git 写操作。
+- ZCode 负责评审优先的风险分析和受派实现，可运行本地 hook、shell 和自身分支 Git；不得自批、SSH、部署、生产读写或访问 secrets。
 - Mira 负责治理真值评审。
 - Trae 负责分支、PR、CI、测试和集成；Qoder/Kimi 按领域参与实现与交叉评审。
 - 所有治理 master 变更必须经 PR，并通过 `.github/workflows/governance-validate.yml`。

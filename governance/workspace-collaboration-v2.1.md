@@ -1,16 +1,16 @@
 ---
-version: "v2.2"
+version: "v2.3"
 status: "active"
 type: "collaboration-protocol"
 supersedes: "workspace-collaboration-v2.1"
 title: "协作协议"
-signoff: "用户 2026-08-08（Pi 中央协调、统一 Trae、ZCode 非终端）"
+signoff: "用户 2026-08-12（Pi 中央协调、统一 Trae、ZCode 评审优先受派执行）"
 ---
 # Workspace Collective Collaboration Protocol
 
-> 继承: Aetheris blueprint v1.8 → v2.0.1 草案 → v2.1 → **v2.2**
-> 生效日期: 2026-08-08 | 状态: **用户（林于炜）已裁定生效**
-> 本版依据: 北极星 v1.4 + 路线图 v1.18 + Pi 自进化治理规格 v1.0 + 用户最新角色决定
+> 继承: Aetheris blueprint v1.8 → v2.0.1 草案 → v2.1 → v2.2 → **v2.3**
+> 生效日期: 2026-08-12 | 状态: **用户（林于炜）已裁定生效**
+> 本版依据: 北极星 v1.5 + 路线图 v1.19 + Pi 自进化治理规格 v1.0 + ZCode 执行能力裁定
 
 ---
 
@@ -53,7 +53,7 @@ signoff: "用户 2026-08-08（Pi 中央协调、统一 Trae、ZCode 非终端）
 ### 主控层
 | 智能体 | 角色 | 边界 |
 |--------|------|------|
-| **ZCode** | 非终端 App：知识吸收、评审、根因分析、反哺、风险兜底 | 不执行 shell、Git、SSH、代码实现或部署 |
+| **ZCode** | 评审优先执行 App：知识吸收、评审、根因分析、反哺、风险兜底和受派实现 | 可使用本地 shell、独立分支和 PR；不得自批、推 master、SSH、部署、生产读写或访问 secrets |
 | **Qoder** | 主架构 + 单项规划（协议/规格/记忆层/安全）+ 基础设施治理(arkcli) + 知识调研 + 批量任务(Cloud Sessions fan-out) + Extension 规格 | 计费/部署类操作为 T3 需用户审批 |
 
 ### 执行层
@@ -92,7 +92,7 @@ signoff: "用户 2026-08-08（Pi 中央协调、统一 Trae、ZCode 非终端）
 | 北极星校准 | 用户定锚，Pi 节律，Qoder 报告，Mira 评审 | M1 |
 | 紧急制动 | 用户（飞书一键）→ Pi 停全部自动化 | M5 |
 
-对等互检：ZCode 做非终端语义/风险评审，Qoder 做设计评审，Trae 执行 Git/build/test 验证；最终验收权在用户。
+对等互检：ZCode 做语义/风险评审并可承接受派实现，Qoder 做设计评审，Trae 负责集成和 Git/build/test 收口；实现者不得作为自身变更的唯一最终评审者，最终验收权在用户。
 
 ---
 
@@ -156,7 +156,7 @@ Pi 已运行。当前协调按以下机制：
 - **中央协调**: Pi 负责意图理解、派单和结果收敛
 - **人工中继**: 在尚未接入 Pi 的外部 App 会话中，用户可临时转发提示词
 - **文件信箱**: `C:\Users\Admin\Documents\trae_projects\agent-collaboration-standard\templates\` 为异步回执/交接通道（Phase D 起改用 git 仓库；旧位置 `~/.agent-collaboration\templates\` 已冻结）
-- **ZCode**: 只做非终端评审、分析和兜底
+- **ZCode**: 评审优先，可做受派本地/仓库实现；不承担中央协调、主分支集成或生产运维
 - **漂移应急**: 任何 agent 发现漂移异常应报告 Pi 和用户
 
 ### 9.2 治理文档必须入 git（第一性修正）

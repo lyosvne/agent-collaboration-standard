@@ -1,12 +1,12 @@
 ---
-version: "v1.18"
+version: "v1.19"
 status: "active"
 type: "roadmap"
 supersedes: "global-roadmap-v1.17"
 title: "全局路线图"
-signoff: "ZCode+Qoder 2026-07-25（v1.1）；用户 2026-08-08（v1.18，Pi 运行与六角色同步）"
+signoff: "ZCode+Qoder 2026-07-25（v1.1）；用户 2026-08-12（v1.19，ZCode 评审执行隔离）"
 ---
-# 全局路线图 v1.18（修订稿）
+# 全局路线图 v1.19（修订稿）
 
 > 签发: ZCode + Qoder（共创，经两轮交叉对抗式论证，19条逐条修订）
 > 裁定: 用户
@@ -185,7 +185,7 @@ Wave是供给侧（造能力），四阶段是需求侧（验收水位）。两�
 - 漂移治理（设计 + push 授权）
 - 调度上下文（dispatch-server，第 1 批已补全 4 端点 + 启动头注入，见下方缺口 #4 闭环标记）
 - Mira 主干接入（trunk-complete: Togo CLI v5.21 + 40 模型 + 生图 + c360）
-- Kimi 本机调度历史验证已完成；当前终端执行归 Kimi，集成验证归统一 Trae，ZCode 不承担 Bash 执行
+- Kimi 本机调度历史验证已完成；Kimi 继续负责终端与数据优先任务，统一 Trae 负责集成验证，ZCode 可承担评审优先的受派本地/仓库执行
 - Trae 已统一承接原 Trae IDE 与 Solo 的实现、集成、产品测试和浏览器验收；独立 Solo 退役
 - **O1 治理 Phase A-D**:
   - Phase A 语义修正（11 条 ROLE 替换）

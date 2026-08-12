@@ -13,7 +13,7 @@
 
 ## 2. 治理对象清单
 
-> 真值层对照 `fleet-division-v1.1.md`（逻辑 v1.2）：Pi 中央协调、统一 Trae、ZCode 非终端、Qoder/Kimi Mac clone、Mira 云端 fresh checkout。
+> 真值层对照 `fleet-division-v1.1.md`（逻辑 v1.3）：Pi 中央协调、统一 Trae、ZCode 评审优先受派执行、Qoder/Kimi Mac clone、Mira 云端 fresh checkout。
 > 配置以文件维护（`governance/configs/drift-config.json`），编队变更时更新，不硬编码本地路径。
 
 | Clone | 分支 | 状态基线（2026-07-26 重对齐） |
@@ -23,7 +23,7 @@
 | Aetheris-clones/trae | agent/trae-mac | 活跃（统一 Trae = 实现/集成/测试）|
 | Aetheris-clones/kimi | agent/kimi-mac | 活跃（Kimi = 终端/数据/飞书）|
 | Aetheris-clones/qoder | agent/qoder-mac | 活跃（Qoder = 设计 + 受派实现）|
-| Aetheris-clones/zcode | agent/zcode-mac | 受控上下文（ZCode 非终端，不执行 Git 写操作）|
+| Aetheris-clones/zcode | agent/zcode-mac | 活跃（ZCode 评审优先执行；可写自身分支，不得自批、推 master、SSH、部署、生产读写或访问 secrets）|
 
 **已退役**（drift-config.json `retired_clones` 显式记录，避免漂移报告误报）：
 - `agent/claude`：Claude Code 2026-07-25 退役，分支冻结
@@ -64,7 +64,7 @@
 ### 4.1 代劳 push —— 架构修正（2026-07-23，ZCode 实证发现）
 
 **原设计缺陷**：规格假设 Pi 能直接访问各 agent clone 执行 push。
-**事实**：代码 clone 分布在 Trae/Qoder/Kimi 的 Mac 环境；ZCode 只有非终端上下文。ECS 上的 Pi 不直接修改这些工作区。
+**事实**：代码 clone 分布在 Trae/Qoder/Kimi/ZCode 的 Mac 环境；ZCode 使用独立 clone 和自身分支。ECS 上的 Pi 不直接修改这些工作区。
 
 **修正后方案**：
 ```
@@ -110,12 +110,12 @@ Pi 不持有代码 clone 的写权限，不执行 push、merge、rebase、reset�
 2. 只读保证：体检运行前后，各 clone 工作区与 HEAD 无任何变化（mtime + rev-parse 校验）
 3. 代劳 push 边界：构造 master 分支/dirty 工作区/非 ff 场景 → 全部拒绝执行并记录原因
 4. 告警链路：CRITICAL 场景 5 分钟内飞书收到告警卡
-5. review 与授权：ZCode 做非终端风险评审；Mira 审治理；Trae 执行验证；生产和 T3 操作仍需用户授权
+5. review 与授权：ZCode 做独立风险评审或受派实现，且不得自审；Mira 审治理；Trae 执行验证；生产和 T3 操作仍需用户授权
 
 ## 9. 分工
 
 - 本规格：Qoder 出（本文档）
-- Review：ZCode（非终端风险分析）+ Mira（治理）+ Trae（可执行性验证）
+- Review：ZCode（独立风险分析）+ Mira（治理）+ Trae（可执行性验证）；ZCode 为实现者时必须换独立终审者
 - 实施：Trae/Kimi 在用户授权后执行；Pi 不直接 SSH 或部署
 
 ## 10. 实施状态（2026-07-26 实证，A 层对齐时固化）

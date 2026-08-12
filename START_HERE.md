@@ -29,7 +29,7 @@ GitHub standard source: `https://github.com/lyosvne/agent-collaboration-standard
 10. `configs/tool-entry-map.md` — 工具入口与能力适配
 11. `governance/cloud-agent-connection-protocol.md` — 涉及云端 agent 时
 12. Project-specific entry files after entering a project.
-13. **治理 hook 基础设施（历史源自 ZCode，当前规则编队共享）**: `governance/specs/governance-infrastructure-status.md`。实现与集成由 Trae 承接，ZCode 只做非终端评审和分析。
+13. **治理 hook 基础设施（历史源自 ZCode，当前规则编队共享）**: `governance/specs/governance-infrastructure-status.md`。集成由 Trae 承接，ZCode 可做评审优先的受派实现和分析。
 
 Truth source: `https://github.com/lyosvne/agent-collaboration-standard` → `governance/` 目录
 Local snapshot (read-only, 2026-07-26 Phase D 起降级为历史快照): `C:\Users\Admin\.agent-collaboration\standards\`
@@ -107,7 +107,7 @@ For handoff, minimum required fields are Goal, Source of truth, Verification, an
 ## Local Machine Notes
 
 - For GitHub network failures, do not write fixed `github.com` hosts entries first. Use default DNS if it passes `Resolve-DnsName`, `Test-NetConnection github.com -Port 443`, `curl -I https://github.com`, and `git ls-remote`.
-- ZCode 是非终端桌面 App，负责评审、分析、反哺和兜底；实现、Git、测试和集成由统一 Trae 承接。
+- ZCode 是评审优先的受派执行者，负责评审、分析、反哺、兜底和受派本地/仓库实现；Trae 继续负责集成收口。
 
 ## `:ONE` Rule
 
