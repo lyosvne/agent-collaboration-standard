@@ -115,13 +115,13 @@ def check_current_truth() -> None:
             "统一实现主体",
         ],
         "fleet": [
-            "非终端知识吸收",
+            "评审优先执行",
             "Trae      全栈实现",
             "Pi 提案 → ZCode/Qoder/Mira 评审",
         ],
         "architecture": [
             "Pi ↔ Trae",
-            "ZCode(非终端评审)",
+            "ZCode(评审优先执行)",
             "独立 Solo",
         ],
         "start": [
@@ -158,7 +158,7 @@ def check_current_truth() -> None:
         ],
         "drift-spec": [
             "agent/trae-mac",
-            "ZCode 非终端",
+            "ZCode 评审优先执行",
             "历史 `agent/solo` 不参与活动体检",
         ],
         "self-evolution-spec": [
@@ -225,6 +225,7 @@ def check_current_truth() -> None:
         "drift-spec": [
             "Pi daemon 在满足 §4.1 全部条件时自动执行",
             "代劳 push（授权后启用）",
+            "ZCode 非终端",
         ],
         "operating-standard": ["Pi 代劳 push 例外"],
         "local-usage": ["编队里 Trae 系只保留 SOLO 独立角色"],

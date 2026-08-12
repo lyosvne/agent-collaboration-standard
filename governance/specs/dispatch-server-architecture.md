@@ -14,7 +14,7 @@
 
 ## 1. 为什么存在（职能归属）
 
-**问题**：编队是多 agent / 多机 / 跨会话的（Pi ECS + Trae/Qoder/Kimi Mac 环境 + ZCode 非终端 App + Mira 云端）。每个 agent 启动时都需要同一份"编队上下文"（北极星 / 架构 / 分工 / 启动头 + 治理文档时序版本 + 漂移体检结果）。若各自从 GitHub fetch，有三个缺口：
+**问题**：编队是多 agent / 多机 / 跨会话的（Pi ECS + Trae/Qoder/Kimi/ZCode Mac 环境 + Mira 云端）。每个 agent 启动时都需要同一份"编队上下文"（北极星 / 架构 / 分工 / 启动头 + 治理文档时序版本 + 漂移体检结果）。若各自从 GitHub fetch，有三个缺口：
 - GitHub 网络不稳定（本机实测 `AGENTS.md`「本机运行经验」记录的 DNS 污染路径）
 - 没有"时序版本"概念——文档改了但消费方不知道改了什么、何时改的
 - 漂移体检结果是 ECS cron 产物，本机 agent 无法直接读

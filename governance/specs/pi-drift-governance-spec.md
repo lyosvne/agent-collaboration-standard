@@ -64,7 +64,7 @@
 ### 4.1 代劳 push —— 架构修正（2026-07-23，ZCode 实证发现）
 
 **原设计缺陷**：规格假设 Pi 能直接访问各 agent clone 执行 push。
-**事实**：代码 clone 分布在 Trae/Qoder/Kimi 的 Mac 环境；ZCode 只有非终端上下文。ECS 上的 Pi 不直接修改这些工作区。
+**事实**：代码 clone 分布在 Trae/Qoder/Kimi/ZCode 的 Mac 环境；ZCode 使用独立 clone 和自身分支。ECS 上的 Pi 不直接修改这些工作区。
 
 **修正后方案**：
 ```
@@ -110,12 +110,12 @@ Pi 不持有代码 clone 的写权限，不执行 push、merge、rebase、reset�
 2. 只读保证：体检运行前后，各 clone 工作区与 HEAD 无任何变化（mtime + rev-parse 校验）
 3. 代劳 push 边界：构造 master 分支/dirty 工作区/非 ff 场景 → 全部拒绝执行并记录原因
 4. 告警链路：CRITICAL 场景 5 分钟内飞书收到告警卡
-5. review 与授权：ZCode 做非终端风险评审；Mira 审治理；Trae 执行验证；生产和 T3 操作仍需用户授权
+5. review 与授权：ZCode 做独立风险评审或受派实现，且不得自审；Mira 审治理；Trae 执行验证；生产和 T3 操作仍需用户授权
 
 ## 9. 分工
 
 - 本规格：Qoder 出（本文档）
-- Review：ZCode（非终端风险分析）+ Mira（治理）+ Trae（可执行性验证）
+- Review：ZCode（独立风险分析）+ Mira（治理）+ Trae（可执行性验证）；ZCode 为实现者时必须换独立终审者
 - 实施：Trae/Kimi 在用户授权后执行；Pi 不直接 SSH 或部署
 
 ## 10. 实施状态（2026-07-26 实证，A 层对齐时固化）
