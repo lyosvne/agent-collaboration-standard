@@ -69,7 +69,9 @@ signoff: "用户 2026-08-08（Pi 运行与六角色同步）"
 
 ---
 
-## 三、中央协调智能体:Pi
+## 三、Pi：自闭环认知智能体
+
+> v1.1 措辞同步（2026-08-12，联动北极星 v1.5）：本节原标题为"中央协调智能体:Pi"。Pi 运行时已演进出完全自闭环形态，不调度其他智能体。本节同步措辞；Pi Agent Harness 的技术选型事实（orchestrator 包、Extensions、Skills 等）不变。
 
 ### 选型结论
 经 aily 实测 + ruflo 源码精读 + DeerFlow/LangGraph 对比,选定 **Pi Agent Harness(@earendil-works/pi)** 作为"孩子"。
@@ -90,41 +92,42 @@ signoff: "用户 2026-08-08（Pi 运行与六角色同步）"
 ### Pi 部署形态（ECS 已运行）
 ```
 ECS aetherisonline.xyz
-└── Pi orchestrator (serve 模式, 24h daemon)
-    ├── OrchestratorSupervisor(监督亲属实例)
-    ├── IPC server(接收亲属RPC)
+└── Pi orchestrator (serve 模式, 24h daemon, 自闭环认知)
+    ├── OrchestratorSupervisor(Pi 自身进程监督)
+    ├── IPC server(接收治理 mirror / 飞书输入)
     ├── Radius 联邦(跨机心跳)
     ├── Extensions(链接Aetheris API + 飞书桥接)
     ├── Skills(~/.agents/skills 复用)
-    ├── sandbox(每个agent隔离执行)
+    ├── sandbox(Pi 自身工具隔离执行)
     └── pi-ai(GLM-5.2 当大脑)
 ```
 
-### 孩子的成长机制
-- **亲属矩阵培养**:各agent执行结果(Plans/trajectories/outcomes)流入共享记忆
-- **越用越聪明**:Pi 通过 Extensions 积累新工具,通过 Skills 学新能力
-- **成长由矩阵负责,用户只定目标**:用户不直接训练Pi,矩阵反哺
+### Pi 的成长机制
+- **自进化成长**:Pi 通过 Extensions 积累新工具,通过 Skills 学新能力；认知和能力成长受独立质量门约束
+- **用户战略引导 + 工具箱反哺**:用户定目标和反馈；能力自改提案需要时由用户即席指派工具箱 agent 评审和反哺
 
 ---
 
 ## 四、协作模式(按关系分层)
 
-### 4.1 Pi ↔ Qoder（中央协调↔设计/云端节点）
-- **Pi→Qoder**：通过 Qoder API/SSE 派发设计、规划和云端任务
-- **Qoder→Pi**：SSE 回传，轮询兜底
+> v1.1 措辞同步（联动北极星 v1.5）：以下关系描述原为"Pi 中央协调→派发/派单/调度"。Pi 现为自闭环认知系统，不调度其他智能体。需要多 agent 协作时由用户即席指派。Pi 与各 agent 的技术接口（API/SSE/subprocess）保留为可用通道，但触发权在用户，不在 Pi。
+
+### 4.1 Pi 与 Qoder（认知系统↔设计/云端工具箱）
+- **用户即席指派 Qoder**：用户需要设计/云端任务时直接指派给 Qoder，通过 Qoder API/SSE
+- **Qoder→Pi**：SSE 回传，轮询兜底（Qoder 产出可流入 Pi 记忆作为认知素材）
 - **ZCode**：按需接收产物做非终端评审，不承担调度或执行
 
-### 4.2 Pi ↔ Trae（中央协调↔统一执行主体）
-- Pi 负责派单和收敛，Trae 负责实现、集成、Git/PR/CI 和产品验收
+### 4.2 Pi 与 Trae（认知系统↔统一执行工具箱）
+- 用户即席指派 Trae 做实现、集成、Git/PR/CI 和产品验收
 - Trae 使用独立 clone 和 `agent/trae-mac`
 - 历史 Solo 能力作为 Trae 的 product-test 模式
 
-### 4.3 Pi ↔ Kimi(调度↔被调度)
-- Pi 通过 subprocess 在 ECS sandbox 调度 Kimi
+### 4.3 Pi 与 Kimi(认知系统↔终端工具箱)
+- 用户即席指派 Kimi 做终端实现；Kimi 也可经 subprocess 在 ECS sandbox 执行
 - Kimi 纯CLI,无GUI,天然适合云端托管
 
-### 4.4 Pi ↔ Mira(调度↔云端特化)
-- Pi 调度 Mira(类 Kimi 方式)
+### 4.4 Pi 与 Mira(认知系统↔云端特化工具箱)
+- 用户即席指派 Mira 做生图 + 评审(代码评审/架构评审)
 - Mira 特化能力:生图 + 评审(代码评审/架构评审)
 - Mira 有 webhook 外发 + git 推送能力,可主动汇报
 - **Mira 无本地能力**,所有执行在云端,不占本地资源

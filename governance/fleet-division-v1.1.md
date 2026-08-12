@@ -41,9 +41,8 @@ signoff: "用户 2026-08-08（六角色与 Pi 自进化质量门）"
 ### ② 决策层
 | 职能 | 承接 | 依据 |
 |------|------|------|
-| 战略目标/最终裁定/T3 审批 | **用户**（唯一裁判） | 权威框架 §0 |
-| 实时任务路由/实例监督 | **Pi**（orchestrator） | v1.0 已裁定 |
-| 中央协调/任务路由 | **Pi**（ECS runtime） | 用户裁定 |
+| 战略目标/最终裁定/T3 审批/即席指派 agent | **用户**（唯一裁判） | 权威框架 §0 |
+| 漂移治理/认知与记忆闭环 | **Pi**（ECS runtime，自闭环认知系统） | 北极星 v1.5 |
 | 主架构设计/单项规划 | **Qoder** | 用户裁定 |
 
 ### ③ 执行层
@@ -83,18 +82,18 @@ signoff: "用户 2026-08-08（六角色与 Pi 自进化质量门）"
 | # | 悬空职能 | 原承接者 | 影响环节 | 建议承接 | 理由 |
 |---|---------|---------|---------|---------|------|
 | G1 | **PM/优先级管理/任务板治理** | Mira（原 PM） | ②决策 | **三分**: 用户(战略优先级) + Pi(运行时任务板) + Qoder(规划文档) | 自进化系统不需要单点 PM，需要的是"战略-运行-规划"三层分治 |
-| G2 | **记忆维护 + 记忆层(OpenViking)规划** | Mira | ⑤沉淀 | **Qoder 规划 + Pi 运行时积累** | 记忆层规划本质是架构工作（归主架构）；日常记忆写入由 Pi 在调度中自动沉淀 |
+| G2 | **记忆维护 + 记忆层(OpenViking)规划** | Mira | ⑤沉淀 | **Qoder 规划 + Pi 运行时积累** | 记忆层规划本质是架构工作（归主架构）；日常记忆写入由 Pi 自闭环自动沉淀 |
 | G3 | **产品测试/QA/E2E** | 历史 Solo | ④验证 | **统一 Trae** | Trae 继承 Solo 产品测试记忆和动态执行环境 |
-| G4 | **批量任务** | [RETIRED-CODEX-2026-07-25] | ③执行 | **Qoder Cloud Sessions fan-out**（官方支持"fan out parallel Sessions 批量处理"） | API 实证能力，Pi 一次派发 N 个 Session 即批量 |
-| G5 | **知识调研/情报** | Codex（曾做知识库调研） | ①感知 | **Qoder**（research/tavily 等 skills）+ 可经 Pi 分派任意空闲 agent | 调研是规划的上游，与主架构职能天然耦合 |
-| G6 | **Pi 成长治理（新能力上线把关）** | 无（新职能） | ⑥进化 | **流水线**: Pi 提案 → ZCode/Qoder/Mira 评审 → Trae/Kimi/Qoder 实现 → 用户按风险批准 | 认知更新与能力自改使用独立质量门 |
+| G4 | **批量任务** | [RETIRED-CODEX-2026-07-25] | ③执行 | **Qoder Cloud Sessions fan-out**（官方支持"fan out parallel Sessions 批量处理"） | API 实证能力，用户即席指派 Qoder 批量执行 |
+| G5 | **知识调研/情报** | Codex（曾做知识库调研） | ①感知 | **Qoder**（research/tavily 等 skills）+ 用户即席指派任意空闲 agent | 调研是规划的上游，与主架构职能天然耦合 |
+| G6 | **Pi 成长治理（新能力上线把关）** | 无（新职能） | ⑥进化 | **流水线**: Pi 提案 → 用户指派 ZCode/Qoder/Mira 评审 → 用户指派 Trae/Kimi/Qoder 实现 → 用户按风险批准 | 认知更新与能力自改使用独立质量门 |
 | G7 | **ECS 常态运维/灾备**（daemon 挂了谁救） | 无（新职能） | 全环节地基 | **Trae/Kimi 执行 + Pi 自愈 + 飞书告警** | SSH、部署和重启均需用户授权；ZCode 不具备终端 |
 
 ## 4. 缺口填补后的完整分工总览
 
 ```
 用户      战略 / 裁定 / T3审批 / 最终满意度
-Pi        中央协调 / 漂移治理 / 任务板(G1) / 认知与记忆闭环(G2) / 自愈
+Pi        自闭环认知 / 漂移治理 / 认知与记忆闭环(G2) / 自愈；不调度其他智能体
 ZCode     非终端知识吸收 / 评审 / 分析 / 反哺 / 风险兜底
 Qoder     主架构 / 单项规划 / 协议文档 / 基础设施治理 / 记忆层规划(G2) / 知识调研(G5)
           / 批量任务经Cloud Sessions(G4) / Extension规格(G6)
@@ -108,7 +107,7 @@ Mira      生图(独有) / 代码评审 / 架构评审 / Extension评审(G6)
 | 闭环环节 | 覆盖 | 说明 |
 |---------|------|------|
 | ①感知 | ✅ | Pi 体检 + 飞书指令 + Qoder 基础设施监控 + 调研(G5) |
-| ②决策 | ✅ | 用户定战略和 T3，Pi 中央协调，Qoder/Mira 规划治理 |
+| ②决策 | ✅ | 用户定战略、T3 和即席指派，Pi 自闭环认知，Qoder/Mira 规划治理 |
 | ③执行 | ✅ | Trae 主体/Kimi 终端/Qoder 设计实现/Mira 生图/批量(G4) 全模态覆盖 |
 | ④验证 | ✅ | 静态评审(Mira) + 动态测试(G3) + 对等互检，三重验证 |
 | ⑤沉淀 | ✅ | git+Aetheris 真值 + 记忆层规划(G2) + 审计轨迹 |
@@ -171,7 +170,7 @@ G1-G7 闭合的是"运转环"，M 系列闭合的是"方向环"——没有方�
 |------|----------|-----------|---------|
 | **arkcli（火山方舟 CLI）** | v1.0.7，账号 lyosvne/2102458754，Agent Plan Medium（至 2026-09-18） | 套餐管理（plans）、用量/账单（usage/billing）、托管智能体+记忆库（agent memory-store，OpenViking 后端）、模型/Endpoint、诊断（doctor）；SSO 控制面已登录 | **Qoder**（基础设施治理）；buy/renew/deploy 为 T3 需用户审批 |
 | **Qoder Cloud Agents API** | api.qoder.com，PAT 认证 | REST + SSE（stream-events）+ 轮询（list-events）；**无 Webhook**；批量 fan-out（G4 载体） | Qoder（自身 API），Pi 消费（SSE 消费器 spec） |
-| **Pi Agent Harness** | @earendil-works/pi | 已运行于 ECS；采集→反思→记忆→日报基线闭环；能力晋级受 G6 质量门 | Pi 中央协调，全员反哺；Trae/Kimi 在授权后执行运维 |
+| **Pi Agent Harness** | @earendil-works/pi | 已运行于 ECS；采集→反思→记忆→日报基线闭环；能力晋级受 G6 质量门 | Pi 自闭环认知，用户即席指派工具箱 agent 反哺；Trae/Kimi 在授权后执行运维 |
 | **lark-cli + lark-* skills** | 本机已登录 | 交互卡片 card-2.0、card.action.trigger 审批回调、审批流、实时事件流 NDJSON | Qoder（pi-feishu 桥接 spec） |
 | **OpenViking 记忆层** | 账号 memory-store 现为 0（白纸） | 先规划、适时建（用户裁定）；缓存/真值分层已定（openviking=索引缓存，Aetheris=权威真值） | Qoder 规划（G2/M4），Pi 运行时积累 |
 
