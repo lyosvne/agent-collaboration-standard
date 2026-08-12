@@ -110,17 +110,17 @@ def check_current_truth() -> None:
             "统一 Trae 是实现、集成、Git/PR、产品测试和浏览器验收",
         ],
         "collaboration": [
-            "Pi 是经用户授权的 ECS 中央协调者",
+            "Pi 是经用户授权的 ECS 自闭环认知系统",
             "ZCode",
             "统一实现主体",
         ],
         "fleet": [
             "非终端知识吸收",
             "Trae      全栈实现",
-            "Pi 提案 → ZCode/Qoder/Mira 评审",
+            "Pi 提案 → 用户指派 ZCode/Qoder/Mira 评审",
         ],
         "architecture": [
-            "Pi ↔ Trae",
+            "认知系统↔统一执行工具箱",
             "ZCode(非终端评审)",
             "独立 Solo",
         ],
