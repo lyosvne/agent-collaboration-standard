@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-08",
+  "updatedAt": "2026-08-12",
   "canonicalDocuments": {
     "northStar": {
       "path": "governance/north-star-v1.2.md",
-      "version": "v1.4",
+      "version": "v1.5",
       "status": "active"
     },
     "roadmap": {
@@ -29,7 +29,7 @@
     },
     "piSelfEvolution": {
       "path": "specs/pi-cognitive-plane-and-self-evolution-v1.0.md",
-      "version": "v1.0",
+      "version": "v1.1",
       "status": "active"
     }
   },

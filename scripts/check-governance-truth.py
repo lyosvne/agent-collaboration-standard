@@ -100,7 +100,7 @@ def check_current_truth() -> None:
 
     required = {
         "north-star": [
-            "Pi 是经用户授权的 ECS 中央协调者",
+            "Pi 是经用户授权的 ECS 自闭环认知系统",
             "统一 Trae",
             "唯一战略授权源、T3 决策者与最终裁判",
         ],
