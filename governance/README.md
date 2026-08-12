@@ -8,7 +8,7 @@
 | 文件 | 层级 | 状态 |
 |------|------|------|
 | `north-star-v1.2.md` | 北极星（canonical 稳定路径，逻辑版本见 frontmatter） | v1.5 用户定稿生效 2026-08-12 |
-| `global-roadmap-v1.1.md` | 全局路线图（canonical 稳定路径，逻辑版本见 frontmatter） | v1.18 用户定稿生效 2026-08-08 |
+| `global-roadmap-v1.1.md` | 全局路线图（canonical 稳定路径，逻辑版本见 frontmatter） | v1.19 用户定稿生效 2026-08-12 |
 | `version-manifest.json` | canonical 路径与逻辑版本契约 | 生效 |
 | `../specs/pi-cognitive-plane-and-self-evolution-v1.0.md` | Pi 认知平面与自进化质量门 | v1.0 用户定稿生效 2026-08-08 |
 | `workspace-collaboration-v2.1.md` | 协作协议（canonical 稳定路径） | v2.3 用户裁定生效 2026-08-12 |

@@ -13,7 +13,7 @@
 
 ## 2. 治理对象清单
 
-> 真值层对照 `fleet-division-v1.1.md`（逻辑 v1.2）：Pi 中央协调、统一 Trae、ZCode 非终端、Qoder/Kimi Mac clone、Mira 云端 fresh checkout。
+> 真值层对照 `fleet-division-v1.1.md`（逻辑 v1.3）：Pi 中央协调、统一 Trae、ZCode 评审优先受派执行、Qoder/Kimi Mac clone、Mira 云端 fresh checkout。
 > 配置以文件维护（`governance/configs/drift-config.json`），编队变更时更新，不硬编码本地路径。
 
 | Clone | 分支 | 状态基线（2026-07-26 重对齐） |
@@ -23,7 +23,7 @@
 | Aetheris-clones/trae | agent/trae-mac | 活跃（统一 Trae = 实现/集成/测试）|
 | Aetheris-clones/kimi | agent/kimi-mac | 活跃（Kimi = 终端/数据/飞书）|
 | Aetheris-clones/qoder | agent/qoder-mac | 活跃（Qoder = 设计 + 受派实现）|
-| Aetheris-clones/zcode | agent/zcode-mac | 受控上下文（ZCode 非终端，不执行 Git 写操作）|
+| Aetheris-clones/zcode | agent/zcode-mac | 活跃（ZCode 评审优先执行；可写自身分支，不得自批、推 master、SSH、部署、生产读写或访问 secrets）|
 
 **已退役**（drift-config.json `retired_clones` 显式记录，避免漂移报告误报）：
 - `agent/claude`：Claude Code 2026-07-25 退役，分支冻结
